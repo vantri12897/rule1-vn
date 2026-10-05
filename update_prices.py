@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import socket
 import sys
 import time
 from datetime import date, datetime, timedelta, timezone
@@ -26,6 +27,7 @@ from pathlib import Path
 import pandas as pd
 
 VN_TZ = timezone(timedelta(hours=7))
+socket.setdefaulttimeout(30)  # không để một lần gọi mạng treo vô thời hạn
 SOURCES = ("kbs", "vci")
 
 
@@ -148,8 +150,8 @@ def main():
                 break
         if i % 50 == 0 or i == len(tickers):
             print(f"[{i}/{len(tickers)}] thành công {ok}, lỗi {len(fail)} ({(time.time()-t0)/60:.1f} phút)", flush=True)
-        if i % 100 == 0:
-            save(out, prices, {"updated": started, "partial": True})
+        if i % 25 == 0:
+            save(out, prices, {"updated": started, "partial": True, "progress": f"{i}/{len(tickers)}", "ok": ok, "failed": fail})
         time.sleep(a.sleep)
 
     session = max(trade_dates, key=trade_dates.get) if trade_dates else None
