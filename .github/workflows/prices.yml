@@ -1,0 +1,55 @@
+name: Cập nhật giá hàng ngày
+
+on:
+  schedule:
+    # 09:30 UTC = 16:30 giờ Việt Nam, thứ Hai đến thứ Sáu (sau khi thị trường đóng cửa 15:00)
+    - cron: "30 9 * * 1-5"
+  workflow_dispatch: {}   # cho phép bấm "Run workflow" để chạy tay
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cài vnstock
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
+
+      - name: Lấy giá đóng cửa
+        id: run
+        continue-on-error: true
+        run: python update_prices.py
+
+      - name: Lưu prices.json vào repo
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prices.json || true
+          if git diff --cached --quiet; then
+            echo "Không có thay đổi giá."
+          else
+            git commit -m "Cập nhật giá $(TZ=Asia/Ho_Chi_Minh date +'%Y-%m-%d %H:%M')"
+            git pull --rebase --autostash
+            git push
+          fi
+
+      - name: Báo lỗi nếu lấy giá thất bại
+        if: steps.run.outcome == 'failure'
+        run: |
+          echo "::error::Lấy giá thất bại hoặc dưới 50% mã cập nhật được. Website vẫn giữ giá của lần thành công gần nhất."
+          exit 1
