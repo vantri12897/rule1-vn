@@ -401,8 +401,10 @@ function bannerText(){
   if(PRICE_META){
     const n=DATA.filter(s=>s.priceDate).length;
     const up=PRICE_META.updated?String(PRICE_META.updated).replace('T',' ').slice(0,16):'';
-    t+=` Giá tự động: phiên ${fmtD(PRICE_META.session)} (cập nhật ${fmtD(up.slice(0,10))} ${up.slice(11)}), ${n} mã có giá mới.`;
-    const sd=PRICE_META.session?new Date(PRICE_META.session+'T00:00:00+07:00'):null;
+    let ses=PRICE_META.session;
+    if(!ses&&PRICES){const cnt={};Object.values(PRICES).forEach(q=>{if(q.d)cnt[q.d]=(cnt[q.d]||0)+1});ses=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]||(b>a?1:-1))[0]||null}
+    t+=` Giá tự động: phiên ${fmtD(ses)} (cập nhật ${fmtD(up.slice(0,10))} ${up.slice(11)}), ${n} mã có giá mới${PRICE_META.partial?`; đang cập nhật tiếp${PRICE_META.progress?' ('+PRICE_META.progress+' mã)':''}`:''}.`;
+    const sd=ses?new Date(ses+'T00:00:00+07:00'):null;
     if(sd&&(Date.now()-sd.getTime())/864e5>5)t+=' ⚠ Giá đã cũ hơn 5 ngày, lượt cập nhật tự động có thể đang lỗi.';
   }else t+=' Giá lấy theo file dữ liệu.';
   return t+' Ô thiếu hiển thị "—".';
