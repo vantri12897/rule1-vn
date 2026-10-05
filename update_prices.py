@@ -52,8 +52,9 @@ def read_tickers(path: Path) -> list[str]:
 
 def fetch_price(Quote, sym: str):
     """Trả về (giá đóng cửa VND, thanh khoản TB 20 phiên tỷ VND, ngày phiên, nguồn)."""
-    start = (date.today() - timedelta(days=45)).isoformat()
-    end = date.today().isoformat()
+    today = datetime.now(VN_TZ).date()  # máy chủ GitHub chạy giờ UTC, quy về giờ Việt Nam
+    start = (today - timedelta(days=45)).isoformat()
+    end = (today + timedelta(days=1)).isoformat()  # +1 ngày: có nguồn không tính ngày kết thúc
     last_err = None
     for src in SOURCES:
         try:
