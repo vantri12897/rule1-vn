@@ -4,7 +4,7 @@ on:
     inputs:
       symbols:
         description: "Mã cách nhau bằng dấu cách"
-        default: "FPT VCB PNJ DGC HPG"
+        default: "ACB"
 permissions:
   contents: write
 jobs:
@@ -17,6 +17,7 @@ jobs:
         with: {python-version: "3.12"}
       - run: pip install -q -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
       - run: python tools/diag_vci.py ${{ github.event.inputs.symbols }} || true
+      - run: python tools/diag_events.py || true
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
