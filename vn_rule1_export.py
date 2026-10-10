@@ -534,8 +534,8 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years, extras=No
     extras = extras or {}
     ttm_raw, ttm_period = ttm_net_income(extras.get("QIS"), rules)
     ttm_ni = r1(ttm_raw / d) if ttm_raw is not None else None
-    if ttm_period and int(ttm_period[:4]) < yrs[-1]:
-        ttm_ni, ttm_period = None, None  # dữ liệu quý cũ hơn BCTC năm → bỏ, dùng EPS năm
+    if ttm_period and int(ttm_period[:4]) * 4 + int(ttm_period[-1]) < yrs[-1] * 4 + 4:
+        ttm_ni, ttm_period = None, None  # quý cuối cũ hơn quý 4 của năm tài chính cuối → dùng EPS năm
     proceeds = {y: g("share_proceeds", y) for y in yrs}
     adj = adjusted_shares(yrs, shares_by_year(ratio), proceeds, bonus_events(extras.get("events")),
                           events_coverage(extras.get("events")), shares)
