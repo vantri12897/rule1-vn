@@ -228,7 +228,9 @@ const R1 = (() => {
     const score = keys.filter(k => big5[k][1] && big5[k][1].v != null && big5[k][1].v >= 0.10).length;
 
     // EPS gốc cho định giá: TTM (4 quý gần nhất, chia số CP hiện tại); thiếu thì dùng EPS năm gần nhất.
-    const epsA = eps[n - 1], epsT = s.ttmNI != null ? s.ttmNI * 1000 / sh : null;
+    // EPS năm và EPS TTM cùng chia số CP hiện tại để so sánh được với nhau và với giá hiện tại.
+    // Chuỗi EPS điều chỉnh (eps[]) chỉ dùng để tính tăng trưởng.
+    const epsA = L.ni * 1000 / sh, epsT = s.ttmNI != null ? s.ttmNI * 1000 / sh : null;
     const epsL = epsT != null ? epsT : epsA, epsSrc = epsT != null ? 'ttm' : 'year';
     const bvL = L.equity * 1000 / sh;
     const price = s.price, mcap = price * sh / 1000;
