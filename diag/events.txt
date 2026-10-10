@@ -1,0 +1,142 @@
+events sig: (*args: Any, **kwargs: Any) -> Any
+provider: <class 'vnstock.explorer.vci.company.Company'>
+    @optimize_execution("API")
+    @api_retry
+    @dynamic_method
+    def events(self, *args: Any, **kwargs: Any) -> Any:
+        """Retrieve company events."""
+        pass
+
+    @optimize_execution("VCI")
+    def events(self) -> pd.DataFrame:
+        """
+        Retrieve the company's events.
+
+        Returns:
+            pd.DataFrame: Company events.
+        """  # noqa: W293
+        data = self._fetch_events()
+
+        if not data:
+            return pd.DataFrame()
+
+        df = pd.DataFrame(data)
+
+        # Convert to snake_case
+        df.columns = [camel_to_snake(col) for col in df.columns]
+
+        # Drop unnecessary columns
+        cols_to_drop = [
+            col
+            for col in [
+                "organ_code",
+                "symbol",
+                "__typename",
+                "is_event",
+                "event",
+                "organ_name_en",
+                "organ_name_vi",
+            ]
+            if col in df.columns
+        ]
+        if cols_to_drop:
+            df = df.drop(columns=cols_to_drop)
+
+        # Convert date columns from timestamp to date string
+        date_columns = [
+            "public_date",
+            "issue_date",
+            "record_date",
+            "exright_date",
+            "display_date",
+        ]
+        for col in date_columns:
+            if col in df.columns:
+                if df[col].dtype in [int, float]:
+                    df[col] = pd.to_datetime(df[col], unit="ms").dt.strftime("%Y-%m-%d")
+                elif df[col].dtype == "object":
+                    # Try to parse ISO format dates
+                    try:
+                        df[col] = pd.to_datetime(df[col]).dt.strftime("%Y-%m-%d")
+                    except:  # noqa: E722
+                        pass
+
+        return df
+
+Đăng ký khoá API bản Cộng đồng: vnstocks.com/login → vnai.setup_api_key('key') | 📚 Tài liệu: vnstocks.com/docs | Chương trình Vnstock Sponsor: vnstocks.com/insiders-program
+
+== ACB events{}: rows=50 ISS=3 min_date=2023-08-10
+                                               event_title_vi  exercise_ratio exright_date public_date
+5   Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 13.0%            0.13   2026-06-15  2026-06-05
+33  Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 15.0%            0.15   2025-05-23  2025-05-16
+39  Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 15.0%            0.15   2024-05-31  2024-05-24
+
+== ACB events{'page_size': 500}: rows=50 ISS=3 min_date=2023-08-10
+                                               event_title_vi  exercise_ratio exright_date public_date
+5   Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 13.0%            0.13   2026-06-15  2026-06-05
+33  Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 15.0%            0.15   2025-05-23  2025-05-16
+39  Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 15.0%            0.15   2024-05-31  2024-05-24
+
+== ACB events{'limit': 500}: rows=50 ISS=3 min_date=2023-08-10
+                                               event_title_vi  exercise_ratio exright_date public_date
+5   Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 13.0%            0.13   2026-06-15  2026-06-05
+33  Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 15.0%            0.15   2025-05-23  2025-05-16
+39  Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 15.0%            0.15   2024-05-31  2024-05-24
+
+== ACB events{'size': 500}: rows=50 ISS=3 min_date=2023-08-10
+                                               event_title_vi  exercise_ratio exright_date public_date
+5   Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 13.0%            0.13   2026-06-15  2026-06-05
+33  Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 15.0%            0.15   2025-05-23  2025-05-16
+39  Phát hành cổ phiếu - Trả Cổ tức bằng Cổ phiếu tỉ lệ 15.0%            0.15   2024-05-31  2024-05-24
+
+== DGC events{}: rows=50 ISS=0 min_date=2024-07-03
+
+== DGC events{'page_size': 500}: rows=50 ISS=0 min_date=2024-07-03
+
+== DGC events{'limit': 500}: rows=50 ISS=0 min_date=2024-07-03
+
+== DGC events{'size': 500}: rows=50 ISS=0 min_date=2024-07-03
+
+== FPT events{}: rows=50 ISS=8 min_date=2024-10-14
+                                         event_title_vi  exercise_ratio exright_date public_date
+0      Phát hành cổ phiếu - Cổ phiếu thưởng tỉ lệ 10.0%         0.10000   2026-09-21  2026-09-16
+9   Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.1%         0.00135   2026-06-24  2026-06-29
+10  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00499   2026-06-24  2026-06-29
+29     Phát hành cổ phiếu - Cổ phiếu thưởng tỉ lệ 15.0%         0.15000   2025-07-21  2025-07-16
+40  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.2%         0.00225   2025-05-07  2025-05-12
+41  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00472   2025-05-07  2025-05-12
+47  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.2%         0.00227   2024-10-09  2024-10-14
+48  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00499   2024-10-09  2024-10-14
+
+== FPT events{'page_size': 500}: rows=50 ISS=8 min_date=2024-10-14
+                                         event_title_vi  exercise_ratio exright_date public_date
+0      Phát hành cổ phiếu - Cổ phiếu thưởng tỉ lệ 10.0%         0.10000   2026-09-21  2026-09-16
+9   Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.1%         0.00135   2026-06-24  2026-06-29
+10  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00499   2026-06-24  2026-06-29
+29     Phát hành cổ phiếu - Cổ phiếu thưởng tỉ lệ 15.0%         0.15000   2025-07-21  2025-07-16
+40  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.2%         0.00225   2025-05-07  2025-05-12
+41  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00472   2025-05-07  2025-05-12
+47  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.2%         0.00227   2024-10-09  2024-10-14
+48  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00499   2024-10-09  2024-10-14
+
+== FPT events{'limit': 500}: rows=50 ISS=8 min_date=2024-10-14
+                                         event_title_vi  exercise_ratio exright_date public_date
+0      Phát hành cổ phiếu - Cổ phiếu thưởng tỉ lệ 10.0%         0.10000   2026-09-21  2026-09-16
+9   Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.1%         0.00135   2026-06-24  2026-06-29
+10  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00499   2026-06-24  2026-06-29
+29     Phát hành cổ phiếu - Cổ phiếu thưởng tỉ lệ 15.0%         0.15000   2025-07-21  2025-07-16
+40  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.2%         0.00225   2025-05-07  2025-05-12
+41  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00472   2025-05-07  2025-05-12
+47  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.2%         0.00227   2024-10-09  2024-10-14
+48  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00499   2024-10-09  2024-10-14
+
+== FPT events{'size': 500}: rows=50 ISS=8 min_date=2024-10-14
+                                         event_title_vi  exercise_ratio exright_date public_date
+0      Phát hành cổ phiếu - Cổ phiếu thưởng tỉ lệ 10.0%         0.10000   2026-09-21  2026-09-16
+9   Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.1%         0.00135   2026-06-24  2026-06-29
+10  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00499   2026-06-24  2026-06-29
+29     Phát hành cổ phiếu - Cổ phiếu thưởng tỉ lệ 15.0%         0.15000   2025-07-21  2025-07-16
+40  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.2%         0.00225   2025-05-07  2025-05-12
+41  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00472   2025-05-07  2025-05-12
+47  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.2%         0.00227   2024-10-09  2024-10-14
+48  Phát hành cổ phiếu - Phát hành cho CBCNV tỉ lệ 0.5%         0.00499   2024-10-09  2024-10-14
