@@ -122,6 +122,12 @@ RULES = {
             (["co tuc", "da tra"], ["nhan", "received"]),
             (["dividends paid"], ["received"]),
         ]),
+        "share_proceeds": ("CF", "first", [
+            (["tien thu", "phat hanh co phieu"], ["trai phieu"]),
+            (["tien thu", "nhan von gop"], []),
+            (["proceeds from issue of shares"], []),
+            (["proceeds", "issuance of shares"], []),
+        ]),
     },
 }
 # Ngân hàng / bảo hiểm / chứng khoán: chỉ cần doanh thu, LNST, vốn chủ, cổ tức.
@@ -139,6 +145,7 @@ RULES_FIN = {
     "equity_total": RULES["CT"]["equity_total"],
     "nci": RULES["CT"]["nci"],
     "dividends": RULES["CT"]["dividends"],
+    "share_proceeds": RULES["CT"]["share_proceeds"],
 }
 
 
@@ -321,6 +328,14 @@ def ttm_net_income(qis: pd.DataFrame, rules: dict):
 NON_DILUTIVE = ("co phieu thuong", "bonus issue", "co tuc bang co phieu", "stock dividend")
 
 
+def events_coverage(ev: pd.DataFrame):
+    """VCI chỉ trả ~50 sự kiện gần nhất. Ngày sự kiện cũ nhất = mốc mà từ đó danh sách là đầy đủ."""
+    if ev is None or ev.empty or "public_date" not in ev.columns:
+        return None
+    d = pd.to_datetime(ev["public_date"], errors="coerce").dropna()
+    return d.min().date() if len(d) else None
+
+
 def bonus_events(ev: pd.DataFrame) -> list:
     """Các đợt cổ phiếu thưởng / cổ tức bằng cổ phiếu ĐÃ thực hiện: [(ngày GDKHQ, tỷ lệ)].
     Phát hành thu tiền (riêng lẻ, cho cổ đông hiện hữu, ESOP, chuyển đổi) KHÔNG nằm ở đây vì đó là pha loãng thật."""
@@ -360,25 +375,55 @@ def shares_by_year(ratio: pd.DataFrame) -> dict:
     return out
 
 
-def adjusted_shares(years, raw: dict, events: list, current: float) -> dict:
-    """Số cổ phiếu từng năm quy về cùng mặt bằng hiện tại:
-    raw_năm × Π(1 + tỷ lệ thưởng/cổ tức CP) của các đợt có GDKHQ SAU cuối năm đó.
-    Không có số liệu tin cậy → None (website sẽ dùng số cổ phiếu hiện tại như trước)."""
-    out = {}
-    for y in years:
-        r = raw.get(y)
-        if not r:
-            out[y] = None
-            continue
+PAR_VND = 10_000  # mệnh giá: dùng để quy tiền thu phát hành ra số cổ phiếu (ước lượng thận trọng)
+
+
+def adjusted_shares(years, raw: dict, proceeds: dict, events: list, coverage, current: float) -> dict:
+    """Số cổ phiếu từng năm quy về cùng mặt bằng (đã cộng ngược cổ phiếu thưởng / cổ tức bằng cổ phiếu).
+
+    Với mỗi năm t, phần cổ phiếu tăng thêm ΔS được tách thành:
+      - phát hành thu tiền ≈ tiền thu từ phát hành cổ phiếu (CF) ÷ mệnh giá → pha loãng thật, KHÔNG điều chỉnh;
+      - phần còn lại → cổ phiếu thưởng / cổ tức CP → điều chỉnh.
+    Quy theo mệnh giá cho ra số CP thu tiền lớn nhất có thể → nghiêng về thận trọng.
+    Năm nằm trong phạm vi lịch sự kiện VCI (~2 năm gần nhất) thì dùng tỷ lệ chính xác từ sự kiện.
+    Tỷ lệ tăng trưởng chỉ phụ thuộc các hệ số GIỮA các năm, nên sai lệch mặt bằng không ảnh hưởng CAGR."""
+    ys = [y for y in years if raw.get(y)]
+    if len(ys) < 2:
+        return {y: None for y in years}
+
+    def ev_factor(start, end):  # tích (1+k) của các đợt thưởng có GDKHQ trong (start, end]
         f = 1.0
         for d, k in events:
-            if d > date(y, 12, 31):
+            if start < d <= end:
                 f *= 1 + k
-        adj = r * f
-        # Chặn số liệu vô lý: số CP điều chỉnh không thể lớn hơn hiện tại quá 25%
-        # (trừ khi mua lại cổ phiếu lớn) hay nhỏ hơn 15% hiện tại.
-        out[y] = round(adj, 3) if current and 0.15 * current <= adj <= 1.25 * current else None
-    return out
+        return f
+
+    factor = {}  # hệ số của năm t: đưa số CP cuối năm t-1 lên mặt bằng cuối năm t
+    for prev, t in zip(ys, ys[1:]):
+        s0, s1 = raw[prev], raw[t]
+        start, end = date(prev, 12, 31), date(t, 12, 31)
+        if coverage and coverage <= start:
+            factor[t] = ev_factor(start, end)
+            continue
+        ds = s1 - s0
+        if ds <= 0:
+            factor[t] = 1.0  # không đổi hoặc mua lại cổ phiếu: không điều chỉnh
+            continue
+        cash = max(0.0, proceeds.get(t) or 0.0)       # tỷ VND
+        n_cash = min(ds, cash * 1e9 / PAR_VND / 1e6)  # triệu cp
+        factor[t] = 1 + (ds - n_cash) / s0
+    last = ys[-1]
+    f_post = ev_factor(date(last, 12, 31), date.today())  # thưởng sau năm tài chính cuối
+
+    out, f = {}, f_post
+    for y in reversed(ys):
+        out[y] = raw[y] * f
+        f *= factor.get(y, 1.0)
+    res = {}
+    for y in years:
+        v = out.get(y)
+        res[y] = round(v, 3) if v and current and 0.15 * current <= v <= 1.25 * current else None
+    return res
 
 
 def ratio_info(ratio: pd.DataFrame):
@@ -491,7 +536,9 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years, extras=No
     ttm_ni = r1(ttm_raw / d) if ttm_raw is not None else None
     if ttm_period and int(ttm_period[:4]) < yrs[-1]:
         ttm_ni, ttm_period = None, None  # dữ liệu quý cũ hơn BCTC năm → bỏ, dùng EPS năm
-    adj = adjusted_shares(yrs, shares_by_year(ratio), bonus_events(extras.get("events")), shares)
+    proceeds = {y: g("share_proceeds", y) for y in yrs}
+    adj = adjusted_shares(yrs, shares_by_year(ratio), proceeds, bonus_events(extras.get("events")),
+                          events_coverage(extras.get("events")), shares)
 
     rows = []
     for y in yrs:
