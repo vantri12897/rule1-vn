@@ -204,8 +204,12 @@ const R1 = (() => {
   function analyze(s, cfg, gOverride) {
     const ys = [...s.years].sort((a, b) => a.year - b.year);
     const n = ys.length, L = ys[n - 1], sh = s.shares; // shares: triệu cp; tiền: tỷ VND
-    const eps = ys.map(y => y.ni * 1000 / sh);
-    const bvps = ys.map(y => y.equity * 1000 / sh);
+    // Số CP từng năm đã điều chỉnh thưởng/cổ tức CP (pha loãng do phát hành thu tiền được giữ nguyên).
+    // Thiếu số liệu → dùng số CP hiện tại như cách cũ.
+    const shY = ys.map(y => y.sharesAdj > 0 ? y.sharesAdj : sh);
+    const adjYears = ys.filter(y => y.sharesAdj > 0).length;
+    const eps = ys.map((y, i) => y.ni * 1000 / shY[i]);
+    const bvps = ys.map((y, i) => y.equity * 1000 / shY[i]);
     const fcf = ys.map(y => (y.cfo != null && y.capex != null) ? y.cfo - Math.abs(y.capex) : null);
     const roic = ys.map(y => { const ic = y.equity + (y.debt || 0) - (y.cash || 0); return (y.ebit != null && ic > 0) ? y.ebit * (1 - cfg.tax) / ic : null; });
     const rev = ys.map(y => y.rev);
@@ -223,7 +227,10 @@ const R1 = (() => {
     const keys = fin ? ['rev', 'eps', 'bvps'] : ['roic', 'rev', 'eps', 'bvps', 'fcf'];
     const score = keys.filter(k => big5[k][1] && big5[k][1].v != null && big5[k][1].v >= 0.10).length;
 
-    const epsL = eps[n - 1], bvL = bvps[n - 1];
+    // EPS gốc cho định giá: TTM (4 quý gần nhất, chia số CP hiện tại); thiếu thì dùng EPS năm gần nhất.
+    const epsA = eps[n - 1], epsT = s.ttmNI != null ? s.ttmNI * 1000 / sh : null;
+    const epsL = epsT != null ? epsT : epsA, epsSrc = epsT != null ? 'ttm' : 'year';
+    const bvL = L.equity * 1000 / sh;
     const price = s.price, mcap = price * sh / 1000;
     const gE = cagr(eps, 5)?.v, gB = cagr(bvps, 5)?.v;
     const cands = [gE, gB, s.analystG].filter(v => v != null && isFinite(v));
@@ -245,7 +252,7 @@ const R1 = (() => {
     const divPS = L.div != null ? L.div * 1000 / sh : null;
     return {
       s, ys, eps, bvps, fcf, roic, margin, big5, score, maxScore: keys.length,
-      epsL, bvL, price, mcap, g, gAuto, gE, gB, st, status, pb, fcf0,
+      epsL, epsA, epsT, epsSrc, ttmPeriod: s.ttmPeriod || null, adjYears, bvL, price, mcap, g, gAuto, gE, gB, st, status, pb, fcf0,
       pe: epsL > 0 ? price / epsL : null, pb_: bvL > 0 ? price / bvL : null,
       roe: L.equity > 0 ? L.ni / L.equity : null,
       de: L.equity > 0 ? (L.debt || 0) / L.equity : null,
@@ -297,7 +304,7 @@ const SAMPLE=[
 
 /* ===== Trạng thái ===== */
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-let DATA=SAMPLE, isSample=true, DATA_SRC='', PRICES=null, PRICE_META=null, LOADING=false;
+let DATA=SAMPLE, isSample=true, DATA_SRC='', PRICES=null, PRICE_META=null, FMETA=null, LOADING=false;
 let M3=store.get('r1vn_3m',{}), GOV=store.get('r1vn_gov',{});
 let preset='all', sortKey='score', sortDir=-1, rows=[];
 const $=id=>document.getElementById(id);
@@ -305,7 +312,7 @@ const $=id=>document.getElementById(id);
 const COLS=[
  {k:'ticker',l:'Mã',cls:'tk'},{k:'exchange',l:'Sàn'},{k:'sector',l:'Ngành'},
  {k:'price',l:'Giá',n:1},{k:'mcap',l:'Vốn hóa (tỷ)',n:1},{k:'pe',l:'P/E',n:1},{k:'pb_',l:'P/B',n:1},
- {k:'roe',l:'ROE %',n:1},{k:'epsL',l:'EPS',n:1},{k:'score',l:'Big 5'},{k:'g',l:'g %',n:1},
+ {k:'roe',l:'ROE %',n:1},{k:'epsL',l:'EPS TTM',n:1},{k:'score',l:'Big 5'},{k:'g',l:'g %',n:1},
  {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
 ];
 
@@ -358,6 +365,12 @@ function pbCell(a,c){
   const y=a.pb.years;const k=y<=c.pbGood?'good':y<=c.pbWarn?'warn':'bad';
   return `<span class="pill p-${k}">${y>20?'>20':y} năm</span>`;
 }
+const ttmLbl=a=>a.epsSrc==='ttm'&&a.ttmPeriod?'TTM đến '+a.ttmPeriod.replace(/(\d{4})-Q(\d)/,'Q$2/$1'):'năm '+(a.ys[a.ys.length-1]?.year??'');
+function epsTag(a){
+  if(a.epsSrc!=='ttm')return `<span class="tag" title="Chưa có BCTC quý: đang dùng EPS năm ${a.ys[a.ys.length-1]?.year??''}">năm</span>`;
+  if(a.epsA>0&&a.epsT<a.epsA*.8)return `<span class="tag" title="EPS TTM thấp hơn EPS năm ${a.ys[a.ys.length-1].year} (${nf(a.epsA)}) hơn 20%">↓</span>`;
+  return '';
+}
 function statusPill(a){
   return a.status==='below'?'<span class="pill p-good">Dưới MOS</span>':a.status==='between'?'<span class="pill p-warn">Dưới Sticker</span>':a.status==='above'?'<span class="pill p-bad">Trên Sticker</span>':'<span class="pill p-na">N/A</span>';
 }
@@ -375,7 +388,7 @@ function render(){
   $('tbody').innerHTML=list.length?list.map(a=>`<tr data-t="${esc(a.ticker)}">
     <td class="tk">${esc(a.ticker)}${a.s.financial?'<span class="tag">TC</span>':''}</td><td>${esc(a.exchange)}</td><td>${esc(a.sector)}</td>
     <td class="n">${nf(a.price)}</td><td class="n">${nf(a.mcap)}</td><td class="n">${nf(a.pe,1)}</td><td class="n">${nf(a.pb_,2)}</td>
-    <td class="n">${pf(a.roe)}</td><td class="n">${nf(a.epsL)}</td><td>${dots(a)}</td>
+    <td class="n">${pf(a.roe)}</td><td class="n">${nf(a.epsL)}${epsTag(a)}</td><td>${dots(a)}</td>
     <td class="n">${a.g!=null?pf(a.g):'—'}${GOV[a.ticker]!=null?'<span class="tag">tay</span>':''}</td>
     <td class="n">${nf(a.sticker)}</td><td class="n">${nf(a.mos)}</td>
     <td class="n">${a.gap!=null?`<span class="${a.status==='below'?'c-good':a.status==='between'?'c-warn':'c-bad'}">${(a.gap>0?'+':'')+pf(a.gap,0)}</span>`:'—'}</td>
@@ -397,7 +410,8 @@ function bannerText(){
   if(LOADING)return 'Đang tải dữ liệu báo cáo tài chính và giá mới nhất…';
   if(isSample)return 'Đang hiển thị 10 mã GIẢ LẬP (công ty và số liệu hư cấu) để minh họa công thức. Nạp file CSV/JSON báo cáo tài chính thật để lọc thị trường thực.';
   const src=DATA_SRC==='auto'?'dữ liệu BCTC trên website':'file bạn nạp';
-  let t=`Đang dùng ${src}: ${DATA.length} mã.`;
+  let t=`Đang dùng ${src}: ${DATA.length} mã${DATA_SRC==='auto'&&FMETA&&FMETA.updated?` (BCTC cập nhật ${fmtD(String(FMETA.updated).slice(0,10))})`:''}.`;
+  const nT=DATA.filter(s=>s.ttmNI!=null).length;if(nT)t+=` EPS định giá theo TTM: ${nT} mã.`;
   if(PRICE_META){
     const n=DATA.filter(s=>s.priceDate).length;
     const up=PRICE_META.updated?String(PRICE_META.updated).replace('T',' ').slice(0,16):'';
@@ -413,6 +427,7 @@ async function autoLoad(){
   if(location.protocol==='file:'||location.protocol==='about:')return;
   const v='?v='+Date.now();
   try{const r=await fetch('prices.json'+v,{cache:'no-store'});if(r.ok){const j=await r.json();PRICES=j.prices||null;PRICE_META=j}}catch(e){}
+  try{const r=await fetch('fundamentals_meta.json'+v,{cache:'no-store'});if(r.ok)FMETA=await r.json()}catch(e){}
   LOADING=true;render();
   try{
     const r=await fetch('rule1_data.csv'+v,{cache:'no-store'});
@@ -435,6 +450,7 @@ function openDetail(t){
   const st=a.st;
   const stTxt=st.ok?`g              = ${pf(a.g,2)}  ${GOV[t]!=null?'(ghi đè thủ công)':`= min(EPS CAGR 5n ${pf(a.gE)}, BVPS CAGR 5n ${pf(a.gB)}${s.analystG!=null?', analyst '+pf(s.analystG):''}; trần ${pf(c.gCap,0)})`}
 P/E tương lai   = min(2 × g = ${nf(st.peByG,1)}, P/E TB lịch sử = ${s.avgPE?nf(s.avgPE,1):'—'}, trần ${c.peCap}) = ${nf(st.futurePE,1)}
+EPS hiện tại   = ${nf(a.epsL)}  (${ttmLbl(a)})
 EPS sau 10 năm = ${nf(a.epsL)} × (1 + ${pf(a.g,2)})^10 = ${nf(st.futureEPS)}
 Giá sau 10 năm = ${nf(st.futureEPS)} × ${nf(st.futurePE,1)} = ${nf(st.futurePrice)}
 Sticker Price  = ${nf(st.futurePrice)} ÷ (1 + ${pf(c.marr,1)})^10 = ${nf(st.sticker)}
@@ -452,14 +468,14 @@ Giá hiện tại   = ${nf(a.price)}  →  ${a.status==='below'?'DƯỚI MOS':a.
    <div class="dhead"><div><h2>${esc(t)} · ${esc(s.name)}</h2><span class="muted">${esc(s.exchange)} · ${esc(s.sector)}${s.financial?' · Nhóm tài chính: FCF, ROIC, Payback không áp dụng':''}</span></div><button id="closeD">Đóng</button></div>
    <div class="sec"><div class="kv">
     <div><span>Giá${s.priceDate?' (phiên '+fmtD(s.priceDate)+')':''}</span><span>${nf(a.price)}</span></div><div><span>Vốn hóa (tỷ)</span><span>${nf(a.mcap)}</span></div>
-    <div><span>EPS năm gần nhất</span><span>${nf(a.epsL)}</span></div><div><span>BVPS</span><span>${nf(a.bvL)}</span></div>
+    <div><span>EPS (${ttmLbl(a)})</span><span>${nf(a.epsL)}</span></div><div><span>EPS năm ${a.ys[a.ys.length-1].year}</span><span>${nf(a.epsA)}</span></div><div><span>BVPS</span><span>${nf(a.bvL)}</span></div>
     <div><span>P/E · P/B</span><span>${nf(a.pe,1)} · ${nf(a.pb_,2)}</span></div><div><span>ROE</span><span>${pf(a.roe)}</span></div>
     <div><span>Nợ vay/Vốn chủ</span><span>${nf(a.de,2)}</span></div><div><span>Nợ vay/EBIT</span><span>${nf(a.debtEbit,2)}</span></div>
     <div><span>Biên lãi ròng</span><span>${pf(a.netMargin)}</span></div><div><span>Tỷ suất cổ tức</span><span>${pf(a.divYield)}</span></div>
    </div></div>
    <div class="sec"><h3>Big 5 Numbers</h3><div class="tbl"><table><thead><tr><th>Chỉ số</th><th class="n">1 năm</th><th class="n">5 năm</th><th class="n">10 năm</th></tr></thead><tbody>
     ${s.financial?'':b5row('ROIC trung bình','roic')}${b5row('Tăng trưởng Doanh thu','rev')}${b5row('Tăng trưởng EPS','eps')}${b5row('Tăng trưởng BVPS (vốn chủ)','bvps')}${s.financial?'':b5row('Tăng trưởng FCF','fcf')}
-   </tbody></table></div><p class="note">Số trong ngoặc là số năm thực tế dùng để tính khi dữ liệu ngắn hơn mốc. Big 5 Score chấm ở mốc 5 năm: ${a.score}/${a.maxScore}.</p>
+   </tbody></table></div><p class="note">Số trong ngoặc là số năm thực tế dùng để tính khi dữ liệu ngắn hơn mốc. Big 5 Score chấm ở mốc 5 năm: ${a.score}/${a.maxScore}. EPS, BVPS từng năm ${a.adjYears?`tính trên số cổ phiếu đã điều chỉnh cổ phiếu thưởng/cổ tức bằng cổ phiếu (${a.adjYears}/${a.ys.length} năm có số liệu); phát hành thu tiền và ESOP được giữ nguyên như pha loãng thật`:'tính trên số cổ phiếu hiện tại (chưa có số cổ phiếu từng năm)'}.</p>
    <div class="charts">
     <div class="chart"><span class="muted">Doanh thu (tỷ)</span>${bars(a.ys.map(y=>y.rev),yr,v=>nf(v))}</div>
     <div class="chart"><span class="muted">EPS (VND)</span>${bars(a.eps,yr,v=>nf(v))}</div>
@@ -491,16 +507,16 @@ function closeDetail(){$('drawerRoot').hidden=true;$('drawerRoot').innerHTML=''}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDetail();closeModal()}});
 
 /* ===== Nhập / xuất ===== */
-const CSV_HEAD='ticker,name,exchange,sector,is_financial,price,shares_mil,avg_pe,adv_bn,analyst_g,year,revenue,net_income,equity,debt,cash,ebit,cfo,capex,dividends';
-function toCSV(data){const out=[CSV_HEAD];data.forEach(s=>s.years.forEach(y=>out.push([s.ticker,`"${s.name.replace(/"/g,'""')}"`,s.exchange,s.sector,s.financial?1:0,s.price,s.shares,s.avgPE??'',s.adv??'',s.analystG!=null?s.analystG*100:'',y.year,y.rev,y.ni,y.equity,y.debt,y.cash,y.ebit,y.cfo,y.capex,y.div].join(','))));return out.join('\n')}
+const CSV_HEAD='ticker,name,exchange,sector,is_financial,price,shares_mil,avg_pe,adv_bn,analyst_g,year,revenue,net_income,equity,debt,cash,ebit,cfo,capex,dividends,shares_adj,ttm_ni,ttm_period';
+function toCSV(data){const out=[CSV_HEAD];data.forEach(s=>s.years.forEach(y=>out.push([s.ticker,`"${s.name.replace(/"/g,'""')}"`,s.exchange,s.sector,s.financial?1:0,s.price,s.shares,s.avgPE??'',s.adv??'',s.analystG!=null?s.analystG*100:'',y.year,y.rev,y.ni,y.equity,y.debt,y.cash,y.ebit,y.cfo,y.capex,y.div,y.sharesAdj??'',s.ttmNI??'',s.ttmPeriod??''].join(','))));return out.join('\n')}
 function splitCSV(line){const r=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(q){if(ch==='"'&&line[i+1]==='"'){cur+='"';i++}else if(ch==='"')q=false;else cur+=ch}else if(ch==='"')q=true;else if(ch===','){r.push(cur);cur=''}else cur+=ch}r.push(cur);return r.map(x=>x.trim())}
 function parseCSV(text){
   const lines=text.replace(/^﻿/,'').split(/\r?\n/).filter(l=>l.trim());const h=splitCSV(lines[0]).map(x=>x.toLowerCase());
   const need=['ticker','price','shares_mil','year','revenue','net_income','equity'];const miss=need.filter(n=>!h.includes(n));if(miss.length)throw new Error('Thiếu cột: '+miss.join(', '));
   const num=v=>v===''||v==null?null:+String(v).replace(/\s/g,'');const map={};
   lines.slice(1).forEach(l=>{const c=splitCSV(l),o={};h.forEach((k,i)=>o[k]=c[i]);if(!o.ticker)return;const t=o.ticker.toUpperCase();
-    const s=map[t]||(map[t]={ticker:t,name:o.name||t,exchange:o.exchange||'HOSE',sector:o.sector||'Khác',financial:o.is_financial==='1'||/true/i.test(o.is_financial||''),price:num(o.price),shares:num(o.shares_mil),avgPE:num(o.avg_pe),adv:num(o.adv_bn),analystG:num(o.analyst_g)!=null?num(o.analyst_g)/100:null,years:[]});
-    s.years.push({year:+o.year,rev:num(o.revenue),ni:num(o.net_income),equity:num(o.equity),debt:num(o.debt)||0,cash:num(o.cash)||0,ebit:num(o.ebit),cfo:num(o.cfo),capex:num(o.capex),div:num(o.dividends)})});
+    const s=map[t]||(map[t]={ticker:t,name:o.name||t,exchange:o.exchange||'HOSE',sector:o.sector||'Khác',financial:o.is_financial==='1'||/true/i.test(o.is_financial||''),price:num(o.price),shares:num(o.shares_mil),avgPE:num(o.avg_pe),adv:num(o.adv_bn),analystG:num(o.analyst_g)!=null?num(o.analyst_g)/100:null,ttmNI:num(o.ttm_ni),ttmPeriod:o.ttm_period||null,years:[]});
+    s.years.push({year:+o.year,rev:num(o.revenue),ni:num(o.net_income),equity:num(o.equity),debt:num(o.debt)||0,cash:num(o.cash)||0,ebit:num(o.ebit),cfo:num(o.cfo),capex:num(o.capex),div:num(o.dividends),sharesAdj:num(o.shares_adj)})});
   return Object.values(map).filter(s=>s.price>0&&s.shares>0&&s.years.length>=2);
 }
 function loadText(text,name){
@@ -517,7 +533,7 @@ function copyBtn(){$('mCopy').onclick=async()=>{const ta=$('mText');try{await na
 
 $('fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const err=loadText(r.result,f.name);if(err){modal('Không nạp được file',esc(err),'','')}};r.readAsText(f,'utf-8');e.target.value=''};
 $('btnPaste').onclick=()=>{modal('Dán dữ liệu','Dán nội dung CSV (theo cột của CSV mẫu) hoặc JSON. Đơn vị: tiền tệ tỷ VND, giá VND, số cổ phiếu triệu cp, capex số dương.','', '<button class="primary" id="mLoad">Nạp</button>');$('mLoad').onclick=()=>{const err=loadText($('mText').value);if(err)$('mMsg').textContent=err}};
-$('btnTemplate').onclick=()=>{modal('CSV mẫu','Mỗi dòng là một năm của một mã. Bắt buộc: ticker, price, shares_mil, year, revenue, net_income, equity. Nên có: debt (nợ vay), cash, ebit, cfo (dòng tiền HĐKD), capex, dividends (cổ tức tiền mặt), avg_pe (P/E TB lịch sử), adv_bn (thanh khoản TB tỷ/phiên), analyst_g (%). Nội dung dưới đây là dữ liệu giả lập đang hiển thị.',toCSV(SAMPLE),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
+$('btnTemplate').onclick=()=>{modal('CSV mẫu','Mỗi dòng là một năm của một mã. Bắt buộc: ticker, price, shares_mil, year, revenue, net_income, equity. Nên có: debt (nợ vay), cash, ebit, cfo (dòng tiền HĐKD), capex, dividends (cổ tức tiền mặt), avg_pe (P/E TB lịch sử), adv_bn (thanh khoản TB tỷ/phiên), analyst_g (%), shares_adj (số cổ phiếu năm đó đã điều chỉnh thưởng/cổ tức CP, triệu cp), ttm_ni (LNST cổ đông mẹ 4 quý gần nhất, tỷ) và ttm_period (vd 2026-Q2). Nội dung dưới đây là dữ liệu giả lập đang hiển thị.',toCSV(SAMPLE),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
 $('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,Payback (năm),3M'];
   l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm'].join(',')));
   modal('Xuất kết quả',`${l.length} mã theo bộ lọc hiện tại. Sao chép rồi dán vào Excel hoặc Google Sheets (Dữ liệu → Tách văn bản thành cột theo dấu phẩy).`,lines.join('\n'),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};

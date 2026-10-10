@@ -26,6 +26,7 @@ import csv
 import json
 import math
 import re
+import socket
 import sys
 import time
 import traceback
@@ -259,6 +260,127 @@ def get_statements(Finance, sym: str, years: int):
     return out, ratio, com_type
 
 
+def get_extras(Finance, sym: str) -> dict:
+    """BCTC quý (để tính TTM) và lịch sự kiện phát hành (để điều chỉnh số cổ phiếu).
+    Lỗi ở đây không làm hỏng cả mã: trả về phần lấy được."""
+    out = {"QIS": pd.DataFrame(), "events": pd.DataFrame()}
+    try:
+        f = Finance(source="vci", symbol=sym, period="quarter", show_log=False)
+        try:
+            # VCI trả các quý TỪ CŨ ĐẾN MỚI theo limit → lấy dư để chắc chắn có quý gần nhất.
+            df = f._get_financial_report("income_statement", period="quarter", lang="vi", limit=80, dropna=False)
+        except TypeError:
+            df = f.income_statement(period="quarter", lang="vi", dropna=False)
+        if isinstance(df, pd.DataFrame):
+            out["QIS"] = df
+    except Exception as e:  # noqa: BLE001
+        out["QIS_err"] = f"{e.__class__.__name__}: {str(e)[:100]}"
+    try:
+        from vnstock import Company
+        ev = Company(source="vci", symbol=sym).events()
+        if isinstance(ev, pd.DataFrame):
+            out["events"] = ev
+    except Exception as e:  # noqa: BLE001
+        out["events_err"] = f"{e.__class__.__name__}: {str(e)[:100]}"
+    return out
+
+
+def quarter_cols(df: pd.DataFrame) -> dict:
+    """Map tên cột '2026-Q2' -> (2026, 2)."""
+    out = {}
+    for c in df.columns:
+        m = re.match(r"^\s*(\d{4})\s*-\s*Q([1-4])\s*$", str(c))
+        if m:
+            out[c] = (int(m.group(1)), int(m.group(2)))
+    return out
+
+
+def ttm_net_income(qis: pd.DataFrame, rules: dict):
+    """Tổng LNST cổ đông công ty mẹ 4 quý liên tiếp gần nhất (đơn vị thô của nguồn).
+    Trả về (giá trị, 'YYYY-Qn' của quý cuối) hoặc (None, None)."""
+    if qis is None or qis.empty:
+        return None, None
+    labels = label_series(qis)
+    i, _ = match_row(qis, labels, rules["net_income"][2], "first")
+    if i is None:
+        return None, None
+    pts = []
+    for c, (y, q) in quarter_cols(qis).items():
+        v = pd.to_numeric(qis.loc[i, c], errors="coerce")
+        if pd.notna(v):
+            pts.append((y * 4 + q - 1, float(v), f"{y}-Q{q}"))
+    pts.sort()
+    if len(pts) < 4:
+        return None, None
+    last4 = pts[-4:]
+    if last4[-1][0] - last4[0][0] != 3:  # phải là 4 quý liên tiếp
+        return None, None
+    return sum(p[1] for p in last4), last4[-1][2]
+
+
+NON_DILUTIVE = ("co phieu thuong", "bonus issue", "co tuc bang co phieu", "stock dividend")
+
+
+def bonus_events(ev: pd.DataFrame) -> list:
+    """Các đợt cổ phiếu thưởng / cổ tức bằng cổ phiếu ĐÃ thực hiện: [(ngày GDKHQ, tỷ lệ)].
+    Phát hành thu tiền (riêng lẻ, cho cổ đông hiện hữu, ESOP, chuyển đổi) KHÔNG nằm ở đây vì đó là pha loãng thật."""
+    if ev is None or ev.empty:
+        return []
+    out, today = [], date.today()
+    for _, r in ev.iterrows():
+        if str(r.get("event_code", "")).upper() != "ISS":
+            continue
+        title = norm(f"{r.get('event_title_vi', '')} {r.get('event_title_en', '')}")
+        if not any(has(title, k) for k in NON_DILUTIVE):
+            continue
+        ratio = pd.to_numeric(r.get("exercise_ratio"), errors="coerce")
+        d = pd.to_datetime(r.get("exright_date"), errors="coerce")
+        if pd.isna(ratio) or ratio <= 0 or ratio > 5 or pd.isna(d) or d.date() > today:
+            continue  # chưa có ngày GDKHQ = kế hoạch chưa thực hiện
+        out.append((d.date(), float(ratio)))
+    return sorted(set(out))
+
+
+def shares_by_year(ratio: pd.DataFrame) -> dict:
+    """Số cổ phiếu lưu hành cuối mỗi năm (triệu cp, CHƯA điều chỉnh) từ dòng ratio năm."""
+    if ratio is None or ratio.empty or "numberOfSharesMktCap" not in ratio.columns:
+        return {}
+    df = ratio
+    if "ratioType" in df.columns and (df["ratioType"] == "RATIO_YEAR").any():
+        df = df[df["ratioType"] == "RATIO_YEAR"]
+    elif "quarter" in df.columns:
+        df = df[pd.to_numeric(df["quarter"], errors="coerce") == 5]
+    ycol = "yearReport" if "yearReport" in df.columns else "year"
+    out = {}
+    for _, r in df.iterrows():
+        y = pd.to_numeric(r.get(ycol), errors="coerce")
+        v = pd.to_numeric(r.get("numberOfSharesMktCap"), errors="coerce")
+        if pd.notna(y) and pd.notna(v) and v > 0:
+            out[int(y)] = float(v) / 1e6 if v > 1e5 else float(v)
+    return out
+
+
+def adjusted_shares(years, raw: dict, events: list, current: float) -> dict:
+    """Số cổ phiếu từng năm quy về cùng mặt bằng hiện tại:
+    raw_năm × Π(1 + tỷ lệ thưởng/cổ tức CP) của các đợt có GDKHQ SAU cuối năm đó.
+    Không có số liệu tin cậy → None (website sẽ dùng số cổ phiếu hiện tại như trước)."""
+    out = {}
+    for y in years:
+        r = raw.get(y)
+        if not r:
+            out[y] = None
+            continue
+        f = 1.0
+        for d, k in events:
+            if d > date(y, 12, 31):
+                f *= 1 + k
+        adj = r * f
+        # Chặn số liệu vô lý: số CP điều chỉnh không thể lớn hơn hiện tại quá 25%
+        # (trừ khi mua lại cổ phiếu lớn) hay nhỏ hơn 15% hiện tại.
+        out[y] = round(adj, 3) if current and 0.15 * current <= adj <= 1.25 * current else None
+    return out
+
+
 def ratio_info(ratio: pd.DataFrame):
     """Số CP lưu hành (triệu) mới nhất và P/E trung bình lịch sử theo năm."""
     if ratio is None or ratio.empty:
@@ -343,7 +465,7 @@ def pick_divisor(eq_raw, price, shares_mil):
 # 3. Dựng bản ghi 1 mã
 # --------------------------------------------------------------------------
 
-def build_record(sym, meta, stmts, ratio, com_type, price, adv, years):
+def build_record(sym, meta, stmts, ratio, com_type, price, adv, years, extras=None):
     fin = com_type in ("NH", "BH", "CK")
     rules = RULES_FIN if fin else RULES["CT"]
     vals, used = extract(stmts, rules)
@@ -364,6 +486,13 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years):
         v = vals.get(field, {}).get(y)
         return default if v is None else v / d
 
+    extras = extras or {}
+    ttm_raw, ttm_period = ttm_net_income(extras.get("QIS"), rules)
+    ttm_ni = r1(ttm_raw / d) if ttm_raw is not None else None
+    if ttm_period and int(ttm_period[:4]) < yrs[-1]:
+        ttm_ni, ttm_period = None, None  # dữ liệu quý cũ hơn BCTC năm → bỏ, dùng EPS năm
+    adj = adjusted_shares(yrs, shares_by_year(ratio), bonus_events(extras.get("events")), shares)
+
     rows = []
     for y in yrs:
         eq = g("equity_total", y) - (g("nci", y, 0.0) or 0.0)
@@ -383,12 +512,14 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years):
             "cfo": None if fin else r1(g("cfo", y)),
             "capex": None if fin or capex is None else r1(abs(capex)),
             "dividends": None if div is None else r1(abs(div)),
+            "shares_adj": adj.get(y),
         })
     return {
         "ticker": sym, "name": meta.get("name", sym), "exchange": meta.get("exchange", ""),
         "sector": meta.get("sector", "Khác"), "is_financial": 1 if fin else 0,
         "price": round(price), "shares_mil": round(shares, 3), "avg_pe": avg_pe, "adv_bn": adv,
-        "analyst_g": None, "rows": rows, "mapping": used, "divisor": d, "com_type": com_type,
+        "analyst_g": None, "ttm_ni": ttm_ni, "ttm_period": ttm_period,
+        "rows": rows, "mapping": used, "divisor": d, "com_type": com_type,
     }
 
 
@@ -445,7 +576,7 @@ def load_universe(Listing, exchanges):
 # --------------------------------------------------------------------------
 CSV_COLS = ["ticker", "name", "exchange", "sector", "is_financial", "price", "shares_mil", "avg_pe",
             "adv_bn", "analyst_g", "year", "revenue", "net_income", "equity", "debt", "cash", "ebit",
-            "cfo", "capex", "dividends"]
+            "cfo", "capex", "dividends", "shares_adj", "ttm_ni", "ttm_period"]
 
 
 def write_csv(records, path):
@@ -456,7 +587,8 @@ def write_csv(records, path):
             for row in rec["rows"]:
                 w.writerow([rec["ticker"], rec["name"], rec["exchange"], rec["sector"], rec["is_financial"],
                             rec["price"], rec["shares_mil"], fmt(rec["avg_pe"]), fmt(rec["adv_bn"]),
-                            fmt(rec["analyst_g"])] + [fmt(row[c]) for c in CSV_COLS[10:]])
+                            fmt(rec["analyst_g"])] + [fmt(row.get(c)) for c in CSV_COLS[10:20]]
+                           + [fmt(row.get("shares_adj")), fmt(rec.get("ttm_ni")), fmt(rec.get("ttm_period"))])
 
 
 def fmt(v):
@@ -475,7 +607,10 @@ def inspect(Finance, Quote, sym, years):
     shares, avg_pe, mcap = ratio_info(ratio)
     print(f"\nRatio: cp lưu hành (triệu)={shares}, P/E TB={avg_pe}, cột ratio={list(ratio.columns)[:25]}")
     price, adv, psrc = price_info(Quote, sym, mcap, shares)
-    rec = build_record(sym, {"name": sym}, stmts, ratio, com_type, price, adv, years)
+    extras = get_extras(Finance, sym)
+    rec = build_record(sym, {"name": sym}, stmts, ratio, com_type, price, adv, years, extras)
+    print(f"\nTTM: {rec['ttm_ni']} tỷ (đến {rec['ttm_period']}); sự kiện thưởng/cổ tức CP: {bonus_events(extras.get('events'))}")
+    print("Số CP điều chỉnh theo năm:", {r['year']: r['shares_adj'] for r in rec['rows']}, "| hiện tại:", rec['shares_mil'])
     print(f"\nGiá={price} (nguồn {psrc}), thanh khoản TB={adv} tỷ, hệ số quy đổi tiền tệ = /{rec['divisor']:.0e}")
     print("Dòng BCTC đã khớp:")
     for k, v in rec["mapping"].items():
@@ -486,6 +621,7 @@ def inspect(Finance, Quote, sym, years):
 
 
 def main():
+    socket.setdefaulttimeout(60)  # không để một lần gọi mạng treo vô thời hạn
     ap = argparse.ArgumentParser(description="Xuất dữ liệu Rule #1 cho TTCK Việt Nam (vnstock)")
     ap.add_argument("--symbols", nargs="*", help="Danh sách mã, ví dụ FPT VNM DGC")
     ap.add_argument("--exchanges", nargs="*", default=[], help="HOSE HNX UPCOM")
@@ -532,7 +668,8 @@ def main():
             stmts, ratio, com_type = with_retry(lambda: get_statements(Finance, s, a.years), label=s)
             sh, _, mc = ratio_info(ratio)
             price, adv, psrc = price_info(Quote, s, mc, sh)
-            rec = build_record(s, meta.get(s, {"name": s}), stmts, ratio, com_type, price, adv, a.years)
+            extras = get_extras(Finance, s)
+            rec = build_record(s, meta.get(s, {"name": s}), stmts, ratio, com_type, price, adv, a.years, extras)
             cf.write_text(json.dumps(rec, ensure_ascii=False), encoding="utf-8")
             records.append(rec)
         except KeyboardInterrupt:
