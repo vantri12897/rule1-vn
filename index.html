@@ -84,6 +84,10 @@ th.tk{position:sticky;left:0;z-index:2}
 .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 .chart{display:flex;flex-direction:column;gap:4px;min-width:0}
 .chart svg{width:100%;height:80px;display:block}
+.nichart{display:flex;flex-direction:column;gap:6px;min-width:0}
+.nichart svg{display:block;max-width:100%;height:auto;overflow:visible}
+.nichart .bar{cursor:default}.nichart .bar:hover,.nichart .bar:focus{opacity:.78;outline:none}
+.nichart .sum{font-size:.82rem}.nichart details{font-size:.8rem}.nichart details table{margin-top:6px}
 .m3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .m3 fieldset{border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .m3 legend{font-weight:600;font-size:.85rem;padding:0 4px}
@@ -447,6 +451,36 @@ function bars(vals,labels,fmt){
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img"><line x1="0" x2="${W}" y1="${y0}" y2="${y0}" stroke="var(--line)"/>${v.map((x,i)=>{const h=Math.abs(x)/rg*(H-p*2);const y=x>=0?y0-h:y0;return`<rect x="${p+i*bw+1}" y="${y}" width="${bw-2}" height="${Math.max(h,.5)}" fill="${x<0?'var(--bad)':i===n-1?'var(--accent)':'var(--muted)'}" opacity="${i===n-1?1:.55}"><title>${labels[i]}: ${fmt(vals[i])}</title></rect>`}).join('')}</svg>`;
 }
 
+/* Biểu đồ LNST cổ đông công ty mẹ theo năm + TTM — chỉ để xem, không dùng trong công thức */
+function niChart(a){
+  const ys=a.ys, vals=ys.map(y=>y.ni);
+  const ttm=a.epsSrc==='ttm'&&a.s.ttmNI!=null?a.s.ttmNI:null;
+  const it=ys.map((y,i)=>({v:y.ni,l:String(y.year),ttm:false,prev:i>0?vals[i-1]:null}));
+  if(ttm!=null)it.push({v:ttm,l:'TTM',ttm:true,prev:vals[vals.length-1]});
+  const W=Math.round(Math.max(300,Math.min(740,(window.innerWidth||800)-72))),H=210,pl=6,pr=6,pt=24,pb=30;
+  const nums=it.map(x=>x.v??0),mx=Math.max(0,...nums),mn=Math.min(0,...nums),rg=(mx-mn)||1;
+  const ih=H-pt-pb,y0=pt+mx/rg*ih,n=it.length,slot=(W-pl-pr)/n,bw=Math.max(8,Math.min(46,slot-6));
+  const yoy=x=>x.prev>0&&x.v!=null?x.v/x.prev-1:null;
+  const lastYear=ys.length-1,labelIdx=new Set([0,lastYear]);if(ttm!=null)labelIdx.add(n-1);
+  const bars=it.map((x,i)=>{
+    const v=x.v??0,h=Math.abs(v)/rg*ih,cx=pl+slot*i+slot/2,x0=cx-bw/2,r=Math.min(4,h/2,bw/2);
+    const neg=v<0,top=neg?y0+h:y0-h;
+    const d=neg?`M${x0},${y0}V${top-r}Q${x0},${top} ${x0+r},${top}H${x0+bw-r}Q${x0+bw},${top} ${x0+bw},${top-r}V${y0}Z`
+               :`M${x0},${y0}V${top+r}Q${x0},${top} ${x0+r},${top}H${x0+bw-r}Q${x0+bw},${top} ${x0+bw},${top+r}V${y0}Z`;
+    const col=neg?'var(--bad)':'var(--accent)';
+    const sty=x.ttm?`fill="var(--accent-soft)" stroke="${col}" stroke-width="1.5" stroke-dasharray="4 3"`:`fill="${col}"`;
+    const g=yoy(x),tip=`${x.ttm?ttmLbl(a):'Năm '+x.l}: ${nf(x.v)} tỷ${g!=null?` · ${g>=0?'+':''}${pf(g)} so với ${x.ttm?'năm '+ys[lastYear].year:'năm trước'}`:''}`;
+    const lab=labelIdx.has(i)&&x.v!=null?`<text x="${cx}" y="${neg?top+14:top-6}" text-anchor="middle" font-size="12" fill="var(--ink)">${nf(x.v)}</text>`:'';
+    return `<g class="bar" tabindex="0"><title>${esc(tip)}</title><rect x="${pl+slot*i}" y="${pt-20}" width="${slot}" height="${H-pt-pb+40}" fill="transparent"/><path d="${d}" ${sty}/>${lab}<text x="${cx}" y="${H-10}" text-anchor="middle" font-size="12" fill="var(--muted)">${x.l}</text></g>`;
+  }).join('');
+  const svg=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Lợi nhuận sau thuế cổ đông công ty mẹ từ ${ys[0].year} đến ${ys[lastYear].year}${ttm!=null?' và TTM':''}"><line x1="0" x2="${W}" y1="${y0}" y2="${y0}" stroke="var(--line)"/>${bars}</svg>`;
+  const c=k=>{const r=R1.cagr(vals,k);return !r?'—':r.v==null?'— (năm gốc lỗ)':`${r.v>=0?'+':''}${pf(r.v)}/năm${r.k!==k?` (${r.k} năm)`:''}`};
+  const tg=ttm!=null&&vals[lastYear]>0?ttm/vals[lastYear]-1:null;
+  const sum=`Tăng trưởng LNST: ${ys.length-1} năm <b>${c(ys.length-1)}</b> · 5 năm <b>${c(5)}</b> · 1 năm <b>${c(1)}</b>${tg!=null?` · TTM so với ${ys[lastYear].year}: <b>${tg>=0?'+':''}${pf(tg)}</b>`:''}`;
+  const tbl=`<details><summary>Xem số liệu</summary><div class="tbl"><table><thead><tr><th>Kỳ</th><th class="n">LNST (tỷ)</th><th class="n">So với kỳ trước</th></tr></thead><tbody>${it.map(x=>{const g=yoy(x);return `<tr><td>${x.ttm?ttmLbl(a):x.l}</td><td class="n">${nf(x.v)}</td><td class="n ${g==null?'':g>=0?'c-good':'c-bad'}">${g==null?'—':(g>=0?'+':'')+pf(g)}</td></tr>`}).join('')}</tbody></table></div></details>`;
+  return `<div class="nichart"><span class="muted">Lợi nhuận sau thuế cổ đông công ty mẹ (tỷ VND)${ttm!=null?' · cột viền đứt = 4 quý gần nhất (TTM)':''}</span>${svg}<span class="sum">${sum}</span>${tbl}<span class="note">Chỉ để tham khảo, không dùng trong công thức Sticker/MOS. Dữ liệu năm có từ ${ys[0].year} (giới hạn của nguồn VCI).</span></div>`;
+}
+
 /* ===== Ngăn chi tiết ===== */
 function openDetail(t){
   const a=rows.find(r=>r.ticker===t);if(!a)return;const c=cfg(),s=a.s,m=M3[t]||{};
@@ -480,6 +514,7 @@ Giá hiện tại   = ${nf(a.price)}  →  ${a.status==='below'?'DƯỚI MOS':a.
    <div class="sec"><h3>Big 5 Numbers</h3><div class="tbl"><table><thead><tr><th>Chỉ số</th><th class="n">1 năm</th><th class="n">5 năm</th><th class="n">10 năm</th></tr></thead><tbody>
     ${s.financial?'':b5row('ROIC trung bình','roic')}${b5row('Tăng trưởng Doanh thu','rev')}${b5row('Tăng trưởng EPS','eps')}${b5row('Tăng trưởng BVPS (vốn chủ)','bvps')}${s.financial?'':b5row('Tăng trưởng FCF','fcf')}
    </tbody></table></div><p class="note">Số trong ngoặc là số năm thực tế dùng để tính khi dữ liệu ngắn hơn mốc. Big 5 Score chấm ở mốc 5 năm: ${a.score}/${a.maxScore}. EPS, BVPS từng năm ${a.adjYears?`tính trên số cổ phiếu đã điều chỉnh cổ phiếu thưởng/cổ tức bằng cổ phiếu (${a.adjYears}/${a.ys.length} năm có số liệu); phát hành thu tiền và ESOP được giữ nguyên như pha loãng thật`:'tính trên số cổ phiếu hiện tại (chưa có số cổ phiếu từng năm)'}.</p>
+   ${niChart(a)}
    <div class="charts">
     <div class="chart"><span class="muted">Doanh thu (tỷ)</span>${bars(a.ys.map(y=>y.rev),yr,v=>nf(v))}</div>
     <div class="chart"><span class="muted">EPS (VND)</span>${bars(a.eps,yr,v=>nf(v))}</div>
