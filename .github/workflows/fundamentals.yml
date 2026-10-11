@@ -1,6 +1,12 @@
 name: Cập nhật BCTC
 
 on:
+  schedule:
+    # Tự chạy 01:00 sáng Chủ nhật (giờ VN) mỗi tuần trong các tháng có BCTC mới:
+    # T1-T2 (BCTC quý 4), T3-T5 (BCTC năm kiểm toán, quý 1), T7-T8 (quý 2, bán niên), T10-T11 (quý 3).
+    - cron: "0 18 * 1,2,3,4,5,7,8,10,11 6"
+    # Các tháng còn lại (T6, T9, T12): chạy 1 lần vào ngày 1 để bắt báo cáo nộp muộn.
+    - cron: "0 18 1 6,9,12 *"
   workflow_dispatch:
     inputs:
       symbols:
@@ -17,7 +23,7 @@ concurrency:
 
 jobs:
   test:
-    if: github.event.inputs.symbols != ''
+    if: github.event_name == 'workflow_dispatch' && inputs.symbols != ''
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -37,7 +43,7 @@ jobs:
           git pull -q --rebase --autostash && git push -q
 
   fetch:
-    if: github.event.inputs.symbols == ''
+    if: github.event_name == 'schedule' || inputs.symbols == ''
     runs-on: ubuntu-latest
     timeout-minutes: 345
     strategy:
@@ -65,7 +71,7 @@ jobs:
 
   merge:
     needs: fetch
-    if: always() && github.event.inputs.symbols == ''
+    if: always() && (github.event_name == 'schedule' || inputs.symbols == '')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
