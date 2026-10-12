@@ -427,14 +427,20 @@ def adjusted_shares(years, raw: dict, proceeds: dict, events: list, coverage, cu
 
 
 def ratio_info(ratio: pd.DataFrame):
-    """Số CP lưu hành (triệu) mới nhất và P/E trung bình lịch sử theo năm."""
+    """Số CP lưu hành (triệu) mới nhất và P/E lịch sử theo năm (trung vị, tối đa 10 năm)."""
     if ratio is None or ratio.empty:
         return None, None, None
     df = ratio.copy()
-    if "lengthReport" in df.columns:
+    # Chỉ lấy dòng số liệu NĂM (VCI trả lẫn dòng TTM theo quý): ratioType = RATIO_YEAR / quarter = 5 / lengthReport = 5.
+    yearly = pd.DataFrame()
+    if "ratioType" in df.columns:
+        yearly = df[df["ratioType"].astype(str).str.upper() == "RATIO_YEAR"]
+    if yearly.empty and "lengthReport" in df.columns:
         yearly = df[pd.to_numeric(df["lengthReport"], errors="coerce") == 5]
-        if not yearly.empty:
-            df = yearly
+    if yearly.empty and "quarter" in df.columns:
+        yearly = df[pd.to_numeric(df["quarter"], errors="coerce") == 5]
+    if not yearly.empty:
+        df = yearly
     sort_cols = [c for c in ("yearReport", "lengthReport", "quarter") if c in df.columns]
     if sort_cols:
         df = df.sort_values(sort_cols)
@@ -456,7 +462,7 @@ def ratio_info(ratio: pd.DataFrame):
         pe = pd.to_numeric(df["pe"], errors="coerce")
         pe = pe[(pe > 0) & (pe < 100)].tail(10)
         if len(pe) >= 3:
-            avg_pe = round(float(pe.mean()), 2)
+            avg_pe = round(float(pe.median()), 2)  # trung vị: không bị vài năm lợi nhuận sụt (P/E rất cao) kéo lệch
     return shares, avg_pe, mcap
 
 

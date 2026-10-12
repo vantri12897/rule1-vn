@@ -71,6 +71,8 @@ th.tk{position:sticky;left:0;z-index:2}
 .dots i{width:8px;height:8px;border-radius:2px;background:var(--line)}
 .dots i.good{background:var(--good)} .dots i.warn{background:var(--warn)} .dots i.bad{background:var(--bad)}
 .tag{font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;font-weight:500}
+.tag.t-warn{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)} .tag.t-bad{color:var(--bad);border-color:var(--bad);background:var(--bad-soft)}
+.warnbox{background:var(--warn-soft);border-color:var(--warn);font-size:.85rem;gap:6px}
 /* drawer */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;justify-content:flex-end;z-index:20}
 .drawer{background:var(--bg);width:min(820px,100%);height:100%;overflow-y:auto;padding:0 16px 40px;padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
@@ -186,8 +188,9 @@ const R1 = (() => {
   function sticker(eps, g, avgPE, cfg) {
     if (!(eps > 0)) return {ok: false, reason: 'EPS ≤ 0'};
     if (g == null || !(g > 0)) return {ok: false, reason: 'Tăng trưởng g ≤ 0 hoặc thiếu'};
+    if (!(avgPE > 0)) return {ok: false, reason: 'Thiếu P/E lịch sử (cần ít nhất 3 năm có P/E dương)'};
     const peByG = 2 * g * 100;
-    const futurePE = Math.min(peByG, avgPE > 0 ? avgPE : Infinity, cfg.peCap);
+    const futurePE = Math.min(peByG, avgPE, cfg.peCap);
     const futureEPS = eps * Math.pow(1 + g, 10);
     const futurePrice = futureEPS * futurePE;
     const stickerP = futurePrice / Math.pow(1 + cfg.marr, 10);
@@ -363,7 +366,7 @@ function filtered(){
     if(f3==='pass'&&!m3pass(s.ticker))return false;
     if(f3==='rated'&&!m3rated(s.ticker))return false;
     if(f3==='unrated'&&m3rated(s.ticker))return false;
-    if(preset==='rule1'&&!(a.score>=4&&a.status==='below'&&(s.financial||(a.payback!=null&&a.payback<=c.pbGood))))return false;
+    if(preset==='rule1'&&!(a.score>=4&&a.status==='below'&&!isStale(a)&&(s.financial||(a.payback!=null&&a.payback<=c.pbGood))))return false;
     if(preset==='watch'&&!(a.score>=Math.min(4,a.maxScore)&&(a.status==='below'||a.status==='between')))return false;
     return true});
 }
@@ -374,10 +377,27 @@ function pbCell(a,c){
   return `<span class="pill p-${k}">${y>20?'>20':y} năm</span>`;
 }
 const ttmLbl=a=>a.epsSrc==='ttm'&&a.ttmPeriod?'TTM đến '+a.ttmPeriod.replace(/(\d{4})-Q(\d)/,'Q$2/$1'):'năm '+(a.ys[a.ys.length-1]?.year??'');
+/* Ngành chu kỳ: theo ngành ICB, cộng các mã thủy sản / vận tải biển nằm lẫn trong ngành rộng hơn */
+const CYCLICAL_SECTORS=new Set(['Tài nguyên Cơ bản','Hóa chất','Dầu khí','Bất động sản','Xây dựng và Vật liệu','Dịch vụ tài chính']);
+const CYCLICAL_TICKERS=new Set(['VHC','ANV','IDI','FMC','MPC','CMX','ACL','ABT','AAM','AGF','BLF','CAD','HVG','ICF','NGC','TS4','SEA','SPV','KHS','JOS','HAH','VOS','VTO','PVT','GSP','VIP','VNA','SKG','TCO','MVN','SWC','VSA','DXP','PVP']);
+const isCyclical=a=>CYCLICAL_SECTORS.has(a.sector)||CYCLICAL_TICKERS.has(a.ticker);
+const ttmSpike=a=>a.epsSrc==='ttm'&&a.epsT>0&&(a.epsA<=0||a.epsT>a.epsA*1.5);
+const staleDays=a=>{const ref=PRICE_META&&PRICE_META.session,d=a.s.priceDate;if(!ref||!d)return 0;return Math.round((new Date(ref)-new Date(d))/864e5)};
+const isStale=a=>staleDays(a)>30;
 function epsTag(a){
   if(a.epsSrc!=='ttm')return `<span class="tag" title="Chưa có BCTC quý: đang dùng EPS năm ${a.ys[a.ys.length-1]?.year??''}">năm</span>`;
   if(a.epsA>0&&a.epsT<a.epsA*.8)return `<span class="tag" title="EPS TTM thấp hơn EPS năm ${a.ys[a.ys.length-1].year} (${nf(a.epsA)}) hơn 20%">↓</span>`;
+  if(ttmSpike(a))return `<span class="tag t-warn" title="${a.epsA>0?`EPS TTM cao hơn EPS năm ${a.ys[a.ys.length-1].year} (${nf(a.epsA)}) hơn 50%`:`Năm ${a.ys[a.ys.length-1].year} lỗ, TTM có lãi`}: có thể là đỉnh chu kỳ hoặc lợi nhuận bất thường, Sticker/MOS dễ bị thổi phồng">↑</span>`;
   return '';
+}
+const cycTag=a=>isCyclical(a)?`<span class="tag t-warn" title="Ngành chu kỳ: lợi nhuận lên xuống theo chu kỳ kinh tế / giá hàng hóa / thị trường. Không ngoại suy từ đỉnh; prompt Bước 0: g định giá phải thấp hơn g lịch sử.">chu kỳ</span>`:'';
+const staleTag=a=>isStale(a)?`<span class="tag t-bad" title="Giao dịch gần nhất ${fmtD(a.s.priceDate)} (${staleDays(a)} ngày trước phiên ${fmtD(PRICE_META.session)}): có thể bị đình chỉ, hủy niêm yết hoặc không có thanh khoản. Giá không phản ánh thị trường hiện tại.">giá cũ</span>`:'';
+function warnBox(a){
+  const w=[];
+  if(isStale(a))w.push(`<b>Giá cũ:</b> giao dịch gần nhất ngày ${fmtD(a.s.priceDate)}, ${staleDays(a)} ngày trước phiên mới nhất. Mã có thể đang bị đình chỉ, hủy niêm yết hoặc không có thanh khoản; so sánh giá với MOS không còn ý nghĩa.`);
+  if(ttmSpike(a))w.push(`<b>Lợi nhuận TTM tăng đột biến:</b> EPS TTM ${nf(a.epsT)} so với EPS năm ${a.ys[a.ys.length-1].year} ${nf(a.epsA)}. Kiểm tra xem đây là đỉnh chu kỳ hay khoản lãi một lần trước khi tin Sticker/MOS.`);
+  if(isCyclical(a))w.push(`<b>Ngành chu kỳ (${esc(a.sector)}):</b> tăng trưởng lịch sử có thể đến từ chu kỳ. Theo prompt Bước 0, hãy dùng trung bình cả chu kỳ và g định giá thấp hơn g lịch sử (thử ghi đè g ở mục Sticker).`);
+  return w.length?`<div class="sec warnbox">${w.map(x=>`<p style="margin:0">⚠️ ${x}</p>`).join('')}</div>`:'';
 }
 function statusPill(a){
   return a.status==='below'?'<span class="pill p-good">Dưới MOS</span>':a.status==='between'?'<span class="pill p-warn">Dưới Sticker</span>':a.status==='above'?'<span class="pill p-bad">Trên Sticker</span>':'<span class="pill p-na">N/A</span>';
@@ -394,8 +414,8 @@ function render(){
   const total=rows.filter(a=>a.eligible).length;
   $('count').textContent=`${list.length} / ${total} mã đạt điều kiện`;
   $('tbody').innerHTML=list.length?list.map(a=>`<tr data-t="${esc(a.ticker)}">
-    <td class="tk">${esc(a.ticker)}${a.s.financial?'<span class="tag">TC</span>':''}</td><td>${esc(a.exchange)}</td><td>${esc(a.sector)}</td>
-    <td class="n">${nf(a.price)}</td><td class="n">${nf(a.mcap)}</td><td class="n">${nf(a.pe,1)}</td><td class="n">${nf(a.pb_,2)}</td>
+    <td class="tk">${esc(a.ticker)}${a.s.financial?'<span class="tag">TC</span>':''}</td><td>${esc(a.exchange)}</td><td>${esc(a.sector)}${cycTag(a)}</td>
+    <td class="n">${nf(a.price)}${staleTag(a)}</td><td class="n">${nf(a.mcap)}</td><td class="n">${nf(a.pe,1)}</td><td class="n">${nf(a.pb_,2)}</td>
     <td class="n">${pf(a.roe)}</td><td class="n">${nf(a.epsL)}${epsTag(a)}</td><td>${dots(a)}</td>
     <td class="n">${a.g!=null?pf(a.g):'—'}${GOV[a.ticker]!=null?'<span class="tag">tay</span>':''}</td>
     <td class="n">${nf(a.sticker)}</td><td class="n">${nf(a.mos)}</td>
@@ -487,7 +507,7 @@ function openDetail(t){
   const b5row=(lab,k,isAvg)=>`<tr><td>${lab}</td>${a.big5[k].map(x=>`<td class="n ${x&&x.v!=null?'c-'+cls10(x.v):''}">${x&&x.v!=null?pf(x.v):'—'}${x&&x.k&&x.v!=null?`<span class="muted" style="font-size:.7rem"> (${x.k}n)</span>`:''}</td>`).join('')}</tr>`;
   const st=a.st;
   const stTxt=st.ok?`g              = ${pf(a.g,2)}  ${GOV[t]!=null?'(ghi đè thủ công)':`= min(EPS CAGR 5n ${pf(a.gE)}, BVPS CAGR 5n ${pf(a.gB)}${s.analystG!=null?', analyst '+pf(s.analystG):''}; trần ${pf(c.gCap,0)})`}
-P/E tương lai   = min(2 × g = ${nf(st.peByG,1)}, P/E TB lịch sử = ${s.avgPE?nf(s.avgPE,1):'—'}, trần ${c.peCap}) = ${nf(st.futurePE,1)}
+P/E tương lai   = min(2 × g = ${nf(st.peByG,1)}, P/E lịch sử (trung vị) = ${s.avgPE?nf(s.avgPE,1):'—'}, trần ${c.peCap}) = ${nf(st.futurePE,1)}
 EPS hiện tại   = ${nf(a.epsL)}  (${ttmLbl(a)})
 EPS sau 10 năm = ${nf(a.epsL)} × (1 + ${pf(a.g,2)})^10 = ${nf(st.futureEPS)}
 Giá sau 10 năm = ${nf(st.futureEPS)} × ${nf(st.futurePE,1)} = ${nf(st.futurePrice)}
@@ -504,6 +524,7 @@ Giá hiện tại   = ${nf(a.price)}  →  ${a.status==='below'?'DƯỚI MOS':a.
   if(!s.financial)sigs.push(`${sig.negFcfYears} năm FCF âm trong 5 năm gần nhất.`);
   $('drawerRoot').innerHTML=`<div class="overlay" id="ov"><div class="drawer" role="dialog" aria-label="Chi tiết ${esc(t)}">
    <div class="dhead"><div><h2>${esc(t)} · ${esc(s.name)}</h2><span class="muted">${esc(s.exchange)} · ${esc(s.sector)}${s.financial?' · Nhóm tài chính: FCF, ROIC, Payback không áp dụng':''}</span></div><button id="closeD">Đóng</button></div>
+   ${warnBox(a)}
    <div class="sec"><div class="kv">
     <div><span>Giá${s.priceDate?' (phiên '+fmtD(s.priceDate)+')':''}</span><span>${nf(a.price)}</span></div><div><span>Vốn hóa (tỷ)</span><span>${nf(a.mcap)}</span></div>
     <div><span>EPS (${ttmLbl(a)})</span><span>${nf(a.epsL)}</span></div><div><span>EPS năm ${a.ys[a.ys.length-1].year}</span><span>${nf(a.epsA)}</span></div><div><span>BVPS</span><span>${nf(a.bvL)}</span></div>
