@@ -24,11 +24,11 @@ concurrency:
 jobs:
   test:
     if: github.event_name == 'workflow_dispatch' && inputs.symbols != ''
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with: {python-version: "3.12"}
       - run: pip install -q -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
       - run: |
@@ -44,22 +44,22 @@ jobs:
 
   fetch:
     if: github.event_name == 'schedule' || inputs.symbols == ''
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 345
     strategy:
       fail-fast: false
       matrix:
         exchange: [HOSE, HNX, UPCOM]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with: {python-version: "3.12"}
       - run: pip install -q -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
       - name: Lấy BCTC sàn ${{ matrix.exchange }}
         run: |
           python -u vn_rule1_export.py --exchanges ${{ matrix.exchange }} --out part_${{ matrix.exchange }}.csv --cache cache --sleep 0.5 --refresh
           [ -f rule1_errors.csv ] && mv rule1_errors.csv errors_${{ matrix.exchange }}.csv || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: part-${{ matrix.exchange }}
@@ -72,13 +72,13 @@ jobs:
   merge:
     needs: fetch
     if: always() && (github.event_name == 'schedule' || inputs.symbols == '')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with: {python-version: "3.12"}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: parts
           merge-multiple: true
