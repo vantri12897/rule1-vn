@@ -1,26 +1,19 @@
-name: Khảo sát dữ liệu (phát triển)
-on:
-  workflow_dispatch:
-    inputs:
-      symbols:
-        description: "Mã cách nhau bằng dấu cách"
-        default: "ACB"
-permissions:
-  contents: write
+name: Kiểm tra nâng cấp (tạm)
+on: {workflow_dispatch: {}}
 jobs:
-  diag:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+  up:
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with: {python-version: "3.12"}
-      - run: pip install -q -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
-      - run: python tools/diag_vci.py ${{ github.event.inputs.symbols }} || true
-      - run: python tools/diag_events.py || true
-      - run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diag
-          git commit -qm "Khảo sát dữ liệu VCI" || exit 0
-          git pull -q --rebase --autostash && git push -q
+      - run: python -c "import sys;print(sys.version)"; echo hello > part_X.csv
+      - uses: actions/upload-artifact@v7
+        with: {name: part-X, path: part_X.csv, retention-days: 1}
+  down:
+    needs: up
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v7
+        with: {path: parts, merge-multiple: true}
+      - run: ls -la parts && cat parts/part_X.csv
