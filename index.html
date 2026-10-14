@@ -197,6 +197,17 @@ const R1 = (() => {
     return {ok: true, peByG, futurePE, futureEPS, futurePrice, sticker: stickerP, mos: stickerP * cfg.mosPct};
   }
 
+  // Biến thể đúng nguyên văn Town / prompt: P/E tương lai = min(2g, P/E TRUNG BÌNH lịch sử), không trần.
+  function stickerTown(eps, g, peTown, cfg) {
+    if (!(eps > 0)) return {ok: false, reason: 'EPS ≤ 0'};
+    if (g == null || !(g > 0)) return {ok: false, reason: 'Tăng trưởng g ≤ 0 hoặc thiếu'};
+    if (!(peTown > 0)) return {ok: false, reason: 'Thiếu P/E trung bình lịch sử'};
+    const peByG = 2 * g * 100, futurePE = Math.min(peByG, peTown);
+    const futureEPS = eps * Math.pow(1 + g, 10), futurePrice = futureEPS * futurePE;
+    const stickerP = futurePrice / Math.pow(1 + cfg.marr, 10);
+    return {ok: true, peByG, futurePE, futureEPS, futurePrice, sticker: stickerP, mos: stickerP * cfg.mosPct};
+  }
+
   function payback(mcap, fcf0, g, maxYears = 30) {
     if (!(fcf0 > 0)) return {ok: false, reason: 'FCF ≤ 0'};
     const gg = g != null && g > 0 ? g : 0;
@@ -250,6 +261,7 @@ const R1 = (() => {
     const g = gOverride != null ? gOverride : gAuto;
 
     const st = sticker(epsL, g, s.avgPE, cfg);
+    const stT = stickerTown(epsL, g, s.peTown, cfg);
     let status = 'na';
     if (st.ok) status = price <= st.mos ? 'below' : price <= st.sticker ? 'between' : 'above';
 
@@ -263,7 +275,7 @@ const R1 = (() => {
     const divPS = L.div != null ? L.div * 1000 / sh : null;
     return {
       s, ys, eps, bvps, fcf, roic, margin, big5, score, maxScore: keys.length,
-      epsL, epsA, epsT, epsSrc, ttmPeriod: s.ttmPeriod || null, adjYears, bvL, price, mcap, g, gAuto, gE, gB, st, status, pb, fcf0,
+      stT, epsL, epsA, epsT, epsSrc, ttmPeriod: s.ttmPeriod || null, adjYears, bvL, price, mcap, g, gAuto, gE, gB, st, status, pb, fcf0,
       pe: epsL > 0 ? price / epsL : null, pb_: bvL > 0 ? price / bvL : null,
       roe: L.equity > 0 ? L.ni / L.equity : null,
       de: L.equity > 0 ? (L.debt || 0) / L.equity : null,
@@ -279,7 +291,7 @@ const R1 = (() => {
       nYears: n
     };
   }
-  return {cagr, avg, std, sticker, payback, analyze};
+  return {cagr, avg, std, sticker, stickerTown, payback, analyze};
 })();
 if (typeof module !== 'undefined') module.exports = R1;
 </script>
@@ -324,7 +336,7 @@ const COLS=[
  {k:'ticker',l:'Mã',cls:'tk'},{k:'exchange',l:'Sàn'},{k:'sector',l:'Ngành'},
  {k:'price',l:'Giá',n:1},{k:'mcap',l:'Vốn hóa (tỷ)',n:1},{k:'pe',l:'P/E',n:1},{k:'pb_',l:'P/B',n:1},
  {k:'roe',l:'ROE %',n:1},{k:'epsL',l:'EPS TTM',n:1},{k:'score',l:'Big 5'},{k:'g',l:'g %',n:1},
- {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
+ {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
 ];
 
 /* ===== Định dạng ===== */
@@ -340,7 +352,7 @@ function m3rated(t){const m=M3[t];return m&&(m.meaning||m.moatStr||m.mgmt)}
 function compute(){
   const c=cfg();
   rows=DATA.map(s=>{const a=R1.analyze(s,c,GOV[s.ticker]!=null?GOV[s.ticker]:null);
-    a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;
+    a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;
     a.payback=a.pb.ok?a.pb.years:null;a.ticker=s.ticker;a.exchange=s.exchange;a.sector=s.sector;a.m3=m3pass(s.ticker)?2:m3rated(s.ticker)?1:0;
     a.eligible=a.mcap>=c.capMin&&(s.adv==null||s.adv>=c.advMin)&&a.nYears>=c.yrMin;return a});
 }
@@ -420,6 +432,7 @@ function render(){
     <td class="n">${a.g!=null?pf(a.g):'—'}${GOV[a.ticker]!=null?'<span class="tag">tay</span>':''}</td>
     <td class="n">${nf(a.sticker)}</td><td class="n">${nf(a.mos)}</td>
     <td class="n">${a.gap!=null?`<span class="${a.status==='below'?'c-good':a.status==='between'?'c-warn':'c-bad'}">${(a.gap>0?'+':'')+pf(a.gap,0)}</span>`:'—'}</td>
+    <td class="n">${a.mosT!=null?`<span class="${a.price<=a.mosT?'c-good':'muted'}" title="P/E tương lai = min(2g ${nf(a.stT.peByG,1)}, P/E trung bình lịch sử ${nf(a.s.peTown,1)}) = ${nf(a.stT.futurePE,1)} — đúng công thức Town / prompt, không trần P/E">${nf(a.mosT)}</span>`:'—'}</td>
     <td class="n">${pbCell(a,c)}</td>
     <td>${a.m3===2?'<span class="pill p-good">Đạt</span>':a.m3===1?'<span class="pill p-warn">Chưa đạt</span>':'<span class="pill p-na">Chưa chấm</span>'}</td></tr>`).join('')
     :`<tr><td colspan="${COLS.length}" class="empty">Không mã nào qua bộ lọc hiện tại. Nới bộ lọc hoặc giảm MARR để mở rộng danh sách.</td></tr>`;
@@ -514,6 +527,10 @@ Giá sau 10 năm = ${nf(st.futureEPS)} × ${nf(st.futurePE,1)} = ${nf(st.futureP
 Sticker Price  = ${nf(st.futurePrice)} ÷ (1 + ${pf(c.marr,1)})^10 = ${nf(st.sticker)}
 MOS Price      = ${nf(st.sticker)} × ${pf(c.mosPct,0)} = ${nf(st.mos)}
 Giá hiện tại   = ${nf(a.price)}  →  ${a.status==='below'?'DƯỚI MOS':a.status==='between'?'giữa MOS và Sticker':'trên Sticker'}`:`Không tính được Sticker Price: ${st.reason}.`;
+  const sT=a.stT,stTTxt=sT.ok?`Theo đúng Town / prompt (P/E trung bình, không trần):
+P/E tương lai   = min(2 × g = ${nf(sT.peByG,1)}, P/E trung bình lịch sử = ${nf(s.peTown,1)}) = ${nf(sT.futurePE,1)}
+Sticker Price  = ${nf(sT.futureEPS)} × ${nf(sT.futurePE,1)} ÷ (1 + ${pf(c.marr,1)})^10 = ${nf(sT.sticker)}
+MOS Town       = ${nf(sT.sticker)} × ${pf(c.mosPct,0)} = ${nf(sT.mos)}  →  giá ${a.price<=sT.mos?'DƯỚI':'trên'} MOS Town`:`MOS Town: không tính được (${sT.reason}).`;
   const pbTxt=a.pb.ok?`<table><thead><tr><th>Năm</th><th class="n">FCF dự phóng (tỷ)</th><th class="n">Cộng dồn (tỷ)</th><th class="n">% vốn hóa</th></tr></thead><tbody>${a.pb.rows.slice(0,Math.min(a.pb.rows.length,20)).map(r=>`<tr><td>${r.n}</td><td class="n">${nf(r.f,1)}</td><td class="n">${nf(r.cum,1)}</td><td class="n ${r.cum>=a.mcap?'c-good':''}">${pf(r.cum/a.mcap,0)}</td></tr>`).join('')}</tbody></table>`:`<p class="muted">${a.pb.reason}.</p>`;
   const yr=a.ys.map(y=>y.year);
   const sig=a.signals, sigs=[];
@@ -544,7 +561,9 @@ Giá hiện tại   = ${nf(a.price)}  →  ${a.status==='below'?'DƯỚI MOS':a.
    </div><span class="note">${yr[0]}–${yr[yr.length-1]}; cột đậm là năm gần nhất, cột đỏ là giá trị âm.</span></div>
    <div class="sec"><h3>Sticker Price và MOS Price</h3>
     <div class="btns" style="align-items:flex-end"><label class="f" for="gOv">Ghi đè g (%)<input id="gOv" type="number" step="0.5" value="${GOV[t]!=null?(GOV[t]*100).toFixed(1):''}" placeholder="Tự động: ${a.gAuto!=null?(a.gAuto*100).toFixed(1):'—'}"></label><button id="gApply">Áp dụng</button><button id="gClear">Về tự động</button></div>
-    <div class="steps">${esc(stTxt)}</div></div>
+    <div class="steps">${esc(stTxt)}</div>
+    <div class="steps">${esc(stTTxt)}</div>
+    <p class="note">P/E lịch sử lấy từ P/E TTM cuối mỗi quý (VCI, từ 2018), bỏ quý lỗ và P/E &gt; 100. MOS = trung vị P/E, có trần ${c.peCap} (thận trọng). MOS Town = trung bình các P/E trung bình năm, không trần — khớp Bước 6.1 trong prompt Payback Time.</p></div>
    <div class="sec"><h3>Payback Time</h3>${a.pb.ok?`<p style="margin:0">Vốn hóa ${nf(a.mcap)} tỷ. FCF gốc ${nf(a.fcf0,1)} tỷ (${c.fcfMode==='avg3'?'TB 3 năm':'năm gần nhất'}), tăng ${pf(a.pb.g)}/năm. Hoàn vốn sau <b>${a.pb.years>30?'hơn 30':a.pb.years} năm</b>.</p>`:''}<div class="tbl">${pbTxt}</div></div>
    <div class="sec"><h3>3M — đánh giá của bạn</h3>
     <div class="m3">
@@ -567,15 +586,15 @@ function closeDetail(){$('drawerRoot').hidden=true;$('drawerRoot').innerHTML=''}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDetail();closeModal()}});
 
 /* ===== Nhập / xuất ===== */
-const CSV_HEAD='ticker,name,exchange,sector,is_financial,price,shares_mil,avg_pe,adv_bn,analyst_g,year,revenue,net_income,equity,debt,cash,ebit,cfo,capex,dividends,shares_adj,ttm_ni,ttm_period';
-function toCSV(data){const out=[CSV_HEAD];data.forEach(s=>s.years.forEach(y=>out.push([s.ticker,`"${s.name.replace(/"/g,'""')}"`,s.exchange,s.sector,s.financial?1:0,s.price,s.shares,s.avgPE??'',s.adv??'',s.analystG!=null?s.analystG*100:'',y.year,y.rev,y.ni,y.equity,y.debt,y.cash,y.ebit,y.cfo,y.capex,y.div,y.sharesAdj??'',s.ttmNI??'',s.ttmPeriod??''].join(','))));return out.join('\n')}
+const CSV_HEAD='ticker,name,exchange,sector,is_financial,price,shares_mil,avg_pe,adv_bn,analyst_g,year,revenue,net_income,equity,debt,cash,ebit,cfo,capex,dividends,shares_adj,ttm_ni,ttm_period,pe_town';
+function toCSV(data){const out=[CSV_HEAD];data.forEach(s=>s.years.forEach(y=>out.push([s.ticker,`"${s.name.replace(/"/g,'""')}"`,s.exchange,s.sector,s.financial?1:0,s.price,s.shares,s.avgPE??'',s.adv??'',s.analystG!=null?s.analystG*100:'',y.year,y.rev,y.ni,y.equity,y.debt,y.cash,y.ebit,y.cfo,y.capex,y.div,y.sharesAdj??'',s.ttmNI??'',s.ttmPeriod??'',s.peTown??''].join(','))));return out.join('\n')}
 function splitCSV(line){const r=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(q){if(ch==='"'&&line[i+1]==='"'){cur+='"';i++}else if(ch==='"')q=false;else cur+=ch}else if(ch==='"')q=true;else if(ch===','){r.push(cur);cur=''}else cur+=ch}r.push(cur);return r.map(x=>x.trim())}
 function parseCSV(text){
   const lines=text.replace(/^﻿/,'').split(/\r?\n/).filter(l=>l.trim());const h=splitCSV(lines[0]).map(x=>x.toLowerCase());
   const need=['ticker','price','shares_mil','year','revenue','net_income','equity'];const miss=need.filter(n=>!h.includes(n));if(miss.length)throw new Error('Thiếu cột: '+miss.join(', '));
   const num=v=>v===''||v==null?null:+String(v).replace(/\s/g,'');const map={};
   lines.slice(1).forEach(l=>{const c=splitCSV(l),o={};h.forEach((k,i)=>o[k]=c[i]);if(!o.ticker)return;const t=o.ticker.toUpperCase();
-    const s=map[t]||(map[t]={ticker:t,name:o.name||t,exchange:o.exchange||'HOSE',sector:o.sector||'Khác',financial:o.is_financial==='1'||/true/i.test(o.is_financial||''),price:num(o.price),shares:num(o.shares_mil),avgPE:num(o.avg_pe),adv:num(o.adv_bn),analystG:num(o.analyst_g)!=null?num(o.analyst_g)/100:null,ttmNI:num(o.ttm_ni),ttmPeriod:o.ttm_period||null,years:[]});
+    const s=map[t]||(map[t]={ticker:t,name:o.name||t,exchange:o.exchange||'HOSE',sector:o.sector||'Khác',financial:o.is_financial==='1'||/true/i.test(o.is_financial||''),price:num(o.price),shares:num(o.shares_mil),avgPE:num(o.avg_pe),adv:num(o.adv_bn),analystG:num(o.analyst_g)!=null?num(o.analyst_g)/100:null,ttmNI:num(o.ttm_ni),ttmPeriod:o.ttm_period||null,peTown:num(o.pe_town),years:[]});
     s.years.push({year:+o.year,rev:num(o.revenue),ni:num(o.net_income),equity:num(o.equity),debt:num(o.debt)||0,cash:num(o.cash)||0,ebit:num(o.ebit),cfo:num(o.cfo),capex:num(o.capex),div:num(o.dividends),sharesAdj:num(o.shares_adj)})});
   return Object.values(map).filter(s=>s.price>0&&s.shares>0&&s.years.length>=2);
 }

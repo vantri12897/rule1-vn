@@ -426,6 +426,32 @@ def adjusted_shares(years, raw: dict, proceeds: dict, events: list, coverage, cu
     return res
 
 
+def pe_history(ratio: pd.DataFrame):
+    """P/E lịch sử từ P/E TTM cuối mỗi quý của VCI (4 điểm/năm, từ 2018).
+    (P/E dòng RATIO_YEAR của VCI có nhiều giá trị lệch bất thường nên không dùng.)
+    Bỏ P/E ≤ 0 (lỗ) và > 100 (lợi nhuận gần bằng 0 nên P/E vô nghĩa).
+    Trả về (trung vị mọi quý, trung bình cộng các P/E trung bình năm [kiểu Town], số năm)."""
+    if ratio is None or ratio.empty or "pe" not in ratio.columns:
+        return None, None, 0
+    df = ratio
+    if "ratioType" in df.columns and (df["ratioType"].astype(str).str.upper() == "RATIO_TTM").any():
+        df = df[df["ratioType"].astype(str).str.upper() == "RATIO_TTM"]
+    elif "quarter" in df.columns:
+        df = df[pd.to_numeric(df["quarter"], errors="coerce").between(1, 4)]
+    ycol = "yearReport" if "yearReport" in df.columns else ("year" if "year" in df.columns else None)
+    if ycol is None:
+        return None, None, 0
+    d = pd.DataFrame({"y": pd.to_numeric(df[ycol], errors="coerce"), "pe": pd.to_numeric(df["pe"], errors="coerce")}).dropna()
+    d = d[(d.pe > 0) & (d.pe < 100)]
+    if d.empty:
+        return None, None, 0
+    d = d[d.y >= d.y.max() - 9]  # tối đa 10 năm gần nhất
+    yearly = d.groupby("y").pe.mean()
+    if len(yearly) < 3:
+        return None, None, len(yearly)
+    return round(float(d.pe.median()), 2), round(float(yearly.mean()), 2), len(yearly)
+
+
 def ratio_info(ratio: pd.DataFrame):
     """Số CP lưu hành (triệu) mới nhất và P/E lịch sử theo năm (trung vị, tối đa 10 năm)."""
     if ratio is None or ratio.empty:
@@ -457,8 +483,8 @@ def ratio_info(ratio: pd.DataFrame):
         m = pd.to_numeric(rs["marketCap"], errors="coerce").dropna()
         if len(m):
             mcap = float(m.iloc[-1])
-    avg_pe = None
-    if "pe" in df.columns:
+    avg_pe = pe_history(ratio)[0]
+    if avg_pe is None and "pe" in df.columns:  # dự phòng: không có dòng TTM theo quý
         pe = pd.to_numeric(df["pe"], errors="coerce")
         pe = pe[(pe > 0) & (pe < 100)].tail(10)
         if len(pe) >= 3:
@@ -571,7 +597,7 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years, extras=No
         "ticker": sym, "name": meta.get("name", sym), "exchange": meta.get("exchange", ""),
         "sector": meta.get("sector", "Khác"), "is_financial": 1 if fin else 0,
         "price": round(price), "shares_mil": round(shares, 3), "avg_pe": avg_pe, "adv_bn": adv,
-        "analyst_g": None, "ttm_ni": ttm_ni, "ttm_period": ttm_period,
+        "analyst_g": None, "ttm_ni": ttm_ni, "ttm_period": ttm_period, "pe_town": pe_history(ratio)[1],
         "rows": rows, "mapping": used, "divisor": d, "com_type": com_type,
     }
 
@@ -629,7 +655,7 @@ def load_universe(Listing, exchanges):
 # --------------------------------------------------------------------------
 CSV_COLS = ["ticker", "name", "exchange", "sector", "is_financial", "price", "shares_mil", "avg_pe",
             "adv_bn", "analyst_g", "year", "revenue", "net_income", "equity", "debt", "cash", "ebit",
-            "cfo", "capex", "dividends", "shares_adj", "ttm_ni", "ttm_period"]
+            "cfo", "capex", "dividends", "shares_adj", "ttm_ni", "ttm_period", "pe_town"]
 
 
 def write_csv(records, path):
@@ -641,7 +667,8 @@ def write_csv(records, path):
                 w.writerow([rec["ticker"], rec["name"], rec["exchange"], rec["sector"], rec["is_financial"],
                             rec["price"], rec["shares_mil"], fmt(rec["avg_pe"]), fmt(rec["adv_bn"]),
                             fmt(rec["analyst_g"])] + [fmt(row.get(c)) for c in CSV_COLS[10:20]]
-                           + [fmt(row.get("shares_adj")), fmt(rec.get("ttm_ni")), fmt(rec.get("ttm_period"))])
+                           + [fmt(row.get("shares_adj")), fmt(rec.get("ttm_ni")), fmt(rec.get("ttm_period")),
+                              fmt(rec.get("pe_town"))])
 
 
 def fmt(v):
