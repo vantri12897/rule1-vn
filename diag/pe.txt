@@ -1,0 +1,31 @@
+
+[vnstock] Thư viện gửi số liệu đo lường tuỳ chọn (tên hàm, thời gian chạy, lỗi) để cải thiện sản phẩm.
+          Không thu thập giá trị tham số bạn truyền vào, gồm mã chứng khoán và khoảng thời gian tra cứu.
+          Tắt: đặt VNSTOCK_TELEMETRY=off hoặc gọi vnai.disable_telemetry()
+          Chi tiết: https://vnstocks.com/onboard/chinh-sach-quyen-rieng-tu
+Đăng ký khoá API bản Cộng đồng: vnstocks.com/login → vnai.setup_api_key('key') | 📚 Tài liệu: vnstocks.com/docs | Chương trình Vnstock Sponsor: vnstocks.com/insiders-program
+FPT TTM rows 33 years 2018 - 2026 | YEAR rows 8 2018 - 2025
+yearReport  2018   2019   2020   2021   2022   2023   2024   2025   2026
+count       4.00   4.00   4.00   3.00   4.00   4.00   4.00   4.00   2.00
+mean        9.15  12.06  14.31  21.64  17.15  20.11  26.73  18.33  11.47
+{2018: 23.92, 2019: 22.11, 2020: 20.61, 2021: 16.09, 2022: 19.85, 2023: 29.96, 2024: 17.94, 2025: 10.23}
+CTG TTM rows 33 years 2018 - 2026 | YEAR rows 8 2018 - 2025
+yearReport   2018   2019  2020  2021  2022  2023  2024  2025  2026
+count        4.00   4.00   4.0  3.00  4.00  4.00   4.0  4.00  2.00
+mean        11.63  12.97  10.0  9.72  8.76  8.89   8.8  9.11  6.16
+{2018: 29.35, 2019: 15.47, 2020: 11.57, 2021: 10.79, 2022: 9.01, 2023: 11.74, 2024: 8.64, 2025: 7.24}
+HPG TTM rows 33 years 2018 - 2026 | YEAR rows 8 2018 - 2025
+yearReport  2018  2019  2020  2021  2022   2023  2024   2025  2026
+count       4.00  4.00   4.0  3.00  4.00   4.00   4.0   4.00  2.00
+mean        8.29  8.15  11.8  7.64  7.01  66.92  15.6  15.12  8.22
+{2018: 13.64, 2019: 20.33, 2020: 11.79, 2021: 2.41, 2022: 19.25, 2023: 23.86, 2024: 14.34, 2025: 10.26}
+VCB TTM rows 33 years 2018 - 2026 | YEAR rows 8 2018 - 2025
+yearReport   2018  2019   2020   2021   2022   2023   2024   2025   2026
+count        4.00   4.0   4.00   3.00   4.00   4.00   4.00   4.00   2.00
+mean        17.65  17.0  19.07  18.62  14.19  15.38  14.99  15.72  12.53
+{2018: 29.54, 2019: 22.77, 2020: 18.19, 2021: 15.08, 2022: 14.28, 2023: 16.75, 2024: 10.33, 2025: 13.37}
+DGC TTM rows 32 years 2018 - 2026 | YEAR rows 8 2018 - 2025
+yearReport  2018  2019  2020  2021  2022  2023   2024  2025  2026
+count       4.00  4.00  4.00   2.0  4.00  4.00   4.00  4.00  2.00
+mean        8.41  4.66  9.29  15.4  5.86  9.73  13.98  9.74  6.26
+{2018: 18.78, 2019: 34.6, 2020: 27.74, 2021: 4.46, 2022: 6.81, 2023: 15.19, 2024: 9.27, 2025: 4.43}
