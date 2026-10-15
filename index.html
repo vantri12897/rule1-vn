@@ -336,7 +336,7 @@ const COLS=[
  {k:'ticker',l:'Mã',cls:'tk'},{k:'exchange',l:'Sàn'},{k:'sector',l:'Ngành'},
  {k:'price',l:'Giá',n:1},{k:'mcap',l:'Vốn hóa (tỷ)',n:1},{k:'pe',l:'P/E',n:1},{k:'pb_',l:'P/B',n:1},
  {k:'roe',l:'ROE %',n:1},{k:'epsL',l:'EPS TTM',n:1},{k:'score',l:'Big 5'},{k:'g',l:'g %',n:1},
- {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
+ {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
 ];
 
 /* ===== Định dạng ===== */
@@ -352,7 +352,7 @@ function m3rated(t){const m=M3[t];return m&&(m.meaning||m.moatStr||m.mgmt)}
 function compute(){
   const c=cfg();
   rows=DATA.map(s=>{const a=R1.analyze(s,c,GOV[s.ticker]!=null?GOV[s.ticker]:null);
-    a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;
+    a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;a.gapT=a.mosT?a.price/a.mosT-1:null;a.statusT=a.stT.ok?(a.price<=a.stT.mos?'below':a.price<=a.stT.sticker?'between':'above'):'na';
     a.payback=a.pb.ok?a.pb.years:null;a.ticker=s.ticker;a.exchange=s.exchange;a.sector=s.sector;a.m3=m3pass(s.ticker)?2:m3rated(s.ticker)?1:0;
     a.eligible=a.mcap>=c.capMin&&(s.adv==null||s.adv>=c.advMin)&&a.nYears>=c.yrMin;return a});
 }
@@ -433,6 +433,7 @@ function render(){
     <td class="n">${nf(a.sticker)}</td><td class="n">${nf(a.mos)}</td>
     <td class="n">${a.gap!=null?`<span class="${a.status==='below'?'c-good':a.status==='between'?'c-warn':'c-bad'}">${(a.gap>0?'+':'')+pf(a.gap,0)}</span>`:'—'}</td>
     <td class="n">${a.mosT!=null?`<span class="${a.price<=a.mosT?'c-good':'muted'}" title="P/E tương lai = min(2g ${nf(a.stT.peByG,1)}, P/E trung bình lịch sử ${nf(a.s.peTown,1)}) = ${nf(a.stT.futurePE,1)} — đúng công thức Town / prompt, không trần P/E">${nf(a.mosT)}</span>`:'—'}</td>
+    <td class="n">${a.gapT!=null?`<span class="${a.statusT==='below'?'c-good':a.statusT==='between'?'c-warn':'c-bad'}" title="Giá so với MOS Town (Sticker Town ${nf(a.stT.sticker)})">${(a.gapT>0?'+':'')+pf(a.gapT,0)}</span>`:'—'}</td>
     <td class="n">${pbCell(a,c)}</td>
     <td>${a.m3===2?'<span class="pill p-good">Đạt</span>':a.m3===1?'<span class="pill p-warn">Chưa đạt</span>':'<span class="pill p-na">Chưa chấm</span>'}</td></tr>`).join('')
     :`<tr><td colspan="${COLS.length}" class="empty">Không mã nào qua bộ lọc hiện tại. Nới bộ lọc hoặc giảm MARR để mở rộng danh sách.</td></tr>`;
@@ -613,8 +614,8 @@ function copyBtn(){$('mCopy').onclick=async()=>{const ta=$('mText');try{await na
 $('fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const err=loadText(r.result,f.name);if(err){modal('Không nạp được file',esc(err),'','')}};r.readAsText(f,'utf-8');e.target.value=''};
 $('btnPaste').onclick=()=>{modal('Dán dữ liệu','Dán nội dung CSV (theo cột của CSV mẫu) hoặc JSON. Đơn vị: tiền tệ tỷ VND, giá VND, số cổ phiếu triệu cp, capex số dương.','', '<button class="primary" id="mLoad">Nạp</button>');$('mLoad').onclick=()=>{const err=loadText($('mText').value);if(err)$('mMsg').textContent=err}};
 $('btnTemplate').onclick=()=>{modal('CSV mẫu','Mỗi dòng là một năm của một mã. Bắt buộc: ticker, price, shares_mil, year, revenue, net_income, equity. Nên có: debt (nợ vay), cash, ebit, cfo (dòng tiền HĐKD), capex, dividends (cổ tức tiền mặt), avg_pe (P/E TB lịch sử), adv_bn (thanh khoản TB tỷ/phiên), analyst_g (%), shares_adj (số cổ phiếu năm đó đã điều chỉnh thưởng/cổ tức CP, triệu cp), ttm_ni (LNST cổ đông mẹ 4 quý gần nhất, tỷ) và ttm_period (vd 2026-Q2). Nội dung dưới đây là dữ liệu giả lập đang hiển thị.',toCSV(SAMPLE),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
-$('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,Payback (năm),3M'];
-  l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm'].join(',')));
+$('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,MOS Town,Giá/MOS Town %,Payback (năm),3M'];
+  l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.mosT?Math.round(a.mosT):'',a.gapT!=null?(a.gapT*100).toFixed(0):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm'].join(',')));
   modal('Xuất kết quả',`${l.length} mã theo bộ lọc hiện tại. Sao chép rồi dán vào Excel hoặc Google Sheets (Dữ liệu → Tách văn bản thành cột theo dấu phẩy).`,lines.join('\n'),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
 $('btn3m').onclick=()=>{modal('Sao lưu 3M','Sao chép để lưu trữ, hoặc dán bản sao lưu cũ rồi bấm Khôi phục.',JSON.stringify({m3:M3,gOverride:GOV},null,1),'<button class="primary" id="mCopy">Sao chép</button><button id="mRestore">Khôi phục</button>');copyBtn();
   $('mRestore').onclick=()=>{try{const d=JSON.parse($('mText').value);M3=d.m3||{};GOV=d.gOverride||{};store.set('r1vn_3m',M3);store.set('r1vn_gov',GOV);render();$('mMsg').textContent='Đã khôi phục.'}catch(e){$('mMsg').textContent='Nội dung không phải JSON hợp lệ.'}}};
@@ -628,7 +629,7 @@ function fillFilters(){
 }
 document.addEventListener('input',e=>{if(e.target.closest('.params,aside')&&!e.target.closest('.drawer'))render()});
 document.addEventListener('change',e=>{if(e.target.closest('.params,aside'))render()});
-$('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=['payback','pe','pb_','gap','mos','ticker','exchange','sector'].includes(k)?1:-1}render()};
+$('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=['payback','pe','pb_','gap','gapT','mos','ticker','exchange','sector'].includes(k)?1:-1}render()};
 $('tbody').onclick=e=>{const tr=e.target.closest('tr[data-t]');if(tr)openDetail(tr.dataset.t)};
 document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}render()});
 $('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
