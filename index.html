@@ -343,7 +343,7 @@ const COLS=[
  {k:'ticker',l:'Mã',cls:'tk'},{k:'exchange',l:'Sàn'},{k:'sector',l:'Ngành'},
  {k:'price',l:'Giá',n:1},{k:'mcap',l:'Vốn hóa (tỷ)',n:1},{k:'pe',l:'P/E',n:1},{k:'pb_',l:'P/B',n:1},
  {k:'roe',l:'ROE %',n:1},{k:'epsL',l:'EPS TTM',n:1},{k:'score',l:'Big 5'},{k:'g',l:'g %',n:1},
- {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'mosR1',l:'MOS R1',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
+ {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'mosR1',l:'MOS R1',n:1},{k:'gapR1',l:'Giá/MOS R1',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
 ];
 
 /* ===== Định dạng ===== */
@@ -359,7 +359,7 @@ function m3rated(t){const m=M3[t];return m&&(m.meaning||m.moatStr||m.mgmt)}
 function compute(){
   const c=cfg();
   rows=DATA.map(s=>{const a=R1.analyze(s,c,GOV[s.ticker]!=null?GOV[s.ticker]:null);
-    a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;a.gapT=a.mosT?a.price/a.mosT-1:null;a.mosR1=a.stR1.ok?a.stR1.mos:null;a.gapR1=a.mosR1?a.price/a.mosR1-1:null;a.statusT=a.stT.ok?(a.price<=a.stT.mos?'below':a.price<=a.stT.sticker?'between':'above'):'na';
+    a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;a.gapT=a.mosT?a.price/a.mosT-1:null;a.mosR1=a.stR1.ok?a.stR1.mos:null;a.gapR1=a.mosR1?a.price/a.mosR1-1:null;a.statusR1=a.stR1.ok?(a.price<=a.stR1.mos?'below':a.price<=a.stR1.sticker?'between':'above'):'na';a.statusT=a.stT.ok?(a.price<=a.stT.mos?'below':a.price<=a.stT.sticker?'between':'above'):'na';
     a.payback=a.pb.ok?a.pb.years:null;a.ticker=s.ticker;a.exchange=s.exchange;a.sector=s.sector;a.m3=m3pass(s.ticker)?2:m3rated(s.ticker)?1:0;
     a.eligible=a.mcap>=c.capMin&&(s.adv==null||s.adv>=c.advMin)&&a.nYears>=c.yrMin;return a});
 }
@@ -442,6 +442,7 @@ function render(){
     <td class="n">${a.mosT!=null?`<span class="${a.price<=a.mosT?'c-good':'muted'}" title="P/E tương lai = min(2g ${nf(a.stT.peByG,1)}, P/E trung bình lịch sử ${nf(a.s.peTown,1)}) = ${nf(a.stT.futurePE,1)} — đúng công thức Town / prompt, không trần P/E">${nf(a.mosT)}</span>`:'—'}</td>
     <td class="n">${a.gapT!=null?`<span class="${a.statusT==='below'?'c-good':a.statusT==='between'?'c-warn':'c-bad'}" title="Giá so với MOS Town (Sticker Town ${nf(a.stT.sticker)})">${(a.gapT>0?'+':'')+pf(a.gapT,0)}</span>`:'—'}</td>
     <td class="n">${a.mosR1!=null?`<span class="${a.price<=a.mosR1?'c-good':'muted'}" title="g = ${pf(a.gR1)} = min(DT ${pf(a.gParts.rev)}, EPS ${pf(a.gParts.eps)}, BVPS ${pf(a.gParts.bvps)}${a.s.financial?'':', FCF '+pf(a.gParts.fcf)}; trần ${pf(c.gCap,0)}) · Giá/MOS R1: ${(a.gapR1>0?'+':'')+pf(a.gapR1,0)}">${nf(a.mosR1)}</span>`:`<span class="muted" title="${esc(a.stR1.reason||'')}">—</span>`}</td>
+    <td class="n">${a.gapR1!=null?`<span class="${a.statusR1==='below'?'c-good':a.statusR1==='between'?'c-warn':'c-bad'}" title="Giá so với MOS R1 (Sticker R1 ${nf(a.stR1.sticker)})">${(a.gapR1>0?'+':'')+pf(a.gapR1,0)}</span>`:'—'}</td>
     <td class="n">${pbCell(a,c)}</td>
     <td>${a.m3===2?'<span class="pill p-good">Đạt</span>':a.m3===1?'<span class="pill p-warn">Chưa đạt</span>':'<span class="pill p-na">Chưa chấm</span>'}</td></tr>`).join('')
     :`<tr><td colspan="${COLS.length}" class="empty">Không mã nào qua bộ lọc hiện tại. Nới bộ lọc hoặc giảm MARR để mở rộng danh sách.</td></tr>`;
@@ -643,7 +644,7 @@ function fillFilters(){
 }
 document.addEventListener('input',e=>{if(e.target.closest('.params,aside')&&!e.target.closest('.drawer'))render()});
 document.addEventListener('change',e=>{if(e.target.closest('.params,aside'))render()});
-$('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=['payback','pe','pb_','gap','gapT','mos','ticker','exchange','sector'].includes(k)?1:-1}render()};
+$('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=['payback','pe','pb_','gap','gapT','gapR1','mos','ticker','exchange','sector'].includes(k)?1:-1}render()};
 $('tbody').onclick=e=>{const tr=e.target.closest('tr[data-t]');if(tr)openDetail(tr.dataset.t)};
 document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}render()});
 $('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
