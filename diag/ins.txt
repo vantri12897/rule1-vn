@@ -1,0 +1,45 @@
+
+[vnstock] Thư viện gửi số liệu đo lường tuỳ chọn (tên hàm, thời gian chạy, lỗi) để cải thiện sản phẩm.
+          Không thu thập giá trị tham số bạn truyền vào, gồm mã chứng khoán và khoảng thời gian tra cứu.
+          Tắt: đặt VNSTOCK_TELEMETRY=off hoặc gọi vnai.disable_telemetry()
+          Chi tiết: https://vnstocks.com/onboard/chinh-sach-quyen-rieng-tu
+Đăng ký khoá API bản Cộng đồng: vnstocks.com/login → vnai.setup_api_key('key') | 📚 Tài liệu: vnstocks.com/docs | Chương trình Vnstock Sponsor: vnstocks.com/insiders-program
+FPT insider_trading ERR NotImplementedError("Source 'vci' does not support 'insider_trading'")
+== FPT events DD* rows=32 of 50; codes={'DDIND': 27, 'ISS': 8, 'AIS': 4, 'DIV': 4, 'DDINS': 3, 'AGME': 2, 'DDRP': 2}
+   event_code                               event_title_vi public_date           start_date             end_date action_type_vi
+2       DDIND    Nguyễn Văn Khoa - Đăng kí Mua 428,368 FPT  2026-06-29  2026-06-24T00:00:00  2026-06-24T00:00:00            Mua
+3       DDIND  Nguyễn Thế Phương - Đăng kí Mua 347,161 FPT  2026-06-29  2026-06-24T00:00:00  2026-06-24T00:00:00            Mua
+4       DDIND     Phạm Minh Tuấn - Đăng kí Mua 490,082 FPT  2026-06-29  2026-06-24T00:00:00  2026-06-24T00:00:00            Mua
+5       DDIND    Hoàng Hữu Chiến - Đăng kí Mua 118,592 FPT  2026-06-29  2026-06-24T00:00:00  2026-06-24T00:00:00            Mua
+6       DDIND   Nguyễn Khải Hoàn - Đăng kí Mua 415,146 FPT  2026-06-29  2026-06-24T00:00:00  2026-06-24T00:00:00            Mua
+7       DDIND     Mai Thị Lan Anh - Đăng kí Mua 19,767 FPT  2026-06-29  2026-06-24T00:00:00  2026-06-24T00:00:00            Mua
+8       DDIND    Đỗ Thị Ngọc Mai - Đăng kí Mua 125,568 FPT  2026-06-29  2026-06-24T00:00:00  2026-06-24T00:00:00            Mua
+11      DDIND    Đỗ Thị Ngọc Mai - Đăng kí Mua 125,568 FPT  2026-06-15  2026-06-23T00:00:00  2026-06-24T00:00:00            Mua
+== FPT history kbs: rows=1246 cols=['time', 'open', 'high', 'low', 'close', 'volume'] first={'time': Timestamp('2021-10-18 07:00:00'), 'open': 45.07, 'high': 45.53, 'low': 44.89, 'close': 45.07, 'volume': 2264100} last={'time': Timestamp('2026-10-16 07:00:00'), 'open': 58.7, 'high': 58.7, 'low': 57.9, 'close': 58.2, 'volume': 3733300}
+== FPT history vci: rows=1306 cols=['time', 'open', 'high', 'low', 'close', 'volume'] first={'time': Timestamp('2021-07-22 00:00:00'), 'open': 38.82, 'high': 40.35, 'low': 38.82, 'close': 40.26, 'volume': 4445600} last={'time': Timestamp('2026-10-16 00:00:00'), 'open': 58.7, 'high': 58.7, 'low': 57.9, 'close': 58.2, 'volume': 3733300}
+HPG insider_trading ERR NotImplementedError("Source 'vci' does not support 'insider_trading'")
+== HPG events DD* rows=34 of 50; codes={'DDRP': 16, 'DDIND': 9, 'DDINS': 9, 'AGME': 5, 'ISS': 4, 'AIS': 4, 'DIV': 2, 'OTHE': 1}
+   event_code                                 event_title_vi public_date           start_date             end_date action_type_vi
+0        DDRP      Trần Vũ Minh - Đăng kí Mua 50,000,000 HPG  2026-10-02  2026-10-07T00:00:00  2026-11-05T00:00:00            Mua
+1        DDRP   Doãn Thị Bích Ngọc - Đăng kí Bán 350,000 HPG  2026-09-10  2026-09-15T00:00:00  2026-10-14T00:00:00            Bán
+3       DDIND  Nguyễn Ngọc Quang - Đăng kí Bán 6,600,000 HPG  2026-06-05  2026-06-11T00:00:00  2026-07-10T00:00:00            Bán
+6        DDRP      Trần Vũ Minh - Đăng kí Mua 50,000,000 HPG  2026-04-13  2026-03-12T00:00:00  2026-04-09T00:00:00            Mua
+8        DDRP        Chu Quang Việt - Đăng kí Bán 50,000 HPG  2025-08-28  2025-08-08T00:00:00  2025-08-08T00:00:00            Bán
+10      DDIND      Đặng Ngọc Khánh - Đăng kí Mua 400,000 HPG  2025-07-31  2025-06-26T00:00:00  2025-06-30T00:00:00            Mua
+13      DDIND  Nguyễn Ngọc Quang - Đăng kí Bán 8,500,000 HPG  2025-05-15  2025-05-14T00:00:00  2025-05-14T00:00:00            Bán
+14       DDRP  Nguyễn Quang Minh - Đăng kí Mua 5,500,000 HPG  2025-05-15  2025-05-14T00:00:00  2025-05-14T00:00:00            Mua
+== HPG history kbs: rows=1246 cols=['time', 'open', 'high', 'low', 'close', 'volume'] first={'time': Timestamp('2021-10-18 07:00:00'), 'open': 29.44, 'high': 29.85, 'low': 29.39, 'close': 29.59, 'volume': 20737100} last={'time': Timestamp('2026-10-16 07:00:00'), 'open': 20.75, 'high': 20.9, 'low': 20.7, 'close': 20.9, 'volume': 10189400}
+== HPG history vci: rows=1306 cols=['time', 'open', 'high', 'low', 'close', 'volume'] first={'time': Timestamp('2021-07-22 00:00:00'), 'open': 23.9, 'high': 24.41, 'low': 23.7, 'close': 24.16, 'volume': 21494600} last={'time': Timestamp('2026-10-16 00:00:00'), 'open': 20.75, 'high': 20.9, 'low': 20.7, 'close': 20.9, 'volume': 10189400}
+VCG insider_trading ERR NotImplementedError("Source 'vci' does not support 'insider_trading'")
+== VCG events DD* rows=26 of 50; codes={'DDINS': 21, 'ISS': 7, 'DIV': 6, 'AGME': 6, 'AIS': 5, 'DDRP': 4, 'DDIND': 1}
+   event_code                                            event_title_vi public_date           start_date             end_date action_type_vi
+9       DDINS                             Norges Bank - Đăng kí Bán VCG  2024-06-25  2024-06-19T00:00:00  2024-06-19T00:00:00            Bán
+10      DDINS                   Wareham Group Limited - Đăng kí Mua VCG  2024-06-17  2024-06-12T00:00:00  2024-06-12T00:00:00            Mua
+12      DDINS  Vietnam Enterprise Investments Limited - Đăng kí Bán VCG  2024-06-04  2024-05-30T00:00:00  2024-05-30T00:00:00            Bán
+15      DDINS  Vietnam Enterprise Investments Limited - Đăng kí Bán VCG  2024-03-01  2024-02-27T00:00:00  2024-02-27T00:00:00            Bán
+16      DDINS  Vietnam Enterprise Investments Limited - Đăng kí Bán VCG  2024-02-23  2024-02-20T00:00:00  2024-02-20T00:00:00            Bán
+17      DDINS             Amersham Industries Limited - Đăng kí Mua VCG  2024-02-01  2024-01-30T00:00:00  2024-01-30T00:00:00            Mua
+18      DDINS             Amersham Industries Limited - Đăng kí Mua VCG  2024-01-29  2024-01-25T00:00:00  2024-01-25T00:00:00            Mua
+19      DDINS  Vietnam Enterprise Investments Limited - Đăng kí Mua VCG  2024-01-25  2024-01-23T00:00:00  2024-01-23T00:00:00            Mua
+== VCG history kbs: rows=1246 cols=['time', 'open', 'high', 'low', 'close', 'volume'] first={'time': Timestamp('2021-10-18 07:00:00'), 'open': 22.58, 'high': 22.75, 'low': 22.41, 'close': 22.52, 'volume': 343700} last={'time': Timestamp('2026-10-16 07:00:00'), 'open': 15.0, 'high': 15.35, 'low': 14.9, 'close': 15.15, 'volume': 2870900}
+== VCG history vci: rows=1306 cols=['time', 'open', 'high', 'low', 'close', 'volume'] first={'time': Timestamp('2021-07-22 00:00:00'), 'open': 24.34, 'high': 24.5, 'low': 23.96, 'close': 24.5, 'volume': 564200} last={'time': Timestamp('2026-10-16 00:00:00'), 'open': 15.0, 'high': 15.35, 'low': 14.9, 'close': 15.15, 'volume': 2870900}
