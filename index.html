@@ -102,6 +102,22 @@ ul.sig{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px;fon
 .empty{padding:30px;text-align:center;color:var(--muted)}
 @media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(30px);opacity:.6}}}
 body{margin:0}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:4px 0 12px}
+.tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;padding:8px 14px;color:var(--muted);font-weight:600}
+.tabs button.on{color:var(--accent);border-bottom-color:var(--accent)}
+.cv-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.cv-bar input{width:130px;text-transform:uppercase}
+.cv-bar .rg button.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.cv-wrap{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px}
+#cvChart{height:min(520px,62vh);min-height:320px}
+.cv-tip{position:absolute;top:12px;left:12px;z-index:3;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:.78rem;pointer-events:none;max-width:min(360px,80%);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.cv-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.78rem;margin-top:8px}
+.cv-legend i{display:inline-block;width:14px;height:0;border-top:2px dashed;vertical-align:middle;margin-right:4px}
+.bs{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-size:.68rem;font-weight:700}
+.bs.b{background:#1f9d55}.bs.s{background:#d64541}
+#cvMarks{position:absolute;inset:8px;pointer-events:none;overflow:hidden;z-index:2}
+#cvMarks .bs{position:absolute;transform:translate(-50%,-50%);box-shadow:0 0 0 2px var(--surface);pointer-events:auto;cursor:default}
+#cvMarks .bs sup{position:absolute;top:-7px;right:-8px;font-size:.6rem;background:var(--ink);color:var(--surface);border-radius:6px;padding:0 3px;line-height:1.3}
 </style>
 </head>
 <body>
@@ -121,7 +137,26 @@ body{margin:0}
     </div>
   </div>
   <div class="banner" id="dataBanner"></div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="screen" class="on">Sàng lọc</button>
+    <button role="tab" data-tab="chart">Biểu đồ nến</button>
+  </nav>
 
+  <div id="viewChart" hidden>
+    <div class="cv-bar">
+      <label for="cvSym" class="muted">Mã</label>
+      <input id="cvSym" list="cvList" placeholder="VD: FPT" autocomplete="off"><datalist id="cvList"></datalist>
+      <button class="primary" id="cvGo">Xem</button>
+      <span class="rg" id="cvRange"><button data-r="90">3T</button> <button data-r="365" class="on">1N</button> <button data-r="1095">3N</button> <button data-r="0">Tất cả</button></span>
+      <span class="muted" id="cvInfo"></span>
+    </div>
+    <div class="cv-wrap"><div id="cvChart"></div><div id="cvMarks"></div><div class="cv-tip" id="cvTip" hidden></div></div>
+    <div class="cv-legend" id="cvLegend"></div>
+    <div id="cvEvents"></div>
+    <p class="note">Đường ngang là mức MOS / Sticker <b>hiện tại</b> (theo BCTC và tham số đang chọn), không phải giá trị lịch sử. Biểu tượng <span class="bs b">B</span> / <span class="bs s">S</span> là <b>đăng ký</b> mua / bán của người nội bộ, người liên quan hoặc tổ chức (cổ đông lớn), đặt tại ngày bắt đầu giao dịch dự kiến; đăng ký chưa chắc đã được thực hiện hết. Nguồn: công bố thông tin qua VCI, tối đa 50 sự kiện gần nhất mỗi mã. Giá nến đã điều chỉnh theo cổ tức / chia tách.</p>
+  </div>
+
+  <div id="viewScreen">
   <details class="params" open style="display:block">
     <summary style="cursor:pointer;font-weight:600">Tham số mô hình</summary>
     <div class="params" style="border:0;padding:12px 0 0">
@@ -166,6 +201,7 @@ body{margin:0}
       <div class="tbl"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
       <p class="note">Big 5 theo Phil Town: ROIC trung bình ≥ 10%; tăng trưởng Doanh thu, EPS, BVPS, FCF ≥ 10%/năm. Chấm ô: xanh ≥ 10%, vàng 7–10%, đỏ &lt; 7%. EPS, BVPS lịch sử tính bằng số cổ phiếu hiện tại, nên cần điều chỉnh dữ liệu khi có chia tách hoặc cổ phiếu thưởng. Công cụ hỗ trợ nghiên cứu, không phải khuyến nghị mua bán.</p>
     </section>
+  </div>
   </div>
 </div>
 
@@ -561,7 +597,7 @@ MOS Town       = ${nf(sT.sticker)} × ${pf(c.mosPct,0)} = ${nf(sT.mos)}  →  gi
   if(sig.debtG!=null&&sig.eqG!=null)sigs.push(`Nợ vay tăng ${pf(sig.debtG)}/năm so với vốn chủ ${pf(sig.eqG)}/năm — ${sig.debtG>sig.eqG+.05?'nợ tăng nhanh hơn vốn chủ, cần xem lại phân bổ vốn':'đòn bẩy không tăng bất thường'}.`);
   if(!s.financial)sigs.push(`${sig.negFcfYears} năm FCF âm trong 5 năm gần nhất.`);
   $('drawerRoot').innerHTML=`<div class="overlay" id="ov"><div class="drawer" role="dialog" aria-label="Chi tiết ${esc(t)}">
-   <div class="dhead"><div><h2>${esc(t)} · ${esc(s.name)}</h2><span class="muted">${esc(s.exchange)} · ${esc(s.sector)}${s.financial?' · Nhóm tài chính: FCF, ROIC, Payback không áp dụng':''}</span></div><button id="closeD">Đóng</button></div>
+   <div class="dhead"><div><h2>${esc(t)} · ${esc(s.name)}</h2><span class="muted">${esc(s.exchange)} · ${esc(s.sector)}${s.financial?' · Nhóm tài chính: FCF, ROIC, Payback không áp dụng':''}</span></div><div class="btns"><button id="toChart">Xem biểu đồ nến</button><button id="closeD">Đóng</button></div></div>
    ${warnBox(a)}
    <div class="sec"><div class="kv">
     <div><span>Giá${s.priceDate?' (phiên '+fmtD(s.priceDate)+')':''}</span><span>${nf(a.price)}</span></div><div><span>Vốn hóa (tỷ)</span><span>${nf(a.mcap)}</span></div>
@@ -599,7 +635,7 @@ MOS Town       = ${nf(sT.sticker)} × ${pf(c.mosPct,0)} = ${nf(sT.mos)}  →  gi
     <p class="note">Đây là gợi ý định lượng, không thay cho việc đọc báo cáo thường niên, nghị quyết ĐHĐCĐ và lịch sử giao dịch nội bộ.</p>
    </div></div></div>`;
   $('drawerRoot').hidden=false;
-  $('closeD').onclick=closeDetail;$('ov').onclick=e=>{if(e.target.id==='ov')closeDetail()};
+  $('closeD').onclick=closeDetail;$('toChart').onclick=()=>{closeDetail();showChart(t)};$('ov').onclick=e=>{if(e.target.id==='ov')closeDetail()};
   $('gApply').onclick=()=>{const v=$('gOv').value;if(v===''){delete GOV[t]}else{GOV[t]=+v/100}store.set('r1vn_gov',GOV);render();openDetail(t)};
   $('gClear').onclick=()=>{delete GOV[t];store.set('r1vn_gov',GOV);render();openDetail(t)};
   $('m3Save').onclick=()=>{M3[t]={meaning:$('mMean').value,meaningN:$('mMeanN').value,moat:$('mMoat').value,moatStr:$('mMoatS').value,moatN:$('mMoatN').value,mgmt:$('mMg').value,mgmtN:$('mMgN').value};store.set('r1vn_3m',M3);$('m3Msg').textContent='Đã lưu.';render()};
@@ -654,6 +690,116 @@ $('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.
 $('tbody').onclick=e=>{const tr=e.target.closest('tr[data-t]');if(tr)openDetail(tr.dataset.t)};
 document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}render()});
 $('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
+
+/* ===== Biểu đồ nến ===== */
+const LWC_URL='https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js';
+let LWC_P=null, INSIDER=null, INSIDER_P=null, CV={chart:null,data:null,sym:null,range:365};
+const KIND={noi_bo:'Người nội bộ',nguoi_lien_quan:'Người liên quan',to_chuc:'Tổ chức / cổ đông lớn'};
+function loadLWC(){if(window.LightweightCharts)return Promise.resolve();if(LWC_P)return LWC_P;
+  LWC_P=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=LWC_URL;sc.onload=ok;sc.onerror=()=>{LWC_P=null;no(new Error('Không tải được thư viện biểu đồ'))};document.head.appendChild(sc)});return LWC_P}
+function chartUrl(sym){
+  const h=location.hostname;
+  if(h.endsWith('.github.io')){const owner=h.split('.')[0];const repo=location.pathname.split('/').filter(Boolean)[0]||(owner+'.github.io');return `https://raw.githubusercontent.com/${owner}/${repo}/charts-data/${sym}.json`}
+  return `charts/${sym}.json`;
+}
+function loadInsider(){if(INSIDER)return Promise.resolve(INSIDER);if(INSIDER_P)return INSIDER_P;
+  INSIDER_P=fetch('insider.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():{}).catch(()=>({})).then(j=>INSIDER=j||{});return INSIDER_P}
+function setTab(tab){
+  document.querySelectorAll('.tabs [data-tab]').forEach(b=>{b.classList.toggle('on',b.dataset.tab===tab);b.setAttribute('aria-selected',b.dataset.tab===tab)});
+  $('viewScreen').hidden=tab!=='screen';$('viewChart').hidden=tab!=='chart';
+  if(tab==='chart'){fillCvList();if(!CV.sym){const first=(rows.filter(a=>a.eligible&&a.status==='below')[0]||rows[0]);if(first)showChart(first.ticker,false)}else if(CV.chart)CV.chart.applyOptions({})}
+}
+function fillCvList(){$('cvList').innerHTML=DATA.map(s=>`<option value="${esc(s.ticker)}">${esc(s.name)}</option>`).join('')}
+function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function snapIdx(ts,d){let lo=0,hi=ts.length;while(lo<hi){const m=(lo+hi)>>1;if(ts[m]<d)lo=m+1;else hi=m}return lo}
+async function showChart(sym,switchTab=true){
+  sym=String(sym||'').trim().toUpperCase();if(!sym)return;
+  if(switchTab)setTab('chart');
+  CV.sym=sym;$('cvSym').value=sym;
+  const info=$('cvInfo');info.textContent='Đang tải…';$('cvEvents').innerHTML='';$('cvLegend').innerHTML='';$('cvTip').hidden=true;
+  let d=null,err='';
+  try{await loadLWC()}catch(e){err=e.message}
+  if(!err){try{const r=await fetch(chartUrl(sym)+'?v='+Math.floor(Date.now()/36e5),{cache:'no-store'});if(r.ok)d=await r.json();else err=r.status===404?`Chưa có dữ liệu nến cho ${sym}. Dữ liệu được tạo trong lượt cập nhật giá tự động (16:30 các ngày giao dịch).`:'Lỗi tải dữ liệu nến ('+r.status+').'}catch(e){err='Không tải được dữ liệu nến.'}}
+  const ins=await loadInsider();
+  if(CV.sym!==sym)return;
+  if(CV.chart){CV.chart.remove();CV.chart=null}
+  $('cvMarks').innerHTML='';
+  if(err||!d||!d.t||!d.t.length){info.textContent='';$('cvChart').innerHTML=`<div class="empty">${esc(err||'Không có dữ liệu nến.')}</div>`;renderEvents(sym,(ins||{})[sym]||[],null);return}
+  $('cvChart').innerHTML='';
+  const a=rows.find(x=>x.ticker===sym), s=a?a.s:DATA.find(x=>x.ticker===sym);
+  info.textContent=`${s?s.name+' · ':''}${d.t.length} phiên, đến ${fmtD(d.t[d.t.length-1])}`;
+  const ink=cssv('--ink'),muted=cssv('--muted'),line=cssv('--line'),surf=cssv('--surface');
+  const L=window.LightweightCharts;
+  const ch=L.createChart($('cvChart'),{autoSize:true,layout:{background:{type:'solid',color:surf},textColor:muted,fontFamily:getComputedStyle(document.body).fontFamily},
+    grid:{vertLines:{color:line+'80'},horzLines:{color:line+'80'}},rightPriceScale:{borderColor:line},timeScale:{borderColor:line,timeVisible:false},
+    crosshair:{mode:L.CrosshairMode.Normal},localization:{locale:'vi-VN',priceFormatter:v=>Math.round(v).toLocaleString('vi-VN'),dateFormat:'dd/MM/yyyy'}});
+  CV.chart=ch;
+  const up='#1f9d55',dn='#d64541';
+  const lines=[];
+  if(a){
+    if(a.sticker)lines.push({v:a.sticker,c:'#d64541',t:'Sticker',st:2});
+    if(a.mos)lines.push({v:a.mos,c:'#1f9d55',t:'MOS',st:0});
+    if(a.mosT)lines.push({v:a.mosT,c:'#2f7fd1',t:'MOS Town',st:2});
+    if(a.mosR1)lines.push({v:a.mosR1,c:'#c27a00',t:'MOS R1',st:2});
+  }
+  const lv=lines.map(x=>x.v);
+  const cs=ch.addCandlestickSeries({autoscaleInfoProvider:orig=>{const r=orig();if(r&&r.priceRange&&lv.length){r.priceRange.minValue=Math.min(r.priceRange.minValue,...lv)*0.97;r.priceRange.maxValue=Math.max(r.priceRange.maxValue,...lv)*1.02}return r},upColor:up,downColor:dn,borderUpColor:up,borderDownColor:dn,wickUpColor:up,wickDownColor:dn,priceFormat:{type:'price',precision:0,minMove:10}});
+  const bars=d.t.map((t,i)=>({time:t,open:d.o[i],high:d.h[i],low:d.l[i],close:d.c[i]}));
+  cs.setData(bars);
+  const vs=ch.addHistogramSeries({priceScaleId:'vol',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});
+  ch.priceScale('vol').applyOptions({scaleMargins:{top:.82,bottom:0}});
+  cs.priceScale().applyOptions({scaleMargins:{top:.06,bottom:.2}});
+  vs.setData(d.t.map((t,i)=>({time:t,value:d.v[i]||0,color:(d.c[i]>=d.o[i]?up:dn)+'55'})));
+  lines.forEach(x=>cs.createPriceLine({price:x.v,color:x.c,lineWidth:x.t==='MOS'?2:1,lineStyle:x.st,axisLabelVisible:true,title:x.t}));
+  const last=d.c[d.c.length-1];
+  $('cvLegend').innerHTML=lines.length?lines.map(x=>`<span><i style="border-top-color:${x.c};border-top-style:${x.st?'dashed':'solid'}"></i>${x.t}: <b>${nf(x.v)}</b> <span class="muted">(giá ${last<=x.v?'dưới':'trên'} ${pf(Math.abs(last/x.v-1),0)})</span></span>`).join('')
+    :`<span class="muted">${a?'Mã này không tính được MOS (thiếu dữ liệu hoặc không đạt điều kiện tính).':'Mã này không có trong dữ liệu BCTC nên không có mốc MOS.'}</span>`;
+  // Marker B/S
+  const evs=((ins||{})[sym]||[]).slice();
+  const byTime={};
+  evs.forEach(e=>{if(!e.d||e.d<d.t[0])return;let i=snapIdx(d.t,e.d);if(i>=d.t.length)i=d.t.length-1;const t=d.t[i];e._t=t;(byTime[t]=byTime[t]||[]).push(e)});
+  const marks=[];
+  Object.keys(byTime).sort().forEach(t=>{const g=byTime[t],i=d.t.indexOf(t);['B','S'].forEach(sd=>{const n=g.filter(e=>e.a===sd).length;if(n)marks.push({t,sd,n,price:sd==='B'?d.l[i]:d.h[i]})})});
+  const mk=$('cvMarks');
+  mk.innerHTML=marks.map((m,j)=>`<span class="bs ${m.sd==='B'?'b':'s'}" data-j="${j}" title="${esc(byTime[m.t].filter(e=>e.a===m.sd).map(e=>(e.w||'—')+' · '+(e.q?nf(e.q)+' cp':'')).join('\n'))}">${m.sd}${m.n>1?`<sup>${m.n}</sup>`:''}</span>`).join('');
+  const els=[...mk.children];
+  const place=()=>{const ts=ch.timeScale();marks.forEach((m,j)=>{const x=ts.timeToCoordinate(m.t),y=cs.priceToCoordinate(m.price),el=els[j];
+    if(x==null||y==null){el.style.display='none';return}el.style.display='';el.style.left=x+'px';el.style.top=(y+(m.sd==='B'?14:-14))+'px'})};
+  CV.place=()=>requestAnimationFrame(place);
+  ch.timeScale().subscribeVisibleLogicalRangeChange(CV.place);
+  ch.subscribeCrosshairMove(()=>CV.place());
+  if(CV.ro)CV.ro.disconnect();CV.ro=new ResizeObserver(()=>{CV.place();setTimeout(CV.place,60)});CV.ro.observe($('cvChart'));
+  const tip=$('cvTip');
+  ch.subscribeCrosshairMove(p=>{
+    if(!p||!p.time){tip.hidden=true;return}
+    const t=typeof p.time==='string'?p.time:null; const b=p.seriesData.get(cs); const i=t?snapIdx(d.t,t):-1;
+    let h=`<b>${fmtD(t)}</b>${b?` · O ${nf(b.open)} H ${nf(b.high)} L ${nf(b.low)} C ${nf(b.close)}`:''}${i>=0&&d.v[i]!=null?` · KL ${nf(d.v[i])}`:''}`;
+    (byTime[t]||[]).forEach(e=>{h+=`<div style="margin-top:4px"><span class="bs ${e.a==='B'?'b':'s'}">${e.a}</span> ${esc(e.w||'—')} · ${KIND[e.k]||''}<br><span class="muted">Đăng ký ${e.a==='B'?'mua':'bán'} ${e.q?nf(e.q)+' cp':''}, ${fmtD(e.d)}${e.e&&e.e!==e.d?'–'+fmtD(e.e):''}</span></div>`});
+    tip.innerHTML=h;tip.hidden=false;
+  });
+  CV.data=d;applyRange();setTimeout(CV.place,50);
+  renderEvents(sym,evs,d);
+}
+function applyRange(){
+  const d=CV.data;if(!CV.chart||!d)return;const r=CV.range;
+  if(!r){CV.chart.timeScale().fitContent();return}
+  const to=d.t[d.t.length-1];const f=new Date(to+'T00:00:00Z');f.setUTCDate(f.getUTCDate()-r);
+  const from=f.toISOString().slice(0,10);
+  CV.chart.timeScale().setVisibleRange({from:from<d.t[0]?d.t[0]:from,to});
+  if(CV.place)setTimeout(CV.place,50);
+}
+function renderEvents(sym,evs,d){
+  if(!evs.length){$('cvEvents').innerHTML=`<p class="note">${INSIDER&&Object.keys(INSIDER).length?`Không có đăng ký giao dịch nội bộ / tổ chức nào của ${esc(sym)} trong dữ liệu.`:'Dữ liệu đăng ký giao dịch nội bộ chưa có; sẽ xuất hiện sau lượt cập nhật BCTC hằng tuần.'}</p>`;return}
+  const l=evs.slice().sort((x,y)=>(y.d||'').localeCompare(x.d||''));
+  $('cvEvents').innerHTML=`<div class="sec"><h3>Đăng ký giao dịch nội bộ / tổ chức (${l.length})</h3><div class="tbl" style="border:0"><table><thead><tr><th></th><th>Đối tượng</th><th>Loại</th><th class="n">Khối lượng</th><th>Thời gian dự kiến</th><th>Công bố</th></tr></thead><tbody>${l.map(e=>`<tr${e._t?` data-jump="${e._t}" style="cursor:pointer"`:''}><td><span class="bs ${e.a==='B'?'b':'s'}">${e.a}</span></td><td style="white-space:normal">${esc(e.w||'—')}</td><td>${KIND[e.k]||'—'}</td><td class="n">${e.q?nf(e.q):'—'}</td><td>${fmtD(e.d)}${e.e&&e.e!==e.d?' – '+fmtD(e.e):''}</td><td>${fmtD(e.p)}</td></tr>`).join('')}</tbody></table></div></div>`;
+  $('cvEvents').querySelectorAll('tr[data-jump]').forEach(tr=>tr.onclick=()=>{if(!CV.chart||!d)return;const t=tr.dataset.jump;const i=d.t.indexOf(t);CV.chart.timeScale().setVisibleLogicalRange({from:Math.max(0,i-60),to:Math.min(d.t.length-1,i+60)});$('cvChart').scrollIntoView({behavior:'smooth',block:'center'})});
+}
+document.querySelectorAll('.tabs [data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+$('cvGo').onclick=()=>showChart($('cvSym').value,false);
+$('cvSym').addEventListener('keydown',e=>{if(e.key==='Enter')showChart($('cvSym').value,false)});
+$('cvSym').addEventListener('change',()=>{const v=$('cvSym').value.trim().toUpperCase();if(DATA.some(s=>s.ticker===v))showChart(v,false)});
+$('cvRange').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;CV.range=+b.dataset.r;$('cvRange').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));applyRange()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(CV.sym&&!$('viewChart').hidden)showChart(CV.sym,false)});
 fillFilters();render();autoLoad();
 </script>
 </body>

@@ -12,6 +12,8 @@ Website tự đọc dữ liệu báo cáo tài chính và giá mới nhất mỗ
 | `prices.json` | Giá đóng cửa + thanh khoản TB 20 phiên | **Tự động** 16:30 thứ Hai–thứ Sáu |
 | `update_prices.py` | Script lấy giá | — |
 | `.github/workflows/prices.yml` | Lịch chạy tự động | — |
+| Nhánh `charts-data` | Dữ liệu nến 3 năm mỗi mã (`{MÃ}.json`) cho tab **Biểu đồ nến**; chỉ giữ bản mới nhất | **Tự động** cùng lượt cập nhật giá |
+| `insider.json` | Đăng ký mua/bán của người nội bộ, người liên quan, tổ chức (biểu tượng B/S) | **Tự động** cùng lượt cập nhật BCTC hằng tuần |
 
 ## Cập nhật giá ngay (không chờ lịch)
 
