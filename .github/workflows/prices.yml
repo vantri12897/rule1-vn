@@ -4,7 +4,12 @@ on:
   schedule:
     # 09:30 UTC = 16:30 giờ Việt Nam, thứ Hai đến thứ Sáu (sau khi thị trường đóng cửa 15:00)
     - cron: "30 9 * * 1-5"
-  workflow_dispatch: {}   # cho phép bấm "Run workflow" để chạy tay
+  workflow_dispatch:      # cho phép bấm "Run workflow" để chạy tay
+    inputs:
+      symbols:
+        description: "Chỉ cập nhật vài mã, cách nhau bằng dấu cách (để trống = toàn bộ)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -29,13 +34,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
 
+      - name: Lấy dữ liệu nến hiện có (nhánh charts-data)
+        run: git clone -q --depth 1 -b charts-data "https://github.com/${{ github.repository }}.git" charts_out || mkdir -p charts_out
+
       - name: Lấy giá đóng cửa
         id: run
         continue-on-error: true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          python -u update_prices.py &
+          SYMS="${{ github.event.inputs.symbols }}"
+          python -u update_prices.py --charts-dir charts_out ${SYMS:+--symbols $SYMS} &
           PID=$!
           # Lưu tiến độ lên repo mỗi 10 phút để theo dõi được và không mất phần đã lấy
           while kill -0 $PID 2>/dev/null; do
@@ -60,6 +69,22 @@ jobs:
             git pull --rebase --autostash
             git push
           fi
+
+      - name: Lưu dữ liệu nến (nhánh charts-data, chỉ giữ bản mới nhất)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          n=$(ls charts_out/*.json 2>/dev/null | wc -l)
+          if [ "$n" -eq 0 ]; then echo "Không có dữ liệu nến."; exit 0; fi
+          cd charts_out && rm -rf .git
+          TZ=Asia/Ho_Chi_Minh date +'%Y-%m-%dT%H:%M+07:00' > _updated.txt
+          git init -q -b charts-data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A && git commit -qm "Dữ liệu nến $(cat _updated.txt) ($n mã)"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" charts-data
+          echo "Đã lưu dữ liệu nến cho $n mã"
 
       - name: Báo lỗi nếu lấy giá thất bại
         if: steps.run.outcome == 'failure'

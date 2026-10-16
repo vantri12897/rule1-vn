@@ -375,6 +375,39 @@ def shares_by_year(ratio: pd.DataFrame) -> dict:
     return out
 
 
+INSIDER_KIND = {"DDIND": "noi_bo", "DDINS": "to_chuc", "DDRP": "nguoi_lien_quan"}
+
+
+def insider_events(ev: pd.DataFrame) -> list:
+    """Đăng ký giao dịch của người nội bộ (DDIND), tổ chức/cổ đông lớn (DDINS), người liên quan (DDRP).
+    Lưu ý: đây là ĐĂNG KÝ, không phải kết quả giao dịch thực tế; VCI chỉ trả ~50 sự kiện gần nhất."""
+    if ev is None or ev.empty or "event_code" not in ev.columns:
+        return []
+    def day(v):
+        d = pd.to_datetime(v, errors="coerce")
+        return None if pd.isna(d) else str(d.date())
+    out, seen = [], set()
+    for _, r in ev.iterrows():
+        code = str(r.get("event_code", "")).upper()
+        if code not in INSIDER_KIND:
+            continue
+        title = str(r.get("event_title_vi") or "")
+        act = str(r.get("action_type_vi") or "")
+        side = "B" if act.startswith("Mua") or " Mua" in title else "S" if act.startswith("Bán") or " Bán" in title else None
+        if side is None:
+            continue
+        who = title.split(" - ")[0].strip() if " - " in title else title
+        m = re.search(r"(?:Mua|Bán)\s+([\d.,]+)", title)
+        qty = int(re.sub(r"[^\d]", "", m.group(1))) if m and re.sub(r"[^\d]", "", m.group(1)) else None
+        start, end, pub = day(r.get("start_date")), day(r.get("end_date")), day(r.get("public_date"))
+        key = (who, side, qty, start)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append({"d": start or pub, "e": end, "p": pub, "a": side, "k": INSIDER_KIND[code], "w": who, "q": qty})
+    return sorted([x for x in out if x["d"]], key=lambda x: x["d"])
+
+
 PAR_VND = 10_000  # mệnh giá: dùng để quy tiền thu phát hành ra số cổ phiếu (ước lượng thận trọng)
 
 
@@ -599,6 +632,7 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years, extras=No
         "price": round(price), "shares_mil": round(shares, 3), "avg_pe": avg_pe, "adv_bn": adv,
         "analyst_g": None, "ttm_ni": ttm_ni, "ttm_period": ttm_period, "pe_town": pe_history(ratio)[1],
         "rows": rows, "mapping": used, "divisor": d, "com_type": com_type,
+        "insider": insider_events(extras.get("events")),
     }
 
 
@@ -708,6 +742,7 @@ def main():
     ap.add_argument("--years", type=int, default=10, help="Số năm BCTC (mặc định 10)")
     ap.add_argument("--limit", type=int, default=0, help="Chỉ chạy N mã đầu (để thử)")
     ap.add_argument("--out", default="rule1_data.csv")
+    ap.add_argument("--insider-out", default="", help="Ghi đăng ký giao dịch nội bộ/tổ chức ra JSON {MÃ: [...]}")
     ap.add_argument("--cache", default="rule1_cache")
     ap.add_argument("--refresh", action="store_true", help="Bỏ qua cache, tải lại")
     ap.add_argument("--sleep", type=float, default=1.0, help="Giây nghỉ giữa các mã")
@@ -763,6 +798,10 @@ def main():
         time.sleep(a.sleep)
 
     write_csv(records, a.out)
+    if a.insider_out:
+        ins = {r["ticker"]: r.get("insider", []) for r in records}
+        Path(a.insider_out).write_text(json.dumps(ins, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"Giao dịch nội bộ: {sum(len(v) for v in ins.values())} sự kiện / {sum(1 for v in ins.values() if v)} mã -> {a.insider_out}")
     print(f"\nXong: {len(records)} mã -> {a.out}")
     if errors:
         with open("rule1_errors.csv", "w", newline="", encoding="utf-8-sig") as fh:

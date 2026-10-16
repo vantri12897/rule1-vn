@@ -50,10 +50,32 @@ def read_tickers(path: Path) -> list[str]:
     return seen
 
 
-def fetch_price(Quote, sym: str):
-    """Trả về (giá đóng cửa VND, thanh khoản TB 20 phiên tỷ VND, ngày phiên, nguồn)."""
+def chart_rows(df: pd.DataFrame, scale: float) -> dict:
+    """OHLCV theo ngày, giá VND (đã điều chỉnh theo nguồn), dạng mảng gọn cho biểu đồ nến."""
+    tcol = next((c for c in ("time", "date", "tradingDate") if c in df.columns), None)
+    if tcol is None:
+        return {}
+    d = pd.DataFrame({
+        "t": pd.to_datetime(df[tcol], errors="coerce").dt.strftime("%Y-%m-%d"),
+        "o": pd.to_numeric(df.get("open"), errors="coerce") * scale,
+        "h": pd.to_numeric(df.get("high"), errors="coerce") * scale,
+        "l": pd.to_numeric(df.get("low"), errors="coerce") * scale,
+        "c": pd.to_numeric(df.get("close"), errors="coerce") * scale,
+        "v": pd.to_numeric(df.get("volume"), errors="coerce"),
+    }).dropna(subset=["t", "o", "h", "l", "c"]).drop_duplicates("t", keep="last").sort_values("t")
+    if d.empty:
+        return {}
+    out = {"t": d.t.tolist()}
+    for k in "ohlc":
+        out[k] = [int(round(x)) for x in d[k]]
+    out["v"] = [int(x) if pd.notna(x) else 0 for x in d.v]
+    return out
+
+
+def fetch_price(Quote, sym: str, days: int = 45):
+    """Trả về (giá đóng cửa VND, thanh khoản TB 20 phiên tỷ VND, ngày phiên, nguồn, dữ liệu nến)."""
     today = datetime.now(VN_TZ).date()  # máy chủ GitHub chạy giờ UTC, quy về giờ Việt Nam
-    start = (today - timedelta(days=45)).isoformat()
+    start = (today - timedelta(days=days)).isoformat()
     end = (today + timedelta(days=1)).isoformat()  # +1 ngày: có nguồn không tính ngày kết thúc
     last_err = None
     for src in SOURCES:
@@ -82,7 +104,7 @@ def fetch_price(Quote, sym: str):
                         d = str(valid.index[-1].date())
             except Exception:  # noqa: BLE001
                 d = None
-            return round(price), adv, d, src
+            return round(price), adv, d, src, chart_rows(df, scale)
         except SystemExit as e:  # vnstock có thể gọi sys.exit khi vượt giới hạn lượt gọi
             last_err = RuntimeError(f"SystemExit: {e}")
         except Exception as e:  # noqa: BLE001
@@ -107,13 +129,19 @@ def main():
     ap.add_argument("--data", default="rule1_data.csv")
     ap.add_argument("--out", default="prices.json")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--symbols", nargs="*", default=[], help="Chỉ cập nhật các mã này (chạy thử)")
     ap.add_argument("--sleep", type=float, default=0.4, help="Giây nghỉ giữa các mã")
+    ap.add_argument("--charts-dir", default="", help="Thư mục ghi dữ liệu nến {MÃ}.json (để trống = không ghi)")
+    ap.add_argument("--chart-days", type=int, default=1100, help="Số ngày lịch sử cho biểu đồ nến (~3 năm)")
     a = ap.parse_args()
 
     data, out = Path(a.data), Path(a.out)
     if not data.exists():
         sys.exit(f"Không thấy {data}. Hãy đưa file BCTC rule1_data.csv vào repo trước.")
     tickers = read_tickers(data)
+    if a.symbols:
+        want = {x.upper() for x in a.symbols}
+        tickers = [t for t in tickers if t in want]
     if a.limit:
         tickers = tickers[: a.limit]
 
@@ -125,6 +153,9 @@ def main():
             old = {}
     prices = dict(old)
 
+    charts_dir = Path(a.charts_dir) if a.charts_dir else None
+    if charts_dir:
+        charts_dir.mkdir(parents=True, exist_ok=True)
     Quote = import_quote()
     ok, fail, t0 = 0, [], time.time()
     started = datetime.now(VN_TZ).isoformat(timespec="minutes")
@@ -134,8 +165,11 @@ def main():
         wait = 60
         for attempt in range(4):
             try:
-                p, adv, d, src = fetch_price(Quote, sym)
+                p, adv, d, src, ch = fetch_price(Quote, sym, a.chart_days if charts_dir else 45)
                 prices[sym] = {"p": p, "adv": adv, "d": d}
+                if charts_dir and ch:
+                    (charts_dir / f"{sym}.json").write_text(
+                        json.dumps({"s": sym, "src": src, **ch}, separators=(",", ":")), encoding="utf-8")
                 ok += 1
                 if d:
                     trade_dates[d] = trade_dates.get(d, 0) + 1

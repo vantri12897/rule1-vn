@@ -51,6 +51,19 @@ with open(OUT, "w", newline="", encoding="utf-8-sig") as fh:
     for r in out_rows:
         w.writerow({c: r.get(c, "") for c in cols})
 
+# Đăng ký giao dịch nội bộ/tổ chức: cập nhật theo từng sàn có file mới, giữ dữ liệu cũ cho mã không có
+INS = Path("insider.json")
+ins = json.loads(INS.read_text(encoding="utf-8")) if INS.exists() else {}
+for key in EXCH:
+    f = PART_DIR / f"insider_{key}.json"
+    if f.exists():
+        try:
+            ins.update(json.loads(f.read_text(encoding="utf-8")))
+        except Exception as e:  # noqa: BLE001
+            print("Lỗi đọc", f, e)
+INS.write_text(json.dumps(ins, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+print(f"insider.json: {sum(len(v) for v in ins.values())} sự kiện / {sum(1 for v in ins.values() if v)} mã")
+
 now = datetime.now(timezone(timedelta(hours=7))).isoformat(timespec="minutes")
 prev = json.loads(META.read_text(encoding="utf-8")) if META.exists() else {}
 meta = {"updated": now if len(failed) < 3 else prev.get("updated"), "checked": now, "exchanges": report}

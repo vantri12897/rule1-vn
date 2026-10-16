@@ -33,7 +33,7 @@ jobs:
       - run: pip install -q -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
       - run: |
           mkdir -p diag
-          python -u vn_rule1_export.py --symbols ${{ github.event.inputs.symbols }} --out diag/test_data.csv --cache /tmp/c --sleep 0.5 --refresh || true
+          python -u vn_rule1_export.py --symbols ${{ github.event.inputs.symbols }} --out diag/test_data.csv --insider-out diag/test_insider.json --cache /tmp/c --sleep 0.5 --refresh || true
           [ -f rule1_errors.csv ] && mv rule1_errors.csv diag/test_errors.csv || true
       - run: |
           git config user.name "github-actions[bot]"
@@ -57,7 +57,7 @@ jobs:
       - run: pip install -q -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
       - name: Lấy BCTC sàn ${{ matrix.exchange }}
         run: |
-          python -u vn_rule1_export.py --exchanges ${{ matrix.exchange }} --out part_${{ matrix.exchange }}.csv --cache cache --sleep 0.5 --refresh
+          python -u vn_rule1_export.py --exchanges ${{ matrix.exchange }} --out part_${{ matrix.exchange }}.csv --insider-out insider_${{ matrix.exchange }}.json --cache cache --sleep 0.5 --refresh
           [ -f rule1_errors.csv ] && mv rule1_errors.csv errors_${{ matrix.exchange }}.csv || true
       - uses: actions/upload-artifact@v7
         if: always()
@@ -65,6 +65,7 @@ jobs:
           name: part-${{ matrix.exchange }}
           path: |
             part_${{ matrix.exchange }}.csv
+            insider_${{ matrix.exchange }}.json
             errors_${{ matrix.exchange }}.csv
           if-no-files-found: ignore
           retention-days: 7
@@ -91,7 +92,7 @@ jobs:
           mkdir -p diag && cp parts/errors_*.csv diag/ 2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add rule1_data.csv fundamentals_meta.json diag || true
+          git add rule1_data.csv fundamentals_meta.json insider.json diag || true
           git commit -qm "Cập nhật BCTC $(TZ=Asia/Ho_Chi_Minh date +'%Y-%m-%d')" || exit 0
           git pull -q --rebase --autostash && git push -q
       - name: Báo lỗi nếu có sàn giữ dữ liệu cũ
