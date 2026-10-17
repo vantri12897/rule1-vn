@@ -167,6 +167,8 @@ def main():
             try:
                 p, adv, d, src, ch = fetch_price(Quote, sym, a.chart_days if charts_dir else 45)
                 prices[sym] = {"p": p, "adv": adv, "d": d}
+                if ch and len(ch.get("c", [])) > 1 and ch["t"][-1] == d:
+                    prices[sym]["c1"] = ch["c"][-2]  # giá đóng cửa phiên trước, để tính % thay đổi trong ngày
                 if charts_dir and ch:
                     (charts_dir / f"{sym}.json").write_text(
                         json.dumps({"s": sym, "src": src, **ch}, separators=(",", ":")), encoding="utf-8")

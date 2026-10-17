@@ -115,6 +115,41 @@ body{margin:0}
 .cv-legend i{display:inline-block;width:14px;height:0;border-top:2px dashed;vertical-align:middle;margin-right:4px}
 .bs{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-size:.68rem;font-weight:700}
 .bs.b{background:#1f9d55}.bs.s{background:#d64541}
+.cv-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:12px;align-items:start}
+.cv-layout.wl-closed{grid-template-columns:44px minmax(0,1fr)}
+.wl{background:var(--surface);border:1px solid var(--line);border-radius:8px;display:flex;flex-direction:column;position:sticky;top:8px;max-height:calc(100vh - 16px);min-width:0}
+.wl-head{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line)}
+.wl-head b{font-size:.85rem}
+.wl-tog{padding:2px 8px;font-size:.9rem;line-height:1.4}
+.wl-add{display:flex;gap:6px;padding:8px 10px}
+.wl-add input{flex:1;width:0;text-transform:uppercase}
+.wl-tools{display:flex;gap:6px;padding:0 10px 8px;align-items:center}
+.wl-tools select{flex:1;font-size:.75rem;padding:3px 5px}
+.wl-list{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1;min-height:60px}
+.wl-list li{display:grid;grid-template-columns:1fr auto auto 18px;gap:2px 8px;padding:7px 10px;border-top:1px solid var(--line);cursor:pointer;align-items:center}
+.wl-list li:hover{background:var(--surface2)}
+.wl-list li.on{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.wl-list .tk{font-weight:700;white-space:nowrap}
+.wl-list .px{text-align:right;font-variant-numeric:tabular-nums}
+.wl-list .ch{text-align:right;font-size:.75rem;font-variant-numeric:tabular-nums;min-width:52px}
+.wl-list .sub{grid-column:1/4;font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wl-list .rm{grid-row:1/3;grid-column:4;justify-self:end;border:0;background:none;color:var(--muted);padding:2px 4px;font-size:.85rem;visibility:hidden}
+.wl-list li:hover .rm,.wl-list li:focus-within .rm{visibility:visible}
+.wl-empty{padding:12px 10px;font-size:.78rem;color:var(--muted)}
+.wl-foot{padding:8px 10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.wl-foot button{font-size:.75rem;padding:4px 8px}
+.wl-body{display:flex;flex-direction:column;min-height:0;flex:1}
+.wl-closed .wl-body{display:none}
+.wl-closed .wl-head{flex-direction:column;padding:8px 4px;border-bottom:0}
+.wl-closed .wl-head b{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap}
+.cv-bar .star{font-size:.85rem}
+.cv-bar .star.on{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+.cv-bar .meas.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cv-wrap.measuring #cvChart{cursor:crosshair}
+#cvMeasure{position:absolute;pointer-events:none;border:1px solid;display:none;z-index:4}
+#cvMeasure .ml{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.75rem;font-weight:600;color:#fff;border-radius:5px;padding:3px 8px;line-height:1.35;text-align:center}
+@media (max-width:760px){.cv-layout,.cv-layout.wl-closed{grid-template-columns:1fr}.wl{position:static;max-height:none}.wl-list{max-height:260px}
+ .wl-closed .wl-head{flex-direction:row;padding:8px 10px}.wl-closed .wl-head b{writing-mode:horizontal-tb;transform:none}.wl-list .rm{visibility:visible}}
 #cvMarks{position:absolute;inset:8px;pointer-events:none;overflow:hidden;z-index:2}
 #cvMarks .bs{position:absolute;transform:translate(-50%,-50%);box-shadow:0 0 0 2px var(--surface);pointer-events:auto;cursor:default}
 #cvMarks .bs sup{position:absolute;top:-7px;right:-8px;font-size:.6rem;background:var(--ink);color:var(--surface);border-radius:6px;padding:0 3px;line-height:1.3}
@@ -143,17 +178,32 @@ body{margin:0}
   </nav>
 
   <div id="viewChart" hidden>
+   <div class="cv-layout" id="cvLayout">
+    <aside class="wl" id="wl" aria-label="Danh mục theo dõi">
+      <div class="wl-head"><b id="wlTitle">⭐ Theo dõi</b><button class="wl-tog" id="wlTog" title="Thu gọn / mở rộng danh mục" aria-expanded="true">«</button></div>
+      <div class="wl-body">
+        <div class="wl-add"><input id="wlIn" list="cvList" placeholder="Thêm mã…" autocomplete="off" aria-label="Thêm mã vào danh mục"><button id="wlAdd">＋</button></div>
+        <div class="wl-tools"><select id="wlSort" aria-label="Sắp xếp danh mục"><option value="">Thứ tự thêm</option><option value="tk">Mã A→Z</option><option value="ch">% trong ngày</option><option value="gap">Giá/MOS (rẻ nhất trước)</option><option value="gapR1">Giá/MOS R1 (rẻ nhất trước)</option></select></div>
+        <ul class="wl-list" id="wlList"></ul>
+        <div class="wl-foot"><button id="wlAddMos" title="Thêm các mã đang dưới giá MOS (đã qua bộ lọc đủ điều kiện)">＋ Thêm các mã dưới MOS</button><button id="wlClear">Xóa toàn bộ danh mục</button></div>
+      </div>
+    </aside>
+    <div class="cv-main" style="min-width:0">
     <div class="cv-bar">
       <label for="cvSym" class="muted">Mã</label>
       <input id="cvSym" list="cvList" placeholder="VD: FPT" autocomplete="off"><datalist id="cvList"></datalist>
       <button class="primary" id="cvGo">Xem</button>
+      <button class="star" id="cvStar" title="Thêm / bỏ mã này khỏi danh mục theo dõi">☆ Theo dõi</button>
+      <button class="meas" id="cvMeas" title="Thước đo: bấm điểm đầu rồi điểm cuối trên biểu đồ (hoặc giữ Shift + bấm). Esc để xóa.">📏 Đo %</button>
       <span class="rg" id="cvRange"><button data-r="90">3T</button> <button data-r="365" class="on">1N</button> <button data-r="1095">3N</button> <button data-r="0">Tất cả</button></span>
       <span class="muted" id="cvInfo"></span>
     </div>
-    <div class="cv-wrap"><div id="cvChart"></div><div id="cvMarks"></div><div class="cv-tip" id="cvTip" hidden></div></div>
+    <div class="cv-wrap" id="cvWrap"><div id="cvChart"></div><div id="cvMarks"></div><div id="cvMeasure"><span class="ml"></span></div><div class="cv-tip" id="cvTip" hidden></div></div>
     <div class="cv-legend" id="cvLegend"></div>
     <div id="cvEvents"></div>
-    <p class="note">Đường ngang là mức MOS / Sticker <b>hiện tại</b> (theo BCTC và tham số đang chọn), không phải giá trị lịch sử. Biểu tượng <span class="bs b">B</span> / <span class="bs s">S</span> là <b>đăng ký</b> mua / bán của người nội bộ, người liên quan hoặc tổ chức (cổ đông lớn), đặt tại ngày bắt đầu giao dịch dự kiến; đăng ký chưa chắc đã được thực hiện hết. Nguồn: công bố thông tin qua VCI, tối đa 50 sự kiện gần nhất mỗi mã. Giá nến đã điều chỉnh theo cổ tức / chia tách.</p>
+    </div>
+   </div>
+    <p class="note">📏 <b>Thước đo</b>: bấm nút “Đo %”, bấm điểm đầu và điểm cuối trên biểu đồ để xem % tăng/giảm, chênh lệch giá, số phiên và số ngày; giữ Shift + bấm để đo nhanh không cần nút; Esc hoặc bấm lại vào biểu đồ để xóa. Phím ↑/↓ chuyển mã trong danh mục theo dõi. Đường ngang là mức MOS / Sticker <b>hiện tại</b> (theo BCTC và tham số đang chọn), không phải giá trị lịch sử. Biểu tượng <span class="bs b">B</span> / <span class="bs s">S</span> là <b>đăng ký</b> mua / bán của người nội bộ, người liên quan hoặc tổ chức (cổ đông lớn), đặt tại ngày bắt đầu giao dịch dự kiến; đăng ký chưa chắc đã được thực hiện hết. Nguồn: công bố thông tin qua VCI, tối đa 50 sự kiện gần nhất mỗi mã. Giá nến đã điều chỉnh theo cổ tức / chia tách.</p>
   </div>
 
   <div id="viewScreen">
@@ -488,6 +538,7 @@ function render(){
     <td class="n">${pbCell(a,c)}</td>
     <td>${a.m3===2?'<span class="pill p-good">Đạt</span>':a.m3===1?'<span class="pill p-warn">Chưa đạt</span>':'<span class="pill p-na">Chưa chấm</span>'}</td></tr>`).join('')
     :`<tr><td colspan="${COLS.length}" class="empty">Không mã nào qua bộ lọc hiện tại. Nới bộ lọc hoặc giảm MARR để mở rộng danh sách.</td></tr>`;
+  if(!$('viewChart').hidden&&typeof renderWL==='function')renderWL();
   $('dataBanner').textContent=bannerText();
   $('dataBanner').style.background=isSample?'':'var(--accent-soft)';$('dataBanner').style.color=isSample?'':'var(--accent)';
 }
@@ -674,8 +725,8 @@ $('btnTemplate').onclick=()=>{modal('CSV mẫu','Mỗi dòng là một năm củ
 $('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,MOS Town,Giá/MOS Town %,MOS R1,Giá/MOS R1 %,Payback (năm),3M'];
   l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.mosT?Math.round(a.mosT):'',a.gapT!=null?(a.gapT*100).toFixed(0):'',a.mosR1?Math.round(a.mosR1):'',a.gapR1!=null?(a.gapR1*100).toFixed(0):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm'].join(',')));
   modal('Xuất kết quả',`${l.length} mã theo bộ lọc hiện tại. Sao chép rồi dán vào Excel hoặc Google Sheets (Dữ liệu → Tách văn bản thành cột theo dấu phẩy).`,lines.join('\n'),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
-$('btn3m').onclick=()=>{modal('Sao lưu 3M','Sao chép để lưu trữ, hoặc dán bản sao lưu cũ rồi bấm Khôi phục.',JSON.stringify({m3:M3,gOverride:GOV},null,1),'<button class="primary" id="mCopy">Sao chép</button><button id="mRestore">Khôi phục</button>');copyBtn();
-  $('mRestore').onclick=()=>{try{const d=JSON.parse($('mText').value);M3=d.m3||{};GOV=d.gOverride||{};store.set('r1vn_3m',M3);store.set('r1vn_gov',GOV);render();$('mMsg').textContent='Đã khôi phục.'}catch(e){$('mMsg').textContent='Nội dung không phải JSON hợp lệ.'}}};
+$('btn3m').onclick=()=>{modal('Sao lưu 3M','Sao chép để lưu trữ, hoặc dán bản sao lưu cũ rồi bấm Khôi phục.',JSON.stringify({m3:M3,gOverride:GOV,watch:WL},null,1),'<button class="primary" id="mCopy">Sao chép</button><button id="mRestore">Khôi phục</button>');copyBtn();
+  $('mRestore').onclick=()=>{try{const d=JSON.parse($('mText').value);M3=d.m3||{};GOV=d.gOverride||{};if(Array.isArray(d.watch)){WL=d.watch;saveWL()}store.set('r1vn_3m',M3);store.set('r1vn_gov',GOV);render();$('mMsg').textContent='Đã khôi phục.'}catch(e){$('mMsg').textContent='Nội dung không phải JSON hợp lệ.'}}};
 
 /* ===== Khởi tạo ===== */
 function fillFilters(){
@@ -707,7 +758,7 @@ function loadInsider(){if(INSIDER)return Promise.resolve(INSIDER);if(INSIDER_P)r
 function setTab(tab){
   document.querySelectorAll('.tabs [data-tab]').forEach(b=>{b.classList.toggle('on',b.dataset.tab===tab);b.setAttribute('aria-selected',b.dataset.tab===tab)});
   $('viewScreen').hidden=tab!=='screen';$('viewChart').hidden=tab!=='chart';
-  if(tab==='chart'){fillCvList();if(!CV.sym){const first=(rows.filter(a=>a.eligible&&a.status==='below')[0]||rows[0]);if(first)showChart(first.ticker,false)}else if(CV.chart)CV.chart.applyOptions({})}
+  if(tab==='chart'){fillCvList();renderWL();if(!CV.sym&&WL.length){showChart(WL[0],false)}else if(!CV.sym){const first=(rows.filter(a=>a.eligible&&a.status==='below')[0]||rows[0]);if(first)showChart(first.ticker,false)}else if(CV.chart)CV.chart.applyOptions({})}
 }
 function fillCvList(){$('cvList').innerHTML=DATA.map(s=>`<option value="${esc(s.ticker)}">${esc(s.name)}</option>`).join('')}
 function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
@@ -715,7 +766,7 @@ function snapIdx(ts,d){let lo=0,hi=ts.length;while(lo<hi){const m=(lo+hi)>>1;if(
 async function showChart(sym,switchTab=true){
   sym=String(sym||'').trim().toUpperCase();if(!sym)return;
   if(switchTab)setTab('chart');
-  CV.sym=sym;$('cvSym').value=sym;
+  CV.sym=sym;$('cvSym').value=sym;updStar();renderWL();clearMeasure();
   const info=$('cvInfo');info.textContent='Đang tải…';$('cvEvents').innerHTML='';$('cvLegend').innerHTML='';$('cvTip').hidden=true;
   let d=null,err='';
   try{await loadLWC()}catch(e){err=e.message}
@@ -763,7 +814,7 @@ async function showChart(sym,switchTab=true){
   const mk=$('cvMarks');
   mk.innerHTML=marks.map((m,j)=>`<span class="bs ${m.sd==='B'?'b':'s'}" data-j="${j}" title="${esc(byTime[m.t].filter(e=>e.a===m.sd).map(e=>(e.w||'—')+' · '+(e.q?nf(e.q)+' cp':'')).join('\n'))}">${m.sd}${m.n>1?`<sup>${m.n}</sup>`:''}</span>`).join('');
   const els=[...mk.children];
-  const place=()=>{const ts=ch.timeScale();marks.forEach((m,j)=>{const x=ts.timeToCoordinate(m.t),y=cs.priceToCoordinate(m.price),el=els[j];
+  const place=()=>{drawMeasure();const ts=ch.timeScale();marks.forEach((m,j)=>{const x=ts.timeToCoordinate(m.t),y=cs.priceToCoordinate(m.price),el=els[j];
     if(x==null||y==null){el.style.display='none';return}el.style.display='';el.style.left=x+'px';el.style.top=(y+(m.sd==='B'?14:-14))+'px'})};
   CV.place=()=>requestAnimationFrame(place);
   ch.timeScale().subscribeVisibleLogicalRangeChange(CV.place);
@@ -777,7 +828,8 @@ async function showChart(sym,switchTab=true){
     (byTime[t]||[]).forEach(e=>{h+=`<div style="margin-top:4px"><span class="bs ${e.a==='B'?'b':'s'}">${e.a}</span> ${esc(e.w||'—')} · ${KIND[e.k]||''}<br><span class="muted">Đăng ký ${e.a==='B'?'mua':'bán'} ${e.q?nf(e.q)+' cp':''}, ${fmtD(e.d)}${e.e&&e.e!==e.d?'–'+fmtD(e.e):''}</span></div>`});
     tip.innerHTML=h;tip.hidden=false;
   });
-  CV.data=d;applyRange();setTimeout(CV.place,50);
+  CV.data=d;CV.cs=cs;applyRange();setTimeout(CV.place,50);
+  ch.subscribeCrosshairMove(p=>{if(M.a&&!M.fixed&&p&&p.point){const l=ch.timeScale().coordinateToLogical(p.point.x),pr=cs.coordinateToPrice(p.point.y);if(l!=null&&pr!=null){M.b={l,p:pr};drawMeasure()}}});
   renderEvents(sym,evs,d);
 }
 function applyRange(){
@@ -794,6 +846,93 @@ function renderEvents(sym,evs,d){
   $('cvEvents').innerHTML=`<div class="sec"><h3>Đăng ký giao dịch nội bộ / tổ chức (${l.length})</h3><div class="tbl" style="border:0"><table><thead><tr><th></th><th>Đối tượng</th><th>Loại</th><th class="n">Khối lượng</th><th>Thời gian dự kiến</th><th>Công bố</th></tr></thead><tbody>${l.map(e=>`<tr${e._t?` data-jump="${e._t}" style="cursor:pointer"`:''}><td><span class="bs ${e.a==='B'?'b':'s'}">${e.a}</span></td><td style="white-space:normal">${esc(e.w||'—')}</td><td>${KIND[e.k]||'—'}</td><td class="n">${e.q?nf(e.q):'—'}</td><td>${fmtD(e.d)}${e.e&&e.e!==e.d?' – '+fmtD(e.e):''}</td><td>${fmtD(e.p)}</td></tr>`).join('')}</tbody></table></div></div>`;
   $('cvEvents').querySelectorAll('tr[data-jump]').forEach(tr=>tr.onclick=()=>{if(!CV.chart||!d)return;const t=tr.dataset.jump;const i=d.t.indexOf(t);CV.chart.timeScale().setVisibleLogicalRange({from:Math.max(0,i-60),to:Math.min(d.t.length-1,i+60)});$('cvChart').scrollIntoView({behavior:'smooth',block:'center'})});
 }
+
+/* ===== Danh mục theo dõi ===== */
+let WL=store.get('r1vn_watch',[]), WL_OPEN=store.get('r1vn_watch_open',true);
+function saveWL(){store.set('r1vn_watch',WL);renderWL();updStar()}
+function addWL(list){let n=0;list.forEach(t=>{t=String(t||'').trim().toUpperCase();if(t&&!WL.includes(t)&&(DATA.some(s=>s.ticker===t)||(PRICES&&PRICES[t]))){WL.push(t);n++}});saveWL();return n}
+function wlInfo(t){
+  const q=PRICES&&PRICES[t]||{}, a=rows.find(x=>x.ticker===t), s=a?a.s:DATA.find(x=>x.ticker===t);
+  const p=q.p||s?.price||null, ch=q.p&&q.c1?q.p/q.c1-1:null;
+  return {t,p,ch,name:s?.name||'',a,gap:a?a.gap:null,gapR1:a?a.gapR1:null};
+}
+function wlSorted(){
+  const k=$('wlSort').value, l=WL.map(wlInfo);
+  if(k==='tk')l.sort((x,y)=>x.t.localeCompare(y.t));
+  else if(k)l.sort((x,y)=>(x[k]==null)-(y[k]==null)||(k==='ch'?(y[k]-x[k]):(x[k]-y[k])));
+  return l;
+}
+function renderWL(){
+  $('cvLayout').classList.toggle('wl-closed',!WL_OPEN);
+  $('wlTog').textContent=WL_OPEN?'«':'»';$('wlTog').setAttribute('aria-expanded',WL_OPEN);
+  $('wlTitle').textContent=`⭐ Theo dõi (${WL.length})`;
+  if(!WL.length){$('wlList').innerHTML='<li class="wl-empty" style="cursor:default;display:block">Chưa có mã nào. Gõ mã ở ô trên rồi bấm ＋, bấm “☆ Theo dõi” khi đang xem biểu đồ, hoặc thêm nhanh các mã dưới MOS.</li>';return}
+  $('wlList').innerHTML=wlSorted().map(x=>{
+    const chc=x.ch==null?'muted':x.ch>0?'c-good':x.ch<0?'c-bad':'muted';
+    const g=x.gap!=null?`Giá/MOS ${(x.gap>0?'+':'')+pf(x.gap,0)}`:'MOS —';
+    return `<li data-t="${esc(x.t)}" class="${x.t===CV.sym?'on':''}" tabindex="0" title="${esc(x.name)}">
+      <span class="tk">${esc(x.t)}${x.a&&x.a.status==='below'?' <span class="c-good" title="Đang dưới MOS">●</span>':''}</span><span class="px">${nf(x.p)}</span>
+      <span class="ch ${chc} chw">${x.ch==null?'—':(x.ch>0?'+':'')+pf(x.ch,2)}</span>
+      <span class="sub"><span class="${x.gap!=null&&x.gap<=0?'c-good':''}">${g}</span>${x.gapR1!=null?` · R1 ${(x.gapR1>0?'+':'')+pf(x.gapR1,0)}`:''}</span>
+      <button class="rm" data-rm="${esc(x.t)}" title="Bỏ ${esc(x.t)} khỏi danh mục" aria-label="Bỏ ${esc(x.t)}">✕</button></li>`}).join('');
+}
+function updStar(){const on=CV.sym&&WL.includes(CV.sym);$('cvStar').classList.toggle('on',!!on);$('cvStar').textContent=on?'★ Đang theo dõi':'☆ Theo dõi'}
+$('wlTog').onclick=()=>{WL_OPEN=!WL_OPEN;store.set('r1vn_watch_open',WL_OPEN);renderWL();if(CV.place)setTimeout(CV.place,80)};
+$('wlAdd').onclick=()=>{const v=$('wlIn').value;if(!addWL([v]))$('wlIn').title='Mã không có trong dữ liệu hoặc đã có trong danh mục';else{$('wlIn').value='';showChart(v,false)}};
+$('wlIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('wlAdd').click()});
+$('wlSort').onchange=renderWL;
+$('wlList').onclick=e=>{const rm=e.target.closest('[data-rm]');if(rm){WL=WL.filter(t=>t!==rm.dataset.rm);saveWL();return}const li=e.target.closest('li[data-t]');if(li)showChart(li.dataset.t,false)};
+$('wlList').addEventListener('keydown',e=>{const li=e.target.closest('li[data-t]');if(li&&e.key==='Enter')showChart(li.dataset.t,false);if(li&&(e.key==='Delete'||e.key==='Backspace')){WL=WL.filter(t=>t!==li.dataset.t);saveWL()}});
+$('wlAddMos').onclick=()=>{const l=rows.filter(a=>a.eligible&&a.status==='below').map(a=>a.ticker);const n=addWL(l);$('wlAddMos').textContent=n?`Đã thêm ${n} mã`:'Không có mã mới để thêm';setTimeout(()=>$('wlAddMos').textContent='＋ Thêm các mã dưới MOS',2500)};
+$('wlClear').onclick=()=>{if(WL.length&&confirm(`Xóa toàn bộ ${WL.length} mã khỏi danh mục theo dõi?`)){WL=[];saveWL()}};
+$('cvStar').onclick=()=>{if(!CV.sym)return;if(WL.includes(CV.sym))WL=WL.filter(t=>t!==CV.sym);else WL.push(CV.sym);saveWL()};
+document.addEventListener('keydown',e=>{
+  if($('viewChart').hidden||!WL.length||e.target.closest('input,select,textarea')||!['ArrowUp','ArrowDown'].includes(e.key))return;
+  const l=wlSorted().map(x=>x.t);let i=l.indexOf(CV.sym);i=i<0?0:(i+(e.key==='ArrowDown'?1:-1)+l.length)%l.length;e.preventDefault();showChart(l[i],false);
+});
+
+/* ===== Thước đo % ===== */
+const M={on:false,a:null,b:null,fixed:false};
+function clearMeasure(){M.a=M.b=null;M.fixed=false;const el=$('cvMeasure');if(el)el.style.display='none'}
+function setMeasMode(v){M.on=v;$('cvMeas').classList.toggle('on',v);$('cvWrap').classList.toggle('measuring',v)}
+// Dùng sự kiện click gốc của trình duyệt: thư viện bỏ qua lần bấm thứ 2 nếu bấm nhanh
+$('cvChart').addEventListener('click',e=>{
+  if(!CV.chart)return;const r=$('cvChart').getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  if(x<0||y<0||x>CV.chart.timeScale().width()||y>r.height-28)return; // bỏ qua vùng trục giá / trục thời gian
+  onChartClick({point:{x,y},shift:e.shiftKey});
+});
+function onChartClick(p){
+  if(!p||!p.point||!CV.chart||!CV.cs)return;
+  const shift=!!p.shift||SHIFT;
+  if(!M.on&&!shift){if(M.a)clearMeasure();return}
+  const l=CV.chart.timeScale().coordinateToLogical(p.point.x),pr=CV.cs.coordinateToPrice(p.point.y);if(l==null||pr==null)return;
+  if(!M.a||M.fixed){M.a={l,p:pr};M.b={l,p:pr};M.fixed=false}
+  else{M.b={l,p:pr};M.fixed=true;setMeasMode(false)}
+  drawMeasure();
+}
+let SHIFT=false;addEventListener('keydown',e=>{if(e.key==='Shift')SHIFT=true;if(e.key==='Escape'){clearMeasure();setMeasMode(false)}});addEventListener('keyup',e=>{if(e.key==='Shift')SHIFT=false});
+function drawMeasure(){
+  const el=$('cvMeasure');if(!el)return;
+  if(!M.a||!M.b||!CV.chart||!CV.cs||!CV.data){el.style.display='none';return}
+  const ts=CV.chart.timeScale(),d=CV.data;
+  const x1=ts.logicalToCoordinate(M.a.l),x2=ts.logicalToCoordinate(M.b.l),y1=CV.cs.priceToCoordinate(M.a.p),y2=CV.cs.priceToCoordinate(M.b.p);
+  if([x1,x2,y1,y2].some(v=>v==null)){el.style.display='none';return}
+  const pct=M.b.p/M.a.p-1,upC=pct>=0,col=upC?'#1f9d55':'#d64541';
+  const off=8; // cv-wrap padding
+  Object.assign(el.style,{display:'block',left:(Math.min(x1,x2)+off)+'px',top:(Math.min(y1,y2)+off)+'px',width:Math.max(1,Math.abs(x2-x1))+'px',height:Math.max(1,Math.abs(y2-y1))+'px',borderColor:col,background:col+'22'});
+  const bars=Math.round(M.b.l)-Math.round(M.a.l);
+  const i1=Math.max(0,Math.min(d.t.length-1,Math.round(M.a.l))),i2=Math.max(0,Math.min(d.t.length-1,Math.round(M.b.l)));
+  const days=Math.round((new Date(d.t[i2])-new Date(d.t[i1]))/864e5);
+  const lab=el.firstElementChild;
+  lab.innerHTML=`${(pct>0?'+':'')+pf(pct,2)} (${(pct>0?'+':'')+nf(M.b.p-M.a.p)})<br><span style="font-weight:400">${nf(M.a.p)} → ${nf(M.b.p)} · ${Math.abs(bars)} phiên · ${Math.abs(days)} ngày</span>`;
+  lab.style.background=col;
+  const h=Math.abs(y2-y1);
+  // nhãn đặt phía đầu mút điểm cuối (trên nếu tăng, dưới nếu giảm), tự lật vào trong khi sát mép
+  const below=!upC; lab.style.top=below?(h+4)+'px':'';lab.style.bottom=below?'':(h+4)+'px';
+  if(!below&&Math.min(y1,y2)<40){lab.style.bottom='';lab.style.top=(h+4)+'px'}
+  if(below&&Math.max(y1,y2)>$('cvChart').clientHeight-50){lab.style.top='';lab.style.bottom=(h+4)+'px'}
+}
+$('cvMeas').onclick=()=>{clearMeasure();setMeasMode(!M.on)};
 document.querySelectorAll('.tabs [data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $('cvGo').onclick=()=>showChart($('cvSym').value,false);
 $('cvSym').addEventListener('keydown',e=>{if(e.key==='Enter')showChart($('cvSym').value,false)});
