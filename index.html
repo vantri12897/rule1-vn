@@ -185,7 +185,7 @@ body{margin:0}
         <div class="wl-add"><input id="wlIn" list="cvList" placeholder="Thêm mã…" autocomplete="off" aria-label="Thêm mã vào danh mục"><button id="wlAdd">＋</button></div>
         <div class="wl-tools"><select id="wlSort" aria-label="Sắp xếp danh mục"><option value="">Thứ tự thêm</option><option value="tk">Mã A→Z</option><option value="ch">% trong ngày</option><option value="gap">Giá/MOS (rẻ nhất trước)</option><option value="gapR1">Giá/MOS R1 (rẻ nhất trước)</option></select></div>
         <ul class="wl-list" id="wlList"></ul>
-        <div class="wl-foot"><button id="wlAddMos" title="Thêm các mã đang dưới giá MOS (đã qua bộ lọc đủ điều kiện)">＋ Thêm các mã dưới MOS</button><button id="wlClear">Xóa toàn bộ danh mục</button></div>
+        <div class="wl-foot"><button id="wlClear">Xóa toàn bộ danh mục</button></div>
       </div>
     </aside>
     <div class="cv-main" style="min-width:0">
@@ -866,7 +866,7 @@ function renderWL(){
   $('cvLayout').classList.toggle('wl-closed',!WL_OPEN);
   $('wlTog').textContent=WL_OPEN?'«':'»';$('wlTog').setAttribute('aria-expanded',WL_OPEN);
   $('wlTitle').textContent=`⭐ Theo dõi (${WL.length})`;
-  if(!WL.length){$('wlList').innerHTML='<li class="wl-empty" style="cursor:default;display:block">Chưa có mã nào. Gõ mã ở ô trên rồi bấm ＋, bấm “☆ Theo dõi” khi đang xem biểu đồ, hoặc thêm nhanh các mã dưới MOS.</li>';return}
+  if(!WL.length){$('wlList').innerHTML='<li class="wl-empty" style="cursor:default;display:block">Chưa có mã nào. Gõ mã ở ô trên rồi bấm ＋, hoặc bấm “☆ Theo dõi” khi đang xem biểu đồ.</li>';return}
   $('wlList').innerHTML=wlSorted().map(x=>{
     const chc=x.ch==null?'muted':x.ch>0?'c-good':x.ch<0?'c-bad':'muted';
     const g=x.gap!=null?`Giá/MOS ${(x.gap>0?'+':'')+pf(x.gap,0)}`:'MOS —';
@@ -883,7 +883,6 @@ $('wlIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('wlAdd').click()})
 $('wlSort').onchange=renderWL;
 $('wlList').onclick=e=>{const rm=e.target.closest('[data-rm]');if(rm){WL=WL.filter(t=>t!==rm.dataset.rm);saveWL();return}const li=e.target.closest('li[data-t]');if(li)showChart(li.dataset.t,false)};
 $('wlList').addEventListener('keydown',e=>{const li=e.target.closest('li[data-t]');if(li&&e.key==='Enter')showChart(li.dataset.t,false);if(li&&(e.key==='Delete'||e.key==='Backspace')){WL=WL.filter(t=>t!==li.dataset.t);saveWL()}});
-$('wlAddMos').onclick=()=>{const l=rows.filter(a=>a.eligible&&a.status==='below').map(a=>a.ticker);const n=addWL(l);$('wlAddMos').textContent=n?`Đã thêm ${n} mã`:'Không có mã mới để thêm';setTimeout(()=>$('wlAddMos').textContent='＋ Thêm các mã dưới MOS',2500)};
 $('wlClear').onclick=()=>{if(WL.length&&confirm(`Xóa toàn bộ ${WL.length} mã khỏi danh mục theo dõi?`)){WL=[];saveWL()}};
 $('cvStar').onclick=()=>{if(!CV.sym)return;if(WL.includes(CV.sym))WL=WL.filter(t=>t!==CV.sym);else WL.push(CV.sym);saveWL()};
 document.addEventListener('keydown',e=>{
