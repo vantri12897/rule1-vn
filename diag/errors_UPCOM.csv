@@ -1,12 +1,7 @@
 ﻿ticker,error
 BMK,"ValueError: Không tìm thấy dòng BCTC: revenue, net_income, equity_total (chạy --inspect để xem tên dòng)"
 DTR,"ValueError: Không tìm thấy dòng BCTC: revenue, net_income, equity_total (chạy --inspect để xem tên dòng)"
-GTX,ValueError: Không có số cổ phiếu lưu hành
 HAV,"ValueError: Không tìm thấy dòng BCTC: revenue, net_income, equity_total (chạy --inspect để xem tên dòng)"
-KAI,ValueError: Không có số cổ phiếu lưu hành
-PCB,ValueError: Không có số cổ phiếu lưu hành
 PLO,"ValueError: Không tìm thấy dòng BCTC: revenue, net_income, equity_total (chạy --inspect để xem tên dòng)"
 SD8,"ValueError: Không tìm thấy dòng BCTC: revenue, net_income, equity_total (chạy --inspect để xem tên dòng)"
-TAH,ValueError: Không có số cổ phiếu lưu hành
-ULG,ValueError: Không có số cổ phiếu lưu hành
 V68,"ValueError: Không tìm thấy dòng BCTC: revenue, net_income, equity_total (chạy --inspect để xem tên dòng)"
