@@ -625,6 +625,7 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years, extras=No
             "capex": None if fin or capex is None else r1(abs(capex)),
             "dividends": None if div is None else r1(abs(div)),
             "shares_adj": adj.get(y),
+            "nci": None if fin else r1(g("nci", y, 0.0) or 0.0),  # lợi ích cổ đông không kiểm soát (mẫu số ROIC)
         })
     return {
         "ticker": sym, "name": meta.get("name", sym), "exchange": meta.get("exchange", ""),
@@ -689,7 +690,7 @@ def load_universe(Listing, exchanges):
 # --------------------------------------------------------------------------
 CSV_COLS = ["ticker", "name", "exchange", "sector", "is_financial", "price", "shares_mil", "avg_pe",
             "adv_bn", "analyst_g", "year", "revenue", "net_income", "equity", "debt", "cash", "ebit",
-            "cfo", "capex", "dividends", "shares_adj", "ttm_ni", "ttm_period", "pe_town"]
+            "cfo", "capex", "dividends", "shares_adj", "ttm_ni", "ttm_period", "pe_town", "nci"]
 
 
 def write_csv(records, path):
@@ -702,7 +703,7 @@ def write_csv(records, path):
                             rec["price"], rec["shares_mil"], fmt(rec["avg_pe"]), fmt(rec["adv_bn"]),
                             fmt(rec["analyst_g"])] + [fmt(row.get(c)) for c in CSV_COLS[10:20]]
                            + [fmt(row.get("shares_adj")), fmt(rec.get("ttm_ni")), fmt(rec.get("ttm_period")),
-                              fmt(rec.get("pe_town"))])
+                              fmt(rec.get("pe_town")), fmt(row.get("nci"))])
 
 
 def fmt(v):

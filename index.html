@@ -215,6 +215,7 @@ body{margin:0}
       <label class="f" for="pPecap">Trần P/E tương lai<input id="pPecap" type="number" step="1" value="20"></label>
       <label class="f" for="pMos">Tỷ lệ MOS (% Sticker)<input id="pMos" type="number" step="5" value="50"></label>
       <label class="f" for="pTax">Thuế TNDN (%)<input id="pTax" type="number" step="1" value="20"></label>
+      <label class="f" for="pEps" title="TTM: EPS 4 quý gần nhất (đúng sách). Thận trọng: lấy EPS thấp hơn giữa TTM và trung bình 3 năm, loại bỏ lợi nhuận một lần / đỉnh chu kỳ.">EPS định giá<select id="pEps"><option value="ttm" selected>TTM (theo sách)</option><option value="cons">Thận trọng: min(TTM, TB 3 năm)</option></select></label>
       <label class="f" for="pFcf">FCF gốc cho Payback<select id="pFcf"><option value="avg3" selected>Trung bình 3 năm</option><option value="last">Năm gần nhất</option></select></label>
       <label class="f" for="pPbGood">Payback tốt (≤ năm)<input id="pPbGood" type="number" step="1" value="8"></label>
       <label class="f" for="pPbWarn">Payback chấp nhận (≤ năm)<input id="pPbWarn" type="number" step="1" value="12"></label>
@@ -310,12 +311,16 @@ const R1 = (() => {
     const n = ys.length, L = ys[n - 1], sh = s.shares; // shares: triệu cp; tiền: tỷ VND
     // Số CP từng năm đã điều chỉnh thưởng/cổ tức CP (pha loãng do phát hành thu tiền được giữ nguyên).
     // Thiếu số liệu → dùng số CP hiện tại như cách cũ.
-    const shY = ys.map(y => y.sharesAdj > 0 ? y.sharesAdj : sh);
+    // Năm thiếu số CP điều chỉnh: lấy năm có số liệu gần nhất (không trộn với số CP hiện tại, tránh lệch chuỗi EPS).
+    const firstAdj = ys.find(y => y.sharesAdj > 0)?.sharesAdj;
+    let lastAdj = firstAdj;
+    const shY = ys.map(y => { if (y.sharesAdj > 0) lastAdj = y.sharesAdj; return lastAdj > 0 ? lastAdj : sh; });
     const adjYears = ys.filter(y => y.sharesAdj > 0).length;
     const eps = ys.map((y, i) => y.ni * 1000 / shY[i]);
     const bvps = ys.map((y, i) => y.equity * 1000 / shY[i]);
     const fcf = ys.map(y => (y.cfo != null && y.capex != null) ? y.cfo - Math.abs(y.capex) : null);
-    const roic = ys.map(y => { const ic = y.equity + (y.debt || 0) - (y.cash || 0); return (y.ebit != null && ic > 0) ? y.ebit * (1 - cfg.tax) / ic : null; });
+    // Vốn đầu tư = vốn chủ mẹ + lợi ích CĐ không kiểm soát + nợ vay − tiền: cùng phạm vi hợp nhất với EBIT.
+    const roic = ys.map(y => { const ic = y.equity + (y.nci || 0) + (y.debt || 0) - (y.cash || 0); return (y.ebit != null && ic > 0) ? y.ebit * (1 - cfg.tax) / ic : null; });
     const rev = ys.map(y => y.rev);
     const margin = ys.map(y => y.rev > 0 ? y.ni / y.rev : null);
     const fin = !!s.financial;
@@ -337,7 +342,15 @@ const R1 = (() => {
     // TTM phải kết thúc không sớm hơn quý 4 của năm tài chính cuối cùng, nếu không thì cũ hơn EPS năm.
     const tq = /^(\d{4})-Q([1-4])$/.exec(s.ttmPeriod || ''), ttmFresh = tq && (+tq[1] * 4 + +tq[2]) >= L.year * 4 + 4;
     const epsA = L.ni * 1000 / sh, epsT = s.ttmNI != null && ttmFresh ? s.ttmNI * 1000 / sh : null;
-    const epsL = epsT != null ? epsT : epsA, epsSrc = epsT != null ? 'ttm' : 'year';
+    let epsL = epsT != null ? epsT : epsA, epsSrc = epsT != null ? 'ttm' : 'year';
+    // Lợi nhuận đột biến: LNST năm cuối hoặc TTM > 2,5 lần trung bình 3 năm trước đó (hoặc trước đó lỗ/hòa).
+    const niA = ys.map(y => y.ni), niPrev3 = n >= 4 ? (niA[n - 2] + niA[n - 3] + niA[n - 4]) / 3 : null;
+    const niNow = Math.max(L.ni, epsT != null ? s.ttmNI : -Infinity);
+    const niSpike = niPrev3 != null && niNow > 0 && (niPrev3 <= 0 || niNow > 2.5 * niPrev3) ? {now: niNow, prev3: niPrev3} : null;
+    // Chế độ thận trọng: EPS định giá = min(EPS hiện tại, EPS trung bình 3 năm gần nhất theo số CP hiện tại).
+    const epsAvg3 = n >= 3 ? (niA[n - 1] + niA[n - 2] + niA[n - 3]) / 3 * 1000 / sh : null;
+    const epsCur = epsL;
+    if (cfg.epsMode === 'cons' && epsAvg3 != null && epsAvg3 < epsL) { epsL = epsAvg3; epsSrc = 'avg3'; }
     const bvL = L.equity * 1000 / sh;
     const price = s.price, mcap = price * sh / 1000;
     const gE = cagr(eps, 5)?.v, gB = cagr(bvps, 5)?.v;
@@ -372,7 +385,7 @@ const R1 = (() => {
     const divPS = L.div != null ? L.div * 1000 / sh : null;
     return {
       s, ys, eps, bvps, fcf, roic, margin, big5, score, maxScore: keys.length,
-      stT, stR1, gR1, gR1Auto, gParts, epsL, epsA, epsT, epsSrc, ttmPeriod: s.ttmPeriod || null, adjYears, bvL, price, mcap, g, gAuto, gE, gB, st, status, pb, fcf0,
+      stT, stR1, gR1, gR1Auto, gParts, epsL, epsA, epsT, epsSrc, epsCur, epsAvg3, niSpike, ttmPeriod: s.ttmPeriod || null, adjYears, bvL, price, mcap, g, gAuto, gE, gB, st, status, pb, fcf0,
       pe: epsL > 0 ? price / epsL : null, pb_: bvL > 0 ? price / bvL : null,
       roe: L.equity > 0 ? L.ni / L.equity : null,
       de: L.equity > 0 ? (L.debt || 0) / L.equity : null,
@@ -442,7 +455,7 @@ const pf=(v,d=1)=>v==null||!isFinite(v)?'—':(v*100).toLocaleString('vi-VN',{mi
 const cls10=v=>v==null?'':v>=.10?'good':v>=.07?'warn':'bad';
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-function cfg(){return{marr:+$('pMarr').value/100||.15,gCap:+$('pGcap').value/100||.15,peCap:+$('pPecap').value||20,mosPct:(+$('pMos').value||50)/100,tax:(+$('pTax').value||20)/100,fcfMode:$('pFcf').value,pbGood:+$('pPbGood').value||8,pbWarn:+$('pPbWarn').value||12,capMin:+$('pCapMin').value||0,advMin:+$('pAdvMin').value||0,yrMin:+$('pYrMin').value||0}}
+function cfg(){return{marr:+$('pMarr').value/100||.15,gCap:+$('pGcap').value/100||.15,peCap:+$('pPecap').value||20,mosPct:(+$('pMos').value||50)/100,tax:(+$('pTax').value||20)/100,fcfMode:$('pFcf').value,epsMode:$('pEps').value,pbGood:+$('pPbGood').value||8,pbWarn:+$('pPbWarn').value||12,capMin:+$('pCapMin').value||0,advMin:+$('pAdvMin').value||0,yrMin:+$('pYrMin').value||0}}
 function m3pass(t){const m=M3[t];return m&&m.meaning==='yes'&&(+m.moatStr||0)>=3&&(+m.mgmt||0)>=3}
 function m3rated(t){const m=M3[t];return m&&(m.meaning||m.moatStr||m.mgmt)}
 
@@ -485,7 +498,7 @@ function pbCell(a,c){
   const y=a.pb.years;const k=y<=c.pbGood?'good':y<=c.pbWarn?'warn':'bad';
   return `<span class="pill p-${k}">${y>20?'>20':y} năm</span>`;
 }
-const ttmLbl=a=>a.epsSrc==='ttm'&&a.ttmPeriod?'TTM đến '+a.ttmPeriod.replace(/(\d{4})-Q(\d)/,'Q$2/$1'):'năm '+(a.ys[a.ys.length-1]?.year??'');
+const ttmLbl=a=>a.epsSrc==='avg3'?'TB 3 năm (chế độ thận trọng)':a.epsSrc==='ttm'&&a.ttmPeriod?'TTM đến '+a.ttmPeriod.replace(/(\d{4})-Q(\d)/,'Q$2/$1'):'năm '+(a.ys[a.ys.length-1]?.year??'');
 /* Ngành chu kỳ: theo ngành ICB, cộng các mã thủy sản / vận tải biển nằm lẫn trong ngành rộng hơn */
 const CYCLICAL_SECTORS=new Set(['Tài nguyên Cơ bản','Hóa chất','Dầu khí','Bất động sản','Xây dựng và Vật liệu','Dịch vụ tài chính']);
 const CYCLICAL_TICKERS=new Set(['VHC','ANV','IDI','FMC','MPC','CMX','ACL','ABT','AAM','AGF','BLF','CAD','HVG','ICF','NGC','TS4','SEA','SPV','KHS','JOS','HAH','VOS','VTO','PVT','GSP','VIP','VNA','SKG','TCO','MVN','SWC','VSA','DXP','PVP']);
@@ -494,6 +507,11 @@ const ttmSpike=a=>a.epsSrc==='ttm'&&a.epsT>0&&(a.epsA<=0||a.epsT>a.epsA*1.5);
 const staleDays=a=>{const ref=PRICE_META&&PRICE_META.session,d=a.s.priceDate;if(!ref||!d)return 0;return Math.round((new Date(ref)-new Date(d))/864e5)};
 const isStale=a=>staleDays(a)>30;
 function epsTag(a){
+  const sp=a.niSpike?`<span class="tag t-bad" title="Lợi nhuận đột biến: LNST ${nf(a.niSpike.now)} tỷ so với trung bình 3 năm trước ${nf(a.niSpike.prev3)} tỷ. Sticker/MOS đang ngoại suy từ mức lợi nhuận này 10 năm; nếu là lãi một lần hoặc đỉnh chu kỳ thì MOS bị thổi phồng. Thử chế độ EPS thận trọng.">⚡</span>`:'';
+  return sp+epsTag0(a);
+}
+function epsTag0(a){
+  if(a.epsSrc==='avg3')return `<span class="tag" title="Chế độ thận trọng: EPS TB 3 năm ${nf(a.epsAvg3)} thấp hơn EPS hiện tại ${nf(a.epsCur)}">TB3</span>`;
   if(a.epsSrc!=='ttm')return `<span class="tag" title="Chưa có BCTC quý: đang dùng EPS năm ${a.ys[a.ys.length-1]?.year??''}">năm</span>`;
   if(a.epsA>0&&a.epsT<a.epsA*.8)return `<span class="tag" title="EPS TTM thấp hơn EPS năm ${a.ys[a.ys.length-1].year} (${nf(a.epsA)}) hơn 20%">↓</span>`;
   if(ttmSpike(a))return `<span class="tag t-warn" title="${a.epsA>0?`EPS TTM cao hơn EPS năm ${a.ys[a.ys.length-1].year} (${nf(a.epsA)}) hơn 50%`:`Năm ${a.ys[a.ys.length-1].year} lỗ, TTM có lãi`}: có thể là đỉnh chu kỳ hoặc lợi nhuận bất thường, Sticker/MOS dễ bị thổi phồng">↑</span>`;
@@ -506,6 +524,7 @@ function warnBox(a){
   const w=[];
   if(epsLossFlag(a))w.push(`<b>EPS từng lỗ:</b> không tính được CAGR EPS 5 năm (${(()=>{const i0=Math.max(0,a.eps.length-6),i1=a.eps.length-1,l=[];if(!(a.eps[i0]>0))l.push('năm gốc '+a.ys[i0].year);if(!(a.eps[i1]>0))l.push('năm '+a.ys[i1].year);return (l.join(' và ')||'thiếu số liệu')+' lỗ'})()}), nên g chỉ dựa trên tăng trưởng BVPS. Kiểm tra lợi nhuận đã ổn định chưa trước khi tin Sticker/MOS.`);
   if(isStale(a))w.push(`<b>Giá cũ:</b> giao dịch gần nhất ngày ${fmtD(a.s.priceDate)}, ${staleDays(a)} ngày trước phiên mới nhất. Mã có thể đang bị đình chỉ, hủy niêm yết hoặc không có thanh khoản; so sánh giá với MOS không còn ý nghĩa.`);
+  if(a.niSpike)w.push(`<b>Lợi nhuận đột biến ⚡:</b> LNST ${nf(a.niSpike.now)} tỷ, gấp ${a.niSpike.prev3>0?nf(a.niSpike.now/a.niSpike.prev3,1)+' lần':'nhiều lần (trước đó lỗ/hòa vốn)'} trung bình 3 năm trước (${nf(a.niSpike.prev3)} tỷ). Công thức Sticker nhân EPS này lên 10 năm, nên nếu đây là lãi bất thường (bán tài sản, hoàn nhập, đỉnh chu kỳ) thì MOS bị thổi phồng. Đọc thuyết minh BCTC; thử tham số “EPS định giá: Thận trọng”${a.epsAvg3!=null?` (EPS TB 3 năm: ${nf(a.epsAvg3)})`:''}.`);
   if(ttmSpike(a))w.push(`<b>Lợi nhuận TTM tăng đột biến:</b> EPS TTM ${nf(a.epsT)} so với EPS năm ${a.ys[a.ys.length-1].year} ${nf(a.epsA)}. Kiểm tra xem đây là đỉnh chu kỳ hay khoản lãi một lần trước khi tin Sticker/MOS.`);
   if(isCyclical(a))w.push(`<b>Ngành chu kỳ (${esc(a.sector)}):</b> tăng trưởng lịch sử có thể đến từ chu kỳ. Theo prompt Bước 0, hãy dùng trung bình cả chu kỳ và g định giá thấp hơn g lịch sử (thử ghi đè g ở mục Sticker).`);
   return w.length?`<div class="sec warnbox">${w.map(x=>`<p style="margin:0">⚠️ ${x}</p>`).join('')}</div>`:'';
@@ -695,8 +714,8 @@ function closeDetail(){$('drawerRoot').hidden=true;$('drawerRoot').innerHTML=''}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDetail();closeModal()}});
 
 /* ===== Nhập / xuất ===== */
-const CSV_HEAD='ticker,name,exchange,sector,is_financial,price,shares_mil,avg_pe,adv_bn,analyst_g,year,revenue,net_income,equity,debt,cash,ebit,cfo,capex,dividends,shares_adj,ttm_ni,ttm_period,pe_town';
-function toCSV(data){const out=[CSV_HEAD];data.forEach(s=>s.years.forEach(y=>out.push([s.ticker,`"${s.name.replace(/"/g,'""')}"`,s.exchange,s.sector,s.financial?1:0,s.price,s.shares,s.avgPE??'',s.adv??'',s.analystG!=null?s.analystG*100:'',y.year,y.rev,y.ni,y.equity,y.debt,y.cash,y.ebit,y.cfo,y.capex,y.div,y.sharesAdj??'',s.ttmNI??'',s.ttmPeriod??'',s.peTown??''].join(','))));return out.join('\n')}
+const CSV_HEAD='ticker,name,exchange,sector,is_financial,price,shares_mil,avg_pe,adv_bn,analyst_g,year,revenue,net_income,equity,debt,cash,ebit,cfo,capex,dividends,shares_adj,ttm_ni,ttm_period,pe_town,nci';
+function toCSV(data){const out=[CSV_HEAD];data.forEach(s=>s.years.forEach(y=>out.push([s.ticker,`"${s.name.replace(/"/g,'""')}"`,s.exchange,s.sector,s.financial?1:0,s.price,s.shares,s.avgPE??'',s.adv??'',s.analystG!=null?s.analystG*100:'',y.year,y.rev,y.ni,y.equity,y.debt,y.cash,y.ebit,y.cfo,y.capex,y.div,y.sharesAdj??'',s.ttmNI??'',s.ttmPeriod??'',s.peTown??'',y.nci??''].join(','))));return out.join('\n')}
 function splitCSV(line){const r=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(q){if(ch==='"'&&line[i+1]==='"'){cur+='"';i++}else if(ch==='"')q=false;else cur+=ch}else if(ch==='"')q=true;else if(ch===','){r.push(cur);cur=''}else cur+=ch}r.push(cur);return r.map(x=>x.trim())}
 function parseCSV(text){
   const lines=text.replace(/^﻿/,'').split(/\r?\n/).filter(l=>l.trim());const h=splitCSV(lines[0]).map(x=>x.toLowerCase());
@@ -704,7 +723,7 @@ function parseCSV(text){
   const num=v=>v===''||v==null?null:+String(v).replace(/\s/g,'');const map={};
   lines.slice(1).forEach(l=>{const c=splitCSV(l),o={};h.forEach((k,i)=>o[k]=c[i]);if(!o.ticker)return;const t=o.ticker.toUpperCase();
     const s=map[t]||(map[t]={ticker:t,name:o.name||t,exchange:o.exchange||'HOSE',sector:o.sector||'Khác',financial:o.is_financial==='1'||/true/i.test(o.is_financial||''),price:num(o.price),shares:num(o.shares_mil),avgPE:num(o.avg_pe),adv:num(o.adv_bn),analystG:num(o.analyst_g)!=null?num(o.analyst_g)/100:null,ttmNI:num(o.ttm_ni),ttmPeriod:o.ttm_period||null,peTown:num(o.pe_town),years:[]});
-    s.years.push({year:+o.year,rev:num(o.revenue),ni:num(o.net_income),equity:num(o.equity),debt:num(o.debt)||0,cash:num(o.cash)||0,ebit:num(o.ebit),cfo:num(o.cfo),capex:num(o.capex),div:num(o.dividends),sharesAdj:num(o.shares_adj)})});
+    s.years.push({year:+o.year,rev:num(o.revenue),ni:num(o.net_income),equity:num(o.equity),debt:num(o.debt)||0,cash:num(o.cash)||0,ebit:num(o.ebit),cfo:num(o.cfo),capex:num(o.capex),div:num(o.dividends),sharesAdj:num(o.shares_adj),nci:num(o.nci)})});
   return Object.values(map).filter(s=>s.price>0&&s.shares>0&&s.years.length>=2);
 }
 function loadText(text,name){
@@ -736,7 +755,7 @@ function fillFilters(){
   $('fSector').innerHTML='<option value="">Tất cả</option>'+secs.map(s=>`<option>${esc(s)}</option>`).join('');
 }
 document.addEventListener('input',e=>{if(e.target.closest('.params,aside')&&!e.target.closest('.drawer'))render()});
-document.addEventListener('change',e=>{if(e.target.closest('.params,aside'))render()});
+document.addEventListener('change',e=>{if(e.target.closest('.params,aside')&&(e.target.tagName==='SELECT'||e.target.type==='checkbox'))render()}); // ô gõ đã render theo 'input'; render lại khi rời ô làm mất cú bấm vào bảng
 $('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=['payback','pe','pb_','gap','gapT','gapR1','mos','ticker','exchange','sector'].includes(k)?1:-1}render()};
 $('tbody').onclick=e=>{const tr=e.target.closest('tr[data-t]');if(tr)openDetail(tr.dataset.t)};
 document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}render()});
