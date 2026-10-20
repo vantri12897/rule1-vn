@@ -183,7 +183,7 @@ body{margin:0}
       <div class="wl-head"><b id="wlTitle">⭐ Theo dõi</b><button class="wl-tog" id="wlTog" title="Thu gọn / mở rộng danh mục" aria-expanded="true">«</button></div>
       <div class="wl-body">
         <div class="wl-add"><input id="wlIn" list="cvList" placeholder="Thêm mã…" autocomplete="off" aria-label="Thêm mã vào danh mục"><button id="wlAdd">＋</button></div>
-        <div class="wl-tools"><select id="wlSort" aria-label="Sắp xếp danh mục"><option value="">Thứ tự thêm</option><option value="tk">Mã A→Z</option><option value="ch">% trong ngày</option><option value="gap">Giá/MOS (rẻ nhất trước)</option><option value="gapR1">Giá/MOS R1 (rẻ nhất trước)</option></select></div>
+        <div class="wl-tools"><select id="wlSort" aria-label="Sắp xếp danh mục"><option value="">Thứ tự thêm</option><option value="tk">Mã A→Z</option><option value="ch">% trong ngày</option><option value="gap">Giá/MOS (rẻ nhất trước)</option><option value="gapR1">Giá/MOS R1 (rẻ nhất trước)</option><option value="gapR2">Giá/MOS R2 (rẻ nhất trước)</option></select></div>
         <ul class="wl-list" id="wlList"></ul>
         <div class="wl-foot"><button id="wlClear">Xóa toàn bộ danh mục</button></div>
       </div>
@@ -369,6 +369,8 @@ const R1 = (() => {
     const gR1 = gOverride != null ? gOverride : gR1Auto;
     const fcfLast = fcf[n - 1], r1FcfFail = !fin && fcfLast != null && fcfLast <= 0 && gOverride == null;
     const stR1 = r1FcfFail ? {ok: false, reason: `FCF năm ${L.year} ≤ 0 (${(Math.round(fcfLast * 10) / 10).toLocaleString('vi-VN')} tỷ): không đạt tiêu chí tăng trưởng dòng tiền`} : sticker(epsL, gR1, s.avgPE, cfg);
+    // MOS R2: g như MOS R1, P/E tương lai = min(2g, P/E trung bình lịch sử) — đúng Town, không trần P/E.
+    const stR2 = r1FcfFail ? stR1 : stickerTown(epsL, gR1, s.peTown, cfg);
     let status = 'na';
     if (st.ok) status = price <= st.mos ? 'below' : price <= st.sticker ? 'between' : 'above';
 
@@ -385,7 +387,7 @@ const R1 = (() => {
     const divPS = L.div != null ? L.div * 1000 / sh : null;
     return {
       s, ys, eps, bvps, fcf, roic, margin, big5, score, maxScore: keys.length,
-      stT, stR1, gR1, gR1Auto, gParts, epsL, epsA, epsT, epsSrc, epsCur, epsAvg3, niSpike, ttmPeriod: s.ttmPeriod || null, adjYears, bvL, price, mcap, g, gAuto, gE, gB, st, status, pb, fcf0,
+      stT, stR1, stR2, gR1, gR1Auto, gParts, epsL, epsA, epsT, epsSrc, epsCur, epsAvg3, niSpike, ttmPeriod: s.ttmPeriod || null, adjYears, bvL, price, mcap, g, gAuto, gE, gB, st, status, pb, fcf0,
       pe: epsL > 0 ? price / epsL : null, pb_: bvL > 0 ? price / bvL : null,
       roe: L.equity > 0 ? L.ni / L.equity : null,
       de: L.equity > 0 ? (L.debt || 0) / L.equity : null,
@@ -446,7 +448,7 @@ const COLS=[
  {k:'ticker',l:'Mã',cls:'tk'},{k:'exchange',l:'Sàn'},{k:'sector',l:'Ngành'},
  {k:'price',l:'Giá',n:1},{k:'mcap',l:'Vốn hóa (tỷ)',n:1},{k:'pe',l:'P/E',n:1},{k:'pb_',l:'P/B',n:1},
  {k:'roe',l:'ROE %',n:1},{k:'epsL',l:'EPS TTM',n:1},{k:'score',l:'Big 5'},{k:'g',l:'g %',n:1},
- {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'mosR1',l:'MOS R1',n:1},{k:'gapR1',l:'Giá/MOS R1',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
+ {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'mosR1',l:'MOS R1',n:1},{k:'gapR1',l:'Giá/MOS R1',n:1},{k:'mosR2',l:'MOS R2',n:1},{k:'gapR2',l:'Giá/MOS R2',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
 ];
 
 /* ===== Định dạng ===== */
@@ -462,7 +464,7 @@ function m3rated(t){const m=M3[t];return m&&(m.meaning||m.moatStr||m.mgmt)}
 function compute(){
   const c=cfg();
   rows=DATA.map(s=>{const a=R1.analyze(s,c,GOV[s.ticker]!=null?GOV[s.ticker]:null);
-    a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;a.gapT=a.mosT?a.price/a.mosT-1:null;a.mosR1=a.stR1.ok?a.stR1.mos:null;a.gapR1=a.mosR1?a.price/a.mosR1-1:null;a.statusR1=a.stR1.ok?(a.price<=a.stR1.mos?'below':a.price<=a.stR1.sticker?'between':'above'):'na';a.statusT=a.stT.ok?(a.price<=a.stT.mos?'below':a.price<=a.stT.sticker?'between':'above'):'na';
+    a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;a.gapT=a.mosT?a.price/a.mosT-1:null;a.mosR1=a.stR1.ok?a.stR1.mos:null;a.mosR2=a.stR2.ok?a.stR2.mos:null;a.gapR2=a.mosR2?a.price/a.mosR2-1:null;a.statusR2=a.stR2.ok?(a.price<=a.stR2.mos?'below':a.price<=a.stR2.sticker?'between':'above'):'na';a.gapR1=a.mosR1?a.price/a.mosR1-1:null;a.statusR1=a.stR1.ok?(a.price<=a.stR1.mos?'below':a.price<=a.stR1.sticker?'between':'above'):'na';a.statusT=a.stT.ok?(a.price<=a.stT.mos?'below':a.price<=a.stT.sticker?'between':'above'):'na';
     a.payback=a.pb.ok?a.pb.years:null;a.ticker=s.ticker;a.exchange=s.exchange;a.sector=s.sector;a.m3=m3pass(s.ticker)?2:m3rated(s.ticker)?1:0;
     a.eligible=a.mcap>=c.capMin&&(s.adv==null||s.adv>=c.advMin)&&a.nYears>=c.yrMin;return a});
 }
@@ -554,6 +556,8 @@ function render(){
     <td class="n">${a.gapT!=null?`<span class="${a.statusT==='below'?'c-good':a.statusT==='between'?'c-warn':'c-bad'}" title="Giá so với MOS Town (Sticker Town ${nf(a.stT.sticker)})">${(a.gapT>0?'+':'')+pf(a.gapT,0)}</span>`:'—'}</td>
     <td class="n">${a.mosR1!=null?`<span class="${a.price<=a.mosR1?'c-good':'muted'}" title="g = ${pf(a.gR1)} = min(DT ${pf(a.gParts.rev)}, EPS ${pf(a.gParts.eps)}, BVPS ${pf(a.gParts.bvps)}${a.s.financial?'':', FCF '+pf(a.gParts.fcf)}; trần ${pf(c.gCap,0)}) · Giá/MOS R1: ${(a.gapR1>0?'+':'')+pf(a.gapR1,0)}">${nf(a.mosR1)}</span>`:`<span class="muted" title="${esc(a.stR1.reason||'')}">—</span>`}</td>
     <td class="n">${a.gapR1!=null?`<span class="${a.statusR1==='below'?'c-good':a.statusR1==='between'?'c-warn':'c-bad'}" title="Giá so với MOS R1 (Sticker R1 ${nf(a.stR1.sticker)})">${(a.gapR1>0?'+':'')+pf(a.gapR1,0)}</span>`:'—'}</td>
+    <td class="n">${a.mosR2!=null?`<span class="${a.price<=a.mosR2?'c-good':'muted'}" title="g = ${pf(a.gR1)} (như MOS R1); P/E tương lai = min(2g ${nf(a.stR2.peByG,1)}, P/E trung bình lịch sử ${nf(a.s.peTown,1)}) = ${nf(a.stR2.futurePE,1)} — đúng Town, không trần">${nf(a.mosR2)}</span>`:`<span class="muted" title="${esc(a.stR2.reason||'')}">—</span>`}</td>
+    <td class="n">${a.gapR2!=null?`<span class="${a.statusR2==='below'?'c-good':a.statusR2==='between'?'c-warn':'c-bad'}" title="Giá so với MOS R2 (Sticker R2 ${nf(a.stR2.sticker)})">${(a.gapR2>0?'+':'')+pf(a.gapR2,0)}</span>`:'—'}</td>
     <td class="n">${pbCell(a,c)}</td>
     <td>${a.m3===2?'<span class="pill p-good">Đạt</span>':a.m3===1?'<span class="pill p-warn">Chưa đạt</span>':'<span class="pill p-na">Chưa chấm</span>'}</td></tr>`).join('')
     :`<tr><td colspan="${COLS.length}" class="empty">Không mã nào qua bộ lọc hiện tại. Nới bộ lọc hoặc giảm MARR để mở rộng danh sách.</td></tr>`;
@@ -654,6 +658,11 @@ g              = ${pf(a.gR1,2)}  ${GOV[t]!=null?'(ghi đè thủ công)':`= min(
 P/E tương lai   = min(2 × g = ${nf(sR.peByG,1)}, P/E lịch sử (trung vị) = ${nf(s.avgPE,1)}, trần ${c.peCap}) = ${nf(sR.futurePE,1)}
 Sticker Price  = ${nf(sR.futureEPS)} × ${nf(sR.futurePE,1)} ÷ (1 + ${pf(c.marr,1)})^10 = ${nf(sR.sticker)}
 MOS R1         = ${nf(sR.sticker)} × ${pf(c.mosPct,0)} = ${nf(sR.mos)}  →  giá ${a.price<=sR.mos?'DƯỚI':'trên'} MOS R1`:`MOS R1: không tính được (${sR.reason}).`;
+  const s2=a.stR2,stR2Txt=s2.ok?`MOS R2 (g như MOS R1, P/E trung bình lịch sử đúng Town, không trần):
+g              = ${pf(a.gR1,2)}  (như MOS R1)
+P/E tương lai   = min(2 × g = ${nf(s2.peByG,1)}, P/E trung bình lịch sử = ${nf(s.peTown,1)}) = ${nf(s2.futurePE,1)}
+Sticker Price  = ${nf(s2.futureEPS)} × ${nf(s2.futurePE,1)} ÷ (1 + ${pf(c.marr,1)})^10 = ${nf(s2.sticker)}
+MOS R2         = ${nf(s2.sticker)} × ${pf(c.mosPct,0)} = ${nf(s2.mos)}  →  giá ${a.price<=s2.mos?'DƯỚI':'trên'} MOS R2`:`MOS R2: không tính được (${s2.reason}).`;
   const sT=a.stT,stTTxt=sT.ok?`Theo đúng Town / prompt (P/E trung bình, không trần):
 P/E tương lai   = min(2 × g = ${nf(sT.peByG,1)}, P/E trung bình lịch sử = ${nf(s.peTown,1)}) = ${nf(sT.futurePE,1)}
 Sticker Price  = ${nf(sT.futureEPS)} × ${nf(sT.futurePE,1)} ÷ (1 + ${pf(c.marr,1)})^10 = ${nf(sT.sticker)}
@@ -691,7 +700,8 @@ MOS Town       = ${nf(sT.sticker)} × ${pf(c.mosPct,0)} = ${nf(sT.mos)}  →  gi
     <div class="steps">${esc(stTxt)}</div>
     <div class="steps">${esc(stTTxt)}</div>
     <div class="steps">${esc(stR1Txt)}</div>
-    <p class="note">P/E lịch sử lấy từ P/E TTM cuối mỗi quý (VCI, từ 2018), bỏ quý lỗ và P/E &gt; 100. MOS = trung vị P/E, có trần ${c.peCap} (thận trọng). MOS Town = trung bình các P/E trung bình năm, không trần — khớp phần P/E ở Bước 6.1 trong prompt Payback Time. MOS R1 = g lấy min của mọi tốc độ tăng trưởng 5 năm (doanh thu, EPS, BVPS, FCF), P/E như cột MOS — cách thận trọng nhất. Ô "Ghi đè g" áp dụng cho cả ba cột.</p></div>
+    <div class="steps">${esc(stR2Txt)}</div>
+    <p class="note">P/E lịch sử lấy từ P/E TTM cuối mỗi quý (VCI, từ 2018), bỏ quý lỗ và P/E &gt; 100. MOS = trung vị P/E, có trần ${c.peCap} (thận trọng). MOS Town = trung bình các P/E trung bình năm, không trần — khớp phần P/E ở Bước 6.1 trong prompt Payback Time. MOS R1 = g lấy min của mọi tốc độ tăng trưởng 5 năm (doanh thu, EPS, BVPS, FCF), P/E như cột MOS — cách thận trọng nhất. MOS R2 = g như MOS R1, P/E = min(2g, P/E trung bình lịch sử) như MOS Town. Ô "Ghi đè g" áp dụng cho cả bốn cột.</p></div>
    <div class="sec"><h3>Payback Time</h3>${a.pb.ok?`<p style="margin:0">Vốn hóa ${nf(a.mcap)} tỷ. FCF gốc ${nf(a.fcf0,1)} tỷ (${c.fcfMode==='avg3'?'TB 3 năm':'năm gần nhất'}), tăng ${pf(a.pb.g)}/năm (= min(g ${pf(a.g)}, tăng trưởng FCF 5 năm ${pf(a.big5.fcf[1]?.v)}), không âm; ${a.pb.gSrc}). Hoàn vốn sau <b>${a.pb.years>30?'hơn 30':a.pb.years} năm</b>.</p>`:''}<div class="tbl">${pbTxt}</div></div>
    <div class="sec"><h3>3M — đánh giá của bạn</h3>
     <div class="m3">
@@ -741,8 +751,8 @@ function copyBtn(){$('mCopy').onclick=async()=>{const ta=$('mText');try{await na
 $('fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const err=loadText(r.result,f.name);if(err){modal('Không nạp được file',esc(err),'','')}};r.readAsText(f,'utf-8');e.target.value=''};
 $('btnPaste').onclick=()=>{modal('Dán dữ liệu','Dán nội dung CSV (theo cột của CSV mẫu) hoặc JSON. Đơn vị: tiền tệ tỷ VND, giá VND, số cổ phiếu triệu cp, capex số dương.','', '<button class="primary" id="mLoad">Nạp</button>');$('mLoad').onclick=()=>{const err=loadText($('mText').value);if(err)$('mMsg').textContent=err}};
 $('btnTemplate').onclick=()=>{modal('CSV mẫu','Mỗi dòng là một năm của một mã. Bắt buộc: ticker, price, shares_mil, year, revenue, net_income, equity. Nên có: debt (nợ vay), cash, ebit, cfo (dòng tiền HĐKD), capex, dividends (cổ tức tiền mặt), avg_pe (P/E TB lịch sử), adv_bn (thanh khoản TB tỷ/phiên), analyst_g (%), shares_adj (số cổ phiếu năm đó đã điều chỉnh thưởng/cổ tức CP, triệu cp), ttm_ni (LNST cổ đông mẹ 4 quý gần nhất, tỷ) và ttm_period (vd 2026-Q2). Nội dung dưới đây là dữ liệu giả lập đang hiển thị.',toCSV(SAMPLE),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
-$('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,MOS Town,Giá/MOS Town %,MOS R1,Giá/MOS R1 %,Payback (năm),3M'];
-  l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.mosT?Math.round(a.mosT):'',a.gapT!=null?(a.gapT*100).toFixed(0):'',a.mosR1?Math.round(a.mosR1):'',a.gapR1!=null?(a.gapR1*100).toFixed(0):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm'].join(',')));
+$('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,MOS Town,Giá/MOS Town %,MOS R1,Giá/MOS R1 %,MOS R2,Giá/MOS R2 %,Payback (năm),3M'];
+  l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.mosT?Math.round(a.mosT):'',a.gapT!=null?(a.gapT*100).toFixed(0):'',a.mosR1?Math.round(a.mosR1):'',a.gapR1!=null?(a.gapR1*100).toFixed(0):'',a.mosR2?Math.round(a.mosR2):'',a.gapR2!=null?(a.gapR2*100).toFixed(0):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm'].join(',')));
   modal('Xuất kết quả',`${l.length} mã theo bộ lọc hiện tại. Sao chép rồi dán vào Excel hoặc Google Sheets (Dữ liệu → Tách văn bản thành cột theo dấu phẩy).`,lines.join('\n'),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
 $('btn3m').onclick=()=>{modal('Sao lưu 3M','Sao chép để lưu trữ, hoặc dán bản sao lưu cũ rồi bấm Khôi phục.',JSON.stringify({m3:M3,gOverride:GOV,watch:WL},null,1),'<button class="primary" id="mCopy">Sao chép</button><button id="mRestore">Khôi phục</button>');copyBtn();
   $('mRestore').onclick=()=>{try{const d=JSON.parse($('mText').value);M3=d.m3||{};GOV=d.gOverride||{};if(Array.isArray(d.watch)){WL=d.watch;saveWL()}store.set('r1vn_3m',M3);store.set('r1vn_gov',GOV);render();$('mMsg').textContent='Đã khôi phục.'}catch(e){$('mMsg').textContent='Nội dung không phải JSON hợp lệ.'}}};
@@ -756,7 +766,7 @@ function fillFilters(){
 }
 document.addEventListener('input',e=>{if(e.target.closest('.params,aside')&&!e.target.closest('.drawer'))render()});
 document.addEventListener('change',e=>{if(e.target.closest('.params,aside')&&(e.target.tagName==='SELECT'||e.target.type==='checkbox'))render()}); // ô gõ đã render theo 'input'; render lại khi rời ô làm mất cú bấm vào bảng
-$('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=['payback','pe','pb_','gap','gapT','gapR1','mos','ticker','exchange','sector'].includes(k)?1:-1}render()};
+$('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=['payback','pe','pb_','gap','gapT','gapR1','gapR2','mos','ticker','exchange','sector'].includes(k)?1:-1}render()};
 $('tbody').onclick=e=>{const tr=e.target.closest('tr[data-t]');if(tr)openDetail(tr.dataset.t)};
 document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}render()});
 $('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
@@ -811,6 +821,7 @@ async function showChart(sym,switchTab=true){
     if(a.mos)lines.push({v:a.mos,c:'#1f9d55',t:'MOS',st:0});
     if(a.mosT)lines.push({v:a.mosT,c:'#2f7fd1',t:'MOS Town',st:2});
     if(a.mosR1)lines.push({v:a.mosR1,c:'#c27a00',t:'MOS R1',st:2});
+    if(a.mosR2)lines.push({v:a.mosR2,c:'#8e44ad',t:'MOS R2',st:2});
   }
   const lv=lines.map(x=>x.v);
   const cs=ch.addCandlestickSeries({autoscaleInfoProvider:orig=>{const r=orig();if(r&&r.priceRange&&lv.length){r.priceRange.minValue=Math.min(r.priceRange.minValue,...lv)*0.97;r.priceRange.maxValue=Math.max(r.priceRange.maxValue,...lv)*1.02}return r},upColor:up,downColor:dn,borderUpColor:up,borderDownColor:dn,wickUpColor:up,wickDownColor:dn,priceFormat:{type:'price',precision:0,minMove:10}});
@@ -873,7 +884,7 @@ function addWL(list){let n=0;list.forEach(t=>{t=String(t||'').trim().toUpperCase
 function wlInfo(t){
   const q=PRICES&&PRICES[t]||{}, a=rows.find(x=>x.ticker===t), s=a?a.s:DATA.find(x=>x.ticker===t);
   const p=q.p||s?.price||null, ch=q.p&&q.c1?q.p/q.c1-1:null;
-  return {t,p,ch,name:s?.name||'',a,gap:a?a.gap:null,gapR1:a?a.gapR1:null};
+  return {t,p,ch,name:s?.name||'',a,gap:a?a.gap:null,gapR1:a?a.gapR1:null,gapR2:a?a.gapR2:null};
 }
 function wlSorted(){
   const k=$('wlSort').value, l=WL.map(wlInfo);
@@ -892,7 +903,7 @@ function renderWL(){
     return `<li data-t="${esc(x.t)}" class="${x.t===CV.sym?'on':''}" tabindex="0" title="${esc(x.name)}">
       <span class="tk">${esc(x.t)}${x.a&&x.a.status==='below'?' <span class="c-good" title="Đang dưới MOS">●</span>':''}</span><span class="px">${nf(x.p)}</span>
       <span class="ch ${chc} chw">${x.ch==null?'—':(x.ch>0?'+':'')+pf(x.ch,2)}</span>
-      <span class="sub"><span class="${x.gap!=null&&x.gap<=0?'c-good':''}">${g}</span>${x.gapR1!=null?` · R1 ${(x.gapR1>0?'+':'')+pf(x.gapR1,0)}`:''}</span>
+      <span class="sub"><span class="${x.gap!=null&&x.gap<=0?'c-good':''}">${g}</span>${x.gapR1!=null?` · R1 ${(x.gapR1>0?'+':'')+pf(x.gapR1,0)}`:''}${x.gapR2!=null?` · R2 ${(x.gapR2>0?'+':'')+pf(x.gapR2,0)}`:''}</span>
       <button class="rm" data-rm="${esc(x.t)}" title="Bỏ ${esc(x.t)} khỏi danh mục" aria-label="Bỏ ${esc(x.t)}">✕</button></li>`}).join('');
 }
 function updStar(){const on=CV.sym&&WL.includes(CV.sym);$('cvStar').classList.toggle('on',!!on);$('cvStar').textContent=on?'★ Đang theo dõi':'☆ Theo dõi'}
