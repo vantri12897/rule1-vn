@@ -33,6 +33,20 @@ h3{font-size:.8rem;margin:0;text-transform:uppercase;letter-spacing:.06em;color:
 .muted{color:var(--muted)}
 .top{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
 .top p{margin:4px 0 0;color:var(--muted);max-width:70ch}
+.mt{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-top:10px}
+.mt>summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 14px;cursor:pointer;list-style:none}
+.mt>summary::-webkit-details-marker{display:none}
+.mt>summary::after{content:'▾';margin-left:auto;color:var(--muted)}
+.mt:not([open])>summary::after{content:'▸'}
+.mt-stage{font-weight:700;border-radius:6px;padding:3px 10px;font-size:.9rem}
+.mt-bar{position:relative;flex:1 1 220px;max-width:340px;height:10px;border-radius:5px;background:linear-gradient(90deg,#1f9d55 0%,#1f9d55 20%,#c9a227 35%,#9aa5a0 50%,#c9a227 65%,#d64541 80%,#d64541 100%)}
+.mt-bar i{position:absolute;top:-4px;width:4px;height:18px;border-radius:2px;background:var(--ink);transform:translateX(-50%)}
+.mt-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 20px;padding:0 14px 14px}
+.mt-body ul{list-style:none;margin:0;padding:0;font-size:.82rem}
+.mt-body li{padding:3px 0;border-bottom:1px dashed var(--line)}
+.mt-act{font-size:.85rem;background:var(--surface2);border-radius:6px;padding:10px 12px}
+.st1{background:var(--good-soft);color:var(--good)}.st2{background:#e7f0fb;color:#2f6db5}.st3{background:var(--accent-soft);color:var(--accent)}.st4{background:var(--bad-soft);color:var(--bad)}.st0{background:var(--surface2);color:var(--muted)}.st5{background:var(--warn-soft);color:var(--warn)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .st2{background:#16304d;color:#7fb2ec}}
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:8px 12px;font-size:.85rem}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
 button,.filebtn{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:6px 12px;cursor:pointer}
@@ -185,6 +199,7 @@ body{margin:0}
     </div>
   </div>
   <div class="banner" id="dataBanner"></div>
+  <details class="mt" id="mtBox"><summary id="mtSum"><b>🌡️ Nhiệt kế thị trường</b><span class="muted">Đang tải…</span></summary><div class="mt-body" id="mtBody"></div></details>
   <nav class="tabs" role="tablist">
     <button role="tab" data-tab="screen" class="on">Sàng lọc</button>
     <button role="tab" data-tab="chart">Biểu đồ nến</button>
@@ -1235,7 +1250,76 @@ $('cvSym').addEventListener('keydown',e=>{if(e.key==='Enter')showChart($('cvSym'
 $('cvSym').addEventListener('change',()=>{const v=$('cvSym').value.trim().toUpperCase();if(isIdx(v)||DATA.some(s=>s.ticker===v))showChart(v,false)});
 $('cvRange').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;CV.range=+b.dataset.r;$('cvRange').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));applyRange()};
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(CV.sym&&!$('viewChart').hidden)showChart(CV.sym,false)});
-fillFilters();render();autoLoad();
+
+/* ===== Nhiệt kế thị trường ===== */
+let MT={br:null,ix:null};
+async function loadMarket(){
+  try{const [b,i]=await Promise.all([fetch(chartUrl('BREADTH')+'?v='+Math.floor(Date.now()/36e5),{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null),
+    fetch(chartUrl('VNINDEX')+'?v='+Math.floor(Date.now()/36e5),{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null)]);MT.br=b;MT.ix=i}catch(e){}
+  renderMT();
+}
+// Tín hiệu độ rộng tăng vọt: trong ≤ 15 phiên, % mã trên MA50 đi từ ≤ 25% lên ≥ 55%
+function thrusts(br){const o=[];if(!br||!br.b50)return o;let last=-99;for(let i=0;i<br.b50.length;i++){const v=br.b50[i];if(v==null||v<55)continue;let lo=Infinity;for(let j=Math.max(0,i-15);j<i;j++)if(br.b50[j]!=null&&br.b50[j]<lo)lo=br.b50[j];if(lo<=25&&i-last>30){o.push(br.t[i]);last=i}}return o}
+function marketState(){
+  const br=MT.br,ix=MT.ix;const meta=PRICE_META&&PRICE_META.breadth;
+  const b50=br&&br.b50&&br.b50.length?br.b50[br.b50.length-1]:meta?meta.b50:null;
+  const b200=br&&br.b200&&br.b200.length?br.b200[br.b200.length-1]:meta?meta.b200:null;
+  const bAgo=br&&br.b50&&br.b50.length>10?br.b50[br.b50.length-11]:null;
+  const bMin30=br&&br.b50?Math.min(...br.b50.slice(-30).filter(v=>v!=null)):null;
+  const th=thrusts(br),thRecent=th.length&&br?br.t.indexOf(th[th.length-1])>=br.t.length-20:false;
+  let I=null;
+  if(ix&&ix.c&&ix.c.length>210){const c=ix.c,n=c.length-1,ma50=TA.sma(c,50),ma200=TA.sma(c,200),rsi=TA.rsi(c),w=TA.weekly(ix),wt=TA.town(w).state,vol=TA.vol(ix);
+    I={c:c[n],ma50:ma50[n],ma200:ma200[n],up50:ma50[n]>ma50[n-10],rsi:rsi[n],wk:wt[wt.length-1],dk:TA.town(ix).state[n],fl:vol.flow[n],d:ix.t[n],dd:(c[n]/Math.max(...c.slice(-252))-1)}}
+  // Mã dẫn dắt từ prices.json
+  let near=0,bo=0,tot=0;if(PRICES)Object.values(PRICES).forEach(q=>{if(q.idx||!q.m||q.m.h52==null)return;tot++;if(q.m.h52>=-0.05)near++;if(q.m.bo!=null&&q.m.bo<=5)bo++});
+  const lead=tot?{near,bo,tot,pn:near/tot,pb:bo/tot}:null;
+  // Xếp giai đoạn
+  let st=0,lab='Trung tính',cls='st0';
+  const above50=I&&I.c>I.ma50,above200=I&&I.c>I.ma200,wkIn=I&&I.wk&&I.wk.sig==='in';
+  if(b50!=null&&b50>=80){st=4;lab='④ Hưng phấn';cls='st4'}
+  else if(b50!=null&&(b50<=20||(b50<=30&&I&&!above50&&!above200))){st=1;lab='① Hoảng loạn';cls='st1'}
+  else if(thRecent||(b50!=null&&b50>=55&&above50&&I.up50&&wkIn)){st=3;lab='③ Xác nhận sóng tăng';cls='st3'}
+  else if(b50!=null&&bMin30!=null&&bMin30<=35&&bAgo!=null&&b50>=bAgo+5){st=2;lab='② Tạo đáy / hồi phục sớm';cls='st2'}
+  else if(b50!=null&&b50>=55&&above50&&above200){st=3;lab='③ Xu hướng tăng';cls='st3'}
+  else if(b50!=null&&bAgo!=null&&b50<bAgo-10&&I&&!above50){st=5;lab='Điều chỉnh / phân phối';cls='st5'}
+  return {b50,b200,bAgo,bMin30,th,thRecent,I,lead,st,lab,cls}
+}
+const MT_ACT={0:'Thị trường không rõ xu hướng. Tiếp tục lọc mã đạt Big 5 + F-Score + 3M và chờ giá về MOS; chỉ mua mã đã dưới MOS R1, chia nhỏ lệnh.',
+  1:'Đám đông đang sợ hãi — đúng lúc Town tìm cơ hội. CHUẨN BỊ: lọc mã tốt rơi xuống dưới MOS, đưa vào danh mục theo dõi. Có thể mua thăm dò phần nhỏ mã đã dưới MOS R1; chưa dồn vốn khi chưa có dấu hiệu tạo đáy.',
+  2:'Độ rộng đang hồi phục từ vùng thấp. MUA THĂM DÒ những mã trong danh mục đã dưới MOS và có tín hiệu Town 🟢 3/3 kèm KL ✓; ưu tiên mã có RS cải thiện. Giữ phần lớn tiền chờ xác nhận.',
+  3:'Sóng tăng đã được xác nhận bởi độ rộng và xu hướng chỉ số. GIẢI NGÂN CHÍNH theo tỷ trọng ATR vào mã dưới MOS, ưu tiên mã dẫn dắt (RS cao, 🚀 vượt nền, 🏔 gần đỉnh 52 tuần).',
+  4:'Thị trường hưng phấn, rất ít mã tốt còn dưới MOS. KHÔNG mua đuổi; cân nhắc bán mã đã chạm Sticker Price, giữ tiền mặt chờ đợt điều chỉnh.',
+  5:'Độ rộng giảm nhanh, chỉ số dưới MA50. Hạn chế mua mới, giữ kỷ luật cắt lỗ theo ATR với vị thế mua ngắn hạn; mã Rule #1 tốt dưới MOS vẫn có thể mua dần.'};
+function renderMT(){
+  const box=$('mtBox');if(!box)return;const m=marketState();
+  if(m.b50==null&&!m.I){$('mtSum').innerHTML='<b>🌡️ Nhiệt kế thị trường</b><span class="muted">Chưa có dữ liệu độ rộng thị trường (cập nhật cùng lượt giá tự động).</span>';$('mtBody').innerHTML='';return}
+  const ck=(ok,t)=>`<li>${ok==null?'❔':ok?'✅':'❌'} ${t}</li>`,I=m.I,x=v=>v==null?'—':nf(v,0);
+  $('mtSum').innerHTML=`<b>🌡️ Nhiệt kế thị trường</b><span class="mt-stage ${m.cls}">${m.lab}</span>
+    <span class="mt-bar" title="% số mã trên MA50: 0–20% hoảng loạn · 80–100% hưng phấn">${m.b50!=null?`<i style="left:${Math.max(0,Math.min(100,m.b50))}%"></i>`:''}</span>
+    <span class="muted" style="font-size:.82rem">${m.b50!=null?`${x(m.b50)}% mã trên MA50`:''}${m.b200!=null?` · ${x(m.b200)}% trên MA200`:''}${I?` · VN-Index ${nf(I.c,2)} (${fmtD(I.d)})`:''}</span>`;
+  const spark=(()=>{const br=MT.br;if(!br||!br.b50||br.b50.length<20)return '';const v=br.b50.slice(-250),W=300,H=60,n=v.length;const pts=v.map((y,i)=>`${(i/(n-1)*W).toFixed(1)},${(H-(y??0)/100*H).toFixed(1)}`).join(' ');
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="60" preserveAspectRatio="none" role="img" aria-label="Độ rộng thị trường 1 năm"><rect x="0" y="${H*0.8}" width="${W}" height="${H*0.2}" fill="var(--good-soft)"/><rect x="0" y="0" width="${W}" height="${H*0.2}" fill="var(--bad-soft)"/><polyline points="${pts}" fill="none" stroke="#2f7fd1" stroke-width="1.5"/></svg><div class="muted" style="font-size:.72rem">% mã trên MA50 trong khoảng 1 năm (xanh: ≤ 20% hoảng loạn · đỏ: ≥ 80% hưng phấn)</div>`})();
+  $('mtBody').innerHTML=`<div><h3 style="margin-bottom:6px">Độ rộng & xu hướng</h3><ul>
+      ${ck(m.b50!=null?m.b50>=50:null,`Độ rộng: ${x(m.b50)}% mã trên MA50 (10 phiên trước ${x(m.bAgo)}%)`)}
+      ${ck(m.b200!=null?m.b200>=50:null,`${x(m.b200)}% mã trên MA200 (xu hướng dài)`)}
+      ${ck(m.thRecent,`Độ rộng tăng vọt (≤ 25% → ≥ 55% trong 15 phiên)${m.th.length?`: lần gần nhất ${fmtD(m.th[m.th.length-1])}`:': chưa có trong dữ liệu'}`)}
+      ${ck(I?I.c>I.ma50:null,`VN-Index ${I?(I.c>I.ma50?'trên':'dưới'):''} MA50 (${I?nf(I.ma50,0):'—'})${I?` · MA50 ${I.up50?'đang hướng lên':'đang đi xuống'}`:''}`)}
+      ${ck(I?I.c>I.ma200:null,`VN-Index ${I?(I.c>I.ma200?'trên':'dưới'):''} MA200 (${I?nf(I.ma200,0):'—'})`)}
+    </ul>${spark}</div>
+    <div><h3 style="margin-bottom:6px">Động lượng & dòng tiền</h3><ul>
+      ${ck(I&&I.wk?I.wk.sig==='in':null,`Tín hiệu Town khung tuần (VN-Index): ${I&&I.wk?(I.wk.sig==='in'?'🟢 VÀO 3/3':I.wk.sig==='out'?'🔴 RA':I.wk.up+'/3'):'—'}`)}
+      ${ck(I&&I.dk?I.dk.sig==='in':null,`Tín hiệu Town khung ngày: ${I&&I.dk?(I.dk.sig==='in'?'🟢 VÀO 3/3':I.dk.sig==='out'?'🔴 RA':I.dk.up+'/3'):'—'}`)}
+      ${ck(I?I.rsi>50:null,`RSI (14) VN-Index: ${I?nf(I.rsi,0):'—'}`)}
+      ${ck(I&&I.fl!=null?I.fl>=.5:null,`Dòng tiền 20 phiên VN-Index: ${I&&I.fl!=null?pf(I.fl,0)+' KL phiên tăng':'—'}`)}
+      ${ck(m.lead?m.lead.pn>=.10:null,`Mã dẫn dắt: ${m.lead?`${m.lead.near} mã (${pf(m.lead.pn,0)}) cách đỉnh 52 tuần ≤ 5%, ${m.lead.bo} mã vượt nền trong 5 phiên`:'—'}`)}
+      ${ck(I?I.dd>-0.1:null,`VN-Index cách đỉnh 52 tuần: ${I?pf(I.dd,1):'—'}`)}
+    </ul></div>
+    <div><h3 style="margin-bottom:6px">Nên làm gì</h3><div class="mt-act">${MT_ACT[m.st]}</div>
+      <p class="note" style="margin-top:8px">Giai đoạn: ① Hoảng loạn → ② Tạo đáy → ③ Xác nhận sóng / xu hướng tăng → ④ Hưng phấn. Các dấu hiệu luôn báo muộn hơn đáy thật; mục đích là tránh mua quá sớm, không phải bắt đúng đáy. Mã Rule #1 tốt dưới MOS vẫn có thể mua dần ở mọi giai đoạn.</p></div>`;
+}
+try{$('mtBox').open=store.get('r1vn_mt_open',true)}catch(e){}
+$('mtBox').addEventListener('toggle',()=>store.set('r1vn_mt_open',$('mtBox').open));
+fillFilters();render();autoLoad().then(loadMarket);
 </script>
 </body>
 </html>
