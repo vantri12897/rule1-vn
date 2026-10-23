@@ -107,7 +107,7 @@ body{margin:0}
 .tabs button.on{color:var(--accent);border-bottom-color:var(--accent)}
 .cv-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 .cv-bar input{width:130px;text-transform:uppercase}
-.cv-bar .rg button.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.cv-bar #cvTf button.on,.cv-bar .rg button.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
 .cv-wrap{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px}
 #cvChart{height:min(520px,62vh);min-height:320px}
 .cv-tip{position:absolute;top:12px;left:12px;z-index:3;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:.78rem;pointer-events:none;max-width:min(360px,80%);box-shadow:0 2px 8px rgba(0,0,0,.08)}
@@ -208,6 +208,7 @@ body{margin:0}
       <button class="primary" id="cvGo">Xem</button>
       <button class="star" id="cvStar" title="Thêm / bỏ mã này khỏi danh mục theo dõi">☆ Theo dõi</button>
       <button class="meas" id="cvMeas" title="Thước đo: bấm điểm đầu rồi điểm cuối trên biểu đồ (hoặc giữ Shift + bấm). Esc để xóa.">📏 Đo %</button>
+      <span class="rg" id="cvTf" title="Khung thời gian của nến"><button data-tf="D">Ngày</button> <button data-tf="W">Tuần</button></span>
       <span class="rg" id="cvRange"><button data-r="90">3T</button> <button data-r="365" class="on">1N</button> <button data-r="1095">3N</button> <button data-r="0">Tất cả</button></span>
       <span class="sig mix" id="cvSig" hidden></span>
       <span class="muted" id="cvInfo"></span>
@@ -221,16 +222,18 @@ body{margin:0}
       <label><input type="checkbox" data-ind="arrows"> Mũi tên tín hiệu 3/3</label>
       <span class="muted">·</span>
       <label><input type="checkbox" data-ind="ma50"> MA50</label>
+      <label><input type="checkbox" data-ind="rsi"> RSI (14) + tín hiệu &gt; 50</label>
     </div>
     <div class="cv-subs">
       <div class="cv-pane" id="paneMacd"><span class="pl" id="plMacd">MACD (8,17,9)</span><div id="cvMacd"></div></div>
       <div class="cv-pane" id="paneStoch"><span class="pl" id="plStoch">Stochastic (14,5)</span><div id="cvStoch"></div></div>
+      <div class="cv-pane" id="paneRsi"><span class="pl" id="plRsi">RSI (14)</span><div id="cvRsi"></div></div>
     </div>
     <div class="cv-legend" id="cvLegend"></div>
     <div id="cvEvents"></div>
     </div>
    </div>
-    <p class="note">🧭 <b>3 công cụ của Phil Town</b> (Rule #1): MACD 8-17-9, Stochastic 14-5, MA10. Tín hiệu <b>VÀO</b> khi cả 3 cùng xác nhận (MACD trên đường tín hiệu, %K trên %D, giá trên MA10); <b>RA</b> khi cả 3 cùng đảo chiều. Chỉ dùng để chọn thời điểm cho mã <b>đã đạt Big 5 + 3M và giá ≤ MOS</b>, không phải tín hiệu mua độc lập. Mã thanh khoản thấp cho tín hiệu nhiễu; lưu ý T+2 và phí giao dịch khi vào ra. MA50 là đường tham khảo xu hướng trung hạn, không thuộc phương pháp Town.<br>📏 <b>Thước đo</b>: bấm nút “Đo %”, bấm điểm đầu và điểm cuối trên biểu đồ để xem % tăng/giảm, chênh lệch giá, số phiên và số ngày; giữ Shift + bấm để đo nhanh không cần nút; Esc hoặc bấm lại vào biểu đồ để xóa. Phím ↑/↓ chuyển mã trong danh mục theo dõi. Đường ngang là mức MOS / Sticker <b>hiện tại</b> (theo BCTC và tham số đang chọn), không phải giá trị lịch sử. Biểu tượng <span class="bs b">B</span> / <span class="bs s">S</span> là <b>đăng ký</b> mua / bán của người nội bộ, người liên quan hoặc tổ chức (cổ đông lớn), đặt tại ngày bắt đầu giao dịch dự kiến; đăng ký chưa chắc đã được thực hiện hết. Nguồn: công bố thông tin qua VCI, tối đa 50 sự kiện gần nhất mỗi mã. Giá nến đã điều chỉnh theo cổ tức / chia tách.</p>
+    <p class="note">🧭 <b>3 công cụ của Phil Town</b> (Rule #1): MACD 8-17-9, Stochastic 14-5, MA10. Tín hiệu <b>VÀO</b> khi cả 3 cùng xác nhận (MACD trên đường tín hiệu, %K trên %D, giá trên MA10); <b>RA</b> khi cả 3 cùng đảo chiều. Chỉ dùng để chọn thời điểm cho mã <b>đã đạt Big 5 + 3M và giá ≤ MOS</b>, không phải tín hiệu mua độc lập. Mã thanh khoản thấp cho tín hiệu nhiễu; lưu ý T+2 và phí giao dịch khi vào ra. MA50 và RSI (14) là chỉ báo tham khảo, không thuộc phương pháp Town: RSI &gt; 50 = động lượng tăng chiếm ưu thế (chấm xanh khi RSI cắt lên 50, chấm đỏ khi cắt xuống). Khung <b>Tuần</b> gộp nến ngày thành nến tuần, mọi chỉ báo tính lại theo tuần (nhãn trong danh mục theo dõi luôn theo khung ngày).<br>📏 <b>Thước đo</b>: bấm nút “Đo %”, bấm điểm đầu và điểm cuối trên biểu đồ để xem % tăng/giảm, chênh lệch giá, số phiên và số ngày; giữ Shift + bấm để đo nhanh không cần nút; Esc hoặc bấm lại vào biểu đồ để xóa. Phím ↑/↓ chuyển mã trong danh mục theo dõi. Đường ngang là mức MOS / Sticker <b>hiện tại</b> (theo BCTC và tham số đang chọn), không phải giá trị lịch sử. Biểu tượng <span class="bs b">B</span> / <span class="bs s">S</span> là <b>đăng ký</b> mua / bán của người nội bộ, người liên quan hoặc tổ chức (cổ đông lớn), đặt tại ngày bắt đầu giao dịch dự kiến; đăng ký chưa chắc đã được thực hiện hết. Nguồn: công bố thông tin qua VCI, tối đa 50 sự kiện gần nhất mỗi mã. Giá nến đã điều chỉnh theo cổ tức / chia tách.</p>
   </div>
 
   <div id="viewScreen">
@@ -867,10 +870,11 @@ async function showChart(sym,switchTab=true){
   if(CV.chart){CV.chart.remove();CV.chart=null}
   (CV.subs||[]).forEach(c=>c.remove());CV.subs=[];$('cvSig').hidden=true;
   $('cvMarks').innerHTML='';
-  if(err||!d||!d.t||!d.t.length){info.textContent='';$('paneMacd').hidden=$('paneStoch').hidden=true;$('cvChart').innerHTML=`<div class="empty">${esc(err||'Không có dữ liệu nến.')}</div>`;renderEvents(sym,(ins||{})[sym]||[],null);return}
+  if(err||!d||!d.t||!d.t.length){info.textContent='';$('paneMacd').hidden=$('paneStoch').hidden=$('paneRsi').hidden=true;$('cvChart').innerHTML=`<div class="empty">${esc(err||'Không có dữ liệu nến.')}</div>`;renderEvents(sym,(ins||{})[sym]||[],null);return}
   $('cvChart').innerHTML='';
+  if(TF==='W')d=TA.weekly(d);
   const a=rows.find(x=>x.ticker===sym), s=a?a.s:DATA.find(x=>x.ticker===sym);
-  info.textContent=`${s?s.name+' · ':''}${d.t.length} phiên, đến ${fmtD(d.t[d.t.length-1])}`;
+  info.textContent=`${s?s.name+' · ':''}${d.t.length} ${TF==='W'?'tuần':'phiên'}, đến ${fmtD((d.te||d.t)[d.t.length-1])}`;
   const ink=cssv('--ink'),muted=cssv('--muted'),line=cssv('--line'),surf=cssv('--surface');
   const L=window.LightweightCharts;
   const ch=L.createChart($('cvChart'),{autoSize:true,layout:{background:{type:'solid',color:surf},textColor:muted,fontFamily:getComputedStyle(document.body).fontFamily},
@@ -904,7 +908,7 @@ async function showChart(sym,switchTab=true){
   if(IND.ma50)ch.addLineSeries({...lineOpt,color:'#7f8c8d',lineWidth:1.5,lineStyle:2,title:'MA50'}).setData(ser(ta.ma50));
   if(IND.arrows){const am=[];let prev=null;ta.state.forEach((st,i)=>{if(!st)return;if(st.sig!=='mix'&&st.sig!==prev){am.push({time:d.t[i],position:st.sig==='in'?'belowBar':'aboveBar',color:st.sig==='in'?up:dn,shape:st.sig==='in'?'arrowUp':'arrowDown',size:.9})}if(st.sig!=='mix')prev=st.sig});cs.setMarkers(am)}
   const lastSt=ta.state[ta.state.length-1];
-  if(lastSt){const b=$('cvSig');b.className='sig '+lastSt.sig;b.innerHTML=sigBadge(lastSt);b.hidden=false;b.title='Phiên '+fmtD(d.t[d.t.length-1])+'. Chỉ có ý nghĩa với mã đã đạt Big 5 + 3M và giá ≤ MOS.'}
+  if(lastSt){const b=$('cvSig');b.className='sig '+lastSt.sig;const rl=ta.rsi[ta.rsi.length-1];b.innerHTML=sigBadge(lastSt)+(IND.rsi&&rl!=null?` <i>· RSI ${Math.round(rl)} ${rl>50?'▲':'▼'}</i>`:'');b.hidden=false;b.title='Phiên '+fmtD(d.t[d.t.length-1])+'. Chỉ có ý nghĩa với mã đã đạt Big 5 + 3M và giá ≤ MOS.'}
   applyIndVis();
   const subOpt=(el)=>L.createChart(el,{autoSize:true,layout:{background:{type:'solid',color:surf},textColor:muted,fontFamily:getComputedStyle(document.body).fontFamily,fontSize:10},
     grid:{vertLines:{visible:false},horzLines:{color:line+'60'}},rightPriceScale:{borderColor:line,minimumWidth:86,scaleMargins:{top:.15,bottom:.08}},timeScale:{visible:false,borderColor:line},
@@ -918,24 +922,34 @@ async function showChart(sym,switchTab=true){
     sK=c2.addLineSeries({...lineOpt,color:'#2f7fd1',lineWidth:1.5,autoscaleInfoProvider:()=>({priceRange:{minValue:0,maxValue:100}})});sK.setData(ser(ta.st.k));
     sD=c2.addLineSeries({...lineOpt,color:'#e67e22',lineWidth:1.5});sD.setData(ser(ta.st.d));
     [80,20].forEach(v=>sK.createPriceLine({price:v,color:muted,lineWidth:1,lineStyle:2,axisLabelVisible:false}))}
+  let rS=null;
+  if(IND.rsi){const c3=subOpt($('cvRsi'));subs.push(c3);
+    rS=c3.addBaselineSeries({baseValue:{type:'price',price:50},topLineColor:up,bottomLineColor:dn,topFillColor1:up+'33',topFillColor2:up+'08',bottomFillColor1:dn+'08',bottomFillColor2:dn+'33',lineWidth:1.5,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false,autoscaleInfoProvider:()=>({priceRange:{minValue:0,maxValue:100}})});
+    rS.setData(ser(ta.rsi));
+    rS.createPriceLine({price:50,color:muted,lineWidth:1,lineStyle:0,axisLabelVisible:true});
+    [70,30].forEach(v=>rS.createPriceLine({price:v,color:muted,lineWidth:1,lineStyle:2,axisLabelVisible:false}));
+    // Đánh dấu phiên RSI cắt lên / xuống mốc 50
+    const rm=[];for(let i=1;i<ta.rsi.length;i++){const a0=ta.rsi[i-1],a1=ta.rsi[i];if(a0==null||a1==null)continue;if(a0<=50&&a1>50)rm.push({time:d.t[i],position:'belowBar',color:up,shape:'circle',size:.5});else if(a0>=50&&a1<50)rm.push({time:d.t[i],position:'aboveBar',color:dn,shape:'circle',size:.5})}
+    rS.setMarkers(rm)}
   CV.subs=subs;
   // Đồng bộ trục thời gian giữa biểu đồ chính và các khung chỉ báo
   let syncing=false;const all=[ch,...subs];
   all.forEach(src=>src.timeScale().subscribeVisibleLogicalRangeChange(r=>{if(syncing||!r)return;syncing=true;all.forEach(dst=>{if(dst!==src)dst.timeScale().setVisibleLogicalRange(r)});syncing=false}));
-  const plM=$('plMacd'),plS=$('plStoch');
+  const plM=$('plMacd'),plS=$('plStoch'),plR=$('plRsi');
   const setLabels=i=>{if(i==null||i<0)i=d.t.length-1;const f=v=>v==null?'—':v.toLocaleString('vi-VN',{maximumFractionDigits:1});const st=ta.state[i];
     plM.innerHTML=`MACD (8,17,9) <b style="color:#2f7fd1">${f(ta.md.m[i])}</b> · tín hiệu <b style="color:#e67e22">${f(ta.md.sig[i])}</b>${st?` · ${st.a[0]?'<span class="c-good">▲ vào</span>':'<span class="c-bad">▼ ra</span>'}`:''}`;
+    const rv=ta.rsi[i];plR.innerHTML=`RSI (14) <b style="color:${rv==null?'inherit':rv>50?up:dn}">${f(rv)}</b>${rv!=null?` · ${rv>50?'<span class="c-good">▲ trên 50 (động lượng tăng)</span>':'<span class="c-bad">▼ dưới 50 (động lượng giảm)</span>'}${rv>=70?' · <span class="c-warn">quá mua</span>':rv<=30?' · <span class="c-warn">quá bán</span>':''}`:''}`;
     plS.innerHTML=`Stochastic (14,5) %K <b style="color:#2f7fd1">${f(ta.st.k[i])}</b> · %D <b style="color:#e67e22">${f(ta.st.d[i])}</b>${st?` · ${st.a[1]?'<span class="c-good">▲ vào</span>':'<span class="c-bad">▼ ra</span>'}`:''}`};
   setLabels();
   ch.subscribeCrosshairMove(p=>{const t=p&&typeof p.time==='string'?p.time:null;const i=t?d.t.indexOf(t):-1;setLabels(i);
-    if(subs.length&&subs[0].setCrosshairPosition){if(t){if(mL&&ta.md.m[i]!=null)subs[0].setCrosshairPosition(ta.md.m[i],t,mL);if(sK&&ta.st.k[i]!=null)subs[subs.length-1].setCrosshairPosition(ta.st.k[i],t,sK)}else subs.forEach(c=>c.clearCrosshairPosition&&c.clearCrosshairPosition())}});
+    if(subs.length&&subs[0].setCrosshairPosition){if(t){const pairs=[];if(mL)pairs.push([mL,ta.md.m[i]]);if(sK)pairs.push([sK,ta.st.k[i]]);if(rS)pairs.push([rS,ta.rsi[i]]);pairs.forEach(([se,v],j)=>{if(v!=null)subs[j].setCrosshairPosition(v,t,se)})}else subs.forEach(c=>c.clearCrosshairPosition&&c.clearCrosshairPosition())}});
   const last=d.c[d.c.length-1];
   $('cvLegend').innerHTML=lines.length?lines.map(x=>`<span><i style="border-top-color:${x.c};border-top-style:${x.st?'dashed':'solid'}"></i>${x.t}: <b>${nf(x.v)}</b> <span class="muted">(giá ${last<=x.v?'dưới':'trên'} ${pf(Math.abs(last/x.v-1),0)})</span></span>`).join('')
     :`<span class="muted">${a?'Mã này không tính được MOS (thiếu dữ liệu hoặc không đạt điều kiện tính).':'Mã này không có trong dữ liệu BCTC nên không có mốc MOS.'}</span>`;
   // Marker B/S
   const evs=((ins||{})[sym]||[]).slice();
   const byTime={};
-  evs.forEach(e=>{if(!e.d||e.d<d.t[0])return;let i=snapIdx(d.t,e.d);if(i>=d.t.length)i=d.t.length-1;const t=d.t[i];e._t=t;(byTime[t]=byTime[t]||[]).push(e)});
+  evs.forEach(e=>{if(!e.d||e.d<d.t[0])return;let i=snapIdx(d.t,e.d);if(TF==='W'&&(i>=d.t.length||d.t[i]!==e.d))i=i-1;if(i>=d.t.length)i=d.t.length-1;if(i<0)return;const t=d.t[i];e._t=t;(byTime[t]=byTime[t]||[]).push(e)});
   const marks=[];
   Object.keys(byTime).sort().forEach(t=>{const g=byTime[t],i=d.t.indexOf(t);['B','S'].forEach(sd=>{const n=g.filter(e=>e.a===sd).length;if(n)marks.push({t,sd,n,price:sd==='B'?d.l[i]:d.h[i]})})});
   const mk=$('cvMarks');
@@ -952,7 +966,7 @@ async function showChart(sym,switchTab=true){
     if(!p||!p.time){tip.hidden=true;return}
     const t=typeof p.time==='string'?p.time:null; const b=p.seriesData.get(cs); const i=t?snapIdx(d.t,t):-1;
     let h=`<b>${fmtD(t)}</b>${b?` · O ${nf(b.open)} H ${nf(b.high)} L ${nf(b.low)} C ${nf(b.close)}`:''}${i>=0&&d.v[i]!=null?` · KL ${nf(d.v[i])}`:''}`;
-    if(i>=0&&CV.ta&&d.t[i]===t){const q=CV.ta,st=q.state[i];h+=`<br><span class="muted">MA10 ${nf(q.ma10[i])} · MA50 ${nf(q.ma50[i])}</span>${st?` · Town: <b class="${st.sig==='in'?'c-good':st.sig==='out'?'c-bad':''}">${st.sig==='in'?'VÀO 3/3':st.sig==='out'?'RA 0/3':st.up+'/3'}</b>`:''}`}
+    if(i>=0&&CV.ta&&d.t[i]===t){const q=CV.ta,st=q.state[i];h+=`<br><span class="muted">MA10 ${nf(q.ma10[i])} · MA50 ${nf(q.ma50[i])} · RSI ${q.rsi[i]!=null?nf(q.rsi[i],1):'—'}</span>${st?` · Town: <b class="${st.sig==='in'?'c-good':st.sig==='out'?'c-bad':''}">${st.sig==='in'?'VÀO 3/3':st.sig==='out'?'RA 0/3':st.up+'/3'}</b>`:''}`}
     (byTime[t]||[]).forEach(e=>{h+=`<div style="margin-top:4px"><span class="bs ${e.a==='B'?'b':'s'}">${e.a}</span> ${esc(e.w||'—')} · ${KIND[e.k]||''}<br><span class="muted">Đăng ký ${e.a==='B'?'mua':'bán'} ${e.q?nf(e.q)+' cp':''}, ${fmtD(e.d)}${e.e&&e.e!==e.d?'–'+fmtD(e.e):''}</span></div>`});
     tip.innerHTML=h;tip.hidden=false;
   });
@@ -983,20 +997,29 @@ const TA={
   macd(c,f=8,sl=17,sg=9){const ef=TA.ema(c,f),es=TA.ema(c,sl),m=c.map((_,i)=>ef[i]!=null&&es[i]!=null?ef[i]-es[i]:null),sig=TA.ema(m,sg);return{m,sig,h:m.map((v,i)=>v!=null&&sig[i]!=null?v-sig[i]:null)}},
   stoch(h,l,c,n=14,dn=5){const k=c.map((v,i)=>{if(i<n-1)return null;let hh=-Infinity,ll=Infinity;for(let j=i-n+1;j<=i;j++){if(h[j]>hh)hh=h[j];if(l[j]<ll)ll=l[j]}return hh>ll?100*(v-ll)/(hh-ll):50});
     const d=k.map((_,i)=>{if(i<n-1+dn-1)return null;let s=0;for(let j=i-dn+1;j<=i;j++)s+=k[j];return s/dn});return{k,d}},
+  rsi(c,n=14){const o=Array(c.length).fill(null);let g=0,l=0;for(let i=1;i<c.length;i++){const ch=c[i]-c[i-1],up=Math.max(ch,0),dn=Math.max(-ch,0);
+    if(i<=n){g+=up;l+=dn;if(i===n){g/=n;l/=n;o[i]=l===0?100:100-100/(1+g/l)}}else{g=(g*(n-1)+up)/n;l=(l*(n-1)+dn)/n;o[i]=l===0?100:100-100/(1+g/l)}}return o},
+  // Gộp nến ngày thành nến tuần (tuần bắt đầu thứ Hai; mốc thời gian = phiên đầu tiên của tuần)
+  weekly(d){const o={s:d.s,src:d.src,t:[],o:[],h:[],l:[],c:[],v:[],te:[]};let key=null;
+    d.t.forEach((t,i)=>{const dt=new Date(t+'T00:00:00Z'),wd=(dt.getUTCDay()+6)%7;dt.setUTCDate(dt.getUTCDate()-wd);const k=dt.toISOString().slice(0,10);
+      if(k!==key){key=k;o.t.push(t);o.o.push(d.o[i]);o.h.push(d.h[i]);o.l.push(d.l[i]);o.c.push(d.c[i]);o.v.push(d.v[i]||0);o.te.push(t)}
+      else{const j=o.t.length-1;o.h[j]=Math.max(o.h[j],d.h[i]);o.l[j]=Math.min(o.l[j],d.l[i]);o.c[j]=d.c[i];o.v[j]+=d.v[i]||0;o.te[j]=t}});return o},
   // Trạng thái từng phiên: số công cụ báo "vào" (0–3) và tín hiệu tổng hợp in/out/mix
   town(d){const c=d.c,ma10=TA.sma(c,10),ma50=TA.sma(c,50),md=TA.macd(c),st=TA.stoch(d.h,d.l,c);
     const state=c.map((v,i)=>{if(md.sig[i]==null||st.d[i]==null||ma10[i]==null)return null;const a=[md.m[i]>md.sig[i],st.k[i]>st.d[i],v>ma10[i]];const up=a.filter(Boolean).length;return{up,a,sig:up===3?'in':up===0?'out':'mix'}});
-    return{ma10,ma50,md,st,state}}
+    return{ma10,ma50,md,st,state,rsi:TA.rsi(c)}}
 };
-const IND_DEF={ma10:true,ma50:true,macd:true,stoch:true,arrows:true};
+const IND_DEF={ma10:true,ma50:true,macd:true,stoch:true,arrows:true,rsi:true};
+let TF=store.get('r1vn_tf','D');
 let IND=Object.assign({},IND_DEF,store.get('r1vn_ind',{}));
 function sigBadge(st){if(!st)return '';const lab=st.sig==='in'?'🟢 VÀO 3/3':st.sig==='out'?'🔴 RA 0/3':`⚪ ${st.up}/3`;
-  const det=`<i>MACD ${st.a[0]?'▲':'▼'} · Stoch ${st.a[1]?'▲':'▼'} · MA10 ${st.a[2]?'▲':'▼'}</i>`;return `Tín hiệu Town: ${lab} ${det}`}
+  const det=`<i>MACD ${st.a[0]?'▲':'▼'} · Stoch ${st.a[1]?'▲':'▼'} · MA10 ${st.a[2]?'▲':'▼'}</i>`;return `${TF==='W'?'Tuần · ':''}Tín hiệu Town: ${lab} ${det}`}
 const SIG={},SIG_P=new Set();
 function fetchSig(t){if(SIG[t]||SIG_P.has(t))return;SIG_P.add(t);
   fetch(chartUrl(t)+'?v='+Math.floor(Date.now()/36e5),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.c&&d.c.length>60){const st=TA.town(d).state;SIG[t]=st[st.length-1]||{none:1}}else SIG[t]={none:1}}).catch(()=>{SIG[t]={none:1}}).finally(()=>{SIG_P.delete(t);clearTimeout(fetchSig.tm);fetchSig.tm=setTimeout(renderWL,120)})}
 function wlSigChip(t){const st=SIG[t];if(!st){fetchSig(t);return ''}if(st.none)return '';return `<span class="wl-sig ${st.sig}" title="Tín hiệu Town: MACD ${st.a[0]?'▲':'▼'} · Stoch ${st.a[1]?'▲':'▼'} · MA10 ${st.a[2]?'▲':'▼'}">${st.sig==='in'?'VÀO':st.sig==='out'?'RA':st.up+'/3'}</span>`}
-function applyIndVis(){document.querySelectorAll('#cvInd [data-ind]').forEach(x=>x.checked=!!IND[x.dataset.ind]);$('paneMacd').hidden=!IND.macd;$('paneStoch').hidden=!IND.stoch}
+function applyIndVis(){document.querySelectorAll('#cvInd [data-ind]').forEach(x=>x.checked=!!IND[x.dataset.ind]);$('paneMacd').hidden=!IND.macd;$('paneStoch').hidden=!IND.stoch;$('paneRsi').hidden=!IND.rsi;
+  document.querySelectorAll('#cvTf [data-tf]').forEach(b=>b.classList.toggle('on',b.dataset.tf===TF))}
 
 /* ===== Danh mục theo dõi ===== */
 let WL=store.get('r1vn_watch',[]), WL_OPEN=store.get('r1vn_watch_open',true);
@@ -1074,7 +1097,7 @@ function drawMeasure(){
   const i1=Math.max(0,Math.min(d.t.length-1,Math.round(M.a.l))),i2=Math.max(0,Math.min(d.t.length-1,Math.round(M.b.l)));
   const days=Math.round((new Date(d.t[i2])-new Date(d.t[i1]))/864e5);
   const lab=el.firstElementChild;
-  lab.innerHTML=`${(pct>0?'+':'')+pf(pct,2)} (${(pct>0?'+':'')+nf(M.b.p-M.a.p)})<br><span style="font-weight:400">${nf(M.a.p)} → ${nf(M.b.p)} · ${Math.abs(bars)} phiên · ${Math.abs(days)} ngày</span>`;
+  lab.innerHTML=`${(pct>0?'+':'')+pf(pct,2)} (${(pct>0?'+':'')+nf(M.b.p-M.a.p)})<br><span style="font-weight:400">${nf(M.a.p)} → ${nf(M.b.p)} · ${Math.abs(bars)} ${TF==='W'?'tuần':'phiên'} · ${Math.abs(days)} ngày</span>`;
   lab.style.background=col;
   const h=Math.abs(y2-y1);
   // nhãn đặt phía đầu mút điểm cuối (trên nếu tăng, dưới nếu giảm), tự lật vào trong khi sát mép
@@ -1083,6 +1106,7 @@ function drawMeasure(){
   if(below&&Math.max(y1,y2)>$('cvChart').clientHeight-50){lab.style.top='';lab.style.bottom=(h+4)+'px'}
 }
 $('cvMeas').onclick=()=>{clearMeasure();setMeasMode(!M.on)};
+$('cvTf').onclick=e=>{const b=e.target.closest('[data-tf]');if(!b||b.dataset.tf===TF)return;TF=b.dataset.tf;store.set('r1vn_tf',TF);applyIndVis();if(CV.sym)showChart(CV.sym,false)};
 $('cvInd').addEventListener('change',e=>{const k=e.target.dataset.ind;if(!k)return;IND[k]=e.target.checked;store.set('r1vn_ind',IND);if(CV.sym)showChart(CV.sym,false)});
 applyIndVis();
 document.querySelectorAll('.tabs [data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
