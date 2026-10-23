@@ -139,10 +139,10 @@ body{margin:0}
 .wl-tools{display:flex;gap:6px;padding:0 10px 8px;align-items:center}
 .wl-tools select{flex:1;font-size:.75rem;padding:3px 5px}
 .wl-list{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1;min-height:60px}
-.wl-list li{display:grid;grid-template-columns:1fr auto auto 18px;gap:2px 8px;padding:7px 10px;border-top:1px solid var(--line);cursor:pointer;align-items:center}
+.wl-list li{display:grid;grid-template-columns:minmax(0,1fr) auto auto 18px;gap:2px 8px;padding:7px 10px;border-top:1px solid var(--line);cursor:pointer;align-items:center}
 .wl-list li:hover{background:var(--surface2)}
 .wl-list li.on{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
-.wl-list .tk{font-weight:700;white-space:nowrap}
+.wl-list .tk{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wl-list .px{text-align:right;font-variant-numeric:tabular-nums}
 .wl-list .ch{text-align:right;font-size:.75rem;font-variant-numeric:tabular-nums;min-width:52px}
 .wl-list .sub{grid-column:1/4;font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -206,6 +206,7 @@ body{margin:0}
       <label for="cvSym" class="muted">Mã</label>
       <input id="cvSym" list="cvList" placeholder="VD: FPT" autocomplete="off"><datalist id="cvList"></datalist>
       <button class="primary" id="cvGo">Xem</button>
+      <span class="rg" id="cvIdx" title="Xem nhanh chỉ số thị trường"><button data-ix="VNINDEX">VN-Index</button> <button data-ix="HNXINDEX">HNX</button> <button data-ix="UPCOMINDEX">UPCoM</button></span>
       <button class="star" id="cvStar" title="Thêm / bỏ mã này khỏi danh mục theo dõi">☆ Theo dõi</button>
       <button class="meas" id="cvMeas" title="Thước đo: bấm điểm đầu rồi điểm cuối trên biểu đồ (hoặc giữ Shift + bấm). Esc để xóa.">📏 Đo %</button>
       <span class="rg" id="cvTf" title="Khung thời gian của nến"><button data-tf="D">Ngày</button> <button data-tf="W">Tuần</button></span>
@@ -855,7 +856,9 @@ function setTab(tab){
   $('viewScreen').hidden=tab!=='screen';$('viewChart').hidden=tab!=='chart';
   if(tab==='chart'){fillCvList();renderWL();if(!CV.sym&&WL.length){showChart(WL[0],false)}else if(!CV.sym){const first=(rows.filter(a=>a.eligible&&a.status==='below')[0]||rows[0]);if(first)showChart(first.ticker,false)}else if(CV.chart)CV.chart.applyOptions({})}
 }
-function fillCvList(){$('cvList').innerHTML=DATA.map(s=>`<option value="${esc(s.ticker)}">${esc(s.name)}</option>`).join('')}
+const INDEXES={VNINDEX:'Chỉ số VN-Index (HOSE)',HNXINDEX:'Chỉ số HNX-Index',UPCOMINDEX:'Chỉ số UPCoM-Index'};
+const isIdx=t=>Object.prototype.hasOwnProperty.call(INDEXES,t);
+function fillCvList(){$('cvList').innerHTML=Object.entries(INDEXES).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')+DATA.map(s=>`<option value="${esc(s.ticker)}">${esc(s.name)}</option>`).join('')}
 function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
 function snapIdx(ts,d){let lo=0,hi=ts.length;while(lo<hi){const m=(lo+hi)>>1;if(ts[m]<d)lo=m+1;else hi=m}return lo}
 async function showChart(sym,switchTab=true){
@@ -874,13 +877,13 @@ async function showChart(sym,switchTab=true){
   if(err||!d||!d.t||!d.t.length){info.textContent='';$('paneMacd').hidden=$('paneStoch').hidden=$('paneRsi').hidden=true;$('cvChart').innerHTML=`<div class="empty">${esc(err||'Không có dữ liệu nến.')}</div>`;renderEvents(sym,(ins||{})[sym]||[],null);return}
   $('cvChart').innerHTML='';
   if(TF==='W')d=TA.weekly(d);
-  const a=rows.find(x=>x.ticker===sym), s=a?a.s:DATA.find(x=>x.ticker===sym);
-  info.textContent=`${s?s.name+' · ':''}${d.t.length} ${TF==='W'?'tuần':'phiên'}, đến ${fmtD((d.te||d.t)[d.t.length-1])}`;
+  const a=rows.find(x=>x.ticker===sym), s=a?a.s:DATA.find(x=>x.ticker===sym), IX=isIdx(sym);
+  info.textContent=`${IX?INDEXES[sym]+' · ':s?s.name+' · ':''}${d.t.length} ${TF==='W'?'tuần':'phiên'}, đến ${fmtD((d.te||d.t)[d.t.length-1])}`;
   const ink=cssv('--ink'),muted=cssv('--muted'),line=cssv('--line'),surf=cssv('--surface');
   const L=window.LightweightCharts;
   const ch=L.createChart($('cvChart'),{autoSize:true,layout:{background:{type:'solid',color:surf},textColor:muted,fontFamily:getComputedStyle(document.body).fontFamily},
     grid:{vertLines:{color:line+'80'},horzLines:{color:line+'80'}},rightPriceScale:{borderColor:line,minimumWidth:86},timeScale:{borderColor:line,timeVisible:false},
-    crosshair:{mode:L.CrosshairMode.Normal},localization:{locale:'vi-VN',priceFormatter:v=>Math.round(v).toLocaleString('vi-VN'),dateFormat:'dd/MM/yyyy'}});
+    crosshair:{mode:L.CrosshairMode.Normal},localization:{locale:'vi-VN',priceFormatter:v=>IX?v.toLocaleString('vi-VN',{minimumFractionDigits:2,maximumFractionDigits:2}):Math.round(v).toLocaleString('vi-VN'),dateFormat:'dd/MM/yyyy'}});
   CV.chart=ch;
   const up='#1f9d55',dn='#d64541';
   const lines=[];
@@ -893,7 +896,7 @@ async function showChart(sym,switchTab=true){
     if(a.mosPB)lines.push({v:a.mosPB,c:'#0f8b8d',t:'MOS P/B',st:1});
   }
   const lv=lines.map(x=>x.v);
-  const cs=ch.addCandlestickSeries({autoscaleInfoProvider:orig=>{const r=orig();if(r&&r.priceRange&&lv.length){r.priceRange.minValue=Math.min(r.priceRange.minValue,...lv)*0.97;r.priceRange.maxValue=Math.max(r.priceRange.maxValue,...lv)*1.02}return r},upColor:up,downColor:dn,borderUpColor:up,borderDownColor:dn,wickUpColor:up,wickDownColor:dn,priceFormat:{type:'price',precision:0,minMove:10}});
+  const cs=ch.addCandlestickSeries({autoscaleInfoProvider:orig=>{const r=orig();if(r&&r.priceRange&&lv.length){r.priceRange.minValue=Math.min(r.priceRange.minValue,...lv)*0.97;r.priceRange.maxValue=Math.max(r.priceRange.maxValue,...lv)*1.02}return r},upColor:up,downColor:dn,borderUpColor:up,borderDownColor:dn,wickUpColor:up,wickDownColor:dn,priceFormat:IX?{type:'price',precision:2,minMove:0.01}:{type:'price',precision:0,minMove:10}});
   const bars=d.t.map((t,i)=>({time:t,open:d.o[i],high:d.h[i],low:d.l[i],close:d.c[i]}));
   cs.setData(bars);
   const vs=ch.addHistogramSeries({priceScaleId:'vol',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});
@@ -950,7 +953,7 @@ async function showChart(sym,switchTab=true){
     if(subs.length&&subs[0].setCrosshairPosition){if(t){const pairs=[];if(mL)pairs.push([mL,ta.md.m[i]]);if(sK)pairs.push([sK,ta.st.k[i]]);if(rS)pairs.push([rS,ta.rsi[i]]);pairs.forEach(([se,v],j)=>{if(v!=null)subs[j].setCrosshairPosition(v,t,se)})}else subs.forEach(c=>c.clearCrosshairPosition&&c.clearCrosshairPosition())}});
   const last=d.c[d.c.length-1];
   $('cvLegend').innerHTML=lines.length?lines.map(x=>`<span><i style="border-top-color:${x.c};border-top-style:${x.st?'dashed':'solid'}"></i>${x.t}: <b>${nf(x.v)}</b> <span class="muted">(giá ${last<=x.v?'dưới':'trên'} ${pf(Math.abs(last/x.v-1),0)})</span></span>`).join('')
-    :`<span class="muted">${a?'Mã này không tính được MOS (thiếu dữ liệu hoặc không đạt điều kiện tính).':'Mã này không có trong dữ liệu BCTC nên không có mốc MOS.'}</span>`;
+    :`<span class="muted">${IX?'Chỉ số thị trường: không có mốc MOS. Dùng để xem xu hướng chung — Town chỉ mua mạnh khi thị trường hoảng loạn và mã tốt về dưới MOS.':a?'Mã này không tính được MOS (thiếu dữ liệu hoặc không đạt điều kiện tính).':'Mã này không có trong dữ liệu BCTC nên không có mốc MOS.'}</span>`;
   // Marker B/S
   const evs=((ins||{})[sym]||[]).slice();
   const byTime={};
@@ -1009,7 +1012,7 @@ const TA={
     const flow=d.c.map((_,i)=>{if(i<n)return null;let u=0,w=0;for(let j=i-n+1;j<=i;j++){if(d.c[j]>d.c[j-1])u+=v[j];else if(d.c[j]<d.c[j-1])w+=v[j]}return u+w>0?u/(u+w):null});
     return{vma,rv,flow}},
   // Gộp nến ngày thành nến tuần (tuần bắt đầu thứ Hai; mốc thời gian = phiên đầu tiên của tuần)
-  weekly(d){const o={s:d.s,src:d.src,t:[],o:[],h:[],l:[],c:[],v:[],te:[]};let key=null;
+  weekly(d){const o={s:d.s,src:d.src,idx:d.idx,t:[],o:[],h:[],l:[],c:[],v:[],te:[]};let key=null;
     d.t.forEach((t,i)=>{const dt=new Date(t+'T00:00:00Z'),wd=(dt.getUTCDay()+6)%7;dt.setUTCDate(dt.getUTCDate()-wd);const k=dt.toISOString().slice(0,10);
       if(k!==key){key=k;o.t.push(t);o.o.push(d.o[i]);o.h.push(d.h[i]);o.l.push(d.l[i]);o.c.push(d.c[i]);o.v.push(d.v[i]||0);o.te.push(t)}
       else{const j=o.t.length-1;o.h[j]=Math.max(o.h[j],d.h[i]);o.l[j]=Math.min(o.l[j],d.l[i]);o.c[j]=d.c[i];o.v[j]+=d.v[i]||0;o.te[j]=t}});return o},
@@ -1035,11 +1038,11 @@ function applyIndVis(){document.querySelectorAll('#cvInd [data-ind]').forEach(x=
 /* ===== Danh mục theo dõi ===== */
 let WL=store.get('r1vn_watch',[]), WL_OPEN=store.get('r1vn_watch_open',true);
 function saveWL(){store.set('r1vn_watch',WL);renderWL();updStar()}
-function addWL(list){let n=0;list.forEach(t=>{t=String(t||'').trim().toUpperCase();if(t&&!WL.includes(t)&&(DATA.some(s=>s.ticker===t)||(PRICES&&PRICES[t]))){WL.push(t);n++}});saveWL();return n}
+function addWL(list){let n=0;list.forEach(t=>{t=String(t||'').trim().toUpperCase();if(t&&!WL.includes(t)&&(isIdx(t)||DATA.some(s=>s.ticker===t)||(PRICES&&PRICES[t]))){WL.push(t);n++}});saveWL();return n}
 function wlInfo(t){
   const q=PRICES&&PRICES[t]||{}, a=rows.find(x=>x.ticker===t), s=a?a.s:DATA.find(x=>x.ticker===t);
   const p=q.p||s?.price||null, ch=q.p&&q.c1?q.p/q.c1-1:null;
-  return {t,p,ch,name:s?.name||'',a,gap:a?a.gap:null,gapR1:a?a.gapR1:null,gapR2:a?a.gapR2:null};
+  return {t,p,ch,idx:isIdx(t),name:isIdx(t)?INDEXES[t]:s?.name||'',a,gap:a?a.gap:null,gapR1:a?a.gapR1:null,gapR2:a?a.gapR2:null};
 }
 function wlSorted(){
   const k=$('wlSort').value, l=WL.map(wlInfo);
@@ -1056,9 +1059,9 @@ function renderWL(){
     const chc=x.ch==null?'muted':x.ch>0?'c-good':x.ch<0?'c-bad':'muted';
     const g=x.gap!=null?`Giá/MOS ${(x.gap>0?'+':'')+pf(x.gap,0)}`:'MOS —';
     return `<li data-t="${esc(x.t)}" class="${x.t===CV.sym?'on':''}" tabindex="0" title="${esc(x.name)}">
-      <span class="tk">${esc(x.t)}${x.a&&x.a.status==='below'?' <span class="c-good" title="Đang dưới MOS">●</span>':''}${wlSigChip(x.t)}</span><span class="px">${nf(x.p)}</span>
+      <span class="tk">${esc(x.t)}${x.a&&x.a.status==='below'?' <span class="c-good" title="Đang dưới MOS">●</span>':''}${wlSigChip(x.t)}</span><span class="px">${nf(x.p,x.idx?2:0)}</span>
       <span class="ch ${chc} chw">${x.ch==null?'—':(x.ch>0?'+':'')+pf(x.ch,2)}</span>
-      <span class="sub"><span class="${x.gap!=null&&x.gap<=0?'c-good':''}">${g}</span>${x.gapR1!=null?` · R1 ${(x.gapR1>0?'+':'')+pf(x.gapR1,0)}`:''}${x.gapR2!=null?` · R2 ${(x.gapR2>0?'+':'')+pf(x.gapR2,0)}`:''}</span>
+      <span class="sub">${x.idx?esc(x.name):''}<span class="${x.gap!=null&&x.gap<=0?'c-good':''}">${x.idx?'':g}</span>${x.gapR1!=null?` · R1 ${(x.gapR1>0?'+':'')+pf(x.gapR1,0)}`:''}${x.gapR2!=null?` · R2 ${(x.gapR2>0?'+':'')+pf(x.gapR2,0)}`:''}</span>
       <button class="rm" data-rm="${esc(x.t)}" title="Bỏ ${esc(x.t)} khỏi danh mục" aria-label="Bỏ ${esc(x.t)}">✕</button></li>`}).join('');
 }
 function updStar(){const on=CV.sym&&WL.includes(CV.sym);$('cvStar').classList.toggle('on',!!on);$('cvStar').textContent=on?'★ Đang theo dõi':'☆ Theo dõi'}
@@ -1108,7 +1111,7 @@ function drawMeasure(){
   const i1=Math.max(0,Math.min(d.t.length-1,Math.round(M.a.l))),i2=Math.max(0,Math.min(d.t.length-1,Math.round(M.b.l)));
   const days=Math.round((new Date(d.t[i2])-new Date(d.t[i1]))/864e5);
   const lab=el.firstElementChild;
-  lab.innerHTML=`${(pct>0?'+':'')+pf(pct,2)} (${(pct>0?'+':'')+nf(M.b.p-M.a.p)})<br><span style="font-weight:400">${nf(M.a.p)} → ${nf(M.b.p)} · ${Math.abs(bars)} ${TF==='W'?'tuần':'phiên'} · ${Math.abs(days)} ngày</span>`;
+  const dd=d.idx?2:0;lab.innerHTML=`${(pct>0?'+':'')+pf(pct,2)} (${(pct>0?'+':'')+nf(M.b.p-M.a.p,dd)})<br><span style="font-weight:400">${nf(M.a.p,dd)} → ${nf(M.b.p,dd)} · ${Math.abs(bars)} ${TF==='W'?'tuần':'phiên'} · ${Math.abs(days)} ngày</span>`;
   lab.style.background=col;
   const h=Math.abs(y2-y1);
   // nhãn đặt phía đầu mút điểm cuối (trên nếu tăng, dưới nếu giảm), tự lật vào trong khi sát mép
@@ -1117,13 +1120,14 @@ function drawMeasure(){
   if(below&&Math.max(y1,y2)>$('cvChart').clientHeight-50){lab.style.top='';lab.style.bottom=(h+4)+'px'}
 }
 $('cvMeas').onclick=()=>{clearMeasure();setMeasMode(!M.on)};
+$('cvIdx').onclick=e=>{const b=e.target.closest('[data-ix]');if(b)showChart(b.dataset.ix,false)};
 $('cvTf').onclick=e=>{const b=e.target.closest('[data-tf]');if(!b||b.dataset.tf===TF)return;TF=b.dataset.tf;store.set('r1vn_tf',TF);applyIndVis();if(CV.sym)showChart(CV.sym,false)};
 $('cvInd').addEventListener('change',e=>{const k=e.target.dataset.ind;if(!k)return;IND[k]=e.target.checked;store.set('r1vn_ind',IND);if(CV.sym)showChart(CV.sym,false)});
 applyIndVis();
 document.querySelectorAll('.tabs [data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $('cvGo').onclick=()=>showChart($('cvSym').value,false);
 $('cvSym').addEventListener('keydown',e=>{if(e.key==='Enter')showChart($('cvSym').value,false)});
-$('cvSym').addEventListener('change',()=>{const v=$('cvSym').value.trim().toUpperCase();if(DATA.some(s=>s.ticker===v))showChart(v,false)});
+$('cvSym').addEventListener('change',()=>{const v=$('cvSym').value.trim().toUpperCase();if(isIdx(v)||DATA.some(s=>s.ticker===v))showChart(v,false)});
 $('cvRange').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;CV.range=+b.dataset.r;$('cvRange').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));applyRange()};
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(CV.sym&&!$('viewChart').hidden)showChart(CV.sym,false)});
 fillFilters();render();autoLoad();
