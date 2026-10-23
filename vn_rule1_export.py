@@ -485,6 +485,53 @@ def pe_history(ratio: pd.DataFrame):
     return round(float(d.pe.median()), 2), round(float(yearly.mean()), 2), len(yearly)
 
 
+def _ttm_rows(ratio: pd.DataFrame) -> pd.DataFrame:
+    """Các dòng tỷ số TTM theo quý của VCI, sắp theo thời gian."""
+    if ratio is None or ratio.empty:
+        return pd.DataFrame()
+    df = ratio
+    if "ratioType" in df.columns and (df["ratioType"].astype(str).str.upper() == "RATIO_TTM").any():
+        df = df[df["ratioType"].astype(str).str.upper() == "RATIO_TTM"]
+    ycol = "yearReport" if "yearReport" in df.columns else ("year" if "year" in df.columns else None)
+    if ycol is None or "quarter" not in df.columns:
+        return pd.DataFrame()
+    df = df.assign(_y=pd.to_numeric(df[ycol], errors="coerce"), _q=pd.to_numeric(df["quarter"], errors="coerce"))
+    return df[df._q.between(1, 4)].dropna(subset=["_y"]).sort_values(["_y", "_q"])
+
+
+def pb_history(ratio: pd.DataFrame):
+    """P/B lịch sử từ P/B TTM cuối mỗi quý (tối đa 10 năm, bỏ P/B ≤ 0 hoặc > 20).
+    Trả về (trung vị mọi quý, trung bình các P/B trung bình năm)."""
+    df = _ttm_rows(ratio)
+    if df.empty or "pb" not in df.columns:
+        return None, None
+    d = pd.DataFrame({"y": df._y, "pb": pd.to_numeric(df["pb"], errors="coerce")}).dropna()
+    d = d[(d.pb > 0) & (d.pb < 20)]
+    if d.empty:
+        return None, None
+    d = d[d.y >= d.y.max() - 9]
+    yearly = d.groupby("y").pb.mean()
+    if len(yearly) < 3:
+        return None, None
+    return round(float(d.pb.median()), 3), round(float(yearly.mean()), 3)
+
+
+def bank_quality(ratio: pd.DataFrame):
+    """Chất lượng tài sản ngân hàng ở quý gần nhất có số liệu: (tỷ lệ nợ xấu, bao phủ nợ xấu, kỳ)."""
+    df = _ttm_rows(ratio)
+    if df.empty or "npl" not in df.columns:
+        return None, None, None
+    npl = pd.to_numeric(df["npl"], errors="coerce")
+    cov = pd.to_numeric(df.get("loansLossReservesToNPLs"), errors="coerce").abs() if "loansLossReservesToNPLs" in df.columns else None
+    ok = npl.notna() & (npl > 0)
+    if not ok.any():
+        return None, None, None
+    i = npl[ok].index[-1]
+    period = f"{int(df.loc[i, '_y'])}-Q{int(df.loc[i, '_q'])}"
+    c = float(cov.loc[i]) if cov is not None and pd.notna(cov.loc[i]) and cov.loc[i] > 0 else None
+    return round(float(npl.loc[i]), 5), (round(c, 4) if c is not None else None), period
+
+
 def ratio_info(ratio: pd.DataFrame):
     """Số CP lưu hành (triệu) mới nhất và P/E lịch sử theo năm (trung vị, tối đa 10 năm)."""
     if ratio is None or ratio.empty:
@@ -632,6 +679,10 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years, extras=No
         "sector": meta.get("sector", "Khác"), "is_financial": 1 if fin else 0,
         "price": round(price), "shares_mil": round(shares, 3), "avg_pe": avg_pe, "adv_bn": adv,
         "analyst_g": None, "ttm_ni": ttm_ni, "ttm_period": ttm_period, "pe_town": pe_history(ratio)[1],
+        "pb_med": pb_history(ratio)[0] if fin else None, "pb_avg": pb_history(ratio)[1] if fin else None,
+        "npl": bank_quality(ratio)[0] if com_type == "NH" else None,
+        "npl_cov": bank_quality(ratio)[1] if com_type == "NH" else None,
+        "npl_period": bank_quality(ratio)[2] if com_type == "NH" else None,
         "rows": rows, "mapping": used, "divisor": d, "com_type": com_type,
         "insider": insider_events(extras.get("events")),
     }
@@ -690,7 +741,8 @@ def load_universe(Listing, exchanges):
 # --------------------------------------------------------------------------
 CSV_COLS = ["ticker", "name", "exchange", "sector", "is_financial", "price", "shares_mil", "avg_pe",
             "adv_bn", "analyst_g", "year", "revenue", "net_income", "equity", "debt", "cash", "ebit",
-            "cfo", "capex", "dividends", "shares_adj", "ttm_ni", "ttm_period", "pe_town", "nci"]
+            "cfo", "capex", "dividends", "shares_adj", "ttm_ni", "ttm_period", "pe_town", "nci",
+            "pb_med", "pb_avg", "npl", "npl_cov", "npl_period"]
 
 
 def write_csv(records, path):
@@ -703,7 +755,8 @@ def write_csv(records, path):
                             rec["price"], rec["shares_mil"], fmt(rec["avg_pe"]), fmt(rec["adv_bn"]),
                             fmt(rec["analyst_g"])] + [fmt(row.get(c)) for c in CSV_COLS[10:20]]
                            + [fmt(row.get("shares_adj")), fmt(rec.get("ttm_ni")), fmt(rec.get("ttm_period")),
-                              fmt(rec.get("pe_town")), fmt(row.get("nci"))])
+                              fmt(rec.get("pe_town")), fmt(row.get("nci"))]
+                           + [fmt(rec.get(k)) for k in ("pb_med", "pb_avg", "npl", "npl_cov", "npl_period")])
 
 
 def fmt(v):

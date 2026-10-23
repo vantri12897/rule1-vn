@@ -250,7 +250,7 @@ body{margin:0}
     <section class="results">
       <div class="bar"><h2 id="count"></h2><span class="note">Bấm vào dòng để xem giải trình tính toán và chấm 3M.</span></div>
       <div class="tbl"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
-      <p class="note">Big 5 theo Phil Town: ROIC trung bình ≥ 10%; tăng trưởng Doanh thu, EPS, BVPS, FCF ≥ 10%/năm. Chấm ô: xanh ≥ 10%, vàng 7–10%, đỏ &lt; 7%. EPS, BVPS lịch sử tính bằng số cổ phiếu hiện tại, nên cần điều chỉnh dữ liệu khi có chia tách hoặc cổ phiếu thưởng. Công cụ hỗ trợ nghiên cứu, không phải khuyến nghị mua bán.</p>
+      <p class="note">Big 5 theo Phil Town: ROIC trung bình ≥ 10%; tăng trưởng Doanh thu, EPS, BVPS, FCF ≥ 10%/năm. Nhóm tài chính (TC): ROE trung bình ≥ 15% thay ROIC, bỏ FCF (tối đa 4 điểm). Chấm ô: xanh ≥ 10%, vàng 7–10%, đỏ &lt; 7%. EPS, BVPS lịch sử tính bằng số cổ phiếu hiện tại, nên cần điều chỉnh dữ liệu khi có chia tách hoặc cổ phiếu thưởng. Công cụ hỗ trợ nghiên cứu, không phải khuyến nghị mua bán.</p>
     </section>
   </div>
   </div>
@@ -321,6 +321,7 @@ const R1 = (() => {
     const fcf = ys.map(y => (y.cfo != null && y.capex != null) ? y.cfo - Math.abs(y.capex) : null);
     // Vốn đầu tư = vốn chủ mẹ + lợi ích CĐ không kiểm soát + nợ vay − tiền: cùng phạm vi hợp nhất với EBIT.
     const roic = ys.map(y => { const ic = y.equity + (y.nci || 0) + (y.debt || 0) - (y.cash || 0); return (y.ebit != null && ic > 0) ? y.ebit * (1 - cfg.tax) / ic : null; });
+    const roeY = ys.map(y => y.equity > 0 && y.ni != null ? y.ni / y.equity : null);
     const rev = ys.map(y => y.rev);
     const margin = ys.map(y => y.rev > 0 ? y.ni / y.rev : null);
     const fin = !!s.financial;
@@ -328,13 +329,15 @@ const R1 = (() => {
     const periods = [1, 5, 10];
     const big5 = {
       roic: periods.map(p => { const k = Math.min(p, n); return {v: fin ? null : avg(roic.slice(-k)), k}; }),
+      // Nhóm tài chính: ROE thay ROIC (ngân hàng dùng đòn bẩy nên ROIC vô nghĩa), ngưỡng 15%.
+      roe: periods.map(p => { const k = Math.min(p, n); return {v: fin ? avg(roeY.slice(-k)) : null, k}; }),
       rev: periods.map(p => cagr(rev, p)),
       eps: periods.map(p => cagr(eps, p)),
       bvps: periods.map(p => cagr(bvps, p)),
       fcf: periods.map(p => fin ? {v: null, k: 0} : cagr(fcf, p))
     };
-    const keys = fin ? ['rev', 'eps', 'bvps'] : ['roic', 'rev', 'eps', 'bvps', 'fcf'];
-    const score = keys.filter(k => big5[k][1] && big5[k][1].v != null && big5[k][1].v >= 0.10).length;
+    const keys = fin ? ['roe', 'rev', 'eps', 'bvps'] : ['roic', 'rev', 'eps', 'bvps', 'fcf'];
+    const score = keys.filter(k => big5[k][1] && big5[k][1].v != null && big5[k][1].v >= (k === 'roe' ? 0.15 : 0.10)).length;
 
     // EPS gốc cho định giá: TTM (4 quý gần nhất, chia số CP hiện tại); thiếu thì dùng EPS năm gần nhất.
     // EPS năm và EPS TTM cùng chia số CP hiện tại để so sánh được với nhau và với giá hiện tại.
@@ -371,6 +374,24 @@ const R1 = (() => {
     const stR1 = r1FcfFail ? {ok: false, reason: `FCF năm ${L.year} ≤ 0 (${(Math.round(fcfLast * 10) / 10).toLocaleString('vi-VN')} tỷ): không đạt tiêu chí tăng trưởng dòng tiền`} : sticker(epsL, gR1, s.avgPE, cfg);
     // MOS R2: g như MOS R1, P/E tương lai = min(2g, P/E trung bình lịch sử) — đúng Town, không trần P/E.
     const stR2 = r1FcfFail ? stR1 : stickerTown(epsL, gR1, s.peTown, cfg);
+    // MOS P/B (nhóm tài chính): định giá theo vốn chủ, đúng tinh thần "equity growth" của Town.
+    // g = min(CAGR BVPS 5 năm, tăng trưởng bền vững ROE TB 5 năm × (1 − tỷ lệ chi trả TB 5 năm), trần).
+    // Sticker = BVPS × (1+g)^10 × P/B lịch sử (trung vị) ÷ (1+MARR)^10.
+    let stPB = {ok: false, reason: 'Chỉ áp dụng cho nhóm tài chính'};
+    if (fin) {
+      const roe5 = avg(roeY.slice(-5)), pay5 = avg(ys.slice(-5).map(y => y.div != null && y.ni > 0 ? Math.min(1, y.div / y.ni) : null));
+      const gSus = roe5 != null ? roe5 * (1 - (pay5 || 0)) : null;
+      const gc = [gB, gSus].filter(v => v != null && isFinite(v));
+      let gPBv = gOverride != null ? gOverride : (gc.length ? Math.min(cfg.gCap, ...gc) : null);
+      const pbH = s.pbMed;
+      if (!(bvL > 0)) stPB = {ok: false, reason: 'BVPS ≤ 0'};
+      else if (gPBv == null || !(gPBv > 0)) stPB = {ok: false, reason: 'Tăng trưởng vốn chủ ≤ 0 hoặc thiếu'};
+      else if (!(pbH > 0)) stPB = {ok: false, reason: 'Thiếu P/B lịch sử (cập nhật cùng lượt BCTC tự động)'};
+      else {
+        const futureBV = bvL * Math.pow(1 + gPBv, 10), futurePrice = futureBV * pbH, stk = futurePrice / Math.pow(1 + cfg.marr, 10);
+        stPB = {ok: true, g: gPBv, gSus, roe5, pay5, pbH, futureBV, futurePrice, sticker: stk, mos: stk * cfg.mosPct};
+      }
+    }
     let status = 'na';
     if (st.ok) status = price <= st.mos ? 'below' : price <= st.sticker ? 'between' : 'above';
 
@@ -387,7 +408,7 @@ const R1 = (() => {
     const divPS = L.div != null ? L.div * 1000 / sh : null;
     return {
       s, ys, eps, bvps, fcf, roic, margin, big5, score, maxScore: keys.length,
-      stT, stR1, stR2, gR1, gR1Auto, gParts, epsL, epsA, epsT, epsSrc, epsCur, epsAvg3, niSpike, ttmPeriod: s.ttmPeriod || null, adjYears, bvL, price, mcap, g, gAuto, gE, gB, st, status, pb, fcf0,
+      stT, stR1, stR2, stPB, roeY, gR1, gR1Auto, gParts, epsL, epsA, epsT, epsSrc, epsCur, epsAvg3, niSpike, ttmPeriod: s.ttmPeriod || null, adjYears, bvL, price, mcap, g, gAuto, gE, gB, st, status, pb, fcf0,
       pe: epsL > 0 ? price / epsL : null, pb_: bvL > 0 ? price / bvL : null,
       roe: L.equity > 0 ? L.ni / L.equity : null,
       de: L.equity > 0 ? (L.debt || 0) / L.equity : null,
@@ -448,13 +469,14 @@ const COLS=[
  {k:'ticker',l:'Mã',cls:'tk'},{k:'exchange',l:'Sàn'},{k:'sector',l:'Ngành'},
  {k:'price',l:'Giá',n:1},{k:'mcap',l:'Vốn hóa (tỷ)',n:1},{k:'pe',l:'P/E',n:1},{k:'pb_',l:'P/B',n:1},
  {k:'roe',l:'ROE %',n:1},{k:'epsL',l:'EPS TTM',n:1},{k:'score',l:'Big 5'},{k:'g',l:'g %',n:1},
- {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'mosR1',l:'MOS R1',n:1},{k:'gapR1',l:'Giá/MOS R1',n:1},{k:'mosR2',l:'MOS R2',n:1},{k:'gapR2',l:'Giá/MOS R2',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
+ {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'mosR1',l:'MOS R1',n:1},{k:'gapR1',l:'Giá/MOS R1',n:1},{k:'mosR2',l:'MOS R2',n:1},{k:'gapR2',l:'Giá/MOS R2',n:1},{k:'mosPB',l:'MOS P/B',n:1},{k:'gapPB',l:'Giá/MOS P/B',n:1},{k:'payback',l:'Payback',n:1},{k:'m3',l:'3M'}
 ];
 
 /* ===== Định dạng ===== */
 const nf=(v,d=0)=>v==null||!isFinite(v)?'—':v.toLocaleString('vi-VN',{minimumFractionDigits:d,maximumFractionDigits:d});
 const pf=(v,d=1)=>v==null||!isFinite(v)?'—':(v*100).toLocaleString('vi-VN',{minimumFractionDigits:d,maximumFractionDigits:d})+'%';
 const cls10=v=>v==null?'':v>=.10?'good':v>=.07?'warn':'bad';
+const clsK=(k,v)=>k==='roe'?(v==null?'':v>=.15?'good':v>=.12?'warn':'bad'):cls10(v);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 function cfg(){return{marr:+$('pMarr').value/100||.15,gCap:+$('pGcap').value/100||.15,peCap:+$('pPecap').value||20,mosPct:(+$('pMos').value||50)/100,tax:(+$('pTax').value||20)/100,fcfMode:$('pFcf').value,epsMode:$('pEps').value,pbGood:+$('pPbGood').value||8,pbWarn:+$('pPbWarn').value||12,capMin:+$('pCapMin').value||0,advMin:+$('pAdvMin').value||0,yrMin:+$('pYrMin').value||0}}
@@ -464,7 +486,7 @@ function m3rated(t){const m=M3[t];return m&&(m.meaning||m.moatStr||m.mgmt)}
 function compute(){
   const c=cfg();
   rows=DATA.map(s=>{const a=R1.analyze(s,c,GOV[s.ticker]!=null?GOV[s.ticker]:null);
-    a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;a.gapT=a.mosT?a.price/a.mosT-1:null;a.mosR1=a.stR1.ok?a.stR1.mos:null;a.mosR2=a.stR2.ok?a.stR2.mos:null;a.gapR2=a.mosR2?a.price/a.mosR2-1:null;a.statusR2=a.stR2.ok?(a.price<=a.stR2.mos?'below':a.price<=a.stR2.sticker?'between':'above'):'na';a.gapR1=a.mosR1?a.price/a.mosR1-1:null;a.statusR1=a.stR1.ok?(a.price<=a.stR1.mos?'below':a.price<=a.stR1.sticker?'between':'above'):'na';a.statusT=a.stT.ok?(a.price<=a.stT.mos?'below':a.price<=a.stT.sticker?'between':'above'):'na';
+    a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;a.gapT=a.mosT?a.price/a.mosT-1:null;a.mosR1=a.stR1.ok?a.stR1.mos:null;a.mosR2=a.stR2.ok?a.stR2.mos:null;a.mosPB=a.stPB.ok?a.stPB.mos:null;a.gapPB=a.mosPB?a.price/a.mosPB-1:null;a.statusPB=a.stPB.ok?(a.price<=a.stPB.mos?'below':a.price<=a.stPB.sticker?'between':'above'):'na';a.gapR2=a.mosR2?a.price/a.mosR2-1:null;a.statusR2=a.stR2.ok?(a.price<=a.stR2.mos?'below':a.price<=a.stR2.sticker?'between':'above'):'na';a.gapR1=a.mosR1?a.price/a.mosR1-1:null;a.statusR1=a.stR1.ok?(a.price<=a.stR1.mos?'below':a.price<=a.stR1.sticker?'between':'above'):'na';a.statusT=a.stT.ok?(a.price<=a.stT.mos?'below':a.price<=a.stT.sticker?'between':'above'):'na';
     a.payback=a.pb.ok?a.pb.years:null;a.ticker=s.ticker;a.exchange=s.exchange;a.sector=s.sector;a.m3=m3pass(s.ticker)?2:m3rated(s.ticker)?1:0;
     a.eligible=a.mcap>=c.capMin&&(s.adv==null||s.adv>=c.advMin)&&a.nYears>=c.yrMin;return a});
 }
@@ -521,11 +543,14 @@ function epsTag0(a){
 }
 const cycTag=a=>isCyclical(a)?`<span class="tag t-warn" title="Ngành chu kỳ: lợi nhuận lên xuống theo chu kỳ kinh tế / giá hàng hóa / thị trường. Không ngoại suy từ đỉnh; prompt Bước 0: g định giá phải thấp hơn g lịch sử.">chu kỳ</span>`:'';
 const staleTag=a=>isStale(a)?`<span class="tag t-bad" title="Giao dịch gần nhất ${fmtD(a.s.priceDate)} (${staleDays(a)} ngày trước phiên ${fmtD(PRICE_META.session)}): có thể bị đình chỉ, hủy niêm yết hoặc không có thanh khoản. Giá không phản ánh thị trường hiện tại.">giá cũ</span>`:'';
+const bankBad=a=>a.s.npl!=null&&(a.s.npl>0.03||(a.s.nplCov!=null&&a.s.nplCov<0.8));
+const bankTag=a=>bankBad(a)?`<span class="tag t-bad" title="Chất lượng tài sản (${esc(a.s.nplPeriod||'')}): nợ xấu ${pf(a.s.npl,2)}${a.s.nplCov!=null?', bao phủ nợ xấu '+pf(a.s.nplCov,0):''}. Ngưỡng cảnh báo: nợ xấu > 3% hoặc bao phủ < 80% — lợi nhuận và vốn chủ có thể đang bị đánh giá cao do trích lập chưa đủ.">nợ xấu</span>`:'';
 const epsLossFlag=a=>a.gE==null&&a.gB!=null&&GOV[a.ticker]==null;
 function warnBox(a){
   const w=[];
   if(epsLossFlag(a))w.push(`<b>EPS từng lỗ:</b> không tính được CAGR EPS 5 năm (${(()=>{const i0=Math.max(0,a.eps.length-6),i1=a.eps.length-1,l=[];if(!(a.eps[i0]>0))l.push('năm gốc '+a.ys[i0].year);if(!(a.eps[i1]>0))l.push('năm '+a.ys[i1].year);return (l.join(' và ')||'thiếu số liệu')+' lỗ'})()}), nên g chỉ dựa trên tăng trưởng BVPS. Kiểm tra lợi nhuận đã ổn định chưa trước khi tin Sticker/MOS.`);
   if(isStale(a))w.push(`<b>Giá cũ:</b> giao dịch gần nhất ngày ${fmtD(a.s.priceDate)}, ${staleDays(a)} ngày trước phiên mới nhất. Mã có thể đang bị đình chỉ, hủy niêm yết hoặc không có thanh khoản; so sánh giá với MOS không còn ý nghĩa.`);
+  if(bankBad(a))w.push(`<b>Chất lượng tài sản ngân hàng (${esc(a.s.nplPeriod||'')}):</b> tỷ lệ nợ xấu ${pf(a.s.npl,2)}${a.s.nplCov!=null?`, bao phủ nợ xấu ${pf(a.s.nplCov,0)}`:''}. Nợ xấu > 3% hoặc dự phòng phủ < 80% nợ xấu nghĩa là lợi nhuận và BVPS có thể đang cao hơn thực tế; cả MOS theo EPS lẫn MOS P/B đều kém tin cậy.`);
   if(a.niSpike)w.push(`<b>Lợi nhuận đột biến ⚡:</b> LNST ${nf(a.niSpike.now)} tỷ, gấp ${a.niSpike.prev3>0?nf(a.niSpike.now/a.niSpike.prev3,1)+' lần':'nhiều lần (trước đó lỗ/hòa vốn)'} trung bình 3 năm trước (${nf(a.niSpike.prev3)} tỷ). Công thức Sticker nhân EPS này lên 10 năm, nên nếu đây là lãi bất thường (bán tài sản, hoàn nhập, đỉnh chu kỳ) thì MOS bị thổi phồng. Đọc thuyết minh BCTC; thử tham số “EPS định giá: Thận trọng”${a.epsAvg3!=null?` (EPS TB 3 năm: ${nf(a.epsAvg3)})`:''}.`);
   if(ttmSpike(a))w.push(`<b>Lợi nhuận TTM tăng đột biến:</b> EPS TTM ${nf(a.epsT)} so với EPS năm ${a.ys[a.ys.length-1].year} ${nf(a.epsA)}. Kiểm tra xem đây là đỉnh chu kỳ hay khoản lãi một lần trước khi tin Sticker/MOS.`);
   if(isCyclical(a))w.push(`<b>Ngành chu kỳ (${esc(a.sector)}):</b> tăng trưởng lịch sử có thể đến từ chu kỳ. Theo prompt Bước 0, hãy dùng trung bình cả chu kỳ và g định giá thấp hơn g lịch sử (thử ghi đè g ở mục Sticker).`);
@@ -535,8 +560,8 @@ function statusPill(a){
   return a.status==='below'?'<span class="pill p-good">Dưới MOS</span>':a.status==='between'?'<span class="pill p-warn">Dưới Sticker</span>':a.status==='above'?'<span class="pill p-bad">Trên Sticker</span>':'<span class="pill p-na">N/A</span>';
 }
 function dots(a){
-  const keys=a.s.financial?['rev','eps','bvps']:['roic','rev','eps','bvps','fcf'];
-  return `<span class="dots" title="${keys.map(k=>k.toUpperCase()+': '+pf(a.big5[k][1]?.v)).join(' · ')}">${keys.map(k=>`<i class="${cls10(a.big5[k][1]?.v)}"></i>`).join('')}</span>${a.score}/${a.maxScore}`;
+  const keys=a.s.financial?['roe','rev','eps','bvps']:['roic','rev','eps','bvps','fcf'];
+  return `<span class="dots" title="${keys.map(k=>k.toUpperCase()+': '+pf(a.big5[k][1]?.v)).join(' · ')}">${keys.map(k=>`<i class="${clsK(k,a.big5[k][1]?.v)}"></i>`).join('')}</span>${a.score}/${a.maxScore}`;
 }
 
 function render(){
@@ -546,7 +571,7 @@ function render(){
   const total=rows.filter(a=>a.eligible).length;
   $('count').textContent=`${list.length} / ${total} mã đạt điều kiện`;
   $('tbody').innerHTML=list.length?list.map(a=>`<tr data-t="${esc(a.ticker)}">
-    <td class="tk">${esc(a.ticker)}${a.s.financial?'<span class="tag">TC</span>':''}</td><td>${esc(a.exchange)}</td><td>${esc(a.sector)}${cycTag(a)}</td>
+    <td class="tk">${esc(a.ticker)}${a.s.financial?'<span class="tag">TC</span>':''}${bankTag(a)}</td><td>${esc(a.exchange)}</td><td>${esc(a.sector)}${cycTag(a)}</td>
     <td class="n">${nf(a.price)}${staleTag(a)}</td><td class="n">${nf(a.mcap)}</td><td class="n">${nf(a.pe,1)}</td><td class="n">${nf(a.pb_,2)}</td>
     <td class="n">${pf(a.roe)}</td><td class="n">${nf(a.epsL)}${epsTag(a)}</td><td>${dots(a)}</td>
     <td class="n">${a.g!=null?pf(a.g):'—'}${GOV[a.ticker]!=null?'<span class="tag">tay</span>':''}${epsLossFlag(a)?'<span class="tag t-warn" title="Không tính được CAGR EPS 5 năm (năm gốc hoặc năm cuối có lỗ): g chỉ dựa trên BVPS">!</span>':''}</td>
@@ -558,6 +583,8 @@ function render(){
     <td class="n">${a.gapR1!=null?`<span class="${a.statusR1==='below'?'c-good':a.statusR1==='between'?'c-warn':'c-bad'}" title="Giá so với MOS R1 (Sticker R1 ${nf(a.stR1.sticker)})">${(a.gapR1>0?'+':'')+pf(a.gapR1,0)}</span>`:'—'}</td>
     <td class="n">${a.mosR2!=null?`<span class="${a.price<=a.mosR2?'c-good':'muted'}" title="g = ${pf(a.gR1)} (như MOS R1); P/E tương lai = min(2g ${nf(a.stR2.peByG,1)}, P/E trung bình lịch sử ${nf(a.s.peTown,1)}) = ${nf(a.stR2.futurePE,1)} — đúng Town, không trần">${nf(a.mosR2)}</span>`:`<span class="muted" title="${esc(a.stR2.reason||'')}">—</span>`}</td>
     <td class="n">${a.gapR2!=null?`<span class="${a.statusR2==='below'?'c-good':a.statusR2==='between'?'c-warn':'c-bad'}" title="Giá so với MOS R2 (Sticker R2 ${nf(a.stR2.sticker)})">${(a.gapR2>0?'+':'')+pf(a.gapR2,0)}</span>`:'—'}</td>
+    <td class="n">${a.mosPB!=null?`<span class="${a.price<=a.mosPB?'c-good':'muted'}" title="Định giá theo vốn chủ: BVPS ${nf(a.bvL)} × (1+${pf(a.stPB.g)})^10 × P/B lịch sử ${nf(a.stPB.pbH,2)} ÷ (1+MARR)^10 × MOS%">${nf(a.mosPB)}</span>`:`<span class="muted" title="${esc(a.stPB.reason||'')}">—</span>`}</td>
+    <td class="n">${a.gapPB!=null?`<span class="${a.statusPB==='below'?'c-good':a.statusPB==='between'?'c-warn':'c-bad'}" title="Giá so với MOS P/B (Sticker P/B ${nf(a.stPB.sticker)})">${(a.gapPB>0?'+':'')+pf(a.gapPB,0)}</span>`:'—'}</td>
     <td class="n">${pbCell(a,c)}</td>
     <td>${a.m3===2?'<span class="pill p-good">Đạt</span>':a.m3===1?'<span class="pill p-warn">Chưa đạt</span>':'<span class="pill p-na">Chưa chấm</span>'}</td></tr>`).join('')
     :`<tr><td colspan="${COLS.length}" class="empty">Không mã nào qua bộ lọc hiện tại. Nới bộ lọc hoặc giảm MARR để mở rộng danh sách.</td></tr>`;
@@ -643,7 +670,7 @@ function niChart(a){
 /* ===== Ngăn chi tiết ===== */
 function openDetail(t){
   const a=rows.find(r=>r.ticker===t);if(!a)return;const c=cfg(),s=a.s,m=M3[t]||{};
-  const b5row=(lab,k,isAvg)=>`<tr><td>${lab}</td>${a.big5[k].map(x=>`<td class="n ${x&&x.v!=null?'c-'+cls10(x.v):''}">${x&&x.v!=null?pf(x.v):'—'}${x&&x.k&&x.v!=null?`<span class="muted" style="font-size:.7rem"> (${x.k}n)</span>`:''}</td>`).join('')}</tr>`;
+  const b5row=(lab,k,isAvg)=>`<tr><td>${lab}</td>${a.big5[k].map(x=>`<td class="n ${x&&x.v!=null?'c-'+clsK(k,x.v):''}">${x&&x.v!=null?pf(x.v):'—'}${x&&x.k&&x.v!=null?`<span class="muted" style="font-size:.7rem"> (${x.k}n)</span>`:''}</td>`).join('')}</tr>`;
   const st=a.st;
   const stTxt=st.ok?`g              = ${pf(a.g,2)}  ${GOV[t]!=null?'(ghi đè thủ công)':`= min(EPS CAGR 5n ${pf(a.gE)}, BVPS CAGR 5n ${pf(a.gB)}${s.analystG!=null?', analyst '+pf(s.analystG):''}; trần ${pf(c.gCap,0)})`}
 P/E tương lai   = min(2 × g = ${nf(st.peByG,1)}, P/E lịch sử (trung vị) = ${s.avgPE?nf(s.avgPE,1):'—'}, trần ${c.peCap}) = ${nf(st.futurePE,1)}
@@ -663,6 +690,13 @@ g              = ${pf(a.gR1,2)}  (như MOS R1)
 P/E tương lai   = min(2 × g = ${nf(s2.peByG,1)}, P/E trung bình lịch sử = ${nf(s.peTown,1)}) = ${nf(s2.futurePE,1)}
 Sticker Price  = ${nf(s2.futureEPS)} × ${nf(s2.futurePE,1)} ÷ (1 + ${pf(c.marr,1)})^10 = ${nf(s2.sticker)}
 MOS R2         = ${nf(s2.sticker)} × ${pf(c.mosPct,0)} = ${nf(s2.mos)}  →  giá ${a.price<=s2.mos?'DƯỚI':'trên'} MOS R2`:`MOS R2: không tính được (${s2.reason}).`;
+  const sP=a.stPB,stPBTxt=!s.financial?'':sP.ok?`MOS P/B (nhóm tài chính, định giá theo vốn chủ):
+g              = ${pf(sP.g,2)}  ${GOV[t]!=null?'(ghi đè thủ công)':`= min(CAGR BVPS 5 năm ${pf(a.gB)}, tăng trưởng bền vững ROE TB 5 năm ${pf(sP.roe5)} × (1 − chi trả ${pf(sP.pay5||0,0)}) = ${pf(sP.gSus)}; trần ${pf(c.gCap,0)})`}
+BVPS sau 10 năm = ${nf(a.bvL)} × (1 + ${pf(sP.g,1)})^10 = ${nf(sP.futureBV)}
+Giá sau 10 năm  = ${nf(sP.futureBV)} × P/B lịch sử (trung vị) ${nf(sP.pbH,2)} = ${nf(sP.futurePrice)}   [P/B TB kiểu Town: ${nf(s.pbAvg,2)}]
+Sticker P/B    = ${nf(sP.futurePrice)} ÷ (1 + ${pf(c.marr,1)})^10 = ${nf(sP.sticker)}
+MOS P/B        = ${nf(sP.sticker)} × ${pf(c.mosPct,0)} = ${nf(sP.mos)}  →  giá ${a.price<=sP.mos?'DƯỚI':'trên'} MOS P/B${s.npl!=null?`
+Chất lượng TS  : nợ xấu ${pf(s.npl,2)}${s.nplCov!=null?', bao phủ nợ xấu '+pf(s.nplCov,0):''} (${s.nplPeriod||''})`:''}`:`MOS P/B: không tính được (${sP.reason}).`;
   const sT=a.stT,stTTxt=sT.ok?`Theo đúng Town / prompt (P/E trung bình, không trần):
 P/E tương lai   = min(2 × g = ${nf(sT.peByG,1)}, P/E trung bình lịch sử = ${nf(s.peTown,1)}) = ${nf(sT.futurePE,1)}
 Sticker Price  = ${nf(sT.futureEPS)} × ${nf(sT.futurePE,1)} ÷ (1 + ${pf(c.marr,1)})^10 = ${nf(sT.sticker)}
@@ -686,14 +720,14 @@ MOS Town       = ${nf(sT.sticker)} × ${pf(c.mosPct,0)} = ${nf(sT.mos)}  →  gi
     <div><span>Biên lãi ròng</span><span>${pf(a.netMargin)}</span></div><div><span>Tỷ suất cổ tức</span><span>${pf(a.divYield)}</span></div>
    </div></div>
    <div class="sec"><h3>Big 5 Numbers</h3><div class="tbl"><table><thead><tr><th>Chỉ số</th><th class="n">1 năm</th><th class="n">5 năm</th><th class="n">10 năm</th></tr></thead><tbody>
-    ${s.financial?'':b5row('ROIC trung bình','roic')}${b5row('Tăng trưởng Doanh thu','rev')}${b5row('Tăng trưởng EPS','eps')}${b5row('Tăng trưởng BVPS (vốn chủ)','bvps')}${s.financial?'':b5row('Tăng trưởng FCF','fcf')}
+    ${s.financial?b5row('ROE trung bình (ngưỡng 15%)','roe'):b5row('ROIC trung bình','roic')}${b5row('Tăng trưởng Doanh thu','rev')}${b5row('Tăng trưởng EPS','eps')}${b5row('Tăng trưởng BVPS (vốn chủ)','bvps')}${s.financial?'':b5row('Tăng trưởng FCF','fcf')}
    </tbody></table></div><p class="note">Số trong ngoặc là số năm thực tế dùng để tính khi dữ liệu ngắn hơn mốc. Big 5 Score chấm ở mốc 5 năm: ${a.score}/${a.maxScore}. EPS, BVPS từng năm ${a.adjYears?`tính trên số cổ phiếu đã điều chỉnh cổ phiếu thưởng/cổ tức bằng cổ phiếu (${a.adjYears}/${a.ys.length} năm có số liệu); phát hành thu tiền và ESOP được giữ nguyên như pha loãng thật`:'tính trên số cổ phiếu hiện tại (chưa có số cổ phiếu từng năm)'}.</p>
    ${niChart(a)}
    <div class="charts">
     <div class="chart"><span class="muted">Doanh thu (tỷ)</span>${bars(a.ys.map(y=>y.rev),yr,v=>nf(v))}</div>
     <div class="chart"><span class="muted">EPS (VND)</span>${bars(a.eps,yr,v=>nf(v))}</div>
     <div class="chart"><span class="muted">BVPS (VND)</span>${bars(a.bvps,yr,v=>nf(v))}</div>
-    ${s.financial?'':`<div class="chart"><span class="muted">FCF (tỷ)</span>${bars(a.fcf,yr,v=>nf(v,1))}</div><div class="chart"><span class="muted">ROIC</span>${bars(a.roic,yr,v=>pf(v))}</div>`}
+    ${s.financial?`<div class="chart"><span class="muted">ROE</span>${bars(a.roeY,yr,v=>pf(v))}</div>`:''}${s.financial?'':`<div class="chart"><span class="muted">FCF (tỷ)</span>${bars(a.fcf,yr,v=>nf(v,1))}</div><div class="chart"><span class="muted">ROIC</span>${bars(a.roic,yr,v=>pf(v))}</div>`}
    </div><span class="note">${yr[0]}–${yr[yr.length-1]}; cột đậm là năm gần nhất, cột đỏ là giá trị âm.</span></div>
    <div class="sec"><h3>Sticker Price và MOS Price</h3>
     <div class="btns" style="align-items:flex-end"><label class="f" for="gOv">Ghi đè g (%)<input id="gOv" type="number" step="0.5" value="${GOV[t]!=null?(GOV[t]*100).toFixed(1):''}" placeholder="Tự động: ${a.gAuto!=null?(a.gAuto*100).toFixed(1):'—'}"></label><button id="gApply">Áp dụng</button><button id="gClear">Về tự động</button></div>
@@ -701,7 +735,8 @@ MOS Town       = ${nf(sT.sticker)} × ${pf(c.mosPct,0)} = ${nf(sT.mos)}  →  gi
     <div class="steps">${esc(stTTxt)}</div>
     <div class="steps">${esc(stR1Txt)}</div>
     <div class="steps">${esc(stR2Txt)}</div>
-    <p class="note">P/E lịch sử lấy từ P/E TTM cuối mỗi quý (VCI, từ 2018), bỏ quý lỗ và P/E &gt; 100. MOS = trung vị P/E, có trần ${c.peCap} (thận trọng). MOS Town = trung bình các P/E trung bình năm, không trần — khớp phần P/E ở Bước 6.1 trong prompt Payback Time. MOS R1 = g lấy min của mọi tốc độ tăng trưởng 5 năm (doanh thu, EPS, BVPS, FCF), P/E như cột MOS — cách thận trọng nhất. MOS R2 = g như MOS R1, P/E = min(2g, P/E trung bình lịch sử) như MOS Town. Ô "Ghi đè g" áp dụng cho cả bốn cột.</p></div>
+    ${stPBTxt?`<div class="steps">${esc(stPBTxt)}</div>`:''}
+    <p class="note">P/E lịch sử lấy từ P/E TTM cuối mỗi quý (VCI, từ 2018), bỏ quý lỗ và P/E &gt; 100. MOS = trung vị P/E, có trần ${c.peCap} (thận trọng). MOS Town = trung bình các P/E trung bình năm, không trần — khớp phần P/E ở Bước 6.1 trong prompt Payback Time. MOS R1 = g lấy min của mọi tốc độ tăng trưởng 5 năm (doanh thu, EPS, BVPS, FCF), P/E như cột MOS — cách thận trọng nhất. MOS R2 = g như MOS R1, P/E = min(2g, P/E trung bình lịch sử) như MOS Town. Nhóm tài chính có thêm MOS P/B: định giá theo vốn chủ (BVPS × P/B lịch sử), ít bị lợi nhuận đột biến hoặc trích lập dự phòng làm méo hơn MOS theo EPS. Ô "Ghi đè g" áp dụng cho mọi cột.</p></div>
    <div class="sec"><h3>Payback Time</h3>${a.pb.ok?`<p style="margin:0">Vốn hóa ${nf(a.mcap)} tỷ. FCF gốc ${nf(a.fcf0,1)} tỷ (${c.fcfMode==='avg3'?'TB 3 năm':'năm gần nhất'}), tăng ${pf(a.pb.g)}/năm (= min(g ${pf(a.g)}, tăng trưởng FCF 5 năm ${pf(a.big5.fcf[1]?.v)}), không âm; ${a.pb.gSrc}). Hoàn vốn sau <b>${a.pb.years>30?'hơn 30':a.pb.years} năm</b>.</p>`:''}<div class="tbl">${pbTxt}</div></div>
    <div class="sec"><h3>3M — đánh giá của bạn</h3>
     <div class="m3">
@@ -724,15 +759,15 @@ function closeDetail(){$('drawerRoot').hidden=true;$('drawerRoot').innerHTML=''}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDetail();closeModal()}});
 
 /* ===== Nhập / xuất ===== */
-const CSV_HEAD='ticker,name,exchange,sector,is_financial,price,shares_mil,avg_pe,adv_bn,analyst_g,year,revenue,net_income,equity,debt,cash,ebit,cfo,capex,dividends,shares_adj,ttm_ni,ttm_period,pe_town,nci';
-function toCSV(data){const out=[CSV_HEAD];data.forEach(s=>s.years.forEach(y=>out.push([s.ticker,`"${s.name.replace(/"/g,'""')}"`,s.exchange,s.sector,s.financial?1:0,s.price,s.shares,s.avgPE??'',s.adv??'',s.analystG!=null?s.analystG*100:'',y.year,y.rev,y.ni,y.equity,y.debt,y.cash,y.ebit,y.cfo,y.capex,y.div,y.sharesAdj??'',s.ttmNI??'',s.ttmPeriod??'',s.peTown??'',y.nci??''].join(','))));return out.join('\n')}
+const CSV_HEAD='ticker,name,exchange,sector,is_financial,price,shares_mil,avg_pe,adv_bn,analyst_g,year,revenue,net_income,equity,debt,cash,ebit,cfo,capex,dividends,shares_adj,ttm_ni,ttm_period,pe_town,nci,pb_med,pb_avg,npl,npl_cov,npl_period';
+function toCSV(data){const out=[CSV_HEAD];data.forEach(s=>s.years.forEach(y=>out.push([s.ticker,`"${s.name.replace(/"/g,'""')}"`,s.exchange,s.sector,s.financial?1:0,s.price,s.shares,s.avgPE??'',s.adv??'',s.analystG!=null?s.analystG*100:'',y.year,y.rev,y.ni,y.equity,y.debt,y.cash,y.ebit,y.cfo,y.capex,y.div,y.sharesAdj??'',s.ttmNI??'',s.ttmPeriod??'',s.peTown??'',y.nci??'',s.pbMed??'',s.pbAvg??'',s.npl??'',s.nplCov??'',s.nplPeriod??''].join(','))));return out.join('\n')}
 function splitCSV(line){const r=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(q){if(ch==='"'&&line[i+1]==='"'){cur+='"';i++}else if(ch==='"')q=false;else cur+=ch}else if(ch==='"')q=true;else if(ch===','){r.push(cur);cur=''}else cur+=ch}r.push(cur);return r.map(x=>x.trim())}
 function parseCSV(text){
   const lines=text.replace(/^﻿/,'').split(/\r?\n/).filter(l=>l.trim());const h=splitCSV(lines[0]).map(x=>x.toLowerCase());
   const need=['ticker','price','shares_mil','year','revenue','net_income','equity'];const miss=need.filter(n=>!h.includes(n));if(miss.length)throw new Error('Thiếu cột: '+miss.join(', '));
   const num=v=>v===''||v==null?null:+String(v).replace(/\s/g,'');const map={};
   lines.slice(1).forEach(l=>{const c=splitCSV(l),o={};h.forEach((k,i)=>o[k]=c[i]);if(!o.ticker)return;const t=o.ticker.toUpperCase();
-    const s=map[t]||(map[t]={ticker:t,name:o.name||t,exchange:o.exchange||'HOSE',sector:o.sector||'Khác',financial:o.is_financial==='1'||/true/i.test(o.is_financial||''),price:num(o.price),shares:num(o.shares_mil),avgPE:num(o.avg_pe),adv:num(o.adv_bn),analystG:num(o.analyst_g)!=null?num(o.analyst_g)/100:null,ttmNI:num(o.ttm_ni),ttmPeriod:o.ttm_period||null,peTown:num(o.pe_town),years:[]});
+    const s=map[t]||(map[t]={ticker:t,name:o.name||t,exchange:o.exchange||'HOSE',sector:o.sector||'Khác',financial:o.is_financial==='1'||/true/i.test(o.is_financial||''),price:num(o.price),shares:num(o.shares_mil),avgPE:num(o.avg_pe),adv:num(o.adv_bn),analystG:num(o.analyst_g)!=null?num(o.analyst_g)/100:null,ttmNI:num(o.ttm_ni),ttmPeriod:o.ttm_period||null,peTown:num(o.pe_town),pbMed:num(o.pb_med),pbAvg:num(o.pb_avg),npl:num(o.npl),nplCov:num(o.npl_cov),nplPeriod:o.npl_period||null,years:[]});
     s.years.push({year:+o.year,rev:num(o.revenue),ni:num(o.net_income),equity:num(o.equity),debt:num(o.debt)||0,cash:num(o.cash)||0,ebit:num(o.ebit),cfo:num(o.cfo),capex:num(o.capex),div:num(o.dividends),sharesAdj:num(o.shares_adj),nci:num(o.nci)})});
   return Object.values(map).filter(s=>s.price>0&&s.shares>0&&s.years.length>=2);
 }
@@ -751,8 +786,8 @@ function copyBtn(){$('mCopy').onclick=async()=>{const ta=$('mText');try{await na
 $('fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const err=loadText(r.result,f.name);if(err){modal('Không nạp được file',esc(err),'','')}};r.readAsText(f,'utf-8');e.target.value=''};
 $('btnPaste').onclick=()=>{modal('Dán dữ liệu','Dán nội dung CSV (theo cột của CSV mẫu) hoặc JSON. Đơn vị: tiền tệ tỷ VND, giá VND, số cổ phiếu triệu cp, capex số dương.','', '<button class="primary" id="mLoad">Nạp</button>');$('mLoad').onclick=()=>{const err=loadText($('mText').value);if(err)$('mMsg').textContent=err}};
 $('btnTemplate').onclick=()=>{modal('CSV mẫu','Mỗi dòng là một năm của một mã. Bắt buộc: ticker, price, shares_mil, year, revenue, net_income, equity. Nên có: debt (nợ vay), cash, ebit, cfo (dòng tiền HĐKD), capex, dividends (cổ tức tiền mặt), avg_pe (P/E TB lịch sử), adv_bn (thanh khoản TB tỷ/phiên), analyst_g (%), shares_adj (số cổ phiếu năm đó đã điều chỉnh thưởng/cổ tức CP, triệu cp), ttm_ni (LNST cổ đông mẹ 4 quý gần nhất, tỷ) và ttm_period (vd 2026-Q2). Nội dung dưới đây là dữ liệu giả lập đang hiển thị.',toCSV(SAMPLE),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
-$('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,MOS Town,Giá/MOS Town %,MOS R1,Giá/MOS R1 %,MOS R2,Giá/MOS R2 %,Payback (năm),3M'];
-  l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.mosT?Math.round(a.mosT):'',a.gapT!=null?(a.gapT*100).toFixed(0):'',a.mosR1?Math.round(a.mosR1):'',a.gapR1!=null?(a.gapR1*100).toFixed(0):'',a.mosR2?Math.round(a.mosR2):'',a.gapR2!=null?(a.gapR2*100).toFixed(0):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm'].join(',')));
+$('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,MOS Town,Giá/MOS Town %,MOS R1,Giá/MOS R1 %,MOS R2,Giá/MOS R2 %,MOS P/B,Giá/MOS P/B %,Payback (năm),3M'];
+  l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.mosT?Math.round(a.mosT):'',a.gapT!=null?(a.gapT*100).toFixed(0):'',a.mosR1?Math.round(a.mosR1):'',a.gapR1!=null?(a.gapR1*100).toFixed(0):'',a.mosR2?Math.round(a.mosR2):'',a.gapR2!=null?(a.gapR2*100).toFixed(0):'',a.mosPB?Math.round(a.mosPB):'',a.gapPB!=null?(a.gapPB*100).toFixed(0):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm'].join(',')));
   modal('Xuất kết quả',`${l.length} mã theo bộ lọc hiện tại. Sao chép rồi dán vào Excel hoặc Google Sheets (Dữ liệu → Tách văn bản thành cột theo dấu phẩy).`,lines.join('\n'),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
 $('btn3m').onclick=()=>{modal('Sao lưu 3M','Sao chép để lưu trữ, hoặc dán bản sao lưu cũ rồi bấm Khôi phục.',JSON.stringify({m3:M3,gOverride:GOV,watch:WL},null,1),'<button class="primary" id="mCopy">Sao chép</button><button id="mRestore">Khôi phục</button>');copyBtn();
   $('mRestore').onclick=()=>{try{const d=JSON.parse($('mText').value);M3=d.m3||{};GOV=d.gOverride||{};if(Array.isArray(d.watch)){WL=d.watch;saveWL()}store.set('r1vn_3m',M3);store.set('r1vn_gov',GOV);render();$('mMsg').textContent='Đã khôi phục.'}catch(e){$('mMsg').textContent='Nội dung không phải JSON hợp lệ.'}}};
@@ -766,7 +801,7 @@ function fillFilters(){
 }
 document.addEventListener('input',e=>{if(e.target.closest('.params,aside')&&!e.target.closest('.drawer'))render()});
 document.addEventListener('change',e=>{if(e.target.closest('.params,aside')&&(e.target.tagName==='SELECT'||e.target.type==='checkbox'))render()}); // ô gõ đã render theo 'input'; render lại khi rời ô làm mất cú bấm vào bảng
-$('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=['payback','pe','pb_','gap','gapT','gapR1','gapR2','mos','ticker','exchange','sector'].includes(k)?1:-1}render()};
+$('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=['payback','pe','pb_','gap','gapT','gapR1','gapR2','gapPB','mos','ticker','exchange','sector'].includes(k)?1:-1}render()};
 $('tbody').onclick=e=>{const tr=e.target.closest('tr[data-t]');if(tr)openDetail(tr.dataset.t)};
 document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}render()});
 $('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
@@ -822,6 +857,7 @@ async function showChart(sym,switchTab=true){
     if(a.mosT)lines.push({v:a.mosT,c:'#2f7fd1',t:'MOS Town',st:2});
     if(a.mosR1)lines.push({v:a.mosR1,c:'#c27a00',t:'MOS R1',st:2});
     if(a.mosR2)lines.push({v:a.mosR2,c:'#8e44ad',t:'MOS R2',st:2});
+    if(a.mosPB)lines.push({v:a.mosPB,c:'#0f8b8d',t:'MOS P/B',st:1});
   }
   const lv=lines.map(x=>x.v);
   const cs=ch.addCandlestickSeries({autoscaleInfoProvider:orig=>{const r=orig();if(r&&r.priceRange&&lv.length){r.priceRange.minValue=Math.min(r.priceRange.minValue,...lv)*0.97;r.priceRange.maxValue=Math.max(r.priceRange.maxValue,...lv)*1.02}return r},upColor:up,downColor:dn,borderUpColor:up,borderDownColor:dn,wickUpColor:up,wickDownColor:dn,priceFormat:{type:'price',precision:0,minMove:10}});
