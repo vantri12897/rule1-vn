@@ -111,6 +111,19 @@ body{margin:0}
 .cv-wrap{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px}
 #cvChart{height:min(520px,62vh);min-height:320px}
 .cv-tip{position:absolute;top:12px;left:12px;z-index:3;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:.78rem;pointer-events:none;max-width:min(360px,80%);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.cv-subs{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.cv-pane{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 8px}
+.cv-pane>div{height:120px}
+.cv-pane .pl{position:absolute;top:6px;left:12px;z-index:3;font-size:.72rem;color:var(--muted);pointer-events:none;background:var(--surface);padding:0 4px;border-radius:4px}
+.cv-ind{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:.78rem;margin-top:8px}
+.cv-ind label{display:inline-flex;gap:4px;align-items:center;cursor:pointer}
+.sig{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;border-radius:6px;padding:4px 10px;border:1px solid var(--line)}
+.sig.in{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+.sig.out{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+.sig.mix{color:var(--muted)}
+.sig i{font-style:normal;font-weight:400;font-size:.72rem}
+.wl-sig{font-size:.68rem;font-weight:700;border-radius:4px;padding:0 4px;margin-left:4px}
+.wl-sig.in{background:var(--good-soft);color:var(--good)}.wl-sig.out{background:var(--bad-soft);color:var(--bad)}.wl-sig.mix{color:var(--muted);border:1px solid var(--line)}
 .cv-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.78rem;margin-top:8px}
 .cv-legend i{display:inline-block;width:14px;height:0;border-top:2px dashed;vertical-align:middle;margin-right:4px}
 .bs{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-size:.68rem;font-weight:700}
@@ -196,14 +209,28 @@ body{margin:0}
       <button class="star" id="cvStar" title="Thêm / bỏ mã này khỏi danh mục theo dõi">☆ Theo dõi</button>
       <button class="meas" id="cvMeas" title="Thước đo: bấm điểm đầu rồi điểm cuối trên biểu đồ (hoặc giữ Shift + bấm). Esc để xóa.">📏 Đo %</button>
       <span class="rg" id="cvRange"><button data-r="90">3T</button> <button data-r="365" class="on">1N</button> <button data-r="1095">3N</button> <button data-r="0">Tất cả</button></span>
+      <span class="sig mix" id="cvSig" hidden></span>
       <span class="muted" id="cvInfo"></span>
     </div>
     <div class="cv-wrap" id="cvWrap"><div id="cvChart"></div><div id="cvMarks"></div><div id="cvMeasure"><span class="ml"></span></div><div class="cv-tip" id="cvTip" hidden></div></div>
+    <div class="cv-ind" id="cvInd">
+      <b style="font-size:.78rem">Công cụ Town:</b>
+      <label><input type="checkbox" data-ind="ma10"> MA10</label>
+      <label><input type="checkbox" data-ind="macd"> MACD (8,17,9)</label>
+      <label><input type="checkbox" data-ind="stoch"> Stochastic (14,5)</label>
+      <label><input type="checkbox" data-ind="arrows"> Mũi tên tín hiệu 3/3</label>
+      <span class="muted">·</span>
+      <label><input type="checkbox" data-ind="ma50"> MA50</label>
+    </div>
+    <div class="cv-subs">
+      <div class="cv-pane" id="paneMacd"><span class="pl" id="plMacd">MACD (8,17,9)</span><div id="cvMacd"></div></div>
+      <div class="cv-pane" id="paneStoch"><span class="pl" id="plStoch">Stochastic (14,5)</span><div id="cvStoch"></div></div>
+    </div>
     <div class="cv-legend" id="cvLegend"></div>
     <div id="cvEvents"></div>
     </div>
    </div>
-    <p class="note">📏 <b>Thước đo</b>: bấm nút “Đo %”, bấm điểm đầu và điểm cuối trên biểu đồ để xem % tăng/giảm, chênh lệch giá, số phiên và số ngày; giữ Shift + bấm để đo nhanh không cần nút; Esc hoặc bấm lại vào biểu đồ để xóa. Phím ↑/↓ chuyển mã trong danh mục theo dõi. Đường ngang là mức MOS / Sticker <b>hiện tại</b> (theo BCTC và tham số đang chọn), không phải giá trị lịch sử. Biểu tượng <span class="bs b">B</span> / <span class="bs s">S</span> là <b>đăng ký</b> mua / bán của người nội bộ, người liên quan hoặc tổ chức (cổ đông lớn), đặt tại ngày bắt đầu giao dịch dự kiến; đăng ký chưa chắc đã được thực hiện hết. Nguồn: công bố thông tin qua VCI, tối đa 50 sự kiện gần nhất mỗi mã. Giá nến đã điều chỉnh theo cổ tức / chia tách.</p>
+    <p class="note">🧭 <b>3 công cụ của Phil Town</b> (Rule #1): MACD 8-17-9, Stochastic 14-5, MA10. Tín hiệu <b>VÀO</b> khi cả 3 cùng xác nhận (MACD trên đường tín hiệu, %K trên %D, giá trên MA10); <b>RA</b> khi cả 3 cùng đảo chiều. Chỉ dùng để chọn thời điểm cho mã <b>đã đạt Big 5 + 3M và giá ≤ MOS</b>, không phải tín hiệu mua độc lập. Mã thanh khoản thấp cho tín hiệu nhiễu; lưu ý T+2 và phí giao dịch khi vào ra. MA50 là đường tham khảo xu hướng trung hạn, không thuộc phương pháp Town.<br>📏 <b>Thước đo</b>: bấm nút “Đo %”, bấm điểm đầu và điểm cuối trên biểu đồ để xem % tăng/giảm, chênh lệch giá, số phiên và số ngày; giữ Shift + bấm để đo nhanh không cần nút; Esc hoặc bấm lại vào biểu đồ để xóa. Phím ↑/↓ chuyển mã trong danh mục theo dõi. Đường ngang là mức MOS / Sticker <b>hiện tại</b> (theo BCTC và tham số đang chọn), không phải giá trị lịch sử. Biểu tượng <span class="bs b">B</span> / <span class="bs s">S</span> là <b>đăng ký</b> mua / bán của người nội bộ, người liên quan hoặc tổ chức (cổ đông lớn), đặt tại ngày bắt đầu giao dịch dự kiến; đăng ký chưa chắc đã được thực hiện hết. Nguồn: công bố thông tin qua VCI, tối đa 50 sự kiện gần nhất mỗi mã. Giá nến đã điều chỉnh theo cổ tức / chia tách.</p>
   </div>
 
   <div id="viewScreen">
@@ -838,15 +865,16 @@ async function showChart(sym,switchTab=true){
   const ins=await loadInsider();
   if(CV.sym!==sym)return;
   if(CV.chart){CV.chart.remove();CV.chart=null}
+  (CV.subs||[]).forEach(c=>c.remove());CV.subs=[];$('cvSig').hidden=true;
   $('cvMarks').innerHTML='';
-  if(err||!d||!d.t||!d.t.length){info.textContent='';$('cvChart').innerHTML=`<div class="empty">${esc(err||'Không có dữ liệu nến.')}</div>`;renderEvents(sym,(ins||{})[sym]||[],null);return}
+  if(err||!d||!d.t||!d.t.length){info.textContent='';$('paneMacd').hidden=$('paneStoch').hidden=true;$('cvChart').innerHTML=`<div class="empty">${esc(err||'Không có dữ liệu nến.')}</div>`;renderEvents(sym,(ins||{})[sym]||[],null);return}
   $('cvChart').innerHTML='';
   const a=rows.find(x=>x.ticker===sym), s=a?a.s:DATA.find(x=>x.ticker===sym);
   info.textContent=`${s?s.name+' · ':''}${d.t.length} phiên, đến ${fmtD(d.t[d.t.length-1])}`;
   const ink=cssv('--ink'),muted=cssv('--muted'),line=cssv('--line'),surf=cssv('--surface');
   const L=window.LightweightCharts;
   const ch=L.createChart($('cvChart'),{autoSize:true,layout:{background:{type:'solid',color:surf},textColor:muted,fontFamily:getComputedStyle(document.body).fontFamily},
-    grid:{vertLines:{color:line+'80'},horzLines:{color:line+'80'}},rightPriceScale:{borderColor:line},timeScale:{borderColor:line,timeVisible:false},
+    grid:{vertLines:{color:line+'80'},horzLines:{color:line+'80'}},rightPriceScale:{borderColor:line,minimumWidth:86},timeScale:{borderColor:line,timeVisible:false},
     crosshair:{mode:L.CrosshairMode.Normal},localization:{locale:'vi-VN',priceFormatter:v=>Math.round(v).toLocaleString('vi-VN'),dateFormat:'dd/MM/yyyy'}});
   CV.chart=ch;
   const up='#1f9d55',dn='#d64541';
@@ -868,6 +896,39 @@ async function showChart(sym,switchTab=true){
   cs.priceScale().applyOptions({scaleMargins:{top:.06,bottom:.2}});
   vs.setData(d.t.map((t,i)=>({time:t,value:d.v[i]||0,color:(d.c[i]>=d.o[i]?up:dn)+'55'})));
   lines.forEach(x=>cs.createPriceLine({price:x.v,color:x.c,lineWidth:x.t==='MOS'?2:1,lineStyle:x.st,axisLabelVisible:true,title:x.t}));
+  // --- Công cụ Town ---
+  const ta=TA.town(d);CV.ta=ta;
+  const ser=(arr)=>d.t.map((t,i)=>arr[i]==null?{time:t}:{time:t,value:arr[i]});
+  const lineOpt={lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false};
+  if(IND.ma10)ch.addLineSeries({...lineOpt,color:'#e67e22',lineWidth:1.5,title:'MA10'}).setData(ser(ta.ma10));
+  if(IND.ma50)ch.addLineSeries({...lineOpt,color:'#7f8c8d',lineWidth:1.5,lineStyle:2,title:'MA50'}).setData(ser(ta.ma50));
+  if(IND.arrows){const am=[];let prev=null;ta.state.forEach((st,i)=>{if(!st)return;if(st.sig!=='mix'&&st.sig!==prev){am.push({time:d.t[i],position:st.sig==='in'?'belowBar':'aboveBar',color:st.sig==='in'?up:dn,shape:st.sig==='in'?'arrowUp':'arrowDown',size:.9})}if(st.sig!=='mix')prev=st.sig});cs.setMarkers(am)}
+  const lastSt=ta.state[ta.state.length-1];
+  if(lastSt){const b=$('cvSig');b.className='sig '+lastSt.sig;b.innerHTML=sigBadge(lastSt);b.hidden=false;b.title='Phiên '+fmtD(d.t[d.t.length-1])+'. Chỉ có ý nghĩa với mã đã đạt Big 5 + 3M và giá ≤ MOS.'}
+  applyIndVis();
+  const subOpt=(el)=>L.createChart(el,{autoSize:true,layout:{background:{type:'solid',color:surf},textColor:muted,fontFamily:getComputedStyle(document.body).fontFamily,fontSize:10},
+    grid:{vertLines:{visible:false},horzLines:{color:line+'60'}},rightPriceScale:{borderColor:line,minimumWidth:86,scaleMargins:{top:.15,bottom:.08}},timeScale:{visible:false,borderColor:line},
+    crosshair:{mode:L.CrosshairMode.Normal,horzLine:{visible:false,labelVisible:false}},handleScroll:true,handleScale:true,localization:{locale:'vi-VN',priceFormatter:v=>v.toLocaleString('vi-VN',{maximumFractionDigits:1})}});
+  const subs=[];let mS=null,mL=null,mH=null,sK=null,sD=null;
+  if(IND.macd){const c1=subOpt($('cvMacd'));subs.push(c1);
+    mH=c1.addHistogramSeries({priceLineVisible:false,lastValueVisible:false});mH.setData(d.t.map((t,i)=>ta.md.h[i]==null?{time:t}:{time:t,value:ta.md.h[i],color:(ta.md.h[i]>=0?up:dn)+'88'}));
+    mL=c1.addLineSeries({...lineOpt,color:'#2f7fd1',lineWidth:1.5});mL.setData(ser(ta.md.m));
+    mS=c1.addLineSeries({...lineOpt,color:'#e67e22',lineWidth:1.5});mS.setData(ser(ta.md.sig))}
+  if(IND.stoch){const c2=subOpt($('cvStoch'));subs.push(c2);
+    sK=c2.addLineSeries({...lineOpt,color:'#2f7fd1',lineWidth:1.5,autoscaleInfoProvider:()=>({priceRange:{minValue:0,maxValue:100}})});sK.setData(ser(ta.st.k));
+    sD=c2.addLineSeries({...lineOpt,color:'#e67e22',lineWidth:1.5});sD.setData(ser(ta.st.d));
+    [80,20].forEach(v=>sK.createPriceLine({price:v,color:muted,lineWidth:1,lineStyle:2,axisLabelVisible:false}))}
+  CV.subs=subs;
+  // Đồng bộ trục thời gian giữa biểu đồ chính và các khung chỉ báo
+  let syncing=false;const all=[ch,...subs];
+  all.forEach(src=>src.timeScale().subscribeVisibleLogicalRangeChange(r=>{if(syncing||!r)return;syncing=true;all.forEach(dst=>{if(dst!==src)dst.timeScale().setVisibleLogicalRange(r)});syncing=false}));
+  const plM=$('plMacd'),plS=$('plStoch');
+  const setLabels=i=>{if(i==null||i<0)i=d.t.length-1;const f=v=>v==null?'—':v.toLocaleString('vi-VN',{maximumFractionDigits:1});const st=ta.state[i];
+    plM.innerHTML=`MACD (8,17,9) <b style="color:#2f7fd1">${f(ta.md.m[i])}</b> · tín hiệu <b style="color:#e67e22">${f(ta.md.sig[i])}</b>${st?` · ${st.a[0]?'<span class="c-good">▲ vào</span>':'<span class="c-bad">▼ ra</span>'}`:''}`;
+    plS.innerHTML=`Stochastic (14,5) %K <b style="color:#2f7fd1">${f(ta.st.k[i])}</b> · %D <b style="color:#e67e22">${f(ta.st.d[i])}</b>${st?` · ${st.a[1]?'<span class="c-good">▲ vào</span>':'<span class="c-bad">▼ ra</span>'}`:''}`};
+  setLabels();
+  ch.subscribeCrosshairMove(p=>{const t=p&&typeof p.time==='string'?p.time:null;const i=t?d.t.indexOf(t):-1;setLabels(i);
+    if(subs.length&&subs[0].setCrosshairPosition){if(t){if(mL&&ta.md.m[i]!=null)subs[0].setCrosshairPosition(ta.md.m[i],t,mL);if(sK&&ta.st.k[i]!=null)subs[subs.length-1].setCrosshairPosition(ta.st.k[i],t,sK)}else subs.forEach(c=>c.clearCrosshairPosition&&c.clearCrosshairPosition())}});
   const last=d.c[d.c.length-1];
   $('cvLegend').innerHTML=lines.length?lines.map(x=>`<span><i style="border-top-color:${x.c};border-top-style:${x.st?'dashed':'solid'}"></i>${x.t}: <b>${nf(x.v)}</b> <span class="muted">(giá ${last<=x.v?'dưới':'trên'} ${pf(Math.abs(last/x.v-1),0)})</span></span>`).join('')
     :`<span class="muted">${a?'Mã này không tính được MOS (thiếu dữ liệu hoặc không đạt điều kiện tính).':'Mã này không có trong dữ liệu BCTC nên không có mốc MOS.'}</span>`;
@@ -891,6 +952,7 @@ async function showChart(sym,switchTab=true){
     if(!p||!p.time){tip.hidden=true;return}
     const t=typeof p.time==='string'?p.time:null; const b=p.seriesData.get(cs); const i=t?snapIdx(d.t,t):-1;
     let h=`<b>${fmtD(t)}</b>${b?` · O ${nf(b.open)} H ${nf(b.high)} L ${nf(b.low)} C ${nf(b.close)}`:''}${i>=0&&d.v[i]!=null?` · KL ${nf(d.v[i])}`:''}`;
+    if(i>=0&&CV.ta&&d.t[i]===t){const q=CV.ta,st=q.state[i];h+=`<br><span class="muted">MA10 ${nf(q.ma10[i])} · MA50 ${nf(q.ma50[i])}</span>${st?` · Town: <b class="${st.sig==='in'?'c-good':st.sig==='out'?'c-bad':''}">${st.sig==='in'?'VÀO 3/3':st.sig==='out'?'RA 0/3':st.up+'/3'}</b>`:''}`}
     (byTime[t]||[]).forEach(e=>{h+=`<div style="margin-top:4px"><span class="bs ${e.a==='B'?'b':'s'}">${e.a}</span> ${esc(e.w||'—')} · ${KIND[e.k]||''}<br><span class="muted">Đăng ký ${e.a==='B'?'mua':'bán'} ${e.q?nf(e.q)+' cp':''}, ${fmtD(e.d)}${e.e&&e.e!==e.d?'–'+fmtD(e.e):''}</span></div>`});
     tip.innerHTML=h;tip.hidden=false;
   });
@@ -912,6 +974,29 @@ function renderEvents(sym,evs,d){
   $('cvEvents').innerHTML=`<div class="sec"><h3>Đăng ký giao dịch nội bộ / tổ chức (${l.length})</h3><div class="tbl" style="border:0"><table><thead><tr><th></th><th>Đối tượng</th><th>Loại</th><th class="n">Khối lượng</th><th>Thời gian dự kiến</th><th>Công bố</th></tr></thead><tbody>${l.map(e=>`<tr${e._t?` data-jump="${e._t}" style="cursor:pointer"`:''}><td><span class="bs ${e.a==='B'?'b':'s'}">${e.a}</span></td><td style="white-space:normal">${esc(e.w||'—')}</td><td>${KIND[e.k]||'—'}</td><td class="n">${e.q?nf(e.q):'—'}</td><td>${fmtD(e.d)}${e.e&&e.e!==e.d?' – '+fmtD(e.e):''}</td><td>${fmtD(e.p)}</td></tr>`).join('')}</tbody></table></div></div>`;
   $('cvEvents').querySelectorAll('tr[data-jump]').forEach(tr=>tr.onclick=()=>{if(!CV.chart||!d)return;const t=tr.dataset.jump;const i=d.t.indexOf(t);CV.chart.timeScale().setVisibleLogicalRange({from:Math.max(0,i-60),to:Math.min(d.t.length-1,i+60)});$('cvChart').scrollIntoView({behavior:'smooth',block:'center'})});
 }
+
+
+/* ===== 3 công cụ Phil Town (MACD 8-17-9, Stochastic 14-5, MA10) + MA50 ===== */
+const TA={
+  sma(a,n){const o=Array(a.length).fill(null);let s=0;for(let i=0;i<a.length;i++){s+=a[i];if(i>=n)s-=a[i-n];if(i>=n-1)o[i]=s/n}return o},
+  ema(a,n){const o=Array(a.length).fill(null),k=2/(n+1);let prev=null,s=0,c=0;for(let i=0;i<a.length;i++){const v=a[i];if(v==null)continue;if(prev==null){s+=v;c++;if(c===n){prev=s/n;o[i]=prev}}else{prev=v*k+prev*(1-k);o[i]=prev}}return o},
+  macd(c,f=8,sl=17,sg=9){const ef=TA.ema(c,f),es=TA.ema(c,sl),m=c.map((_,i)=>ef[i]!=null&&es[i]!=null?ef[i]-es[i]:null),sig=TA.ema(m,sg);return{m,sig,h:m.map((v,i)=>v!=null&&sig[i]!=null?v-sig[i]:null)}},
+  stoch(h,l,c,n=14,dn=5){const k=c.map((v,i)=>{if(i<n-1)return null;let hh=-Infinity,ll=Infinity;for(let j=i-n+1;j<=i;j++){if(h[j]>hh)hh=h[j];if(l[j]<ll)ll=l[j]}return hh>ll?100*(v-ll)/(hh-ll):50});
+    const d=k.map((_,i)=>{if(i<n-1+dn-1)return null;let s=0;for(let j=i-dn+1;j<=i;j++)s+=k[j];return s/dn});return{k,d}},
+  // Trạng thái từng phiên: số công cụ báo "vào" (0–3) và tín hiệu tổng hợp in/out/mix
+  town(d){const c=d.c,ma10=TA.sma(c,10),ma50=TA.sma(c,50),md=TA.macd(c),st=TA.stoch(d.h,d.l,c);
+    const state=c.map((v,i)=>{if(md.sig[i]==null||st.d[i]==null||ma10[i]==null)return null;const a=[md.m[i]>md.sig[i],st.k[i]>st.d[i],v>ma10[i]];const up=a.filter(Boolean).length;return{up,a,sig:up===3?'in':up===0?'out':'mix'}});
+    return{ma10,ma50,md,st,state}}
+};
+const IND_DEF={ma10:true,ma50:true,macd:true,stoch:true,arrows:true};
+let IND=Object.assign({},IND_DEF,store.get('r1vn_ind',{}));
+function sigBadge(st){if(!st)return '';const lab=st.sig==='in'?'🟢 VÀO 3/3':st.sig==='out'?'🔴 RA 0/3':`⚪ ${st.up}/3`;
+  const det=`<i>MACD ${st.a[0]?'▲':'▼'} · Stoch ${st.a[1]?'▲':'▼'} · MA10 ${st.a[2]?'▲':'▼'}</i>`;return `Tín hiệu Town: ${lab} ${det}`}
+const SIG={},SIG_P=new Set();
+function fetchSig(t){if(SIG[t]||SIG_P.has(t))return;SIG_P.add(t);
+  fetch(chartUrl(t)+'?v='+Math.floor(Date.now()/36e5),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.c&&d.c.length>60){const st=TA.town(d).state;SIG[t]=st[st.length-1]||{none:1}}else SIG[t]={none:1}}).catch(()=>{SIG[t]={none:1}}).finally(()=>{SIG_P.delete(t);clearTimeout(fetchSig.tm);fetchSig.tm=setTimeout(renderWL,120)})}
+function wlSigChip(t){const st=SIG[t];if(!st){fetchSig(t);return ''}if(st.none)return '';return `<span class="wl-sig ${st.sig}" title="Tín hiệu Town: MACD ${st.a[0]?'▲':'▼'} · Stoch ${st.a[1]?'▲':'▼'} · MA10 ${st.a[2]?'▲':'▼'}">${st.sig==='in'?'VÀO':st.sig==='out'?'RA':st.up+'/3'}</span>`}
+function applyIndVis(){document.querySelectorAll('#cvInd [data-ind]').forEach(x=>x.checked=!!IND[x.dataset.ind]);$('paneMacd').hidden=!IND.macd;$('paneStoch').hidden=!IND.stoch}
 
 /* ===== Danh mục theo dõi ===== */
 let WL=store.get('r1vn_watch',[]), WL_OPEN=store.get('r1vn_watch_open',true);
@@ -937,7 +1022,7 @@ function renderWL(){
     const chc=x.ch==null?'muted':x.ch>0?'c-good':x.ch<0?'c-bad':'muted';
     const g=x.gap!=null?`Giá/MOS ${(x.gap>0?'+':'')+pf(x.gap,0)}`:'MOS —';
     return `<li data-t="${esc(x.t)}" class="${x.t===CV.sym?'on':''}" tabindex="0" title="${esc(x.name)}">
-      <span class="tk">${esc(x.t)}${x.a&&x.a.status==='below'?' <span class="c-good" title="Đang dưới MOS">●</span>':''}</span><span class="px">${nf(x.p)}</span>
+      <span class="tk">${esc(x.t)}${x.a&&x.a.status==='below'?' <span class="c-good" title="Đang dưới MOS">●</span>':''}${wlSigChip(x.t)}</span><span class="px">${nf(x.p)}</span>
       <span class="ch ${chc} chw">${x.ch==null?'—':(x.ch>0?'+':'')+pf(x.ch,2)}</span>
       <span class="sub"><span class="${x.gap!=null&&x.gap<=0?'c-good':''}">${g}</span>${x.gapR1!=null?` · R1 ${(x.gapR1>0?'+':'')+pf(x.gapR1,0)}`:''}${x.gapR2!=null?` · R2 ${(x.gapR2>0?'+':'')+pf(x.gapR2,0)}`:''}</span>
       <button class="rm" data-rm="${esc(x.t)}" title="Bỏ ${esc(x.t)} khỏi danh mục" aria-label="Bỏ ${esc(x.t)}">✕</button></li>`}).join('');
@@ -998,6 +1083,8 @@ function drawMeasure(){
   if(below&&Math.max(y1,y2)>$('cvChart').clientHeight-50){lab.style.top='';lab.style.bottom=(h+4)+'px'}
 }
 $('cvMeas').onclick=()=>{clearMeasure();setMeasMode(!M.on)};
+$('cvInd').addEventListener('change',e=>{const k=e.target.dataset.ind;if(!k)return;IND[k]=e.target.checked;store.set('r1vn_ind',IND);if(CV.sym)showChart(CV.sym,false)});
+applyIndVis();
 document.querySelectorAll('.tabs [data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $('cvGo').onclick=()=>showChart($('cvSym').value,false);
 $('cvSym').addEventListener('keydown',e=>{if(e.key==='Enter')showChart($('cvSym').value,false)});
