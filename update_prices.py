@@ -50,7 +50,11 @@ def read_tickers(path: Path) -> list[str]:
     return seen
 
 
-def chart_rows(df: pd.DataFrame, scale: float) -> dict:
+# Chỉ số thị trường: tên lưu trên website → các mã thử theo nguồn dữ liệu
+INDICES = {"VNINDEX": ["VNINDEX"], "HNXINDEX": ["HNXINDEX", "HNX"], "UPCOMINDEX": ["UPCOMINDEX", "HNXUPCOMINDEX", "UPCOM"]}
+
+
+def chart_rows(df: pd.DataFrame, scale: float, dec: int = 0) -> dict:
     """OHLCV theo ngày, giá VND (đã điều chỉnh theo nguồn), dạng mảng gọn cho biểu đồ nến."""
     tcol = next((c for c in ("time", "date", "tradingDate") if c in df.columns), None)
     if tcol is None:
@@ -67,12 +71,12 @@ def chart_rows(df: pd.DataFrame, scale: float) -> dict:
         return {}
     out = {"t": d.t.tolist()}
     for k in "ohlc":
-        out[k] = [int(round(x)) for x in d[k]]
+        out[k] = [round(float(x), dec) if dec else int(round(x)) for x in d[k]]
     out["v"] = [int(x) if pd.notna(x) else 0 for x in d.v]
     return out
 
 
-def fetch_price(Quote, sym: str, days: int = 45):
+def fetch_price(Quote, sym: str, days: int = 45, index: bool = False):
     """Trả về (giá đóng cửa VND, thanh khoản TB 20 phiên tỷ VND, ngày phiên, nguồn, dữ liệu nến)."""
     today = datetime.now(VN_TZ).date()  # máy chủ GitHub chạy giờ UTC, quy về giờ Việt Nam
     start = (today - timedelta(days=days)).isoformat()
@@ -88,7 +92,7 @@ def fetch_price(Quote, sym: str, days: int = 45):
             valid = close.dropna()
             if valid.empty:
                 continue
-            scale = 1000 if valid.iloc[-1] < 1000 else 1  # một số nguồn trả giá theo nghìn đồng
+            scale = 1 if index else (1000 if valid.iloc[-1] < 1000 else 1)  # một số nguồn trả giá theo nghìn đồng; chỉ số giữ nguyên điểm
             price = float(valid.iloc[-1]) * scale
             adv = None
             if vol is not None:
@@ -104,7 +108,7 @@ def fetch_price(Quote, sym: str, days: int = 45):
                         d = str(valid.index[-1].date())
             except Exception:  # noqa: BLE001
                 d = None
-            return round(price), adv, d, src, chart_rows(df, scale)
+            return (round(price, 2) if index else round(price)), adv, d, src, chart_rows(df, scale, 2 if index else 0)
         except SystemExit as e:  # vnstock có thể gọi sys.exit khi vượt giới hạn lượt gọi
             last_err = RuntimeError(f"SystemExit: {e}")
         except Exception as e:  # noqa: BLE001
@@ -160,6 +164,24 @@ def main():
     ok, fail, t0 = 0, [], time.time()
     started = datetime.now(VN_TZ).isoformat(timespec="minutes")
     trade_dates = {}
+
+    # Chỉ số thị trường (luôn cập nhật, kể cả khi chạy thử vài mã)
+    for name, cands in INDICES.items():
+        for code in cands:
+            try:
+                p, adv, d, src, ch = fetch_price(Quote, code, a.chart_days if charts_dir else 45, index=True)
+            except Exception as e:  # noqa: BLE001
+                print(f"   x chỉ số {name} ({code}): {str(e)[:100]}", flush=True)
+                continue
+            prices[name] = {"p": p, "adv": adv, "d": d, "idx": 1}
+            if ch and len(ch.get("c", [])) > 1 and ch["t"][-1] == d:
+                prices[name]["c1"] = ch["c"][-2]
+            if charts_dir and ch:
+                (charts_dir / f"{name}.json").write_text(
+                    json.dumps({"s": name, "src": src, "idx": 1, **ch}, separators=(",", ":")), encoding="utf-8")
+            print(f"   ✓ chỉ số {name} ({code}, {src}): {p} phiên {d}", flush=True)
+            break
+        time.sleep(a.sleep)
 
     for i, sym in enumerate(tickers, 1):
         wait = 60
