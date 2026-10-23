@@ -162,6 +162,30 @@ def fetch_foreign(tickers: list[str]) -> dict:
     return out
 
 
+def breadth_series(series: dict, dates: list) -> dict:
+    """Độ rộng thị trường: % số mã có giá đóng cửa trên MA50 / MA200 tại mỗi phiên."""
+    acc = {d: [0, 0, 0, 0] for d in dates}
+    for t, c in series.values():
+        s50 = s200 = 0.0
+        for i, (d, v) in enumerate(zip(t, c)):
+            s50 += v; s200 += v
+            if i >= 50: s50 -= c[i - 50]
+            if i >= 200: s200 -= c[i - 200]
+            a = acc.get(d)
+            if a is None: continue
+            if i >= 49:
+                a[1] += 1; a[0] += v > s50 / 50
+            if i >= 199:
+                a[3] += 1; a[2] += v > s200 / 200
+    out = {"t": [], "b50": [], "b200": []}
+    for d in dates:
+        a = acc[d]
+        if a[1] >= 100:
+            out["t"].append(d); out["b50"].append(round(100 * a[0] / a[1], 1))
+            out["b200"].append(round(100 * a[2] / a[3], 1) if a[3] >= 100 else None)
+    return out
+
+
 def fetch_price(Quote, sym: str, days: int = 45, index: bool = False):
     """Trả về (giá đóng cửa VND, thanh khoản TB 20 phiên tỷ VND, ngày phiên, nguồn, dữ liệu nến)."""
     today = datetime.now(VN_TZ).date()  # máy chủ GitHub chạy giờ UTC, quy về giờ Việt Nam
@@ -252,7 +276,7 @@ def main():
     trade_dates = {}
 
     # Chỉ số thị trường (luôn cập nhật, kể cả khi chạy thử vài mã)
-    idx_close = {}
+    idx_close, idx_dates, series = {}, [], {}
     for name, cands in INDICES.items():
         for code in cands:
             try:
@@ -263,6 +287,7 @@ def main():
             prices[name] = {"p": p, "adv": adv, "d": d, "idx": 1}
             if name == "VNINDEX" and ch:
                 idx_close = dict(zip(ch["t"], ch["c"]))
+                idx_dates = list(ch["t"])
             if ch:
                 fm = flow_metrics(ch, None)
                 if fm:
@@ -304,6 +329,8 @@ def main():
                 if ch and len(ch.get("c", [])) > 1 and ch["t"][-1] == d:
                     prices[sym]["c1"] = ch["c"][-2]  # giá đóng cửa phiên trước, để tính % thay đổi trong ngày
                 if ch:
+                    if charts_dir and len(ch.get("c", [])) >= 60:
+                        series[sym] = (ch["t"], ch["c"])
                     fm = flow_metrics(ch, idx_close)
                     if ins.get(sym):
                         fm.update(ins[sym])
@@ -336,7 +363,21 @@ def main():
         time.sleep(a.sleep)
 
     session = max(trade_dates, key=trade_dates.get) if trade_dates else None
-    meta = {
+    extra = {}
+    if charts_dir and idx_dates and len(series) >= 500:
+        br = breadth_series(series, idx_dates)
+        if br["t"]:
+            (charts_dir / "BREADTH.json").write_text(json.dumps(br, separators=(",", ":")), encoding="utf-8")
+            extra["breadth"] = {"d": br["t"][-1], "b50": br["b50"][-1], "b200": br["b200"][-1], "n": len(series)}
+            print(f"   độ rộng thị trường {br['t'][-1]}: {br['b50'][-1]}% trên MA50, {br['b200'][-1]}% trên MA200", flush=True)
+    elif out.exists():
+        try:
+            prev = json.loads(out.read_text(encoding="utf-8")).get("breadth")
+            if prev:
+                extra["breadth"] = prev
+        except Exception:  # noqa: BLE001
+            pass
+    meta = {**extra,
         "updated": datetime.now(VN_TZ).isoformat(timespec="minutes"),
         "session": session,
         "ok": ok,
