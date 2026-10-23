@@ -76,6 +76,92 @@ def chart_rows(df: pd.DataFrame, scale: float, dec: int = 0) -> dict:
     return out
 
 
+def _ret(c: list, n: int):
+    return round(c[-1] / c[-1 - n] - 1, 4) if len(c) > n and c[-1 - n] > 0 else None
+
+
+def flow_metrics(ch: dict, idx: dict | None) -> dict:
+    """Chỉ số dòng tiền / sức mạnh giá từ dữ liệu nến ngày:
+    r3/r6/r9/r12: % thay đổi giá 63/126/189/252 phiên; x3, x12: chênh lệch so với VN-Index cùng kỳ;
+    h52: khoảng cách tới đỉnh 52 tuần (≤ 0); bo: phiên vượt đỉnh 20 phiên với KL ≥ 1,5× TB20 gần nhất (số phiên trước);
+    fl: tỷ trọng KL phiên tăng 20 phiên; rv: KL phiên cuối / TB20."""
+    c, h, v, t = ch.get("c", []), ch.get("h", []), ch.get("v", []), ch.get("t", [])
+    if len(c) < 30:
+        return {}
+    m = {f"r{k}": _ret(c, n) for k, n in ((3, 63), (6, 126), (9, 189), (12, 252))}
+    if idx:
+        ic = [idx.get(d) for d in t]
+        for k, n in ((3, 63), (12, 252)):
+            if len(c) > n and ic[-1] and ic[-1 - n] and m.get(f"r{k}") is not None:
+                m[f"x{k}"] = round((1 + m[f"r{k}"]) / (ic[-1] / ic[-1 - n]) - 1, 4)
+    hi = max(h[-252:]) if h else None
+    m["h52"] = round(c[-1] / hi - 1, 4) if hi else None
+    vma = [None] * len(v)
+    for i in range(19, len(v)):
+        vma[i] = sum(v[i - 19:i + 1]) / 20
+    bo = None
+    for i in range(len(c) - 1, max(20, len(c) - 21), -1):  # tìm trong 20 phiên gần nhất
+        if vma[i] and c[i] > max(h[i - 20:i]) and v[i] >= 1.5 * vma[i]:
+            bo = len(c) - 1 - i
+            break
+    m["bo"] = bo
+    u = w = 0
+    for i in range(len(c) - 20, len(c)):
+        if c[i] > c[i - 1]: u += v[i]
+        elif c[i] < c[i - 1]: w += v[i]
+    m["fl"] = round(u / (u + w), 3) if u + w else None
+    m["rv"] = round(v[-1] / vma[-1], 2) if vma[-1] else None
+    return {k: x for k, x in m.items() if x is not None}
+
+
+def insider_cluster(path: Path, today: date, days: int = 90) -> dict:
+    """Cụm mua nội bộ: số đối tượng khác nhau đăng ký MUA trong 90 ngày gần nhất và không có ai đăng ký BÁN."""
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {}
+    lim = (today - timedelta(days=days)).isoformat()
+    out = {}
+    for sym, evs in data.items():
+        rec = [e for e in evs if (e.get("d") or "") >= lim]
+        buyers = {e.get("w") for e in rec if e.get("a") == "B"}
+        sells = sum(1 for e in rec if e.get("a") == "S")
+        if buyers:
+            out[sym] = {"ib": len(buyers), "is": sells}
+    return out
+
+
+def fetch_foreign(tickers: list[str]) -> dict:
+    """Khối ngoại mua/bán trong phiên hiện tại (bảng giá KBS, lấy sau giờ đóng cửa).
+    Trả về {mã: tỷ VND mua ròng}. Nguồn chỉ có dữ liệu phiên đang xem, nên lịch sử được tích lũy dần mỗi ngày."""
+    try:
+        from vnstock import Trading
+    except ImportError:
+        return {}
+    out = {}
+    for k in range(0, len(tickers), 100):
+        batch = tickers[k:k + 100]
+        try:
+            df = Trading(source="kbs").price_board(batch)
+        except Exception as e:  # noqa: BLE001
+            print(f"   x khối ngoại lô {k}: {str(e)[:100]}", flush=True)
+            continue
+        if not isinstance(df, pd.DataFrame) or df.empty:
+            continue
+        for _, r in df.iterrows():
+            try:
+                vol, val = float(r.get("volume_accumulated") or 0), float(r.get("total_value") or 0)
+                fb, fs = float(r.get("foreign_buy_volume") or 0), float(r.get("foreign_sell_volume") or 0)
+                if vol > 0 and val > 0:
+                    out[str(r.get("symbol")).upper()] = round((fb - fs) * val / vol / 1e9, 3)
+            except (TypeError, ValueError):
+                continue
+        time.sleep(0.5)
+    return out
+
+
 def fetch_price(Quote, sym: str, days: int = 45, index: bool = False):
     """Trả về (giá đóng cửa VND, thanh khoản TB 20 phiên tỷ VND, ngày phiên, nguồn, dữ liệu nến)."""
     today = datetime.now(VN_TZ).date()  # máy chủ GitHub chạy giờ UTC, quy về giờ Việt Nam
@@ -166,6 +252,7 @@ def main():
     trade_dates = {}
 
     # Chỉ số thị trường (luôn cập nhật, kể cả khi chạy thử vài mã)
+    idx_close = {}
     for name, cands in INDICES.items():
         for code in cands:
             try:
@@ -174,6 +261,12 @@ def main():
                 print(f"   x chỉ số {name} ({code}): {str(e)[:100]}", flush=True)
                 continue
             prices[name] = {"p": p, "adv": adv, "d": d, "idx": 1}
+            if name == "VNINDEX" and ch:
+                idx_close = dict(zip(ch["t"], ch["c"]))
+            if ch:
+                fm = flow_metrics(ch, None)
+                if fm:
+                    prices[name]["m"] = fm
             if ch and len(ch.get("c", [])) > 1 and ch["t"][-1] == d:
                 prices[name]["c1"] = ch["c"][-2]
             if charts_dir and ch:
@@ -183,6 +276,25 @@ def main():
             break
         time.sleep(a.sleep)
 
+    ins = insider_cluster(Path("insider.json"), datetime.now(VN_TZ).date())
+    # Khối ngoại: ghi nhận phiên hôm nay vào lịch sử (lưu trên nhánh charts-data, giữ 30 phiên)
+    fhist = {}
+    if charts_dir:
+        fpath = charts_dir / "foreign.json"
+        try:
+            fhist = json.loads(fpath.read_text(encoding="utf-8")) if fpath.exists() else {}
+        except Exception:  # noqa: BLE001
+            fhist = {}
+        today = datetime.now(VN_TZ).date()
+        if today.weekday() < 5 and datetime.now(VN_TZ).hour >= 15:  # chỉ ghi khi phiên đã đóng cửa
+            fx = fetch_foreign(tickers)
+            dkey = today.isoformat()
+            for sym, net in fx.items():
+                h = [x for x in fhist.get(sym, []) if x[0] != dkey] + [[dkey, net]]
+                fhist[sym] = h[-30:]
+            if fx:
+                fpath.write_text(json.dumps(fhist, separators=(",", ":")), encoding="utf-8")
+            print(f"   khối ngoại: {len(fx)} mã phiên {dkey}", flush=True)
     for i, sym in enumerate(tickers, 1):
         wait = 60
         for attempt in range(4):
@@ -191,6 +303,16 @@ def main():
                 prices[sym] = {"p": p, "adv": adv, "d": d}
                 if ch and len(ch.get("c", [])) > 1 and ch["t"][-1] == d:
                     prices[sym]["c1"] = ch["c"][-2]  # giá đóng cửa phiên trước, để tính % thay đổi trong ngày
+                if ch:
+                    fm = flow_metrics(ch, idx_close)
+                    if ins.get(sym):
+                        fm.update(ins[sym])
+                    fh = fhist.get(sym, [])[-20:]
+                    if fh:
+                        fm["fn"] = round(sum(x[1] for x in fh), 2)  # khối ngoại mua ròng tối đa 20 phiên gần nhất, tỷ VND
+                        fm["fd"] = len(fh)
+                    if fm:
+                        prices[sym]["m"] = fm
                 if charts_dir and ch:
                     (charts_dir / f"{sym}.json").write_text(
                         json.dumps({"s": sym, "src": src, **ch}, separators=(",", ":")), encoding="utf-8")
