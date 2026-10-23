@@ -512,7 +512,7 @@ function filtered(){
     if(f3==='pass'&&!m3pass(s.ticker))return false;
     if(f3==='rated'&&!m3rated(s.ticker))return false;
     if(f3==='unrated'&&m3rated(s.ticker))return false;
-    if(preset==='rule1'&&!(a.score>=Math.min(4,a.maxScore)&&a.status==='below'&&!isStale(a)&&(s.financial||(a.payback!=null&&a.payback<=c.pbGood))))return false;
+    if(preset==='rule1'&&!(a.score>=Math.min(4,a.maxScore)&&a.status==='below'&&!isStale(a)&&(s.financial?(!bankBad(a)&&(a.mosPB==null||a.price<=a.mosPB)):(a.payback!=null&&a.payback<=c.pbGood))))return false; // tài chính: thêm dưới MOS P/B, không cờ nợ xấu
     if(preset==='watch'&&!(a.score>=Math.min(4,a.maxScore)&&(a.status==='below'||a.status==='between')))return false;
     return true});
 }
