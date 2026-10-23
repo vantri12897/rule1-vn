@@ -128,6 +128,24 @@ RULES = {
             (["proceeds from issue of shares"], []),
             (["proceeds", "issuance of shares"], []),
         ]),
+        # --- Cho Piotroski F-Score ---
+        "total_assets": ("BS", "max", [
+            (["tong cong tai san"], []),
+            (["total assets"], []),
+            (["tong tai san"], []),
+        ]),
+        "cur_assets": ("BS", "max", [
+            (["tai san ngan han"], ["khac", "dai han", "other"]),
+            (["current assets"], ["other", "non current"]),
+        ]),
+        "cur_liab": ("BS", "max", [
+            (["no ngan han"], ["khac", "vay", "dai han", "other"]),
+            (["current liabilities"], ["other", "non current"]),
+        ]),
+        "gross_profit": ("IS", "first", [
+            (["loi nhuan gop"], []),
+            (["gross profit"], []),
+        ]),
     },
 }
 # Ngân hàng / bảo hiểm / chứng khoán: chỉ cần doanh thu, LNST, vốn chủ, cổ tức.
@@ -323,6 +341,25 @@ def ttm_net_income(qis: pd.DataFrame, rules: dict):
     if last4[-1][0] - last4[0][0] != 3:  # phải là 4 quý liên tiếp
         return None, None
     return sum(p[1] for p in last4), last4[-1][2]
+
+
+def quarter_series(qis: pd.DataFrame, rules: dict, n: int = 9):
+    """LNST công ty mẹ và doanh thu n quý gần nhất: [(kỳ 'YYYY-Qn', LNST, doanh thu)] (đơn vị thô)."""
+    if qis is None or qis.empty:
+        return []
+    labels = label_series(qis)
+    i_ni, _ = match_row(qis, labels, rules["net_income"][2], "first")
+    i_rv, _ = match_row(qis, labels, rules["revenue"][2], "first")
+    if i_ni is None:
+        return []
+    pts = []
+    for c, (y, q) in quarter_cols(qis).items():
+        ni = pd.to_numeric(qis.loc[i_ni, c], errors="coerce")
+        rv = pd.to_numeric(qis.loc[i_rv, c], errors="coerce") if i_rv is not None else float("nan")
+        if pd.notna(ni):
+            pts.append((y * 4 + q - 1, f"{y}-Q{q}", float(ni), float(rv) if pd.notna(rv) else None))
+    pts.sort()
+    return [(p[1], p[2], p[3]) for p in pts[-n:]]
 
 
 NON_DILUTIVE = ("co phieu thuong", "bonus issue", "co tuc bang co phieu", "stock dividend")
@@ -673,6 +710,10 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years, extras=No
             "dividends": None if div is None else r1(abs(div)),
             "shares_adj": adj.get(y),
             "nci": None if fin else r1(g("nci", y, 0.0) or 0.0),  # lợi ích cổ đông không kiểm soát (mẫu số ROIC)
+            "total_assets": None if fin else r1(g("total_assets", y)),
+            "cur_assets": None if fin else r1(g("cur_assets", y)),
+            "cur_liab": None if fin else r1(g("cur_liab", y)),
+            "gross_profit": None if fin else r1(g("gross_profit", y)),
         })
     return {
         "ticker": sym, "name": meta.get("name", sym), "exchange": meta.get("exchange", ""),
@@ -683,6 +724,7 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years, extras=No
         "npl": bank_quality(ratio)[0] if com_type == "NH" else None,
         "npl_cov": bank_quality(ratio)[1] if com_type == "NH" else None,
         "npl_period": bank_quality(ratio)[2] if com_type == "NH" else None,
+        "q_series": "|".join(f"{k}/{r1(a / d)}/{'' if b is None else r1(b / d)}" for k, a, b in quarter_series(extras.get("QIS"), rules)),
         "rows": rows, "mapping": used, "divisor": d, "com_type": com_type,
         "insider": insider_events(extras.get("events")),
     }
@@ -742,7 +784,8 @@ def load_universe(Listing, exchanges):
 CSV_COLS = ["ticker", "name", "exchange", "sector", "is_financial", "price", "shares_mil", "avg_pe",
             "adv_bn", "analyst_g", "year", "revenue", "net_income", "equity", "debt", "cash", "ebit",
             "cfo", "capex", "dividends", "shares_adj", "ttm_ni", "ttm_period", "pe_town", "nci",
-            "pb_med", "pb_avg", "npl", "npl_cov", "npl_period"]
+            "pb_med", "pb_avg", "npl", "npl_cov", "npl_period",
+            "total_assets", "cur_assets", "cur_liab", "gross_profit", "q_series"]
 
 
 def write_csv(records, path):
@@ -756,7 +799,9 @@ def write_csv(records, path):
                             fmt(rec["analyst_g"])] + [fmt(row.get(c)) for c in CSV_COLS[10:20]]
                            + [fmt(row.get("shares_adj")), fmt(rec.get("ttm_ni")), fmt(rec.get("ttm_period")),
                               fmt(rec.get("pe_town")), fmt(row.get("nci"))]
-                           + [fmt(rec.get(k)) for k in ("pb_med", "pb_avg", "npl", "npl_cov", "npl_period")])
+                           + [fmt(rec.get(k)) for k in ("pb_med", "pb_avg", "npl", "npl_cov", "npl_period")]
+                           + [fmt(row.get(k)) for k in ("total_assets", "cur_assets", "cur_liab", "gross_profit")]
+                           + [fmt(rec.get("q_series"))])
 
 
 def fmt(v):
