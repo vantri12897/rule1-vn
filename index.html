@@ -223,6 +223,7 @@ body{margin:0}
       <span class="muted">·</span>
       <label><input type="checkbox" data-ind="ma50"> MA50</label>
       <label><input type="checkbox" data-ind="rsi"> RSI (14) + tín hiệu &gt; 50</label>
+      <label><input type="checkbox" data-ind="vol"> Khối lượng (TB20, ×TB, dòng tiền)</label>
     </div>
     <div class="cv-subs">
       <div class="cv-pane" id="paneMacd"><span class="pl" id="plMacd">MACD (8,17,9)</span><div id="cvMacd"></div></div>
@@ -233,7 +234,7 @@ body{margin:0}
     <div id="cvEvents"></div>
     </div>
    </div>
-    <p class="note">🧭 <b>3 công cụ của Phil Town</b> (Rule #1): MACD 8-17-9, Stochastic 14-5, MA10. Tín hiệu <b>VÀO</b> khi cả 3 cùng xác nhận (MACD trên đường tín hiệu, %K trên %D, giá trên MA10); <b>RA</b> khi cả 3 cùng đảo chiều. Chỉ dùng để chọn thời điểm cho mã <b>đã đạt Big 5 + 3M và giá ≤ MOS</b>, không phải tín hiệu mua độc lập. Mã thanh khoản thấp cho tín hiệu nhiễu; lưu ý T+2 và phí giao dịch khi vào ra. MA50 và RSI (14) là chỉ báo tham khảo, không thuộc phương pháp Town: RSI &gt; 50 = động lượng tăng chiếm ưu thế (chấm xanh khi RSI cắt lên 50, chấm đỏ khi cắt xuống). Khung <b>Tuần</b> gộp nến ngày thành nến tuần, mọi chỉ báo tính lại theo tuần (nhãn trong danh mục theo dõi luôn theo khung ngày).<br>📏 <b>Thước đo</b>: bấm nút “Đo %”, bấm điểm đầu và điểm cuối trên biểu đồ để xem % tăng/giảm, chênh lệch giá, số phiên và số ngày; giữ Shift + bấm để đo nhanh không cần nút; Esc hoặc bấm lại vào biểu đồ để xóa. Phím ↑/↓ chuyển mã trong danh mục theo dõi. Đường ngang là mức MOS / Sticker <b>hiện tại</b> (theo BCTC và tham số đang chọn), không phải giá trị lịch sử. Biểu tượng <span class="bs b">B</span> / <span class="bs s">S</span> là <b>đăng ký</b> mua / bán của người nội bộ, người liên quan hoặc tổ chức (cổ đông lớn), đặt tại ngày bắt đầu giao dịch dự kiến; đăng ký chưa chắc đã được thực hiện hết. Nguồn: công bố thông tin qua VCI, tối đa 50 sự kiện gần nhất mỗi mã. Giá nến đã điều chỉnh theo cổ tức / chia tách.</p>
+    <p class="note">🧭 <b>3 công cụ của Phil Town</b> (Rule #1): MACD 8-17-9, Stochastic 14-5, MA10. Tín hiệu <b>VÀO</b> khi cả 3 cùng xác nhận (MACD trên đường tín hiệu, %K trên %D, giá trên MA10); <b>RA</b> khi cả 3 cùng đảo chiều. Chỉ dùng để chọn thời điểm cho mã <b>đã đạt Big 5 + 3M và giá ≤ MOS</b>, không phải tín hiệu mua độc lập. Mã thanh khoản thấp cho tín hiệu nhiễu; lưu ý T+2 và phí giao dịch khi vào ra. MA50 và RSI (14) là chỉ báo tham khảo, không thuộc phương pháp Town: RSI &gt; 50 = động lượng tăng chiếm ưu thế (chấm xanh khi RSI cắt lên 50, chấm đỏ khi cắt xuống). <b>Khối lượng</b>: đường vàng là KL trung bình 20 phiên; cột đậm là phiên KL ≥ 1,5 lần trung bình; “KL ✓” = tín hiệu VÀO có KL ≥ trung bình (có dòng tiền xác nhận); “Gom hàng / Xả hàng” = KL phiên tăng chiếm ≥ 60% / ≤ 40% tổng KL phiên tăng + giảm trong 20 phiên. Khung <b>Tuần</b> gộp nến ngày thành nến tuần, mọi chỉ báo tính lại theo tuần (nhãn trong danh mục theo dõi luôn theo khung ngày).<br>📏 <b>Thước đo</b>: bấm nút “Đo %”, bấm điểm đầu và điểm cuối trên biểu đồ để xem % tăng/giảm, chênh lệch giá, số phiên và số ngày; giữ Shift + bấm để đo nhanh không cần nút; Esc hoặc bấm lại vào biểu đồ để xóa. Phím ↑/↓ chuyển mã trong danh mục theo dõi. Đường ngang là mức MOS / Sticker <b>hiện tại</b> (theo BCTC và tham số đang chọn), không phải giá trị lịch sử. Biểu tượng <span class="bs b">B</span> / <span class="bs s">S</span> là <b>đăng ký</b> mua / bán của người nội bộ, người liên quan hoặc tổ chức (cổ đông lớn), đặt tại ngày bắt đầu giao dịch dự kiến; đăng ký chưa chắc đã được thực hiện hết. Nguồn: công bố thông tin qua VCI, tối đa 50 sự kiện gần nhất mỗi mã. Giá nến đã điều chỉnh theo cổ tức / chia tách.</p>
   </div>
 
   <div id="viewScreen">
@@ -898,7 +899,9 @@ async function showChart(sym,switchTab=true){
   const vs=ch.addHistogramSeries({priceScaleId:'vol',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});
   ch.priceScale('vol').applyOptions({scaleMargins:{top:.82,bottom:0}});
   cs.priceScale().applyOptions({scaleMargins:{top:.06,bottom:.2}});
-  vs.setData(d.t.map((t,i)=>({time:t,value:d.v[i]||0,color:(d.c[i]>=d.o[i]?up:dn)+'55'})));
+  const VV=TA.vol(d);
+  vs.setData(d.t.map((t,i)=>({time:t,value:d.v[i]||0,color:(d.c[i]>=d.o[i]?up:dn)+(IND.vol&&VV.rv[i]>=1.5?'dd':'55')})));
+  if(IND.vol)ch.addLineSeries({priceScaleId:'vol',color:'#b7791f',lineWidth:1.5,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(d.t.map((t,i)=>VV.vma[i]==null?{time:t}:{time:t,value:VV.vma[i]}));
   lines.forEach(x=>cs.createPriceLine({price:x.v,color:x.c,lineWidth:x.t==='MOS'?2:1,lineStyle:x.st,axisLabelVisible:true,title:x.t}));
   // --- Công cụ Town ---
   const ta=TA.town(d);CV.ta=ta;
@@ -906,9 +909,11 @@ async function showChart(sym,switchTab=true){
   const lineOpt={lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false};
   if(IND.ma10)ch.addLineSeries({...lineOpt,color:'#e67e22',lineWidth:1.5,title:'MA10'}).setData(ser(ta.ma10));
   if(IND.ma50)ch.addLineSeries({...lineOpt,color:'#7f8c8d',lineWidth:1.5,lineStyle:2,title:'MA50'}).setData(ser(ta.ma50));
-  if(IND.arrows){const am=[];let prev=null;ta.state.forEach((st,i)=>{if(!st)return;if(st.sig!=='mix'&&st.sig!==prev){am.push({time:d.t[i],position:st.sig==='in'?'belowBar':'aboveBar',color:st.sig==='in'?up:dn,shape:st.sig==='in'?'arrowUp':'arrowDown',size:.9})}if(st.sig!=='mix')prev=st.sig});cs.setMarkers(am)}
+  if(IND.arrows){const am=[];let prev=null;ta.state.forEach((st,i)=>{if(!st)return;if(st.sig!=='mix'&&st.sig!==prev){am.push({time:d.t[i],position:st.sig==='in'?'belowBar':'aboveBar',color:st.sig==='in'?up:dn,shape:st.sig==='in'?'arrowUp':'arrowDown',size:.9,text:IND.vol&&st.sig==='in'&&ta.vol.rv[i]>=1?'KL✓':''})}if(st.sig!=='mix')prev=st.sig});cs.setMarkers(am)}
   const lastSt=ta.state[ta.state.length-1];
-  if(lastSt){const b=$('cvSig');b.className='sig '+lastSt.sig;const rl=ta.rsi[ta.rsi.length-1];b.innerHTML=sigBadge(lastSt)+(IND.rsi&&rl!=null?` <i>· RSI ${Math.round(rl)} ${rl>50?'▲':'▼'}</i>`:'');b.hidden=false;b.title='Phiên '+fmtD(d.t[d.t.length-1])+'. Chỉ có ý nghĩa với mã đã đạt Big 5 + 3M và giá ≤ MOS.'}
+  if(lastSt){const b=$('cvSig');b.className='sig '+lastSt.sig;const rl=ta.rsi[ta.rsi.length-1];const n1=d.t.length-1,rvl=ta.vol.rv[n1],fl=flowLab(ta.vol.flow[n1]);
+    b.innerHTML=sigBadge(lastSt)+(IND.rsi&&rl!=null?` <i>· RSI ${Math.round(rl)} ${rl>50?'▲':'▼'}</i>`:'')
+      +(IND.vol&&rvl!=null?` <i>· KL ${rvTxt(rvl)} TB20${lastSt.sig==='in'?(rvl>=1?' ✓':' yếu'):''}</i>`:'')+(IND.vol&&fl?` <i class="${fl.c}">· ${fl.t} ${pf(ta.vol.flow[n1],0)}</i>`:'');b.hidden=false;b.title='Phiên '+fmtD(d.t[d.t.length-1])+'. Chỉ có ý nghĩa với mã đã đạt Big 5 + 3M và giá ≤ MOS.'}
   applyIndVis();
   const subOpt=(el)=>L.createChart(el,{autoSize:true,layout:{background:{type:'solid',color:surf},textColor:muted,fontFamily:getComputedStyle(document.body).fontFamily,fontSize:10},
     grid:{vertLines:{visible:false},horzLines:{color:line+'60'}},rightPriceScale:{borderColor:line,minimumWidth:86,scaleMargins:{top:.15,bottom:.08}},timeScale:{visible:false,borderColor:line},
@@ -965,8 +970,8 @@ async function showChart(sym,switchTab=true){
   ch.subscribeCrosshairMove(p=>{
     if(!p||!p.time){tip.hidden=true;return}
     const t=typeof p.time==='string'?p.time:null; const b=p.seriesData.get(cs); const i=t?snapIdx(d.t,t):-1;
-    let h=`<b>${fmtD(t)}</b>${b?` · O ${nf(b.open)} H ${nf(b.high)} L ${nf(b.low)} C ${nf(b.close)}`:''}${i>=0&&d.v[i]!=null?` · KL ${nf(d.v[i])}`:''}`;
-    if(i>=0&&CV.ta&&d.t[i]===t){const q=CV.ta,st=q.state[i];h+=`<br><span class="muted">MA10 ${nf(q.ma10[i])} · MA50 ${nf(q.ma50[i])} · RSI ${q.rsi[i]!=null?nf(q.rsi[i],1):'—'}</span>${st?` · Town: <b class="${st.sig==='in'?'c-good':st.sig==='out'?'c-bad':''}">${st.sig==='in'?'VÀO 3/3':st.sig==='out'?'RA 0/3':st.up+'/3'}</b>`:''}`}
+    let h=`<b>${fmtD(t)}</b>${b?` · O ${nf(b.open)} H ${nf(b.high)} L ${nf(b.low)} C ${nf(b.close)}`:''}${i>=0&&d.v[i]!=null?` · KL ${nf(d.v[i])}${CV.ta&&CV.ta.vol.rv[i]!=null?` (${rvTxt(CV.ta.vol.rv[i])} TB20)`:''}`:''}`;
+    if(i>=0&&CV.ta&&d.t[i]===t){const q=CV.ta,st=q.state[i];const fq=flowLab(q.vol.flow[i]);h+=`<br><span class="muted">MA10 ${nf(q.ma10[i])} · MA50 ${nf(q.ma50[i])} · RSI ${q.rsi[i]!=null?nf(q.rsi[i],1):'—'}${fq?` · dòng tiền 20 phiên: <span class="${fq.c}">${fq.t} ${pf(q.vol.flow[i],0)}</span>`:''}</span>${st?` · Town: <b class="${st.sig==='in'?'c-good':st.sig==='out'?'c-bad':''}">${st.sig==='in'?'VÀO 3/3':st.sig==='out'?'RA 0/3':st.up+'/3'}</b>`:''}`}
     (byTime[t]||[]).forEach(e=>{h+=`<div style="margin-top:4px"><span class="bs ${e.a==='B'?'b':'s'}">${e.a}</span> ${esc(e.w||'—')} · ${KIND[e.k]||''}<br><span class="muted">Đăng ký ${e.a==='B'?'mua':'bán'} ${e.q?nf(e.q)+' cp':''}, ${fmtD(e.d)}${e.e&&e.e!==e.d?'–'+fmtD(e.e):''}</span></div>`});
     tip.innerHTML=h;tip.hidden=false;
   });
@@ -999,6 +1004,10 @@ const TA={
     const d=k.map((_,i)=>{if(i<n-1+dn-1)return null;let s=0;for(let j=i-dn+1;j<=i;j++)s+=k[j];return s/dn});return{k,d}},
   rsi(c,n=14){const o=Array(c.length).fill(null);let g=0,l=0;for(let i=1;i<c.length;i++){const ch=c[i]-c[i-1],up=Math.max(ch,0),dn=Math.max(-ch,0);
     if(i<=n){g+=up;l+=dn;if(i===n){g/=n;l/=n;o[i]=l===0?100:100-100/(1+g/l)}}else{g=(g*(n-1)+up)/n;l=(l*(n-1)+dn)/n;o[i]=l===0?100:100-100/(1+g/l)}}return o},
+  // Khối lượng: TB 20 phiên, KL tương đối, dòng tiền 20 phiên (tỷ trọng KL phiên tăng / (tăng + giảm))
+  vol(d,n=20){const v=d.v.map(x=>x||0),vma=TA.sma(v,n),rv=v.map((x,i)=>vma[i]>0?x/vma[i]:null);
+    const flow=d.c.map((_,i)=>{if(i<n)return null;let u=0,w=0;for(let j=i-n+1;j<=i;j++){if(d.c[j]>d.c[j-1])u+=v[j];else if(d.c[j]<d.c[j-1])w+=v[j]}return u+w>0?u/(u+w):null});
+    return{vma,rv,flow}},
   // Gộp nến ngày thành nến tuần (tuần bắt đầu thứ Hai; mốc thời gian = phiên đầu tiên của tuần)
   weekly(d){const o={s:d.s,src:d.src,t:[],o:[],h:[],l:[],c:[],v:[],te:[]};let key=null;
     d.t.forEach((t,i)=>{const dt=new Date(t+'T00:00:00Z'),wd=(dt.getUTCDay()+6)%7;dt.setUTCDate(dt.getUTCDate()-wd);const k=dt.toISOString().slice(0,10);
@@ -1007,17 +1016,19 @@ const TA={
   // Trạng thái từng phiên: số công cụ báo "vào" (0–3) và tín hiệu tổng hợp in/out/mix
   town(d){const c=d.c,ma10=TA.sma(c,10),ma50=TA.sma(c,50),md=TA.macd(c),st=TA.stoch(d.h,d.l,c);
     const state=c.map((v,i)=>{if(md.sig[i]==null||st.d[i]==null||ma10[i]==null)return null;const a=[md.m[i]>md.sig[i],st.k[i]>st.d[i],v>ma10[i]];const up=a.filter(Boolean).length;return{up,a,sig:up===3?'in':up===0?'out':'mix'}});
-    return{ma10,ma50,md,st,state,rsi:TA.rsi(c)}}
+    return{ma10,ma50,md,st,state,rsi:TA.rsi(c),vol:TA.vol(d)}}
 };
-const IND_DEF={ma10:true,ma50:true,macd:true,stoch:true,arrows:true,rsi:true};
+const IND_DEF={ma10:true,ma50:true,macd:true,stoch:true,arrows:true,rsi:true,vol:true};
+const flowLab=f=>f==null?null:f>=.6?{k:'gom',t:'Gom hàng',c:'c-good'}:f<=.4?{k:'xa',t:'Xả hàng',c:'c-bad'}:{k:'cb',t:'Cân bằng',c:'muted'};
+const rvTxt=r=>r==null?'—':'×'+r.toLocaleString('vi-VN',{maximumFractionDigits:1});
 let TF=store.get('r1vn_tf','D');
 let IND=Object.assign({},IND_DEF,store.get('r1vn_ind',{}));
 function sigBadge(st){if(!st)return '';const lab=st.sig==='in'?'🟢 VÀO 3/3':st.sig==='out'?'🔴 RA 0/3':`⚪ ${st.up}/3`;
   const det=`<i>MACD ${st.a[0]?'▲':'▼'} · Stoch ${st.a[1]?'▲':'▼'} · MA10 ${st.a[2]?'▲':'▼'}</i>`;return `${TF==='W'?'Tuần · ':''}Tín hiệu Town: ${lab} ${det}`}
 const SIG={},SIG_P=new Set();
 function fetchSig(t){if(SIG[t]||SIG_P.has(t))return;SIG_P.add(t);
-  fetch(chartUrl(t)+'?v='+Math.floor(Date.now()/36e5),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.c&&d.c.length>60){const st=TA.town(d).state;SIG[t]=st[st.length-1]||{none:1}}else SIG[t]={none:1}}).catch(()=>{SIG[t]={none:1}}).finally(()=>{SIG_P.delete(t);clearTimeout(fetchSig.tm);fetchSig.tm=setTimeout(renderWL,120)})}
-function wlSigChip(t){const st=SIG[t];if(!st){fetchSig(t);return ''}if(st.none)return '';return `<span class="wl-sig ${st.sig}" title="Tín hiệu Town: MACD ${st.a[0]?'▲':'▼'} · Stoch ${st.a[1]?'▲':'▼'} · MA10 ${st.a[2]?'▲':'▼'}">${st.sig==='in'?'VÀO':st.sig==='out'?'RA':st.up+'/3'}</span>`}
+  fetch(chartUrl(t)+'?v='+Math.floor(Date.now()/36e5),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.c&&d.c.length>60){const q=TA.town(d),st=q.state,n=st.length-1;SIG[t]=st[n]?{...st[n],rv:q.vol.rv[n],fl:q.vol.flow[n]}:{none:1}}else SIG[t]={none:1}}).catch(()=>{SIG[t]={none:1}}).finally(()=>{SIG_P.delete(t);clearTimeout(fetchSig.tm);fetchSig.tm=setTimeout(renderWL,120)})}
+function wlSigChip(t){const st=SIG[t];if(!st){fetchSig(t);return ''}if(st.none)return '';return `<span class="wl-sig ${st.sig}" title="Tín hiệu Town: MACD ${st.a[0]?'▲':'▼'} · Stoch ${st.a[1]?'▲':'▼'} · MA10 ${st.a[2]?'▲':'▼'} · KL ${rvTxt(st.rv)} TB20${st.fl!=null?' · '+flowLab(st.fl).t+' '+pf(st.fl,0):''}">${st.sig==='in'?'VÀO'+(st.rv>=1?'✓':''):st.sig==='out'?'RA':st.up+'/3'}</span>`}
 function applyIndVis(){document.querySelectorAll('#cvInd [data-ind]').forEach(x=>x.checked=!!IND[x.dataset.ind]);$('paneMacd').hidden=!IND.macd;$('paneStoch').hidden=!IND.stoch;$('paneRsi').hidden=!IND.rsi;
   document.querySelectorAll('#cvTf [data-tf]').forEach(b=>b.classList.toggle('on',b.dataset.tf===TF))}
 
