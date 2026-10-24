@@ -105,6 +105,18 @@ def flow_metrics(ch: dict, idx: dict | None) -> dict:
             bo = len(c) - 1 - i
             break
     m["bo"] = bo
+    # Pocket pivot (Morales & Kacher): phiên tăng có KL lớn hơn mọi phiên giảm trong 10 phiên trước,
+    # giá trên MA50 và nằm sát MA10 (không quá 6% trên MA10) — dòng tiền lớn vào sớm, trước khi vượt nền
+    def sma(i, n):
+        return sum(c[i - n + 1:i + 1]) / n if i >= n - 1 else None
+    pp = None
+    for i in range(len(c) - 1, max(50, len(c) - 11), -1):  # 10 phiên gần nhất
+        ma10, ma50 = sma(i, 10), sma(i, 50)
+        dn = [v[j] for j in range(i - 10, i) if c[j] < c[j - 1]]
+        if ma10 and ma50 and c[i] > c[i - 1] and dn and v[i] > max(dn) and c[i] > ma50 and ma10 <= c[i] <= ma10 * 1.06:
+            pp = len(c) - 1 - i
+            break
+    m["pp"] = pp
     u = w = 0
     for i in range(len(c) - 20, len(c)):
         if c[i] > c[i - 1]: u += v[i]
