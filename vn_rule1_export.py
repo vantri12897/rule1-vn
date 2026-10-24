@@ -146,6 +146,15 @@ RULES = {
             (["loi nhuan gop"], []),
             (["gross profit"], []),
         ]),
+        # --- Cho tiêu chí Income: lợi nhuận cốt lõi = LN gộp − CP bán hàng − CP quản lý ---
+        "sell_exp": ("IS", "first", [
+            (["chi phi ban hang"], []),
+            (["selling expenses"], []),
+        ]),
+        "admin_exp": ("IS", "first", [
+            (["chi phi quan ly doanh nghiep"], []),
+            (["general", "administrative"], []),
+        ]),
     },
 }
 # Ngân hàng / bảo hiểm / chứng khoán: chỉ cần doanh thu, LNST, vốn chủ, cổ tức.
@@ -714,6 +723,9 @@ def build_record(sym, meta, stmts, ratio, com_type, price, adv, years, extras=No
             "cur_assets": None if fin else r1(g("cur_assets", y)),
             "cur_liab": None if fin else r1(g("cur_liab", y)),
             "gross_profit": None if fin else r1(g("gross_profit", y)),
+            "sell_exp": None if fin or g("sell_exp", y) is None else r1(abs(g("sell_exp", y))),
+            "admin_exp": None if fin or g("admin_exp", y) is None else r1(abs(g("admin_exp", y))),
+            "pbt": r1(g("pbt", y)),
         })
     return {
         "ticker": sym, "name": meta.get("name", sym), "exchange": meta.get("exchange", ""),
@@ -785,7 +797,7 @@ CSV_COLS = ["ticker", "name", "exchange", "sector", "is_financial", "price", "sh
             "adv_bn", "analyst_g", "year", "revenue", "net_income", "equity", "debt", "cash", "ebit",
             "cfo", "capex", "dividends", "shares_adj", "ttm_ni", "ttm_period", "pe_town", "nci",
             "pb_med", "pb_avg", "npl", "npl_cov", "npl_period",
-            "total_assets", "cur_assets", "cur_liab", "gross_profit", "q_series"]
+            "total_assets", "cur_assets", "cur_liab", "gross_profit", "q_series", "sell_exp", "admin_exp", "pbt"]
 
 
 def write_csv(records, path):
@@ -801,7 +813,8 @@ def write_csv(records, path):
                               fmt(rec.get("pe_town")), fmt(row.get("nci"))]
                            + [fmt(rec.get(k)) for k in ("pb_med", "pb_avg", "npl", "npl_cov", "npl_period")]
                            + [fmt(row.get(k)) for k in ("total_assets", "cur_assets", "cur_liab", "gross_profit")]
-                           + [fmt(rec.get("q_series"))])
+                           + [fmt(rec.get("q_series"))]
+                           + [fmt(row.get(k)) for k in ("sell_exp", "admin_exp", "pbt")])
 
 
 def fmt(v):
