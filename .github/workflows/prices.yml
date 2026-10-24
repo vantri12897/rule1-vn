@@ -51,7 +51,7 @@ jobs:
             for _ in $(seq 60); do kill -0 $PID 2>/dev/null || break; sleep 10; done
             if kill -0 $PID 2>/dev/null && [ -f prices.json ]; then
               git add prices.json
-              git diff --cached --quiet || { git commit -qm "Cập nhật giá (đang chạy)" && git pull -q --rebase --autostash && git push -q || true; }
+              git diff --cached --quiet || { git commit -qm "Cập nhật giá (đang chạy)" && { git pull -q --rebase -X theirs --autostash || git rebase --abort; } && git push -q || true; }
             fi
           done
           wait $PID
@@ -66,8 +66,13 @@ jobs:
             echo "Không có thay đổi giá."
           else
             git commit -m "Cập nhật giá $(TZ=Asia/Ho_Chi_Minh date +'%Y-%m-%d %H:%M')"
-            git pull --rebase --autostash
-            git push
+            # Thử lại tối đa 3 lần; khi xung đột ở prices.json thì giữ bản mới vừa tính (-X theirs)
+            for i in 1 2 3; do
+              git rebase --abort 2>/dev/null || true
+              if git pull --rebase -X theirs --autostash && git push; then exit 0; fi
+              sleep 10
+            done
+            exit 1
           fi
 
       - name: Lưu dữ liệu nến (nhánh charts-data, chỉ giữ bản mới nhất)

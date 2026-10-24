@@ -726,7 +726,7 @@ function bannerText(){
     t+=` Giá tự động: phiên ${fmtD(ses)} (cập nhật ${fmtD(up.slice(0,10))} ${up.slice(11)}), ${n} mã có giá mới${PRICE_META.partial?`; đang cập nhật tiếp${PRICE_META.progress?' ('+PRICE_META.progress+' mã)':''}`:''}.`;
     const sd=ses?new Date(ses+'T00:00:00+07:00'):null;
     if(sd&&(Date.now()-sd.getTime())/864e5>5)t+=' ⚠ Giá đã cũ hơn 5 ngày, lượt cập nhật tự động có thể đang lỗi.';
-    const br=PRICE_META.breadth;if(br&&br.b50!=null)t+=` Độ rộng thị trường ${fmtD(br.d)}: ${nf(br.b50,0)}% mã trên MA50${br.b200!=null?`, ${nf(br.b200,0)}% trên MA200`:''} — ${brLab(br.b50)}.`;
+    const br=PRICE_META.breadth||(MT.br&&MT.br.t&&MT.br.t.length?{d:MT.br.t.at(-1),b50:MT.br.b50.at(-1),b200:MT.br.b200.at(-1)}:null);if(br&&br.b50!=null)t+=` Độ rộng thị trường ${fmtD(br.d)}: ${nf(br.b50,0)}% mã trên MA50${br.b200!=null?`, ${nf(br.b200,0)}% trên MA200`:''} — ${brLab(br.b50)}.`;
   }else t+=' Giá lấy theo file dữ liệu.';
   return t+' Ô thiếu hiển thị "—".';
 }
@@ -1256,7 +1256,7 @@ let MT={br:null,ix:null};
 async function loadMarket(){
   try{const [b,i]=await Promise.all([fetch(chartUrl('BREADTH')+'?v='+Math.floor(Date.now()/36e5),{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null),
     fetch(chartUrl('VNINDEX')+'?v='+Math.floor(Date.now()/36e5),{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null)]);MT.br=b;MT.ix=i}catch(e){}
-  renderMT();
+  renderMT();$('dataBanner').textContent=bannerText();
 }
 // Tín hiệu độ rộng tăng vọt: trong ≤ 15 phiên, % mã trên MA50 đi từ ≤ 25% lên ≥ 55%
 function thrusts(br){const o=[];if(!br||!br.b50)return o;let last=-99;for(let i=0;i<br.b50.length;i++){const v=br.b50[i];if(v==null||v<55)continue;let lo=Infinity;for(let j=Math.max(0,i-15);j<i;j++)if(br.b50[j]!=null&&br.b50[j]<lo)lo=br.b50[j];if(lo<=25&&i-last>30){o.push(br.t[i]);last=i}}return o}
