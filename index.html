@@ -37,6 +37,9 @@ h3{font-size:.8rem;margin:0;text-transform:uppercase;letter-spacing:.06em;color:
 .b5c i{font-style:normal;font-size:.62rem;font-weight:700;width:14px;height:16px;line-height:16px;text-align:center;border-radius:3px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
 .b5c i.y{background:var(--good-soft);color:var(--good);border-color:var(--good)}
 .b5c i.q{border-style:dashed}
+.b5c i:nth-child(4){min-width:14px;width:auto;padding:0 2px}
+.ai-tr td{vertical-align:top;white-space:normal}
+.ai-tr .r-pos{color:var(--good);font-weight:600}.ai-tr .r-neg{color:var(--bad);font-weight:600}.ai-tr .r-mix{color:var(--warn);font-weight:600}.ai-tr .r-na{color:var(--muted)}
 .mt{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-top:10px}
 .mt>summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 14px;cursor:pointer;list-style:none}
 .mt>summary::-webkit-details-marker{display:none}
@@ -555,6 +558,7 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v)
 let DATA=SAMPLE, isSample=true, DATA_SRC='', PRICES=null, PRICE_META=null, FMETA=null, LOADING=false;
 let M3=store.get('r1vn_3m',{}), GOV=store.get('r1vn_gov',{});
 let preset='all', sortKey='score', sortDir=-1, rows=[];
+let TRENDS={}, TRENDS_META=null;
 const $=id=>document.getElementById(id);
 
 const COLS=[
@@ -664,14 +668,21 @@ function computeBBIT7(list){
     // 11 Sản phẩm, công nghệ: biên gộp (tài chính: ROE) cao hơn trung vị ngành = sản phẩm có lợi thế
     const pv=s.financial?a.roeY[a.roeY.length-1]:(L.rev>0&&L.gp!=null?L.gp/L.rev:null),pm=secPM[a.sector];
     T('11 Sản phẩm, công nghệ',pv!=null&&pm!=null?pv>=pm:null,`${s.financial?'ROE':'Biên gộp'} ${pf(pv,1)} so với trung vị ngành ${pf(pm,1)} (sản phẩm có lợi thế giá / chi phí khi cao hơn)`);
+    const AI=TRENDS[a.ticker],aiAge=AI&&AI.d?(Date.now()-new Date(AI.d+'T00:00:00+07:00'))/864e5:999;
+    if(AI&&AI.trends&&aiAge<=60){const W={pos:1,mix:0.5,neg:0},kn=AI.trends.filter(x=>x.r in W),sc=kn.reduce((t,x)=>t+W[x.r],0);
+      const RL={pos:'✅ Tích cực',mix:'🟡 Hỗn hợp',neg:'❌ Tiêu cực',na:'❔ Chưa đủ dữ liệu'};
+      B.trend={ok:kn.length>=6?sc>=kn.length*0.6:null,ai:true,d:AI.d,nOk:sc,nKnown:kn.length,
+        t:`🔍 AI phân tích sâu ngày ${fmtD(AI.d)}: ${nf(sc,1)}/${kn.length} điểm (tích cực = 1, hỗn hợp = 0,5; cần ≥ 60%)\n`+AI.trends.map(x=>`  ${RL[x.r]||'❔'} TREND ${x.id} ${x.name}: ${x.sig}`).join('\n')+(AI.summary?`\n\nKết luận: ${AI.summary}`:''),items:AI.trends,aiObj:AI,quant:tr};
+    }else{
     const known=tr.filter(x=>x.ok!=null),nOk=known.filter(x=>x.ok).length;
-    B.trend={ok:known.length>=8?nOk>=Math.ceil(known.length*0.6):null,t:`${nOk}/${known.length} trend đạt (cần ≥ 60%):\n`+tr.map(x=>`  ${x.ok==null?'❔':x.ok?'✅':'❌'} TREND ${x.k}: ${x.t}`).join('\n'),items:tr,nOk,nKnown:known.length};
+    B.trend={ok:known.length>=8?nOk>=Math.ceil(known.length*0.6):null,t:`${nOk}/${known.length} trend đạt (cần ≥ 60%):\n`+tr.map(x=>`  ${x.ok==null?'❔':x.ok?'✅':'❌'} TREND ${x.k}: ${x.t}`).join('\n')+'\n  (ước lượng định lượng — chưa có phân tích sâu bằng AI)',items:tr,nOk,nKnown:known.length};
+    }
     // 7: 7 năm gần nhất đều có lãi
     const last7=ys.slice(-7);B.y7=ys.length>=7?{ok:last7.every(y=>y.ni>0),t:`LNST ${last7[0].year}–${L.year}: ${last7.filter(y=>y.ni>0).length}/7 năm có lãi`}:{ok:false,t:`Chỉ có ${ys.length} năm dữ liệu (cần 7)`};
     a.b5=B;const v=[B.best,B.buy,B.inc,B.trend,B.y7];a.b5s=v.filter(x=>x.ok).length;a.b5n=v.filter(x=>x.ok!=null).length;
   });
 }
-function b5Cell(a){if(!a.b5)return '—';const B=a.b5,c=(x,l)=>`<i class="${x.ok?'y':''} ${x.ok==null?'q':''}">${l}</i>`;return `<span class="b5c">${c(B.best,'B')}${c(B.buy,'B')}${c(B.inc,'I')}${c(B.trend,'T')}${c(B.y7,'7')}</span><b class="${a.b5s>=4?'c-good':a.b5s<=1?'c-bad':''}">${a.b5s}</b>`}
+function b5Cell(a){if(!a.b5)return '—';const B=a.b5,c=(x,l)=>`<i class="${x.ok?'y':''} ${x.ok==null?'q':''}">${l}</i>`;return `<span class="b5c">${c(B.best,'B')}${c(B.buy,'B')}${c(B.inc,'I')}${c(B.trend,B.trend.ai?'T🔍':'T')}${c(B.y7,'7')}</span><b class="${a.b5s>=4?'c-good':a.b5s<=1?'c-bad':''}">${a.b5s}</b>`}
 function b5Tip(a){if(!a.b5)return '';const B=a.b5,f=(x,l)=>`${x.ok==null?'❔':x.ok?'✅':'❌'} ${l}: ${x.t}`;return `BBIT7: ${a.b5s}/5\n`+[f(B.best,'Best (top 3 ngành)'),f(B.buy,'Buy (nội bộ/tổ chức mua)'),f(B.inc,'Income (lợi nhuận cốt lõi)'),f(B.trend,'Trend'),f(B.y7,'7 năm có lãi')].join('\n')}
 
 function filtered(){
@@ -815,6 +826,7 @@ async function autoLoad(){
   const v='?v='+Date.now();
   try{const r=await fetch('prices.json'+v,{cache:'no-store'});if(r.ok){const j=await r.json();PRICES=j.prices||null;PRICE_META=j;RS_RANK=null}}catch(e){}
   try{const r=await fetch('fundamentals_meta.json'+v,{cache:'no-store'});if(r.ok)FMETA=await r.json()}catch(e){}
+  try{const r=await fetch('trends.json'+v,{cache:'no-store'});if(r.ok){const j=await r.json();TRENDS=j.items||{};TRENDS_META=j}}catch(e){}
   LOADING=true;render();
   try{
     const r=await fetch('rule1_data.csv'+v,{cache:'no-store'});
@@ -917,6 +929,7 @@ MOS Town       = ${nf(sT.sticker)} × ${pf(c.mosPct,0)} = ${nf(sT.mos)}  →  gi
     ${s.financial?b5row('ROE trung bình (ngưỡng 15%)','roe'):b5row('ROIC trung bình','roic')}${b5row('Tăng trưởng Doanh thu','rev')}${b5row('Tăng trưởng EPS','eps')}${b5row('Tăng trưởng BVPS (vốn chủ)','bvps')}${s.financial?'':b5row('Tăng trưởng FCF','fcf')}
    </tbody></table></div><p class="note">Số trong ngoặc là số năm thực tế dùng để tính khi dữ liệu ngắn hơn mốc. Big 5 Score chấm ở mốc 5 năm: ${a.score}/${a.maxScore}. EPS, BVPS từng năm ${a.adjYears?`tính trên số cổ phiếu đã điều chỉnh cổ phiếu thưởng/cổ tức bằng cổ phiếu (${a.adjYears}/${a.ys.length} năm có số liệu); phát hành thu tiền và ESOP được giữ nguyên như pha loãng thật`:'tính trên số cổ phiếu hiện tại (chưa có số cổ phiếu từng năm)'}.</p>
    ${niChart(a)}
+   ${a.b5&&a.b5.trend.ai?(()=>{const A=a.b5.trend.aiObj,RL={pos:'Tích cực',mix:'Hỗn hợp',neg:'Tiêu cực',na:'Chưa đủ dữ liệu'};return `<div class="sec"><h3>🔍 11 trend — AI phân tích sâu ngày ${fmtD(A.d)}</h3><div class="tbl"><table class="ai-tr"><thead><tr><th>Nhóm</th><th>Tín hiệu</th><th>Đánh giá</th></tr></thead><tbody>${A.trends.map(x=>`<tr><td><b>TREND ${esc(x.id)}</b><br>${esc(x.name)}</td><td>${esc(x.sig)}</td><td class="r-${esc(x.r)}">${RL[x.r]||esc(x.r)}</td></tr>`).join('')}</tbody></table></div>${A.summary?`<p class="note"><b>Kết luận:</b> ${esc(A.summary)}</p>`:''}${A.src&&A.src.length?`<p class="note">Nguồn: ${A.src.map(x=>`<a href="${esc(x.u)}" target="_blank" rel="noopener">${esc(x.t||x.u)}</a>`).join(' · ')}</p>`:''}<p class="note">Phân tích tự động bằng AI từ tin tức, BCTC và công bố thông tin công khai; có thể sai hoặc thiếu — kiểm tra lại nguồn trước khi quyết định.</p></div>`})():''}
    ${a.b5?`<div class="sec"><h3>BBIT7: ${a.b5s}/5</h3><div class="steps">${esc(b5Tip(a).split('\n').slice(1).join('\n'))}</div><p class="note">Best = top 3 ngành theo chất lượng · Buy = nội bộ/tổ chức đăng ký mua nhiều hơn bán trong 90 ngày, hoặc khối ngoại mua ròng · Income = LN cốt lõi ≥ 70% LNTT · Trend = ≥ 60% trong 11 trend chấm tự động bằng số liệu (xem từng trend ở trên) · 7 = 7 năm liên tiếp có lãi. Tiêu chí hỗ trợ lọc, không thay cho định giá MOS.</p></div>`:''}
    ${(()=>{const qs=s.qSeries;const fsx=a.fs;let h='';
      if(fsx)h+=`<div class="sec"><h3>Piotroski F-Score: ${fsx.score??'—'}/${fsx.n} (năm ${fsx.year} so với ${fsx.year-1})</h3><div class="tbl"><table><tbody>${fsx.items.map(x=>`<tr><td>${x.pass==null?'❔':x.pass?'✅':'❌'}</td><td>${x.lab}</td></tr>`).join('')}</tbody></table></div><p class="note">≥ 7 điểm: tài chính đang khỏe lên; ≤ 3: dễ là bẫy giá trị. Trong nhóm cổ phiếu rẻ, mã F-Score cao vượt trội rõ rệt mã F-Score thấp (Piotroski 2000). ❔ = thiếu dữ liệu, không tính vào điểm.</p></div>`;
