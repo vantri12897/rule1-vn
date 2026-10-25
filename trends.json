@@ -1561,6 +1561,124 @@
      "u": "https://mekongasean.vn/doanh-thu-vinh-hoan-lay-lai-da-tang-trong-thang-82026-59560.html"
     }
    ]
+  },
+  "FOX": {
+   "d": "2026-10-25",
+   "trends": [
+    {
+     "id": "01",
+     "name": "Tài chính",
+     "sig": "Q2/2026: DT 5.616 tỷ (+17,6% YoY), LNTT 1.267 tỷ (+12,2%), LNST cty mẹ 991 tỷ (+12%, mức tăng thấp nhất từ Q4/2023); 6T: DT 10.774 tỷ (+15,1%), LNTT 2.392 tỷ = 47% KH 5.100 tỷ. CFO 2025 3.708 tỷ ≈ 1,08x LN. Tới 25/10/2026 chưa thấy BCTC Q3/2026 của FOX (FPT công bố 21/10 nhưng không còn hợp nhất FOX).",
+     "r": "pos"
+    },
+    {
+     "id": "02",
+     "name": "Sản xuất, vận hành",
+     "sig": "Capex KH 2026 5.100 tỷ: 2.500 tỷ nâng cấp hạ tầng + 2.600 tỷ dự án trọng điểm (DC Quận 9 GĐ2 580 tỷ, FTEL Tower Tân Thuận 760 tỷ, DC HN03 330 tỷ, cáp biển ALC 230 tỷ, cáp VTS 670 tỷ). XDCB dở dang 30/6/2026 tăng 34,7% lên 938 tỷ; tồn kho +54% lên 2.194 tỷ. Chưa có số thuê bao/công suất DC cập nhật.",
+     "r": "mix"
+    },
+    {
+     "id": "03",
+     "name": "Chi phí, giá cả",
+     "sig": "Biên gộp Q2/2026 giảm còn 45,7% từ 50,4% Q2/2025 (LN gộp chỉ +6,6% so DT +17,6%); chi phí lãi vay Q2 tăng từ 94 lên gần 163 tỷ do vay ngắn hạn + thuê TC tăng lên 11.120 tỷ (đầu năm 7.510 tỷ). Biên gộp năm 2025 theo repo 49,8%.",
+     "r": "neg"
+    },
+    {
+     "id": "04",
+     "name": "Thị trường, khách hàng",
+     "sig": "KH 2026: DT dịch vụ viễn thông 21.090 tỷ (+12,8%), nội dung số 910 tỷ (+13,1%); DT Q2/2026 +17,6% YoY cho thấy nhu cầu băng rộng/DC còn tăng. Chưa có số liệu thị phần/thuê bao công khai mới để kiểm chứng; cạnh tranh với Viettel, VNPT vẫn là yếu tố giá.",
+     "r": "pos"
+    },
+    {
+     "id": "05",
+     "name": "Nội bộ, quản trị",
+     "sig": "11/2025 SCIC chuyển 370,67 tr cp (50,17%) về Bộ Công an -> cổ đông chi phối mới; ĐHĐCĐ bất thường 24/12/2025 bầu HĐQT có nhân sự từ GELEX/GTEL (Nguyễn Trọng Trung). ĐHĐCĐ 2026 xem xét phát hành cp tăng vốn 15% từ LN giữ lại (pha loãng danh nghĩa) và bổ sung ngành BĐS. Không thấy vi phạm/ý kiến kiểm toán ngoại trừ.",
+     "r": "mix"
+    },
+    {
+     "id": "06",
+     "name": "Nhà đầu tư, cổ đông",
+     "sig": "Cơ cấu: Bộ Công an 50,17%, FPT 45,66%, free-float ~4% (24hMoney). Cổ tức 2025 tiền mặt 2.000 đ/cp (~1.478 tỷ); dòng tiền cổ tức 2025 theo repo 2.542 tỷ. Không có GD nội bộ trong 90 ngày (lần gần nhất là SCIC 11/2025); khối ngoại ròng 0 (fn=0). Thanh khoản thấp, ADV ~3,5 tỷ/phiên.",
+     "r": "mix"
+    },
+    {
+     "id": "07",
+     "name": "Phân tích kỹ thuật",
+     "sig": "Giá 57.300 đ (23/10/2026): -9,6% 3T, -29,9% 6T, -6,1% 12T; kém VN-Index 13,4 điểm % (3T) và 8,3 điểm % (12T); cách đỉnh 52 tuần -47,9%. Dòng tiền vào 20 phiên 36%, KL tương đối 0,57 – xu hướng giảm, không có tín hiệu vượt nền/pocket pivot. Không tìm được MA50/MA200.",
+     "r": "neg"
+    },
+    {
+     "id": "08",
+     "name": "Vĩ mô, ngành",
+     "sig": "Ngành viễn thông/hạ tầng số được hưởng lợi từ nhu cầu AI, trung tâm dữ liệu và chủ trương chuyển đổi số; KH LNTT 2026 +16,9%. Rủi ro: lãi suất vay tăng (lãi vay Q2 +73% YoY) khi DN dùng nợ ngắn hạn tài trợ capex dài hạn; thị trường băng rộng cố định đã bão hòa, tăng trưởng dựa vào DC/cáp biển.",
+     "r": "mix"
+    },
+    {
+     "id": "09",
+     "name": "Truyền thông, sự kiện",
+     "sig": "19–21/3/2026: FPT chuyển FOX từ hợp nhất sang phương pháp vốn chủ sở hữu từ 1/1/2026 theo CV 1906/M01-P1 của Bộ Công an (kiểm chứng VnEconomy, Vietstock); chỉ đổi cách trình bày ở FPT, không đổi LN của FOX. 21/10/2026 FPT báo LNTT 9T 8.770 tỷ nhưng không công bố số riêng FOX. Thiếu tin Q3/2026 của FOX.",
+     "r": "mix"
+    },
+    {
+     "id": "10",
+     "name": "Tài sản ẩn, kế toán",
+     "sig": "Không thấy LN bất thường: spike=false, Q2 có 6 tỷ cổ tức nhận được. Sở hữu 56,51% FOC (FOC trả cổ tức 10.000 đ/cp). MOS repo 7.481 thấp KHÔNG do số cp (738,76 tr khớp 24hMoney, EPS TTM 4.936): g R1 = min(...) = CAGR FCF 5 năm ~4,1% (FCF 1.601 tỷ 2020 -> 1.957 tỷ 2025, capex lớn) -> P/E tương lai 2g≈8,2 -> sticker ~14.900, MOS ~7.450.",
+     "r": "mix"
+    },
+    {
+     "id": "11",
+     "name": "Sản phẩm, công nghệ",
+     "sig": "Dự án mới đóng góp từ 2026–2027: DC Quận 9 GĐ2, DC HN03, FTEL Tower Tân Thuận, cáp quang biển ALC và VTS; dành 30 tỷ nghiên cứu chip AI. Mảng nội dung số (FPT Play/FOC) KH DT 910 tỷ. Chưa có số liệu doanh thu DC riêng để định lượng đóng góp.",
+     "r": "pos"
+    }
+   ],
+   "summary": "FOX tăng DT 15–18% và LN ~12% (H1/2026), dòng tiền kinh doanh mạnh, cổ tức tiền mặt cao, nhiều dự án DC/cáp biển. Rủi ro: biên gộp giảm 4,7 điểm %, vay ngắn hạn tăng mạnh (11.120 tỷ) đẩy lãi vay, cổ đông chi phối chuyển sang Bộ Công an, free-float ~4% và giá đang giảm mạnh (-48% từ đỉnh). Cần theo dõi BCTC Q3/2026 (biên gộp, lãi vay), việc phát hành 15% và tạm ứng cổ tức 2026.",
+   "src": [
+    {
+     "t": "FPT Telecom (FOX) báo lãi quý II/2026 đạt hơn 1.000 tỷ đồng",
+     "u": "https://doanhnhan.baophapluat.vn/fpt-telecom-fox-bao-lai-quy-ii-2026-dat-hon-1-000-ty-dong.html"
+    },
+    {
+     "t": "FPT Telecom đạt gần nửa kế hoạch lợi nhuận năm, tài sản vượt 31.000 tỷ",
+     "u": "https://mekongasean.vn/fpt-telecom-dat-gan-nua-ke-hoach-loi-nhuan-nam-tai-san-vuot-31000-ty-57751.html"
+    },
+    {
+     "t": "Trình kế hoạch lãi 5.100 tỷ đồng năm 2026, FPT Telecom bổ sung ngành nghề BĐS",
+     "u": "https://doanhnhan.baophapluat.vn/trinh-ke-hoach-lai-5-100-ty-dong-nam-2026-fpt-telecom-fox-bo-sung-nganh-nghe-kinh-doanh-bat-dong-san.html"
+    },
+    {
+     "t": "FPT Telecom đặt kế hoạch lãi 5.100 tỷ đồng năm 2026",
+     "u": "https://hanoionline.vn/fpt-telecom-dat-ke-hoach-lai-5100-ty-dong-nam-2026-246391880.htm"
+    },
+    {
+     "t": "FPT điều chỉnh phương pháp hợp nhất báo cáo tài chính FPT Telecom",
+     "u": "https://vneconomy.vn/fpt-dieu-chinh-phuong-phap-hop-nhat-bao-cao-tai-chinh-fpt-telecom.htm"
+    },
+    {
+     "t": "Thiếu mảng viễn thông trong doanh thu, FPT vẽ lại kế hoạch 2026",
+     "u": "https://vietstock.vn/2026/03/thieu-mang-vien-thong-trong-doanh-thu-fpt-ve-lai-ke-hoach-2026-737-1414446.htm"
+    },
+    {
+     "t": "FPT lãi ròng gần 7.8 ngàn tỷ đồng sau 9 tháng",
+     "u": "https://vietstock.vn/2026/10/fpt-lai-rong-gan-78-ngan-ty-dong-sau-9-thang-737-1505111.htm"
+    },
+    {
+     "t": "FPT lãi 9 tháng gần 8.800 tỷ đồng, mảng AI bứt tốc",
+     "u": "https://dantri.com.vn/kinh-doanh/fpt-lai-9-thang-gan-8800-ty-dong-mang-ai-but-toc-20261021092528395.htm"
+    },
+    {
+     "t": "Lộ diện ứng viên vào HĐQT FPT Telecom",
+     "u": "https://nhadautu.vn/lo-dien-ung-vien-vao-hdqt-fpt-telecom-d101207.html"
+    },
+    {
+     "t": "SCIC chuyển nhượng 370,7 triệu cổ phiếu FPT Telecom về Bộ Công an",
+     "u": "https://vneconomy.vn/scic-chuyen-nhuong-3707-trieu-co-phieu-fpt-telecom-ve-bo-cong-an.htm"
+    },
+    {
+     "t": "FOX: CTCP Viễn thông FPT",
+     "u": "https://24hmoney.vn/stock/FOX"
+    }
+   ]
   }
  },
  "updated": "2026-10-25"
