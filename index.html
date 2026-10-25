@@ -72,6 +72,12 @@ aside{background:var(--surface);border:1px solid var(--line);border-radius:8px;p
 .results{display:flex;flex-direction:column;gap:8px;min-width:0}
 .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
 .tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.results .tbl{cursor:grab}
+.results .tbl.dragging{cursor:grabbing;user-select:none}
+.results .tbl.dragging *{cursor:grabbing!important}
+#tbody tr.lastseen td{background:var(--accent-soft)!important}
+#tbody tr.lastseen td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+@media (prefers-reduced-motion:no-preference){#tbody tr.flash td{animation:flashRow 1.6s ease-out}@keyframes flashRow{0%{background:var(--warn-soft)}100%{background:var(--accent-soft)}}}
 table{border-collapse:collapse;width:100%;font-size:.82rem}
 th,td{padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:left}
 th{position:sticky;top:0;background:var(--surface2);font-weight:600;font-size:.74rem;color:var(--muted);cursor:pointer;user-select:none}
@@ -773,6 +779,7 @@ function render(){
     <td>${a.m3===2?'<span class="pill p-good">Đạt</span>':a.m3===1?'<span class="pill p-warn">Chưa đạt</span>':'<span class="pill p-na">Chưa chấm</span>'}</td></tr>`).join('')
     :`<tr><td colspan="${COLS.length}" class="empty">Không mã nào qua bộ lọc hiện tại. Nới bộ lọc hoặc giảm MARR để mở rộng danh sách.</td></tr>`;
   if(!$('viewChart').hidden&&typeof renderWL==='function')renderWL();
+  if(LAST_T)markLast(false);
   $('dataBanner').textContent=bannerText();
   $('dataBanner').style.background=isSample?'':'var(--accent-soft)';$('dataBanner').style.color=isSample?'':'var(--accent)';
 }
@@ -855,6 +862,7 @@ function niChart(a){
 
 /* ===== Ngăn chi tiết ===== */
 function openDetail(t){
+  LAST_T=t;markLast(false);
   const a=rows.find(r=>r.ticker===t);if(!a)return;const c=cfg(),s=a.s,m=M3[t]||{};
   const b5row=(lab,k,isAvg)=>`<tr><td>${lab}</td>${a.big5[k].map(x=>`<td class="n ${x&&x.v!=null?'c-'+clsK(k,x.v):''}">${x&&x.v!=null?pf(x.v):'—'}${x&&x.k&&x.v!=null?`<span class="muted" style="font-size:.7rem"> (${x.k}n)</span>`:''}</td>`).join('')}</tr>`;
   const st=a.st;
@@ -994,7 +1002,16 @@ function fillFilters(){
 document.addEventListener('input',e=>{if(e.target.closest('.params,aside')&&!e.target.closest('.drawer'))render()});
 document.addEventListener('change',e=>{if(e.target.closest('.params,aside')&&(e.target.tagName==='SELECT'||e.target.type==='checkbox'))render()}); // ô gõ đã render theo 'input'; render lại khi rời ô làm mất cú bấm vào bảng
 $('thead').onclick=e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=['payback','pe','pb_','gap','gapT','gapR1','gapR2','gapPB','mos','ticker','exchange','sector'].includes(k)?1:-1}render()};
-$('tbody').onclick=e=>{const tr=e.target.closest('tr[data-t]');if(tr)openDetail(tr.dataset.t)};
+$('tbody').onclick=e=>{if(DRAG.moved)return;const tr=e.target.closest('tr[data-t]');if(tr)openDetail(tr.dataset.t)};
+// Nhấn giữ chuột trái và kéo trong bảng để cuộn (ngang: cuộn bảng; dọc: cuộn trang)
+const DRAG={on:false,moved:false,x:0,y:0,sl:0,sy:0};
+(()=>{const tb=document.querySelector('.results .tbl');
+  tb.addEventListener('mousedown',e=>{if(e.button!==0||e.target.closest('input,select,button,a,th'))return;DRAG.on=true;DRAG.moved=false;DRAG.x=e.clientX;DRAG.y=e.clientY;DRAG.sl=tb.scrollLeft;DRAG.sy=window.scrollY});
+  window.addEventListener('mousemove',e=>{if(!DRAG.on)return;const dx=e.clientX-DRAG.x,dy=e.clientY-DRAG.y;
+    if(!DRAG.moved&&Math.abs(dx)+Math.abs(dy)>5){DRAG.moved=true;tb.classList.add('dragging')}
+    if(DRAG.moved){tb.scrollLeft=DRAG.sl-dx;window.scrollTo(window.scrollX,DRAG.sy-dy);e.preventDefault()}});
+  window.addEventListener('mouseup',()=>{if(!DRAG.on)return;DRAG.on=false;tb.classList.remove('dragging');setTimeout(()=>{DRAG.moved=false},0)});
+})();
 document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}render()});
 $('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
 
@@ -1011,9 +1028,20 @@ function chartUrl(sym){
 }
 function loadInsider(){if(INSIDER)return Promise.resolve(INSIDER);if(INSIDER_P)return INSIDER_P;
   INSIDER_P=fetch('insider.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():{}).catch(()=>({})).then(j=>INSIDER=j||{});return INSIDER_P}
+let SCR_POS=null,LAST_T=null;
+// Quay lại tab Sàng lọc: giữ nguyên vị trí cuộn và làm nổi bật mã vừa xem
+function markLast(flash){document.querySelectorAll('#tbody tr.lastseen').forEach(r=>r.classList.remove('lastseen','flash'));if(!LAST_T)return null;
+  const tr=document.querySelector(`#tbody tr[data-t="${CSS.escape(LAST_T)}"]`);if(tr){tr.classList.add('lastseen');if(flash){tr.classList.remove('flash');void tr.offsetWidth;tr.classList.add('flash')}}return tr}
+function restoreScreenPos(){requestAnimationFrame(()=>{const tb=document.querySelector('.results .tbl');
+  if(SCR_POS){window.scrollTo(0,SCR_POS.y);tb.scrollLeft=SCR_POS.x}
+  const tr=markLast(true);
+  if(tr){const r=tr.getBoundingClientRect();if(r.top<60||r.bottom>innerHeight-20)tr.scrollIntoView({block:'center'})}})}
 function setTab(tab){
+  const wasScreen=!$('viewScreen').hidden;
+  if(wasScreen&&tab!=='screen')SCR_POS={y:window.scrollY,x:document.querySelector('.results .tbl').scrollLeft};
   document.querySelectorAll('.tabs [data-tab]').forEach(b=>{b.classList.toggle('on',b.dataset.tab===tab);b.setAttribute('aria-selected',b.dataset.tab===tab)});
   $('viewScreen').hidden=tab!=='screen';$('viewChart').hidden=tab!=='chart';
+  if(tab==='screen'&&!wasScreen)restoreScreenPos();
   if(tab==='chart'){fillCvList();renderWL();if(!CV.sym&&WL.length){showChart(WL[0],false)}else if(!CV.sym){const first=(rows.filter(a=>a.eligible&&a.status==='below')[0]||rows[0]);if(first)showChart(first.ticker,false)}else if(CV.chart)CV.chart.applyOptions({})}
 }
 const INDEXES={VNINDEX:'Chỉ số VN-Index (HOSE)',HNXINDEX:'Chỉ số HNX-Index',UPCOMINDEX:'Chỉ số UPCoM-Index'};
