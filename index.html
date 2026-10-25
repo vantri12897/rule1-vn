@@ -69,6 +69,7 @@ input[type=number]{font-family:var(--font-data)}
 aside{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:12px}
 .chk{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.85rem}
 .chk label{display:flex;gap:5px;align-items:center}
+.wcell{white-space:nowrap}.wcell .tag{margin-left:0;margin-right:3px}
 .presets{display:flex;flex-direction:column;gap:6px}
 .presets button{text-align:left}
 .presets button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
@@ -310,6 +311,7 @@ body{margin:0}
       <label class="f" for="fDe">Nợ vay/Vốn chủ tối đa<input id="fDe" type="number" step="0.1" placeholder="bỏ trống = không lọc"></label>
       <label class="f" for="fMos">Vị thế giá<select id="fMos"><option value="">Mọi vị thế</option><option value="below">Dưới MOS</option><option value="between">Dưới Sticker</option></select></label>
       <label class="f" for="f3m">Đánh giá 3M<select id="f3m"><option value="">Không lọc</option><option value="pass">Đạt cả 3M</option><option value="rated">Đã chấm</option><option value="unrated">Chưa chấm</option></select></label>
+      <label class="f" for="fQ">LN quý gần nhất<select id="fQ"><option value="">Không lọc</option><option value="pos">Dương (có lãi)</option><option value="neg">Âm (lỗ)</option></select></label>
       <div class="chk"><label for="fFin"><input id="fFin" type="checkbox" checked> Hiện nhóm tài chính</label></div>
       <button id="btnReset">Xóa bộ lọc</button>
     </aside>
@@ -598,8 +600,8 @@ const $=id=>document.getElementById(id);
 const COLS=[
  {k:'ticker',l:'Mã',cls:'tk'},{k:'exchange',l:'Sàn'},{k:'sector',l:'Ngành'},
  {k:'price',l:'Giá',n:1},{k:'mcap',l:'Vốn hóa (tỷ)',n:1},{k:'pe',l:'P/E',n:1},{k:'pb_',l:'P/B',n:1},
- {k:'roe',l:'ROE %',n:1},{k:'epsL',l:'EPS TTM',n:1},{k:'score',l:'Big 5'},{k:'g',l:'g %',n:1},
- {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'mosR1',l:'MOS R1',n:1},{k:'gapR1',l:'Giá/MOS R1',n:1},{k:'mosR2',l:'MOS R2',n:1},{k:'gapR2',l:'Giá/MOS R2',n:1},{k:'mosPB',l:'MOS P/B',n:1},{k:'gapPB',l:'Giá/MOS P/B',n:1},{k:'ciV',l:'Giá trị CI',n:1},{k:'lvCI',l:'Lãi vốn CI',n:1},{k:'ciTot',l:'Lợi ích 1N',n:1},{k:'ci5',l:'Lợi ích 5N',n:1},{k:'payback',l:'Payback',n:1},{k:'b5s',l:'BBIT7',n:1},{k:'fsc',l:'F-Score',n:1},{k:'qyoy',l:'LN quý',n:1},{k:'rs',l:'RS',n:1},{k:'m3',l:'3M'}
+ {k:'roe',l:'ROE %',n:1},{k:'epsL',l:'EPS TTM',n:1},{k:'g',l:'g %',n:1},
+ {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'mosR1',l:'MOS R1',n:1},{k:'gapR1',l:'Giá/MOS R1',n:1},{k:'mosR2',l:'MOS R2',n:1},{k:'gapR2',l:'Giá/MOS R2',n:1},{k:'mosPB',l:'MOS P/B',n:1},{k:'gapPB',l:'Giá/MOS P/B',n:1},{k:'ciV',l:'Giá trị CI',n:1},{k:'lvCI',l:'Lãi vốn CI',n:1},{k:'ciTot',l:'Lợi ích 1N',n:1},{k:'ci5',l:'Lợi ích 5N',n:1},{k:'payback',l:'Payback',n:1},{k:'score',l:'Big 5'},{k:'b5s',l:'BBIT7',n:1},{k:'nWarn',l:'Cảnh báo',n:1},{k:'fsc',l:'F-Score',n:1},{k:'qyoy',l:'LN quý',n:1},{k:'rs',l:'RS',n:1},{k:'m3',l:'3M'}
 ];
 
 /* ===== Định dạng ===== */
@@ -642,7 +644,7 @@ function compute(){
   rows=DATA.map(s=>{const a=R1.analyze(s,c,GOV[s.ticker]!=null?GOV[s.ticker]:null);
     a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;a.gapT=a.mosT?a.price/a.mosT-1:null;a.mosR1=a.stR1.ok?a.stR1.mos:null;a.mosR2=a.stR2.ok?a.stR2.mos:null;a.mosPB=a.stPB.ok?a.stPB.mos:null;a.ciV=a.stCI.ok?a.stCI.vps:null;a.gapCI=a.ciV?a.price/a.ciV-1:null;a.lvCI=a.ciV?a.ciV/a.price-1:null;a.ciTot=a.stCI.ok?a.stCI.total:null;a.ci5=a.stCI.ok?a.stCI.total5:null;a.gapPB=a.mosPB?a.price/a.mosPB-1:null;a.statusPB=a.stPB.ok?(a.price<=a.stPB.mos?'below':a.price<=a.stPB.sticker?'between':'above'):'na';a.gapR2=a.mosR2?a.price/a.mosR2-1:null;a.statusR2=a.stR2.ok?(a.price<=a.stR2.mos?'below':a.price<=a.stR2.sticker?'between':'above'):'na';a.gapR1=a.mosR1?a.price/a.mosR1-1:null;a.statusR1=a.stR1.ok?(a.price<=a.stR1.mos?'below':a.price<=a.stR1.sticker?'between':'above'):'na';a.statusT=a.stT.ok?(a.price<=a.stT.mos?'below':a.price<=a.stT.sticker?'between':'above'):'na';
     a.payback=a.pb.ok?a.pb.years:null;a.ticker=s.ticker;a.exchange=s.exchange;a.sector=s.sector;a.m3=m3pass(s.ticker)?2:m3rated(s.ticker)?1:0;
-    a.fsc=a.fs&&a.fs.score!=null?a.fs.score:null;a.qyoy=a.qg?(a.qg.turn?9.99:a.qg.yoy):null;
+    a.fsc=a.fs&&a.fs.score!=null?a.fs.score:null;a.warns=warnList(a);a.nWarn=a.warns.reduce((t,w)=>t+(w.c==='t-bad'?10:1),0);a.qyoy=a.qg?(a.qg.turn?9.99:a.qg.yoy):null;
     a.rs=RS_RANK?RS_RANK[s.ticker]??null:null;a.flow=flowSigs(s.ticker,s.adv);a.flowN=a.flow.length;
     a.eligible=a.mcap>=c.capMin&&(s.adv==null||s.adv>=c.advMin)&&a.nYears>=c.yrMin;return a});
   computeBBIT7(rows);
@@ -724,7 +726,7 @@ function b5Tip(a){if(!a.b5)return '';const B=a.b5,f=(x,l)=>`${x.ok==null?'❔':x
 function filtered(){
   const c=cfg(),ex=[...document.querySelectorAll('#exch input:checked')].map(i=>i.value),sec=$('fSector').value,q=$('fSearch').value.trim().toLowerCase();
   const num=id=>$(id).value===''?null:+$(id).value;
-  const b5=num('fBig5'),pbM=num('fPb'),peM=num('fPe'),roeM=num('fRoe'),deM=num('fDe'),mos=$('fMos').value,f3=$('f3m').value,fin=$('fFin').checked;
+  const b5=num('fBig5'),pbM=num('fPb'),peM=num('fPe'),roeM=num('fRoe'),deM=num('fDe'),mos=$('fMos').value,f3=$('f3m').value,fq=$('fQ').value,fin=$('fFin').checked;
   return rows.filter(a=>{
     const s=a.s;
     if(!a.eligible)return false;
@@ -742,6 +744,7 @@ function filtered(){
     if(f3==='pass'&&!m3pass(s.ticker))return false;
     if(f3==='rated'&&!m3rated(s.ticker))return false;
     if(f3==='unrated'&&m3rated(s.ticker))return false;
+    if(fq){const qs=s.qSeries,qn=qs&&qs.length?qs[qs.length-1].ni:null;if(qn==null||(fq==='pos'?!(qn>0):qn>0))return false}
     if(preset==='rule1'&&!(a.score>=Math.min(4,a.maxScore)&&a.status==='below'&&!isStale(a)&&(s.financial?(!bankBad(a)&&(a.mosPB==null||a.price<=a.mosPB)):(a.payback!=null&&a.payback<=c.pbGood))))return false; // tài chính: thêm dưới MOS P/B, không cờ nợ xấu
     if(preset==='watch'&&!(a.score>=Math.min(4,a.maxScore)&&(a.status==='below'||a.status==='between')))return false;
     return true});
@@ -776,6 +779,22 @@ const staleTag=a=>isStale(a)?`<span class="tag t-bad" title="Giao dịch gần n
 const bankBad=a=>a.s.npl!=null&&(a.s.npl>0.03||(a.s.nplCov!=null&&a.s.nplCov<0.8));
 const bankTag=a=>bankBad(a)?`<span class="tag t-bad" title="Chất lượng tài sản (${esc(a.s.nplPeriod||'')}): nợ xấu ${pf(a.s.npl,2)}${a.s.nplCov!=null?', bao phủ nợ xấu '+pf(a.s.nplCov,0):''}. Ngưỡng cảnh báo: nợ xấu > 3% hoặc bao phủ < 80% — lợi nhuận và vốn chủ có thể đang bị đánh giá cao do trích lập chưa đủ.">nợ xấu</span>`:'';
 const epsLossFlag=a=>a.gE==null&&a.gB!=null&&GOV[a.ticker]==null;
+/* Nhãn cảnh báo gom về một cột (cạnh BBIT7) */
+function epsInfoTag(a){ // nhãn thông tin nguồn EPS (không phải cảnh báo): TB3 / năm / ↓
+  const t=epsTag0(a);return ttmSpike(a)?'':t;
+}
+function warnList(a){
+  const w=[],L=(l,c,t)=>w.push({l,c,t});
+  if(isStale(a))L('giá cũ','t-bad',`Giao dịch gần nhất ${fmtD(a.s.priceDate)} (${staleDays(a)} ngày trước phiên ${fmtD(PRICE_META.session)}): có thể bị đình chỉ, hủy niêm yết hoặc không có thanh khoản.`);
+  if(a.niSpike)L('⚡','t-bad',`Lợi nhuận đột biến: LNST ${nf(a.niSpike.now)} tỷ so với TB 3 năm trước ${nf(a.niSpike.prev3)} tỷ. MOS có thể bị thổi phồng — thử EPS định giá: Thận trọng.`);
+  if(bankBad(a))L('nợ xấu','t-bad',`Nợ xấu ${pf(a.s.npl,2)}${a.s.nplCov!=null?', bao phủ '+pf(a.s.nplCov,0):''} (${a.s.nplPeriod||''}). Ngưỡng: nợ xấu > 3% hoặc bao phủ < 80%.`);
+  if(a.qg&&a.qg.loss)L('quý lỗ','t-bad',`LNST ${a.qg.p}: ${nf(a.qg.ni,1)} tỷ (lỗ).`);
+  if(ttmSpike(a))L('↑','t-warn',a.epsA>0?`EPS TTM cao hơn EPS năm gần nhất (${nf(a.epsA)}) hơn 50%: có thể là đỉnh chu kỳ / lãi bất thường`:`Năm gần nhất lỗ, TTM có lãi`);
+  if(epsLossFlag(a))L('EPS lỗ','t-warn','Không tính được CAGR EPS 5 năm (năm gốc hoặc năm cuối lỗ): g chỉ dựa trên BVPS.');
+  if(a.fs&&a.fs.score!=null&&a.fs.score<=3)L('F≤3','t-warn',`F-Score ${a.fs.score}/${a.fs.n}: sức khỏe tài chính đang xấu đi — dễ là bẫy giá trị.`);
+  if(isCyclical(a))L('chu kỳ','t-warn',`Ngành chu kỳ (${a.sector}): không ngoại suy từ đỉnh; g định giá nên thấp hơn g lịch sử.`);
+  return w;
+}
 function warnBox(a){
   const w=[];
   if(epsLossFlag(a))w.push(`<b>EPS từng lỗ:</b> không tính được CAGR EPS 5 năm (${(()=>{const i0=Math.max(0,a.eps.length-6),i1=a.eps.length-1,l=[];if(!(a.eps[i0]>0))l.push('năm gốc '+a.ys[i0].year);if(!(a.eps[i1]>0))l.push('năm '+a.ys[i1].year);return (l.join(' và ')||'thiếu số liệu')+' lỗ'})()}), nên g chỉ dựa trên tăng trưởng BVPS. Kiểm tra lợi nhuận đã ổn định chưa trước khi tin Sticker/MOS.`);
@@ -804,10 +823,10 @@ function render(){
   const total=rows.filter(a=>a.eligible).length;
   $('count').textContent=`${list.length} / ${total} mã đạt điều kiện`;
   $('tbody').innerHTML=list.length?list.map(a=>`<tr data-t="${esc(a.ticker)}">
-    <td class="tk">${esc(a.ticker)}${a.s.financial?'<span class="tag">TC</span>':''}${bankTag(a)}</td><td>${esc(a.exchange)}</td><td>${esc(a.sector)}${cycTag(a)}</td>
-    <td class="n">${nf(a.price)}${staleTag(a)}</td><td class="n">${nf(a.mcap)}</td><td class="n">${nf(a.pe,1)}</td><td class="n">${nf(a.pb_,2)}</td>
-    <td class="n">${pf(a.roe)}</td><td class="n">${nf(a.epsL)}${epsTag(a)}</td><td>${dots(a)}</td>
-    <td class="n">${a.g!=null?pf(a.g):'—'}${GOV[a.ticker]!=null?'<span class="tag">tay</span>':''}${epsLossFlag(a)?'<span class="tag t-warn" title="Không tính được CAGR EPS 5 năm (năm gốc hoặc năm cuối có lỗ): g chỉ dựa trên BVPS">!</span>':''}</td>
+    <td class="tk">${esc(a.ticker)}${a.s.financial?'<span class="tag">TC</span>':''}</td><td>${esc(a.exchange)}</td><td>${esc(a.sector)}</td>
+    <td class="n">${nf(a.price)}</td><td class="n">${nf(a.mcap)}</td><td class="n">${nf(a.pe,1)}</td><td class="n">${nf(a.pb_,2)}</td>
+    <td class="n">${pf(a.roe)}</td><td class="n">${nf(a.epsL)}${epsInfoTag(a)}</td>
+    <td class="n">${a.g!=null?pf(a.g):'—'}${GOV[a.ticker]!=null?'<span class="tag">tay</span>':''}</td>
     <td class="n">${nf(a.sticker)}</td><td class="n">${nf(a.mos)}</td>
     <td class="n">${a.gap!=null?`<span class="${a.status==='below'?'c-good':a.status==='between'?'c-warn':'c-bad'}">${(a.gap>0?'+':'')+pf(a.gap,0)}</span>`:'—'}</td>
     <td class="n">${a.mosT!=null?`<span class="${a.price<=a.mosT?'c-good':'muted'}" title="P/E tương lai = min(2g ${nf(a.stT.peByG,1)}, P/E trung bình lịch sử ${nf(a.s.peTown,1)}) = ${nf(a.stT.futurePE,1)} — đúng công thức Town / prompt, không trần P/E">${nf(a.mosT)}</span>`:'—'}</td>
@@ -823,7 +842,9 @@ function render(){
     <td class="n">${a.ciTot!=null?`<span class="${a.ciTot>=0.3?'c-good':a.ciTot<0?'c-bad':''}" title="${esc(ciTip(a))}">${(a.ciTot>0?'+':'')+pf(a.ciTot,0)}</span>`:'—'}</td>
     <td class="n">${a.ci5!=null?`<span class="${a.stCI.cagr5>=0.15?'c-good':a.ci5<0?'c-bad':''}" title="${esc(ci5Tip(a))}">${(a.ci5>0?'+':'')+pf(a.ci5,0)}</span><span class="muted" style="font-size:.72rem"> ${a.stCI.cagr5!=null?pf(a.stCI.cagr5,0)+'/n':''}</span>`:'—'}</td>
     <td class="n">${pbCell(a,c)}</td>
+    <td>${dots(a)}</td>
     <td class="n" title="${esc(b5Tip(a))}">${b5Cell(a)}</td>
+    <td class="wcell">${a.warns.map(w=>`<span class="tag ${w.c}" title="${esc(w.t)}">${w.l}</span>`).join('')||'<span class="muted">—</span>'}</td>
     <td class="n" title="${esc(fsTip(a))}">${a.fsc!=null?`<b class="${a.fsc>=7?'c-good':a.fsc<=3?'c-bad':''}">${a.fsc}</b><span class="muted">/${a.fs.n}</span>`:'—'}</td>
     <td class="n" title="${esc(qTip(a))}">${qCell(a)}</td>
     <td class="n" title="${esc(rsTip(a.ticker)+(a.flow.length?'\n\nTín hiệu dòng tiền:\n'+a.flow.map(f=>f.i+' '+f.t).join('\n'):''))}">${a.rs!=null?`<b class="${a.rs>=80?'c-good':a.rs<=30?'c-bad':''}">${a.rs}</b>`:'—'}${a.flow.length?` <span style="font-size:.78rem">${a.flow.map(f=>f.i).join('')}</span>`:''}</td>
@@ -1051,8 +1072,8 @@ function copyBtn(){$('mCopy').onclick=async()=>{const ta=$('mText');try{await na
 $('fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const err=loadText(r.result,f.name);if(err){modal('Không nạp được file',esc(err),'','')}};r.readAsText(f,'utf-8');e.target.value=''};
 $('btnPaste').onclick=()=>{modal('Dán dữ liệu','Dán nội dung CSV (theo cột của CSV mẫu) hoặc JSON. Đơn vị: tiền tệ tỷ VND, giá VND, số cổ phiếu triệu cp, capex số dương.','', '<button class="primary" id="mLoad">Nạp</button>');$('mLoad').onclick=()=>{const err=loadText($('mText').value);if(err)$('mMsg').textContent=err}};
 $('btnTemplate').onclick=()=>{modal('CSV mẫu','Mỗi dòng là một năm của một mã. Bắt buộc: ticker, price, shares_mil, year, revenue, net_income, equity. Nên có: debt (nợ vay), cash, ebit, cfo (dòng tiền HĐKD), capex, dividends (cổ tức tiền mặt), avg_pe (P/E TB lịch sử), adv_bn (thanh khoản TB tỷ/phiên), analyst_g (%), shares_adj (số cổ phiếu năm đó đã điều chỉnh thưởng/cổ tức CP, triệu cp), ttm_ni (LNST cổ đông mẹ 4 quý gần nhất, tỷ) và ttm_period (vd 2026-Q2). Nội dung dưới đây là dữ liệu giả lập đang hiển thị.',toCSV(SAMPLE),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
-$('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,MOS Town,Giá/MOS Town %,MOS R1,Giá/MOS R1 %,MOS R2,Giá/MOS R2 %,MOS P/B,Giá/MOS P/B %,Giá trị CI,Lãi vốn CI %,Lợi ích 1N %,Lợi ích 5N %,Lợi ích 5N %/năm,Payback (năm),BBIT7,F-Score,LN quý YoY %,RS,Tín hiệu dòng tiền,3M'];
-  l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.mosT?Math.round(a.mosT):'',a.gapT!=null?(a.gapT*100).toFixed(0):'',a.mosR1?Math.round(a.mosR1):'',a.gapR1!=null?(a.gapR1*100).toFixed(0):'',a.mosR2?Math.round(a.mosR2):'',a.gapR2!=null?(a.gapR2*100).toFixed(0):'',a.mosPB?Math.round(a.mosPB):'',a.gapPB!=null?(a.gapPB*100).toFixed(0):'',a.ciV?Math.round(a.ciV):'',a.lvCI!=null?(a.lvCI*100).toFixed(0):'',a.ciTot!=null?(a.ciTot*100).toFixed(0):'',a.ci5!=null?(a.ci5*100).toFixed(0):'',a.stCI.ok&&a.stCI.cagr5!=null?(a.stCI.cagr5*100).toFixed(1):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.b5s??'',a.fsc??'',a.qg&&a.qg.yoy!=null?(a.qg.yoy*100).toFixed(0):'',a.rs??'',`"${a.flow.map(f=>f.k).join(' ')}"`,a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm'].join(',')));
+$('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,MOS Town,Giá/MOS Town %,MOS R1,Giá/MOS R1 %,MOS R2,Giá/MOS R2 %,MOS P/B,Giá/MOS P/B %,Giá trị CI,Lãi vốn CI %,Lợi ích 1N %,Lợi ích 5N %,Lợi ích 5N %/năm,Payback (năm),BBIT7,F-Score,LN quý YoY %,RS,Tín hiệu dòng tiền,3M,Cảnh báo'];
+  l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.mosT?Math.round(a.mosT):'',a.gapT!=null?(a.gapT*100).toFixed(0):'',a.mosR1?Math.round(a.mosR1):'',a.gapR1!=null?(a.gapR1*100).toFixed(0):'',a.mosR2?Math.round(a.mosR2):'',a.gapR2!=null?(a.gapR2*100).toFixed(0):'',a.mosPB?Math.round(a.mosPB):'',a.gapPB!=null?(a.gapPB*100).toFixed(0):'',a.ciV?Math.round(a.ciV):'',a.lvCI!=null?(a.lvCI*100).toFixed(0):'',a.ciTot!=null?(a.ciTot*100).toFixed(0):'',a.ci5!=null?(a.ci5*100).toFixed(0):'',a.stCI.ok&&a.stCI.cagr5!=null?(a.stCI.cagr5*100).toFixed(1):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.b5s??'',a.fsc??'',a.qg&&a.qg.yoy!=null?(a.qg.yoy*100).toFixed(0):'',a.rs??'',`"${a.flow.map(f=>f.k).join(' ')}"`,a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm',`"${a.warns.map(w=>w.l).join(' ')}"`].join(',')));
   modal('Xuất kết quả',`${l.length} mã theo bộ lọc hiện tại. Sao chép rồi dán vào Excel hoặc Google Sheets (Dữ liệu → Tách văn bản thành cột theo dấu phẩy).`,lines.join('\n'),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
 $('btn3m').onclick=()=>{modal('Sao lưu 3M','Sao chép để lưu trữ, hoặc dán bản sao lưu cũ rồi bấm Khôi phục.',JSON.stringify({m3:M3,gOverride:GOV,watch:WL},null,1),'<button class="primary" id="mCopy">Sao chép</button><button id="mRestore">Khôi phục</button>');copyBtn();
   $('mRestore').onclick=()=>{try{const d=JSON.parse($('mText').value);M3=d.m3||{};GOV=d.gOverride||{};if(Array.isArray(d.watch)){WL=d.watch;saveWL()}store.set('r1vn_3m',M3);store.set('r1vn_gov',GOV);render();$('mMsg').textContent='Đã khôi phục.'}catch(e){$('mMsg').textContent='Nội dung không phải JSON hợp lệ.'}}};
@@ -1078,7 +1099,7 @@ const DRAG={on:false,moved:false,x:0,y:0,sl:0,sy:0};
   window.addEventListener('mouseup',()=>{if(!DRAG.on)return;DRAG.on=false;tb.classList.remove('dragging');setTimeout(()=>{DRAG.moved=false},0)});
 })();
 document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}render()});
-$('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
+$('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fQ').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
 
 /* ===== Biểu đồ nến ===== */
 const LWC_URL='https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js';
