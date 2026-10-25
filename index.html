@@ -605,13 +605,14 @@ function compute(){
 function computeBBIT7(list){
   const el=list.filter(a=>a.eligible),bySec={};el.forEach(a=>{(bySec[a.sector]=bySec[a.sector]||[]).push(a)});
   const pct=(arr,v)=>{const x=arr.filter(z=>z!=null);if(v==null||!x.length)return null;return x.filter(z=>z<=v).length/x.length};
-  const secRS={};
+  const secRS={},secPM={};
   Object.entries(bySec).forEach(([sec,l])=>{
     const q=a=>[a.s.financial?a.big5.roe[1]?.v:a.big5.roic[1]?.v,a.big5.eps[1]?.v,a.big5.bvps[1]?.v,a.fsc];
     const cols=[0,1,2,3].map(k=>l.map(a=>q(a)[k]));
     l.forEach(a=>{const ps=q(a).map((v,k)=>pct(cols[k],v)).filter(v=>v!=null);a._qs=ps.length>=2?ps.reduce((s,v)=>s+v,0)/ps.length:null});
     const ranked=l.filter(a=>a._qs!=null).sort((x,y)=>y._qs-x._qs);ranked.forEach((a,i)=>{a._rk=i+1;a._rn=ranked.length});
     const rs=l.map(a=>a.rs).filter(v=>v!=null).sort((x,y)=>x-y);secRS[sec]=rs.length>=3?rs[Math.floor(rs.length/2)]:null;
+    const pmv=l.map(a=>{const L=a.ys[a.ys.length-1];return a.s.financial?a.roeY[a.roeY.length-1]:(L.rev>0&&L.gp!=null?L.gp/L.rev:null)}).filter(v=>v!=null).sort((x,y)=>x-y);secPM[sec]=pmv.length>=3?pmv[Math.floor(pmv.length/2)]:null;
   });
   list.forEach(a=>{
     const s=a.s,m=flowOf(a.ticker)||{},ys=a.ys,L=ys[ys.length-1],B={};
@@ -624,15 +625,41 @@ function computeBBIT7(list){
     if(!s.financial){const core=L.gp!=null&&L.sell!=null&&L.adm!=null?L.gp-L.sell-L.adm:null;
       B.inc=core==null||L.pbt==null?{ok:null,t:'Thiếu dữ liệu chi phí bán hàng / quản lý (cập nhật cùng lượt BCTC)'}:{ok:core>0&&L.pbt>0&&core>=0.7*L.pbt,t:`Năm ${L.year}: LN cốt lõi ${nf(core,1)} tỷ / LNTT ${nf(L.pbt,1)} tỷ = ${L.pbt>0?pf(core/L.pbt,0):'—'} (đạt khi ≥ 70%: lợi nhuận chủ yếu từ hoạt động kinh doanh chính, không dựa vào thu nhập tài chính, thanh lý tài sản)`}}
     else{const ok3=ys.slice(-3).every(y=>y.ni>0);B.inc={ok:ok3&&!a.niSpike,t:`Nhóm tài chính (ước lượng): lợi nhuận 3 năm đều dương${a.niSpike?' nhưng có lợi nhuận đột biến ⚡':''}`}}
-    // Trend: 5 trend tự động trong 11 trend (≥ 3/5 đạt)
-    const tr=[];const q=a.qg;
-    tr.push({k:'01 Tài chính',ok:q&&q.yoy!=null?(q.yoy>0&&(q.rev==null||q.rev>0)):(q&&q.turn?true:null),t:q?`LN quý ${q.p} ${qTxt(q.turn?null:q.yoy)}${q.turn?' (từ lỗ sang lãi)':''}, doanh thu ${qTxt(q.rev)}`:'Chưa có chuỗi quý'});
-    tr.push({k:'06 Nhà đầu tư',ok:ins||fr,t:B.buy.t});
-    tr.push({k:'07 Kỹ thuật',ok:a.rs!=null?(a.rs>=70||m.pp!=null||m.bo!=null):null,t:`RS ${a.rs??'—'}${m.bo!=null?', vượt nền':''}${m.pp!=null?', pocket pivot':''}`});
-    const sr=secRS[a.sector];tr.push({k:'08 Ngành',ok:sr!=null?sr>=60:null,t:`RS trung vị ngành ${a.sector}: ${sr??'—'} (đạt khi ≥ 60: dòng tiền đang vào ngành)`});
-    const acc=a.fs?a.fs.items.find(x=>x.k==='accr')?.pass:null;tr.push({k:'10 Kế toán',ok:a.niSpike?false:(s.financial?true:acc),t:`${a.niSpike?'Có lợi nhuận đột biến ⚡':'Không có lợi nhuận đột biến'}${!s.financial?` · dòng tiền HĐKD ${acc==null?'—':acc?'>':'<'} LNST`:''}`});
+    // Trend: chấm tự động đủ 11 trend bằng số liệu định lượng (đạt khi ≥ 60% số trend có dữ liệu, tối thiểu 8 trend)
+    const tr=[];const q=a.qg,qs=s.qSeries||[],P=ys.length>=2?ys[ys.length-2]:null;
+    const T=(k,ok,t)=>tr.push({k,ok:ok===undefined?null:ok,t});
+    // 01 Tài chính
+    T('01 Tài chính',q&&q.yoy!=null?(q.yoy>0&&(q.rev==null||q.rev>0)):(q&&q.turn?true:null),q?`LN quý ${q.p} ${q.turn?'từ lỗ sang lãi':qTxt(q.yoy)}, doanh thu ${qTxt(q.rev)} so với cùng kỳ`:'Chưa có chuỗi quý');
+    // 02 Sản xuất, vận hành: doanh thu 4 quý gần nhất tăng so với 4 quý trước + vòng quay tài sản không giảm
+    const r4=qs.length>=8&&qs.slice(-8).every(x=>x.rev!=null)?qs.slice(-4).reduce((t,x)=>t+x.rev,0)/qs.slice(-8,-4).reduce((t,x)=>t+x.rev,0)-1:null;
+    const atOk=a.fs?a.fs.items.find(x=>x.k==='at')?.pass:null;
+    T('02 Sản xuất, vận hành',r4!=null?(r4>0&&atOk!==false):(a.big5.rev[0]?.v!=null?a.big5.rev[0].v>0:null),`Doanh thu 4 quý gần nhất ${r4!=null?qTxt(r4):'—'} so với 4 quý trước${atOk!=null?` · vòng quay tài sản ${atOk?'tăng':'giảm'}`:''}`);
+    // 03 Chi phí, giá cả: biên lợi nhuận cốt lõi (hoặc biên gộp) năm cuối ≥ năm trước; tài chính: ROE không giảm
+    const cm=y=>y&&y.rev>0&&y.gp!=null?(y.sell!=null&&y.adm!=null?(y.gp-y.sell-y.adm)/y.rev:y.gp/y.rev):null;
+    if(!s.financial)T('03 Chi phí, giá cả',cm(L)!=null&&cm(P)!=null?cm(L)>=cm(P):null,`Biên ${L.sell!=null?'lợi nhuận cốt lõi':'gộp'} ${L.year}: ${cm(L)!=null?pf(cm(L),1):'—'} so với ${P?P.year:''}: ${cm(P)!=null?pf(cm(P),1):'—'} (giá bán / chi phí đang có lợi)`);
+    else{const r0=a.roeY[a.roeY.length-1],r1=a.roeY[a.roeY.length-2];T('03 Chi phí, giá cả',r0!=null&&r1!=null?r0>=r1:null,`ROE ${pf(r0,1)} so với năm trước ${pf(r1,1)}`)}
+    // 04 Thị trường, khách hàng: doanh thu quý gần nhất tăng ≥ 10% so với cùng kỳ
+    T('04 Thị trường, khách hàng',q&&q.rev!=null?q.rev>=0.10:(a.big5.rev[0]?.v!=null?a.big5.rev[0].v>=0.10:null),`Doanh thu quý ${q?q.p:''} ${q?qTxt(q.rev):'—'} so với cùng kỳ (nhu cầu khách hàng mạnh khi ≥ 10%)`);
+    // 05 Nội bộ, quản trị: không pha loãng 3 năm, nợ không tăng nhanh hơn vốn chủ, có trả cổ tức tiền (≥ 2/3); ngân hàng: không cờ nợ xấu
+    const sh3=ys.length>=4&&L.sharesAdj>0&&ys[ys.length-4].sharesAdj>0?L.sharesAdj<=ys[ys.length-4].sharesAdj*1.10:null;
+    const sg=a.signals,dOk=sg.debtG!=null&&sg.eqG!=null?sg.debtG<=sg.eqG+0.05:null,dv=L.div!=null?L.div>0:null;
+    const g5=[sh3,s.financial?(bankBad(a)?false:true):dOk,dv].filter(x=>x!=null);
+    T('05 Nội bộ, quản trị',g5.length>=2?g5.filter(Boolean).length>=2:null,`${sh3==null?'❔':sh3?'✓':'✗'} không pha loãng > 10% trong 3 năm · ${s.financial?(bankBad(a)?'✗ có cờ nợ xấu':'✓ không cờ nợ xấu'):(dOk==null?'❔':dOk?'✓ nợ vay không tăng nhanh hơn vốn chủ':'✗ nợ vay tăng nhanh hơn vốn chủ')} · ${dv==null?'❔':dv?'✓ có trả cổ tức tiền':'✗ không trả cổ tức tiền'}`);
+    // 06 Nhà đầu tư, cổ đông
+    T('06 Nhà đầu tư, cổ đông',ins||fr,B.buy.t);
+    // 07 Phân tích kỹ thuật
+    T('07 Phân tích kỹ thuật',a.rs!=null?(a.rs>=70||m.pp!=null||m.bo!=null):null,`RS ${a.rs??'—'}${m.bo!=null?', vượt nền':''}${m.pp!=null?', pocket pivot':''}`);
+    // 08 Vĩ mô, ngành
+    const sr=secRS[a.sector];T('08 Vĩ mô, ngành',sr!=null?sr>=60:null,`RS trung vị ngành ${a.sector}: ${sr??'—'} (dòng tiền vào ngành khi ≥ 60)`);
+    // 09 Truyền thông, sự kiện: phản ứng giá ở phiên KL đột biến (≥ 2 lần TB20) gần nhất trong 10 phiên
+    const ev=m.ev;T('09 Truyền thông, sự kiện',ev?ev[1]>0:null,ev?`Phiên KL ×${nf(ev[0],1)} TB20 cách đây ${ev[2]} phiên, giá ${(ev[1]>0?'+':'')+pf(ev[1],1)} → thị trường phản ứng ${ev[1]>0?'tích cực':'tiêu cực'} với thông tin mới`:'Không có phiên KL đột biến trong 10 phiên (không có sự kiện đáng chú ý)');
+    // 10 Tài sản ẩn, kế toán
+    const acc=a.fs?a.fs.items.find(x=>x.k==='accr')?.pass:null;T('10 Tài sản ẩn, kế toán',a.niSpike?false:(s.financial?true:acc),`${a.niSpike?'Có lợi nhuận đột biến ⚡':'Không có lợi nhuận đột biến'}${!s.financial?` · dòng tiền HĐKD ${acc==null?'—':acc?'>':'<'} LNST`:''}`);
+    // 11 Sản phẩm, công nghệ: biên gộp (tài chính: ROE) cao hơn trung vị ngành = sản phẩm có lợi thế
+    const pv=s.financial?a.roeY[a.roeY.length-1]:(L.rev>0&&L.gp!=null?L.gp/L.rev:null),pm=secPM[a.sector];
+    T('11 Sản phẩm, công nghệ',pv!=null&&pm!=null?pv>=pm:null,`${s.financial?'ROE':'Biên gộp'} ${pf(pv,1)} so với trung vị ngành ${pf(pm,1)} (sản phẩm có lợi thế giá / chi phí khi cao hơn)`);
     const known=tr.filter(x=>x.ok!=null),nOk=known.filter(x=>x.ok).length;
-    B.trend={ok:known.length>=3?nOk>=3:null,t:`${nOk}/${known.length} trend tự động đạt (cần ≥ 3):\n`+tr.map(x=>`  ${x.ok==null?'❔':x.ok?'✅':'❌'} TREND ${x.k}: ${x.t}`).join('\n')+'\n  ⓘ TREND 02, 03, 04, 05, 09, 11 (sản xuất, giá bán, khách hàng, quản trị, sự kiện, sản phẩm) cần tự đánh giá — ghi vào 3M',items:tr};
+    B.trend={ok:known.length>=8?nOk>=Math.ceil(known.length*0.6):null,t:`${nOk}/${known.length} trend đạt (cần ≥ 60%):\n`+tr.map(x=>`  ${x.ok==null?'❔':x.ok?'✅':'❌'} TREND ${x.k}: ${x.t}`).join('\n'),items:tr,nOk,nKnown:known.length};
     // 7: 7 năm gần nhất đều có lãi
     const last7=ys.slice(-7);B.y7=ys.length>=7?{ok:last7.every(y=>y.ni>0),t:`LNST ${last7[0].year}–${L.year}: ${last7.filter(y=>y.ni>0).length}/7 năm có lãi`}:{ok:false,t:`Chỉ có ${ys.length} năm dữ liệu (cần 7)`};
     a.b5=B;const v=[B.best,B.buy,B.inc,B.trend,B.y7];a.b5s=v.filter(x=>x.ok).length;a.b5n=v.filter(x=>x.ok!=null).length;
@@ -882,7 +909,7 @@ MOS Town       = ${nf(sT.sticker)} × ${pf(c.mosPct,0)} = ${nf(sT.mos)}  →  gi
     ${s.financial?b5row('ROE trung bình (ngưỡng 15%)','roe'):b5row('ROIC trung bình','roic')}${b5row('Tăng trưởng Doanh thu','rev')}${b5row('Tăng trưởng EPS','eps')}${b5row('Tăng trưởng BVPS (vốn chủ)','bvps')}${s.financial?'':b5row('Tăng trưởng FCF','fcf')}
    </tbody></table></div><p class="note">Số trong ngoặc là số năm thực tế dùng để tính khi dữ liệu ngắn hơn mốc. Big 5 Score chấm ở mốc 5 năm: ${a.score}/${a.maxScore}. EPS, BVPS từng năm ${a.adjYears?`tính trên số cổ phiếu đã điều chỉnh cổ phiếu thưởng/cổ tức bằng cổ phiếu (${a.adjYears}/${a.ys.length} năm có số liệu); phát hành thu tiền và ESOP được giữ nguyên như pha loãng thật`:'tính trên số cổ phiếu hiện tại (chưa có số cổ phiếu từng năm)'}.</p>
    ${niChart(a)}
-   ${a.b5?`<div class="sec"><h3>BBIT7: ${a.b5s}/5</h3><div class="steps">${esc(b5Tip(a).split('\n').slice(1).join('\n'))}</div><p class="note">Best = top 3 ngành theo chất lượng · Buy = nội bộ/tổ chức đăng ký mua nhiều hơn bán trong 90 ngày, hoặc khối ngoại mua ròng · Income = LN cốt lõi ≥ 70% LNTT · Trend = ≥ 3/5 trend tự động · 7 = 7 năm liên tiếp có lãi. Tiêu chí hỗ trợ lọc, không thay cho định giá MOS.</p></div>`:''}
+   ${a.b5?`<div class="sec"><h3>BBIT7: ${a.b5s}/5</h3><div class="steps">${esc(b5Tip(a).split('\n').slice(1).join('\n'))}</div><p class="note">Best = top 3 ngành theo chất lượng · Buy = nội bộ/tổ chức đăng ký mua nhiều hơn bán trong 90 ngày, hoặc khối ngoại mua ròng · Income = LN cốt lõi ≥ 70% LNTT · Trend = ≥ 60% trong 11 trend chấm tự động bằng số liệu (xem từng trend ở trên) · 7 = 7 năm liên tiếp có lãi. Tiêu chí hỗ trợ lọc, không thay cho định giá MOS.</p></div>`:''}
    ${(()=>{const qs=s.qSeries;const fsx=a.fs;let h='';
      if(fsx)h+=`<div class="sec"><h3>Piotroski F-Score: ${fsx.score??'—'}/${fsx.n} (năm ${fsx.year} so với ${fsx.year-1})</h3><div class="tbl"><table><tbody>${fsx.items.map(x=>`<tr><td>${x.pass==null?'❔':x.pass?'✅':'❌'}</td><td>${x.lab}</td></tr>`).join('')}</tbody></table></div><p class="note">≥ 7 điểm: tài chính đang khỏe lên; ≤ 3: dễ là bẫy giá trị. Trong nhóm cổ phiếu rẻ, mã F-Score cao vượt trội rõ rệt mã F-Score thấp (Piotroski 2000). ❔ = thiếu dữ liệu, không tính vào điểm.</p></div>`;
      if(qs&&qs.length){const q=a.qg;h+=`<div class="sec"><h3>Lợi nhuận quý (LNST công ty mẹ, tỷ)</h3><div class="chart">${bars(qs.map(x=>x.ni),qs.map(x=>x.p),v=>nf(v,1))}</div><div class="charts" style="grid-template-columns:1fr">${qs.some(x=>x.rev!=null)?`<div class="chart"><span class="muted">Doanh thu quý (tỷ)</span>${bars(qs.map(x=>x.rev),qs.map(x=>x.p),v=>nf(v))}</div>`:''}</div>${q?`<p class="note">${q.p}: LNST ${nf(q.ni,1)} tỷ, ${q.turn?'cùng kỳ lỗ nay có lãi':'so với cùng kỳ <b>'+qTxt(q.yoy)+'</b>'}; quý trước ${qTxt(q.prev)} → ${q.accel==null?'—':q.accel?'<span class="c-good">tăng tốc ⤴</span>':'<span class="c-bad">giảm tốc ⤵</span>'}. Doanh thu ${qTxt(q.rev)}. Giá thường tiếp tục đi theo hướng bất ngờ lợi nhuận trong nhiều tuần sau công bố (Bernard & Thomas 1989).</p>`:''}</div>`}

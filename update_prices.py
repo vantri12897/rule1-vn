@@ -117,6 +117,15 @@ def flow_metrics(ch: dict, idx: dict | None) -> dict:
             pp = len(c) - 1 - i
             break
     m["pp"] = pp
+    # Phản ứng sự kiện: phiên KL đột biến lớn nhất trong 10 phiên gần nhất (KL / TB20 và % giá phiên đó)
+    best = None
+    for i in range(len(c) - 10, len(c)):
+        if vma[i - 1] and c[i - 1] > 0:
+            r = v[i] / vma[i - 1]
+            if best is None or r > best[0]:
+                best = (r, c[i] / c[i - 1] - 1, len(c) - 1 - i)
+    if best and best[0] >= 2:
+        m["ev"] = [round(best[0], 1), round(best[1], 4), best[2]]
     u = w = 0
     for i in range(len(c) - 20, len(c)):
         if c[i] > c[i - 1]: u += v[i]
