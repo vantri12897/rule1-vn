@@ -3498,6 +3498,211 @@
    "oneoff": "Q3 không phát hiện; Q2/2026 có LN khác tăng và thuế TNDN giảm (vài tỷ).",
    "risk": "Phần tăng biên dựa vào chênh lệch giá sợi–bông khó lặp lại, cộng thuế Mỹ 12,5%, dầu cao, VND lên giá và lãi vay x2,5.",
    "driver": "Biên gộp Q3 lên 13,0% cùng doanh thu kỷ lục đưa LN cốt lõi +73% YoY, CFO 9T gấp đôi LNST."
+  },
+  "DC4": {
+   "d": "2026-10-26",
+   "trends": [
+    {
+     "id": "01",
+     "name": "Tài chính",
+     "sig": "LNST 6T/2026 107,42 tỷ (+29,7%; mẹ ~104,8 tỷ, +26,5%); Q2 mẹ 55,99 tỷ (+32,6%); cổ tức tiền 2025 25,8 tỷ; chi phí tài chính giảm mạnh (chưa có số tuyệt đối). Ngược chiều: DT 6T -13%, CFO 6T -193,3 tỷ (cùng kỳ +149,1), biên gộp Q2 28,2% vs 28,9%.",
+     "r": "pos",
+     "sigs": [
+      2,
+      7,
+      9
+     ],
+     "cls": "A"
+    },
+    {
+     "id": "02",
+     "name": "Sản xuất, vận hành",
+     "sig": "Chưa đủ dữ liệu: không có sản lượng, công suất, backlog xây lắp. Tồn kho 460,4 tỷ (20,9% tổng tài sản) chưa có số cùng kỳ.",
+     "r": "na"
+    },
+    {
+     "id": "03",
+     "name": "Chi phí, giá cả",
+     "sig": "HRC 1.383 USD/tấn (+70,1% cùng kỳ, +11,8% 1 tháng) bất lợi cho đầu vào; quặng sắt -14,0% cùng kỳ ngược chiều; USD/VND -1,8% trung tính. Biên gộp Q2 giảm 0,7 điểm %. Truyền dẫn giá thép chưa kiểm chứng.",
+     "r": "mix",
+     "sigs": [
+      19
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "04",
+     "name": "Thị trường, khách hàng",
+     "sig": "Dự án nhà ở xã hội Huế >2.000 tỷ (1.680 căn, DC4 80%, 7 năm, pháp lý chưa nêu); gói xây lắp Nam Vĩnh Yên >90 tỷ. Mới là kế hoạch, không có backlog; tỷ lệ hấp thụ căn hộ lệch nguồn (38-45% vs 28%).",
+     "r": "mix",
+     "sigs": [
+      26
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "05",
+     "name": "Nội bộ, quản trị",
+     "sig": "ĐHĐCĐ 2026 duyệt kế hoạch DT 1.415 tỷ (-14%), LNST 182 tỷ (đi ngang). Cổ tức 10% bằng cổ phiếu và ESOP giá 0 đồng làm số cổ phiếu tăng 12,0%. DIG: phải thu 176,98 + trả trước 152,7 tỷ (~15% tổng tài sản).",
+     "r": "mix",
+     "sigs": [
+      37
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "06",
+     "name": "Nhà đầu tư, cổ đông",
+     "sig": "18 đăng ký mua nội bộ/người liên quan 2026, tổng 3,68 triệu cp, không đăng ký bán (insider.json); chủ tịch đăng ký mua 1,5 triệu cp (01-02/2026). Chưa xác minh kết quả thực hiện. DIG đăng ký bán 2,3 triệu cp (11-12/2025).",
+     "r": "pos",
+     "sigs": [
+      41
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "07",
+     "name": "Phân tích kỹ thuật",
+     "sig": "Giá 6.250 đ thấp hơn đỉnh 52 tuần 43,2%; 6 tháng -22,7%, 12 tháng -37,8%; kém VN-Index 12 tháng 42,2 điểm %; GTGD bình quân ~0,74 tỷ/phiên.",
+     "r": "neg"
+    },
+    {
+     "id": "08",
+     "name": "Vĩ mô, ngành",
+     "sig": "Giá chào bán căn hộ mới TP.HCM 4.210 USD/m² (+12% cùng kỳ, +3% QoQ, Knight Frank Q3/2026); nguồn cung mới +48%. Định hướng giảm lãi suất NHNN tháng 10/2026. Tỷ lệ hấp thụ lệch giữa các nguồn.",
+     "r": "pos",
+     "sigs": [
+      54,
+      59
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "09",
+     "name": "Truyền thông, sự kiện",
+     "sig": "Thỏa thuận hợp tác PVChem (31/10/2025) và các tổ chức tài chính (Stockbiz 2026). Không tìm được báo cáo CTCK nào về DC4; bài SGGP 15/06/2026 mang tính quảng bá, không có số liệu.",
+     "r": "mix",
+     "sigs": [
+      60
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "10",
+     "name": "Tài sản ẩn, kế toán",
+     "sig": "Tài sản dở dang dài hạn 613,2 tỷ (27,85% tổng tài sản; Hòa Lân-Thuận Giao 365,4 tỷ, bàn giao dự kiến Q1/2029); phải thu ngắn hạn 770,1 tỷ (35%); CFO âm. Chưa có thuyết minh để xác định one-off.",
+     "r": "neg"
+    },
+    {
+     "id": "11",
+     "name": "Sản phẩm, công nghệ",
+     "sig": "Chưa đủ dữ liệu: không có bằng chứng thương mại hóa sản phẩm hay công nghệ mới.",
+     "r": "na"
+    }
+   ],
+   "summary": "Điểm 1,5/10 (A2 + B0 + C1 - R1,5). LNST 6T tăng 26-30% nhờ cắt chi phí, không nhờ doanh thu (-13%) hay biên gộp; CFO âm và phải thu bên liên quan lớn. Dấu hiệu tăng trưởng chưa chắc chắn, cần theo dõi thêm; đánh giá lại khi có BCTC Q3/2026 và dữ liệu backlog. Không phải khuyến nghị đầu tư.",
+   "src": [
+    {
+     "t": "Tin nhanh chứng khoán 30/07/2026 - dòng tiền DC4 6T/2026",
+     "u": "https://www.tinnhanhchungkhoan.vn/dong-tien-dicera-holdings-dc4-am-tro-lai-1933-ty-dong-trong-nua-dau-nam-2026-post394952.html"
+    },
+    {
+     "t": "Báo Pháp luật 07/09/2026 - DC4 vay tối đa 550 tỷ tại BIDV",
+     "u": "https://doanhnhan.baophapluat.vn/dicera-holdings-dc4-len-ke-hoach-vay-toi-da-550-ty-dong-tai-bidv.html"
+    },
+    {
+     "t": "Stockbiz - DC4 báo lợi nhuận 6 tháng tăng 30%",
+     "u": "https://stockbiz.vn/tin-tuc/dc4-mot-doanh-nghiep-bds-bao-loi-nhuan-6-thang-tang-30/41217089"
+    },
+    {
+     "t": "Báo Đầu tư 26/04/2026 - lãi ròng Q1/2026 48,8 tỷ",
+     "u": "https://baodautu.vn/dicera-holdings-ghi-nhan-lai-rong-488-ty-dong-trong-quy-dau-nam-2026-d577914.html"
+    },
+    {
+     "t": "CafeF 31/10/2025 - Q3/2025 và PVChem",
+     "u": "https://cafef.vn/dicera-holdings-dc4-bao-lai-quy-3-tang-gan-70-bat-tay-voi-ong-lon-dau-khi-188251031143031922.chn"
+    },
+    {
+     "t": "CafeF 25/04/2026 - ĐHĐCĐ 2026, kế hoạch 182 tỷ",
+     "u": "https://cafef.vn/sau-nam-lai-ky-luc-dicera-holdings-chot-loi-nhuan-ke-hoach-182-ty-dong-188260425165007057.chn"
+    },
+    {
+     "t": "Báo Pháp luật - dự án nhà ở xã hội Huế",
+     "u": "https://doanhnhan.baophapluat.vn/dicera-holdings-dc4-lan-san-ha-tang-khu-cong-nghiep-don-luc-cho-du-an-nha-o-xa-hoi-2-000-ty-tai-hue.html"
+    },
+    {
+     "t": "Thương hiệu & Công luận 08/08/2026 - lãnh đạo đăng ký mua",
+     "u": "https://thuonghieucongluan.com.vn/lanh-dao-dicera-holdings-muon-gia-tang-so-huu-co-phieu-a329665.html"
+    },
+    {
+     "t": "CafeF 12/10/2026 - giá chào bán căn hộ mới TP.HCM Q3/2026",
+     "u": "https://cafef.vn/gia-chao-ban-can-ho-moi-o-tphcm-tiep-tuc-tang-nguoi-mua-than-trong-188261012101338687.chn"
+    }
+   ],
+   "score": 1.5,
+   "calc": {
+    "A": 2.0,
+    "B": 0.0,
+    "C": 1.0,
+    "R": 1.5
+   },
+   "main": [
+    "01"
+   ],
+   "check": {
+    "ok": 6,
+    "conflict": 2,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "na",
+      "note": "Chưa thấy trong báo chí đã đọc; không có thuyết minh BCTC để khẳng định."
+     },
+     {
+      "q": "Giá sản phẩm chính tăng so với bình quân 1-3 tháng?",
+      "a": "yes",
+      "note": "HRC 1.383 vs bình quân 3 tháng 1.233 (+12,2%); giá căn hộ sơ cấp +3% QoQ. Là giá đại diện, không phải giá thực hiện của DC4."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá sản phẩm nhất quán?",
+      "a": "no",
+      "note": "DT Q2 +0,8% (bài báo) vs +3,1% (repo); hấp thụ căn hộ 38-45% vs 28%; HRC tăng nhưng quặng sắt giảm."
+     },
+     {
+      "q": "Biên LN, doanh thu, thị phần thực sự cải thiện?",
+      "a": "no",
+      "note": "DT 6T -13%, biên gộp Q2 -0,7 điểm %, LN gộp Q2 -1,6%; không có dữ liệu thị phần."
+     },
+     {
+      "q": "Động lực tăng trưởng duy trì được?",
+      "a": "no",
+      "note": "Động lực chính là cắt chi phí tài chính và bán hàng; nền Q3/2025 cao (LNST mẹ 58,3 tỷ)."
+     },
+     {
+      "q": "TREND chính có đủ từ 3 tín hiệu rõ?",
+      "a": "yes",
+      "note": "Nhóm 01 có tín hiệu 2 và 9 bằng số liệu; tín hiệu 7 chưa có số tuyệt đối. Bỏ tín hiệu 7 thì mất TREND chính."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên, EPS (pha loãng), lãi suất?",
+      "a": "yes",
+      "note": "CFO 6T -193,3 tỷ; số cổ phiếu +12,0%; nợ vay +82,6% từ đầu năm; phải thu DIG 329,7 tỷ."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Giá căn hộ chào bán mới TP.HCM cũ (Knight Frank)",
+    "now": "4.210 USD/m² (~110 triệu đồng/m²)",
+    "date": "Q3/2026 (bài 12/10/2026)",
+    "base": "Q3/2025: +12% cùng kỳ; Q2/2026: +3%",
+    "chg": "+12% YoY",
+    "impact": "Hỗ trợ giá dự án Hòa Lân-Thuận Giao nhưng bàn giao dự kiến Q1/2029 nên chưa có doanh thu; DC4 không công bố giá bán bình quân",
+    "src": "https://cafef.vn/gia-chao-ban-can-ho-moi-o-tphcm-tiep-tuc-tang-nguoi-mua-than-trong-188261012101338687.chn"
+   },
+   "oneoff": "Chưa phát hiện khoản bất thường rõ ràng; chưa có thuyết minh BCTC để khẳng định.",
+   "risk": "Lợi nhuận tăng nhưng CFO 6T âm 193,3 tỷ; vốn nằm trong phải thu/trả trước DIG (329,7 tỷ) và tài sản dở dang 613,2 tỷ; số cổ phiếu tăng 12,0%.",
+   "driver": "Cắt giảm chi phí tài chính và chi phí bán hàng giúp LNST 6T/2026 tăng 26-30% dù doanh thu giảm 13%."
   }
  },
  "updated": "2026-10-26"
