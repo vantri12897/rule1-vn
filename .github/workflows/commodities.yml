@@ -1,0 +1,41 @@
+name: Cập nhật giá hàng hóa
+
+on:
+  schedule:
+    # 10:10 UTC = 17:10 giờ Việt Nam, thứ Hai đến thứ Sáu
+    - cron: "10 10 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-commodities
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Cài yfinance
+        run: pip install -q yfinance pandas
+      - name: Lấy giá hàng hóa
+        run: python -u tools/commodities.py
+      - name: Lưu commodities.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add commodities.json
+          if git diff --cached --quiet; then echo "Không có thay đổi."; exit 0; fi
+          git commit -m "Cập nhật giá hàng hóa $(TZ=Asia/Ho_Chi_Minh date +'%Y-%m-%d %H:%M')"
+          for i in 1 2 3; do
+            git rebase --abort 2>/dev/null || true
+            if git pull --rebase -X theirs --autostash && git push; then exit 0; fi
+            sleep 10
+          done
+          exit 1
