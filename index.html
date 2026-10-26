@@ -311,7 +311,7 @@ body{margin:0}
       <label class="f" for="fDe">Nợ vay/Vốn chủ tối đa<input id="fDe" type="number" step="0.1" placeholder="bỏ trống = không lọc"></label>
       <label class="f" for="fMos">Vị thế giá<select id="fMos"><option value="">Mọi vị thế</option><option value="below">Dưới MOS</option><option value="between">Dưới Sticker</option></select></label>
       <label class="f" for="f3m">Đánh giá 3M<select id="f3m"><option value="">Không lọc</option><option value="pass">Đạt cả 3M</option><option value="rated">Đã chấm</option><option value="unrated">Chưa chấm</option></select></label>
-      <label class="f" for="fQ">LN quý gần nhất<select id="fQ"><option value="">Không lọc</option><option value="pos">Dương (có lãi)</option><option value="neg">Âm (lỗ)</option></select></label>
+      <label class="f" for="fQ">LN quý gần nhất so với cùng kỳ<select id="fQ"><option value="">Không lọc</option><option value="up">Tăng so cùng kỳ</option><option value="up20">Tăng ≥ 20% so cùng kỳ</option><option value="down">Giảm so cùng kỳ</option></select></label>
       <div class="chk"><label for="fFin"><input id="fFin" type="checkbox" checked> Hiện nhóm tài chính</label></div>
       <button id="btnReset">Xóa bộ lọc</button>
     </aside>
@@ -633,6 +633,8 @@ function flowSigs(t,adv){const m=flowOf(t);if(!m)return[];const o=[];
 function rsTip(t){const m=flowOf(t);if(!m)return 'Chưa có dữ liệu sức mạnh giá';const x=v=>v==null?'—':(v>0?'+':'')+pf(v,1);
   return `RS = xếp hạng 1–99 của mức tăng giá có trọng số (40% 3 tháng, 20% mỗi kỳ 6/9/12 tháng) so với toàn thị trường.\n3T ${x(m.r3)} (so VN-Index ${x(m.x3)}) · 6T ${x(m.r6)} · 12T ${x(m.r12)} (so VN-Index ${x(m.x12)})\nCách đỉnh 52 tuần: ${x(m.h52)}${m.fd?`\nKhối ngoại ${m.fd} phiên: ${nf(m.fn,1)} tỷ`:''}${m.fl!=null?`\nDòng tiền 20 phiên: ${pf(m.fl,0)} KL phiên tăng`:''}`}
 const fsTip=a=>!a.fs?'F-Score không áp dụng cho nhóm tài chính':`Piotroski F-Score năm ${a.fs.year}: ${a.fs.score??'—'}/${a.fs.n} tiêu chí có dữ liệu\n`+a.fs.items.map(x=>(x.pass==null?'❔':x.pass?'✅':'❌')+' '+x.lab).join('\n')+'\n\n≥ 7: tài chính đang khỏe lên · ≤ 3: dễ là bẫy giá trị';
+/* LN quý gần nhất so với cùng quý năm trước: >0 tăng, <0 giảm; cùng kỳ lỗ mà nay lãi = tăng (Infinity), cùng kỳ lỗ nay vẫn lỗ: so mức lỗ */
+function qYoY(s){const qs=s.qSeries;if(!qs||!qs.length)return null;const L=qs[qs.length-1],m=/^(\d{4})-Q(\d)$/.exec(L.p);if(!m)return null;const P=qs.find(x=>x.p===(+m[1]-1)+'-Q'+m[2]);if(!P||P.ni==null||L.ni==null)return null;if(P.ni>0)return L.ni/P.ni-1;if(L.ni>0)return Infinity;return L.ni>P.ni?0.0001:L.ni<P.ni?-0.0001:0}
 const qTxt=v=>v==null?'—':(v>0?'+':'')+pf(v,0);
 function qCell(a){const q=a.qg;if(!q)return '—';if(q.turn)return `<b class="c-good">Có lãi</b>`;if(q.loss)return `<span class="c-bad">Lỗ</span>`;if(q.yoy==null)return '—';
   return `<span class="${q.yoy>=.2?'c-good':q.yoy<0?'c-bad':''}">${qTxt(q.yoy)}</span>${q.accel!=null?` <span class="${q.accel?'c-good':'c-bad'}" style="font-size:.8rem">${q.accel?'⤴':'⤵'}</span>`:''}${q.qoq!=null?`<br><span class="muted" style="font-size:.72rem">QoQ ${qTxt(q.qoq)}</span>`:''}`}
@@ -746,7 +748,7 @@ function filtered(){
     if(f3==='pass'&&!m3pass(s.ticker))return false;
     if(f3==='rated'&&!m3rated(s.ticker))return false;
     if(f3==='unrated'&&m3rated(s.ticker))return false;
-    if(fq){const qs=s.qSeries,qn=qs&&qs.length?qs[qs.length-1].ni:null;if(qn==null||(fq==='pos'?!(qn>0):qn>0))return false}
+    if(fq){const g=qYoY(s);if(g==null||(fq==='up'?!(g>0):fq==='up20'?!(g>=0.2):!(g<0)))return false}
     if(preset==='rule1'&&!(a.score>=Math.min(4,a.maxScore)&&a.status==='below'&&!isStale(a)&&(s.financial?(!bankBad(a)&&(a.mosPB==null||a.price<=a.mosPB)):(a.payback!=null&&a.payback<=c.pbGood))))return false; // tài chính: thêm dưới MOS P/B, không cờ nợ xấu
     if(preset==='watch'&&!(a.score>=Math.min(4,a.maxScore)&&(a.status==='below'||a.status==='between')))return false;
     return true});
