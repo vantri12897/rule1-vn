@@ -3053,6 +3053,223 @@
      "u": "https://24hmoney.vn/stock/FOX"
     }
    ]
+  },
+  "BID": {
+   "d": "2026-10-26",
+   "trends": [
+    {
+     "id": "01",
+     "name": "Tài chính",
+     "sig": "Q2/2026: LNTT 10.333 tỷ (+19,8% YoY), thu nhập lãi thuần 17.804 tỷ (+18,8%); 6T/2026 LNTT 18.905 tỷ (+17,9%). LNST mẹ Q1 6.801 tỷ (+16,4%), Q2 8.146 tỷ (+20,6%). Tháng 1/2026 chào bán riêng lẻ 264 triệu CP thu 10.272 tỷ. Cổ tức tiền 2025 chỉ 4,5% (3.276 tỷ). KQKD Q3 chưa công bố (đến 26/10).",
+     "r": "pos",
+     "sigs": [
+      1,
+      2,
+      10
+     ],
+     "cls": "A"
+    },
+    {
+     "id": "02",
+     "name": "Sản xuất, vận hành",
+     "sig": "Ngân hàng: chưa có số liệu mạng lưới, số hóa hay năng suất mới trong kỳ. Tổng tài sản 30/6/2026 đạt 3,44 triệu tỷ (+3,3% so đầu năm).",
+     "r": "na",
+     "cls": "C"
+    },
+    {
+     "id": "03",
+     "name": "Chi phí, giá cả",
+     "sig": "6T/2026 chi phí lãi +34,7%, nhanh hơn thu nhập lãi (+27,2%). Vietcap dự báo chi phí vốn tăng từ 3,24% (2025) lên 4% (2026). Ngày 21/10 BIDV giảm 0,5 điểm % lãi tiết kiệm từ 6 tháng (12 tháng còn 5,4%), theo chỉ đạo NHNN, nhưng đồng thời phải giảm lãi cho vay.",
+     "r": "mix",
+     "sigs": [
+      19
+     ],
+     "cls": "B"
+    },
+    {
+     "id": "04",
+     "name": "Thị trường, khách hàng",
+     "sig": "Dư nợ cho vay 30/6/2026 đạt 2,50 triệu tỷ, +5,4% so đầu năm; tiền gửi khách hàng chỉ +1,7%. Tín dụng toàn hệ thống 9T/2026 +11,59%. Tín dụng BID từ đầu năm ước 6–9% theo CTCK, có dấu hiệu chậm hơn ngành.",
+     "r": "mix",
+     "cls": "C"
+    },
+    {
+     "id": "05",
+     "name": "Nội bộ, quản trị",
+     "sig": "ĐHĐCĐ 24/4/2026 đặt mục tiêu tổng tài sản +5–10%, nợ xấu ≤ 1,6%, nhưng nợ xấu 30/6 đã 1,83%. Cổ tức cổ phiếu 19,19% (~13.205 tỷ) chờ phê duyệt, cộng chào bán tối đa 780 triệu CP giai đoạn 2026–2027, gây pha loãng EPS lớn.",
+     "r": "mix",
+     "sigs": [
+      37
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "06",
+     "name": "Nhà đầu tư, cổ đông",
+     "sig": "Phát hành riêng lẻ cho 33 nhà đầu tư gồm SCIC, Dragon Capital, KIM, SSIAM (giá BQ ~38.900đ, cao hơn thị giá 33.750đ). Cổ phiếu thưởng 6,84% chốt 18/8 chỉ là yếu tố trung lập. Sở hữu nước ngoài 17,4%; khối ngoại bán ròng 35 tỷ trong 2 phiên có dữ liệu. Nội bộ không đăng ký mua/bán từ 2025.",
+     "r": "mix",
+     "sigs": [
+      42
+     ],
+     "cls": "B"
+    },
+    {
+     "id": "07",
+     "name": "Phân tích kỹ thuật",
+     "sig": "Giá 33.750đ (26/10), cách đỉnh 52 tuần −35,6%; −29,9% 9 tháng, −12,3% 6 tháng, +0,2% 3 tháng (kém VN-Index 4,2 điểm %). KL ngày tăng chỉ chiếm 37% trong 20 phiên; chưa có phiên vượt nền.",
+     "r": "neg",
+     "cls": "C"
+    },
+    {
+     "id": "08",
+     "name": "Vĩ mô, ngành",
+     "sig": "Tín dụng hệ thống 9T/2026 +11,59% (+16,69% YoY). Tháng 10/2026 NHNN yêu cầu giảm tối thiểu 0,5 điểm % lãi huy động từ 6 tháng và giảm lãi cho vay, hỗ trợ chất lượng tài sản và chi phí vốn từ Q4.",
+     "r": "pos",
+     "sigs": [
+      54
+     ],
+     "cls": "B"
+    },
+    {
+     "id": "09",
+     "name": "Truyền thông, sự kiện",
+     "sig": "CTCK đều khuyến nghị tích cực: VDSC Mua, mục tiêu 45.500đ (21/9); VNDS Khả quan 45.100đ (25/9); Vietcap Khả quan nhưng hạ mục tiêu 9,9% xuống 42.600đ (báo cáo 30/9). Dự báo LNTT Q3 từ 8.855 đến 10.062 tỷ (+17–33%).",
+     "r": "pos",
+     "sigs": [
+      61
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "10",
+     "name": "Tài sản ẩn, kế toán",
+     "sig": "Nợ xấu nội bảng tăng từ 31.976 lên 45.719 tỷ (+45,7%) trong 6T/2026, nợ nhóm 3 +168%. Dự phòng gần như không đổi (34.695 tỷ) nên tỷ lệ bao phủ giảm từ ~109% xuống ~76%. Q2 có lãi hoạt động khác 2.852 tỷ (chưa xác minh từ thuyết minh).",
+     "r": "neg",
+     "cls": "B"
+    },
+    {
+     "id": "11",
+     "name": "Sản phẩm, công nghệ",
+     "sig": "Chưa thu thập được số liệu sản phẩm số hoặc công nghệ mới có tác động định lượng trong kỳ.",
+     "r": "na",
+     "cls": "C"
+    }
+   ],
+   "summary": "BID tăng LN ~18% trong 6T/2026 nhờ thu nhập lãi thuần, nhưng chất lượng LN kém: nợ xấu +46%, dự phòng không tăng, bao phủ giảm còn 76%, Q2 có ~2.852 tỷ thu nhập khác. Chỉ nhóm Tài chính đạt TREND chính, nên điểm thấp theo phương pháp. Nếu KQKD Q3 (dự kiến cuối tháng 10) cho thấy tỷ lệ nợ xấu giảm và bao phủ hồi phục thì cần đánh giá lại.",
+   "src": [
+    {
+     "t": "BIDV kiếm gần 19.000 tỷ sau nửa năm, nợ xấu tăng gần 46% – VnBusiness 31/07/2026",
+     "u": "https://vnbusiness.vn/bidv-kiem-gan-19000-ty-dong-sau-nua-nam-nhung-no-xau-tang-gan-46.html"
+    },
+    {
+     "t": "BID: Lãi quý 3 tăng tới 33%, tăng vốn – Elibook 12/10/2026",
+     "u": "https://elibook.vn/2026/10/12/bid-lai-quy-3-tang-toi-33-con-tang-von-la-binh-duong-khi-chu-khong-phai-tro-choi/"
+    },
+    {
+     "t": "Vietcap hạ định giá BIDV – Người Quan Sát 20/10/2026",
+     "u": "https://nguoiquansat.vn/vietcap-ha-dinh-gia-bidv-bid-323143.html"
+    },
+    {
+     "t": "BID – 24hMoney (KQKD Q2/2026, khuyến nghị CTCK)",
+     "u": "https://24hmoney.vn/stock/bid"
+    },
+    {
+     "t": "Ngày 21/10, BIDV và VietinBank đồng loạt giảm lãi suất tiết kiệm – CafeF",
+     "u": "https://cafef.vn/ngay-21-10-bidv-va-vietinbank-dong-loat-giam-lai-suat-tiet-kiem-188261021170607213.chn"
+    },
+    {
+     "t": "Lãi suất ngày 24/10 tại các ngân hàng – CafeF",
+     "u": "https://cafef.vn/lai-suat-ngay-24-10-tai-agribank-vietcombank-bidv-vietinbank-mb-vpbank-techcombank-sacombank-hdbank-188261024203010563.chn"
+    },
+    {
+     "t": "BIDV tăng mạnh lãi suất tiết kiệm, cao nhất nhóm Big4 – Dân trí 04/08/2026",
+     "u": "https://dantri.com.vn/kinh-doanh/bidv-tang-manh-lai-suat-tiet-kiem-cao-nhat-nhom-big4-20260804094101239.htm"
+    },
+    {
+     "t": "BIDV chốt quyền phát hành hơn 498 triệu cp – Vietstock 07/08/2026",
+     "u": "https://vietstock.vn/2026/08/bidv-chot-quyen-phat-hanh-hon-498-trieu-cp-tang-von-dieu-le-len-gan-77783-ty-764-1478010.htm"
+    },
+    {
+     "t": "BIDV sắp chi trả hơn 3.200 tỷ cổ tức tiền mặt – VietnamBiz 08/07/2026",
+     "u": "https://vietnambiz.vn/bidv-sap-chi-tra-hon-3200-ty-dong-co-tuc-tien-mat-2026788291409.htm"
+    },
+    {
+     "t": "BIDV quyết liệt tăng vốn điều lệ, nhắm mốc 100.000 tỷ – Thời báo Tài chính 20/04/2026",
+     "u": "https://thoibaotaichinhvietnam.vn/bidv-quyet-liet-tang-von-dieu-le-nham-moc-100000-ty-dong-phan-dau-tang-tong-tai-san-5-10-195999.html"
+    },
+    {
+     "t": "Tín dụng toàn hệ thống tăng 11,59% sau 9 tháng 2026 – Hà Nội Online",
+     "u": "https://hanoionline.vn/tin-dung-toan-he-thong-tang-1159-sau-9-thang-nam-2026-246421226.htm"
+    },
+    {
+     "t": "Những ngân hàng có lợi nhuận 9 tháng vượt mốc tỷ USD – Dân trí 21/10/2026",
+     "u": "https://dantri.com.vn/kinh-doanh/nhung-ngan-hang-co-loi-nhuan-9-thang-vuot-moc-ty-usd-20261021000637108.htm"
+    }
+   ],
+   "score": 2.5,
+   "calc": {
+    "A": 2.0,
+    "B": 1.0,
+    "C": 0.5,
+    "R": 1.0
+   },
+   "main": [
+    "01"
+   ],
+   "check": {
+    "ok": 7,
+    "conflict": 1,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "yes",
+      "note": "Q2/2026 lãi hoạt động khác 2.852 tỷ (≈28% LNTT quý), nhiều khả năng là thu hồi nợ đã xử lý; không lặp lại đều."
+     },
+     {
+      "q": "Giá sản phẩm chính tăng hay giảm so với kỳ gốc?",
+      "a": "yes",
+      "note": "Lãi huy động 12 tháng tại quầy giảm 5,9%→5,4% (21/10); online 7,4% (4/8)→6,8% (24/10). Cho vay cũng bị yêu cầu giảm, tác động NIM ròng trung lập."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá sản phẩm có nhất quán?",
+      "a": "yes",
+      "note": "Chi phí lãi tăng nhanh hơn thu nhập lãi, khớp với việc tăng lãi huy động tháng 8; NIM đáy 2,17% ở Q1 rồi chỉ nhích ~5 điểm cơ bản."
+     },
+     {
+      "q": "Biên lợi nhuận, doanh thu, thị phần có thực sự cải thiện?",
+      "a": "no",
+      "note": "NIM gần như đi ngang; thu ngoài lãi giảm (ngoại hối Q2 −47,8%); tín dụng tăng chậm hơn hệ thống."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "no",
+      "note": "LN tăng ~18% trong khi nợ xấu +46% mà dự phòng giữ nguyên, nên bao phủ chỉ còn 76%. Vietcap dự báo chi phí dự phòng 2026 +22,4%."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "yes",
+      "note": "Chỉ nhóm 01 Tài chính đạt 3 tín hiệu (1, 2, 10); các nhóm khác không đạt."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "Pha loãng EPS rất lớn (riêng lẻ 2026 + thưởng 6,84% + cổ tức CP 19,19% + chào bán tới 780 triệu CP); nợ xấu tăng; nền LNST Q4/2025 cao (11.356 tỷ)."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Lãi suất huy động (giá vốn) – proxy NIM ngân hàng",
+    "now": "Tiết kiệm 12 tháng tại quầy 5,4%/năm; online 6,8%/năm",
+    "date": "21–24/10/2026",
+    "base": "12 tháng tại quầy 5,9%/năm trước 21/10; online 7,4%/năm sau đợt tăng 4/8/2026",
+    "chg": "−8,5% (−0,5 điểm %) tại quầy; −8,1% online so với 4/8",
+    "impact": "Giảm chi phí vốn với tiền gửi mới từ Q4, nhưng NHNN đồng thời yêu cầu giảm lãi cho vay nên NIM ròng trung lập; năm 2026 chi phí vốn vẫn cao hơn 2025.",
+    "src": "CafeF 21/10 & 24/10/2026; Dân trí 04/08/2026"
+   },
+   "oneoff": "Lãi hoạt động khác Q2/2026 2.852 tỷ (nhiều khả năng thu hồi nợ đã xử lý) cần loại khỏi động lực bền vững; cổ phiếu thưởng 6,84% không tạo giá trị.",
+   "risk": "Nợ xấu tăng 46% trong 6 tháng (1,83%, vượt trần 1,6% của ĐHĐCĐ) trong khi bao phủ chỉ còn ~76%, buộc tăng trích lập và kéo LN các quý tới, cộng pha loãng EPS lớn.",
+   "driver": "Thu nhập lãi thuần tăng ~19% nhờ quy mô tài sản >3,4 triệu tỷ, trong khi chi phí dự phòng chưa tăng tương ứng với nợ xấu."
   }
  },
  "updated": "2026-10-26"
