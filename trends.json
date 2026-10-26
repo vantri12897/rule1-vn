@@ -3703,6 +3703,212 @@
    "oneoff": "Chưa phát hiện khoản bất thường rõ ràng; chưa có thuyết minh BCTC để khẳng định.",
    "risk": "Lợi nhuận tăng nhưng CFO 6T âm 193,3 tỷ; vốn nằm trong phải thu/trả trước DIG (329,7 tỷ) và tài sản dở dang 613,2 tỷ; số cổ phiếu tăng 12,0%.",
    "driver": "Cắt giảm chi phí tài chính và chi phí bán hàng giúp LNST 6T/2026 tăng 26-30% dù doanh thu giảm 13%."
+  },
+  "VCP": {
+   "d": "2026-10-26",
+   "trends": [
+    {
+     "id": "01",
+     "name": "Tài chính",
+     "sig": "6T/2026: doanh thu 1.438,92 tỷ (Q1 +48,61%, Q2 +46,62%), LNST mẹ 317,89 tỷ (+79,01%), biên gộp Q2 ≈40,9% (cùng kỳ ≈35%), cổ tức tiền mặt 900đ/cp (2024: 600đ). Trừ: lãi vay +52–83%, nợ ròng ≈61% vốn, CFO chưa xác minh.",
+     "r": "pos",
+     "sigs": [
+      1,
+      2,
+      3,
+      9
+     ],
+     "cls": "A"
+    },
+    {
+     "id": "02",
+     "name": "Sản xuất, vận hành",
+     "sig": "Nhà máy mới: Đăk Robaye chạy từ 01/2025, Nậm Khóa 3 (28 MW) mua 51% đầu 2026. XMP Q3/2026 sản lượng −6%. Không có sản lượng kWh riêng của VCP; Đak Lô 1-3 chưa phát điện đến ~2028.",
+     "r": "mix",
+     "sigs": [
+      11
+     ],
+     "cls": "B"
+    },
+    {
+     "id": "03",
+     "name": "Chi phí, giá cả",
+     "sig": "Biên gộp mở rộng ≈5,9 điểm % phù hợp giá bán tăng; VSH, Hủa Na cùng xác nhận. Nhưng giá CGM tháng 7–8 ≈1.200 đ/kWh dưới đỉnh Q2, quản lý nói doanh thu giảm ít nhất 13–18% do quy định mới (chưa đối chiếu); thiếu giá bán bình quân của VCP.",
+     "r": "mix",
+     "sigs": [
+      20
+     ],
+     "cls": "B"
+    },
+    {
+     "id": "04",
+     "name": "Thị trường, khách hàng",
+     "sig": "Chưa đủ dữ liệu: đầu ra qua thị trường điện bán buôn, không có backlog/hợp đồng để đối chiếu; thủy điện toàn quốc 7–8/2026 −13% là phía cung.",
+     "r": "na"
+    },
+    {
+     "id": "05",
+     "name": "Nội bộ, quản trị",
+     "sig": "M&A đã làm: trái phiếu 500 tỷ mua 51% Linh Linh (28 MW chạy) và 99,27% Đak Lô 1-3; mục tiêu 1.000 MW năm 2030. Trừ: kế hoạch LNST 2026 119,6 tỷ lệch số thực, quyết định xử phạt thuế ~12/10/2026 (chưa rõ tiền), trái phiếu lãi 10–10,2%.",
+     "r": "mix",
+     "sigs": [
+      36
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "06",
+     "name": "Nhà đầu tư, cổ đông",
+     "sig": "Cổ tức tiền mặt 9% trả 26/10/2026 (tính ở nhóm 01). Không có dữ liệu nội bộ/khối ngoại 2026; năm 2025 nhiều cổ đông lớn bán (VSD Investment bán 3,95 triệu cp).",
+     "r": "mix",
+     "cls": "C"
+    },
+    {
+     "id": "07",
+     "name": "Phân tích kỹ thuật",
+     "sig": "26/10/2026 đóng cửa 25.500 (+13,33%), KL 82.700 cp gấp ~7,5 lần TB 10 phiên (10.970); 1 tháng +13,82%, YTD +7,80%. Thanh khoản ≈0,28 tỷ/ngày nên không đáng tin; không có MA50/MA250.",
+     "r": "mix",
+     "cls": "C"
+    },
+    {
+     "id": "08",
+     "name": "Vĩ mô, ngành",
+     "sig": "Thông tư 29/2026/TT-BCT hiệu lực 20/07/2026, VDSC: FMP tăng từ Q2/2026. Ngược lại El Niño 2026-27 (lưu lượng −10 đến −20%), thủy điện 7–8/2026 −13% YoY, KBSV nhận định thủy điện 2026 bất lợi.",
+     "r": "mix",
+     "cls": "C"
+    },
+    {
+     "id": "09",
+     "name": "Truyền thông, sự kiện",
+     "sig": "Chỉ có 2 báo cáo CTCK, cùng FPTS và đều cũ: MUA TP 29.600 (19/12/2025), TP 30.300 (17/04/2025). Tin xử phạt thuế tiêu cực.",
+     "r": "mix",
+     "cls": "C"
+    },
+    {
+     "id": "10",
+     "name": "Tài sản ẩn, kế toán",
+     "sig": "Chưa đủ dữ liệu: không đọc được thuyết minh nên chưa nhận diện lãi đánh giá lại/thu nhập khác. P/B 0,87; nguyên giá TSCĐ 5.759 tỷ.",
+     "r": "na"
+    },
+    {
+     "id": "11",
+     "name": "Sản phẩm, công nghệ",
+     "sig": "Điện rác Ngôi Sao Xanh 6,1 MW đang chạy; kế hoạch thêm ~200 MW điện rác chưa có số thực hiện, không đóng góp quý tới.",
+     "r": "mix",
+     "cls": "C"
+    }
+   ],
+   "summary": "LNST mẹ 6T/2026 +79% nhưng chỉ nhóm Tài chính đủ chuẩn TREND chính; thiếu sản lượng, CFO, BCTC Q3 và có 2 mâu thuẫn dữ liệu (kế hoạch 119,6 tỷ, câu 'doanh thu giảm 13–18%'). Dấu hiệu tăng trưởng chưa chắc chắn. Cần theo dõi thêm. Q3/2026 (~30/10) là điểm kiểm chứng.",
+   "src": [
+    {
+     "t": "BCTC Q2/2026 VCP – DNSE",
+     "u": "https://www.dnse.com.vn/senses/tin-tuc/bctc-quy-22026-vcp-loi-nhuan-sau-thue-cong-ty-me-q22026-tang-7201-so-voi-cung-ky-dat-1777-ty-dong-35256294"
+    },
+    {
+     "t": "VCP – số liệu theo quý – 24hmoney",
+     "u": "https://24hmoney.vn/stock/VCP"
+    },
+    {
+     "t": "VCP – hồ sơ và giá – Vietstock",
+     "u": "https://finance.vietstock.vn/VCP-ctcp-xay-dung-va-nang-luong-vcp.htm"
+    },
+    {
+     "t": "VCP – định giá – Simplize",
+     "u": "https://simplize.vn/co-phieu/VCP"
+    },
+    {
+     "t": "VCP – báo cáo phân tích (FPTS) – Simplize",
+     "u": "https://simplize.vn/co-phieu/VCP/bao-cao"
+    },
+    {
+     "t": "Website VCP Holdings",
+     "u": "https://vcpholdings.com.vn/"
+    },
+    {
+     "t": "VCP huy động 500 tỷ trái phiếu mua Nậm Khóa 3",
+     "u": "https://doanhnhan.baophapluat.vn/xay-dung-va-nang-luong-vcp-vcp-huy-dong-500-ty-dong-trai-phieu-thau-tom-chu-dau-tu-thuy-dien-nam-khoa-3-90488.html"
+    },
+    {
+     "t": "Chủ tịch VCP: mục tiêu 1.000 MW năm 2030",
+     "u": "https://nhadautu.vn/chu-tich-vcp-holdings-tiet-lo-quan-bai-de-dat-san-luong-1000mw-vao-nam-2030-d104943.html"
+    },
+    {
+     "t": "VCP và bài toán vốn cho tham vọng",
+     "u": "https://nhadautu.vn/vcp-holding-va-bai-toan-von-cho-tham-vong-ma-d104905.html"
+    },
+    {
+     "t": "Báo cáo ngành điện 2026 – KBSV",
+     "u": "https://kbsec.com.vn/pic/Service/KBSV_BaocaonganhDien_2026.pdf"
+    },
+    {
+     "t": "El Niño 2026-2027 – Báo Nhân dân",
+     "u": "https://nhandan.vn/special/el-nino-2026-2027-bao-dong-nang-nong-han-han-va-thieu-nuoc/index.html"
+    }
+   ],
+   "score": 2.0,
+   "calc": {
+    "A": 2.0,
+    "B": 0.5,
+    "C": 0.5,
+    "R": 1.0
+   },
+   "main": [
+    "01"
+   ],
+   "check": {
+    "ok": 6,
+    "conflict": 2,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường nào không?",
+      "a": "na",
+      "note": "Không đọc được thuyết minh BCTC; chỉ suy luận tăng trưởng nằm ở biên gộp."
+     },
+     {
+      "q": "Giá sản phẩm chính tăng hay giảm so với bình quân 1–3 tháng/quý trước?",
+      "a": "yes",
+      "note": "Giá CGM T7–8 ≈1.200 đ/kWh giảm so với đỉnh Q2 nhưng cao hơn nền 2025; chỉ là giá thị trường, không phải giá bán của VCP."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá sản phẩm có nhất quán không?",
+      "a": "no",
+      "note": "Kế hoạch LNST 2026 119,6 tỷ so với 6T thực 317,89 tỷ (≈266%); quản lý nói doanh thu giảm 13–18% trong khi 6T +47%. Chưa đọc bài gốc."
+     },
+     {
+      "q": "Biên LN, doanh thu, thị phần có thực sự cải thiện?",
+      "a": "yes",
+      "note": "Doanh thu Q2 +46,62%, biên gộp ≈35% lên ≈40,9%; thị phần không áp dụng."
+     },
+     {
+      "q": "Động lực tăng trưởng có duy trì được không?",
+      "a": "no",
+      "note": "Nền Q3/2025 cao (LNST mẹ 125,38 tỷ), giá CGM hạ nhiệt, thủy văn hỗn hợp, El Niño mùa khô 2026-27."
+     },
+     {
+      "q": "TREND chính có đủ ≥3 tín hiệu rõ không?",
+      "a": "no",
+      "note": "Chỉ TREND 01 (4 tín hiệu); TREND 03 mới có 1 tín hiệu suy luận."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS (pha loãng), tỷ giá, lãi suất, vĩ mô không?",
+      "a": "yes",
+      "note": "Lãi vay +52–83%, nợ ròng ≈61% vốn, CFO chưa xác minh, thanh khoản rất mỏng, El Niño."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Giá điện thị trường (CGM) – đại diện",
+    "now": "≈1.200 đ/kWh (TB T7–8/2026)",
+    "date": "T7–8/2026",
+    "base": "Đỉnh Q2/2026; nền 2025 ≈700–800 đ/kWh",
+    "chg": "Hạ so đỉnh Q2, cao hơn nền 2025",
+    "impact": "Biên gộp VCP Q2 ≈40,9% (cùng kỳ ≈35%)",
+    "src": "MBS, VDSC (trích đoạn); chưa có giá bán bình quân của VCP"
+   },
+   "oneoff": "Chưa xác minh được (không đọc thuyết minh BCTC); không thấy dấu hiệu thu nhập bất thường từ cấu trúc chi phí.",
+   "risk": "Lãi vay +52–83% trên nợ vay 3.436,86 tỷ trong khi El Niño có thể giảm sản lượng mùa khô 2026-27; nền Q3/2025 cao; thanh khoản ≈0,28 tỷ/ngày.",
+   "driver": "Biên gộp mở rộng ≈5,9 điểm % trên doanh thu +47% đưa LNST mẹ 6T/2026 +79%; phần lớn nhờ giá điện cao hơn năm trước, chưa kiểm chứng bằng sản lượng."
   }
  },
  "updated": "2026-10-26"
