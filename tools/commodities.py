@@ -34,7 +34,6 @@ ITEMS = {
     "coffee": ("KC=F", "Cà phê Arabica", "US cent/lb"),
     "robusta": ("RC=F", "Cà phê Robusta", "USD/tấn"),
     "rice":   ("ZR=F", "Gạo thô (CBOT)", "USD/cwt"),
-    "rubber": ("JRU=F", "Cao su (Osaka)", "JPY/kg"),
     "usdvnd": ("VND=X", "Tỷ giá USD/VND", "VND"),
     "usdjpy": ("JPY=X", "Tỷ giá USD/JPY", "JPY"),
     "dxy":    ("DX-Y.NYB", "Chỉ số USD (DXY)", "điểm"),
@@ -64,7 +63,9 @@ def main():
                 continue
             last_dt = s.index[-1]
             last = float(s.iloc[-1])
-            wk = s.resample("W-FRI").last().dropna()
+            # chuỗi tuần, nhãn = ngày giao dịch thực tế cuối mỗi tuần (không dùng nhãn thứ Sáu tương lai)
+            dts = s.index.to_series().resample("W-FRI").last().dropna()
+            wk = s.loc[dts.values]
             rec = {
                 "sym": sym, "name": name, "unit": unit, "d": last_dt.strftime("%Y-%m-%d"), "last": round(last, 4),
                 "c1w": pct(last, at_or_before(s, last_dt - timedelta(days=7))),
@@ -88,7 +89,7 @@ def main():
             last = w[-1][1]
             def back(n):
                 return w[-1 - n][1] if len(w) > n else None
-            it["crack"] = {"sym": "HO×42−BZ", "name": "Crack spread diesel xấp xỉ (NY HO − Brent)", "unit": "USD/thùng", "d": w[-1][0], "last": last,
+            it["crack"] = {"sym": "HO×42−BZ", "name": "Crack spread diesel xấp xỉ (NY HO − Brent)", "unit": "USD/thùng", "d": min(it["diesel"]["d"], it["brent"]["d"]), "last": last,
                            "c1m": pct(last, back(4)), "c3m": pct(last, back(13)), "yoy": pct(last, back(52)), "avg3m": round(sum(x[1] for x in w[-13:]) / min(13, len(w)), 2), "ma200": None, "w": w}
     if ok < 5:
         print(f"chỉ lấy được {ok} mục — không ghi đè commodities.json")
