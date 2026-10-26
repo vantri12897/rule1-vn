@@ -1,624 +1,1326 @@
 {
  "items": {
   "BSR": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "Ước Q3/2026 (họp NĐT 15/10/2026): DT 59.900 tỷ (+70% YoY), LNST cty mẹ 6.900 tỷ (gấp 7,7 lần, −9% QoQ); 9T/2026 DT 164.500 tỷ (+80%), LNST 22.900 tỷ (gấp 10,6 lần), vượt xa KH năm 2.162 tỷ. Q2/2026 LNST 7.666 tỷ (repo) so 7.461 tỷ (Nhadautu). BCTC Q3 chính thức chưa thấy công bố.",
-     "r": "pos"
+     "sig": "Ước Q3/2026 (họp NĐT 15/10): DT 59.900 tỷ (+70% YoY), LNST mẹ 6.900 tỷ (gấp 7,7 lần, −9% QoQ); 9T LNST 22.900 tỷ (gấp 10,6 lần), vượt xa KH năm 2.162 tỷ. VnEconomy 25/10 ghi BSR LNST quý 3 +~660%. Biên gộp Q2 15,0% (Q1 20,7%, cả 2025 4,3%). Vay giảm 15.856→10.504 tỷ (2024→2025).",
+     "r": "pos",
+     "sigs": [
+      1,
+      2,
+      3,
+      5,
+      6
+     ],
+     "cls": "A"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "9T/2026 sản xuất ~6,15 triệu tấn, tiêu thụ ~6,08 triệu tấn (H1: 4,05/4,03 triệu tấn, ~124% công suất thiết kế); sản lượng bán Q3 +5% YoY. Dự án nâng cấp mở rộng Dung Quất ký EPC 09/07/2026, GPMB ~90% đầu 10/2026. Rủi ro: bảo dưỡng tổng thể TA6 năm 2027 (~32 ngày).",
-     "r": "pos"
+     "sig": "9T/2026 sản xuất ~6,15 triệu tấn, tiêu thụ ~6,08 triệu tấn; H1 chạy ~124% công suất thiết kế; sản lượng bán Q3 +5% YoY (Vietcap 16/10). Dự án nâng cấp mở rộng Dung Quất: EPC ~1 tỷ USD ký 07/2026, khởi công 08/2026, dự kiến vận hành Q1/2029 (148→171 nghìn thùng/ngày). Rủi ro bảo dưỡng TA6 ~32 ngày năm 2027.",
+     "r": "pos",
+     "sigs": [
+      11,
+      13,
+      14
+     ],
+     "cls": "A"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Crack spread Q3/2026 (Platts Singapore): RON95 27,8 USD/thùng (1,3 lần YoY), diesel 62,9 (2,2 lần), Jet A1 60,7 (2,3 lần). Giá dầu thô Q3 giảm ~7 USD/thùng so Q2 (rủi ro lỗ tồn kho). BSR dự báo crack 2026 TB 32 USD/thùng, 2027 còn ~23 USD (−28%).",
-     "r": "mix"
+     "sig": "Crack Q3/2026 (Platts Singapore): RON95 27,8, diesel 62,9, Jet A1 60,7 USD/thùng (1,3x/2,2x/2,3x YoY). Biên diesel châu Á ~70 USD/thùng ngày 21/10 (dao động 60–70 trong tháng 10), cao hơn ~11% so TB Q3; crack xăng Singapore suy yếu (QCI 21/10). Brent 116,72 USD (23/10) cao nhất từ 29/4, có lợi lãi tồn kho nhưng tăng giá vốn.",
+     "r": "pos",
+     "sigs": [
+      20
+     ],
+     "cls": "A"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Cầu xăng dầu nội địa tăng, BSR bán E10 RON95 toàn quốc từ 05/2026 (lũy kế ~400.000 m³ đến 9/2026), triển khai B5 từ 08/2026. Khách hàng chính là các đầu mối xăng dầu trong nước; chưa có số thị phần cập nhật. Thiếu hụt sản phẩm toàn cầu do rủi ro Hormuz hỗ trợ đầu ra.",
-     "r": "pos"
+     "sig": "Cầu xăng dầu trong nước tăng; E10 RON95 bán toàn quốc từ 05/2026 (~400.000 m³ đến 9/2026), B5 từ 08/2026. Khan hiếm sản phẩm khu vực do rủi ro Hormuz/Houthi hỗ trợ đầu ra. Chưa có số thị phần cập nhật.",
+     "r": "pos",
+     "sigs": [
+      30
+     ],
+     "cls": "B"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "Free float ~7,87% dưới chuẩn 10%; PVN dự kiến bán tối thiểu 2,13% vốn qua đấu giá công khai trước 11/03/2027, định giá xong trước 31/12/2026, tìm đối tác chiến lược gắn nguồn dầu thô (CafeF 16/10/2026). ĐHĐCĐ 04/2026 miễn nhiệm 1 TV HĐQT độc lập. Chưa thấy vi phạm/xử phạt; chưa đọc ý kiến kiểm toán 2025.",
-     "r": "mix"
+     "sig": "Free float ~7,87% dưới chuẩn 10%; PVN bán tối thiểu 2,13% qua đấu giá công khai trước 11/03/2027, định giá xong trước 31/12/2026, tìm đối tác chiến lược gắn nguồn dầu thô (Vietcap 16/10). ĐHĐCĐ 2026 đổi tên, miễn nhiệm 1 TV HĐQT độc lập. Chưa thấy xử phạt hay ý kiến kiểm toán ngoại trừ.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "PVN chi phối ~92%. Khối ngoại bán ròng 9,22 tỷ phiên gần nhất (repo fn, 1 ngày). Không có đăng ký giao dịch nội bộ gần đây (lần cuối 2019). Cổ tức 2025 chỉ 300 đ/CP (3%) theo ĐHĐCĐ 04/2026, thấp so LN. Đợt bán 2,13% của PVN có thể tạo nguồn cung mới đầu 2027.",
-     "r": "mix"
+     "sig": "PVN chi phối ~92%. Khối ngoại bán ròng 9,22 tỷ phiên gần nhất (fn, 1 ngày). Không có giao dịch nội bộ gần đây (lần cuối 2019). Cổ tức 2025 chỉ 3% tiền, thấp so LN. Đợt bán ≥2,13% của PVN tạo nguồn cung mới đầu 2027.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Giá 29.050 (23/10/2026): +25,8% 3 tháng, +71,3% 12 tháng; vượt VN-Index +20,5 điểm % (3T) và +67,1 điểm % (12T); nhưng cách đỉnh 52 tuần −25,8%, giảm từ 32.500 (29/09); tỷ lệ dòng tiền vào 20 phiên 0,38, KL tương đối 0,71 → điều chỉnh, dòng tiền yếu. Thanh khoản ~301 tỷ/phiên.",
-     "r": "mix"
+     "sig": "Giá 29.050 (23/10/2026): +25,8% 3T, +71,3% 12T; vượt VN-Index +20,5 điểm % (3T), +67,1 (12T); cách đỉnh 52 tuần −25,8%; dòng tiền vào 20 phiên 0,38; KL tương đối 0,71 → đang điều chỉnh, dòng tiền yếu. Thanh khoản ~301 tỷ/phiên.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Brent Q3/2026 TB cao hơn 33% YoY; crack spread neo cao do gián đoạn Hormuz, giảm công suất lọc Trung Đông/Nga. Đây là đỉnh chu kỳ: BSR dự báo crack 2027 giảm ~28% khi Hormuz ổn định; lịch sử 2014–2019 TB chỉ 9,9 USD/thùng.",
-     "r": "mix"
+     "sig": "Crack spread neo cao do gián đoạn Hormuz, Houthi tấn công hạ tầng Ả Rập Xê Út (23/10), Brent +~6% tuần. Đây là đỉnh chu kỳ: BSR dự báo crack 2027 ~23 USD (−28%); Yuanta dự báo crack TB 2026–2029 ~22 USD, 2026 đỉnh 33 USD. EIA dự báo Brent Q4 TB 105 USD.",
+     "r": "mix",
+     "sigs": [
+      57
+     ],
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "15/10/2026 BSR họp NĐT công bố ước 9T lãi 22.900 tỷ và lộ trình thoái vốn; trước đó MBS dự báo LN Q3 4.573 tỷ (Báo Pháp luật 30/09/2026) → ước thực tế 6.900 tỷ vượt dự báo. Tác động: LN 2026 kỷ lục, nhưng 2027 có TA6 và crack giảm.",
-     "r": "pos"
+     "sig": "15/10/2026 họp NĐT công bố ước 9T lãi 22.900 tỷ; ước Q3 6.900 tỷ vượt dự báo MBS 4.573 tỷ. Yuanta (10/2026) dự báo LNST 2026 32.600 tỷ (~5x 2025), 2027 ~14.700 tỷ. Lưu ý ước sơ bộ Q1/Q2 trước đây thấp hơn thực tế (3.300 vs 8.300; 4.400 vs 7.700).",
+     "r": "pos",
+     "sigs": [
+      61,
+      66
+     ],
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "LN gắn với lãi tồn kho khi giá dầu tăng (tồn kho 31/03/2026 21.574 tỷ, +70%, không trích lập); dầu Q3 giảm ~7 USD/thùng có thể đảo chiều. Tiền gửi ngắn hạn 47.116 tỷ (30/06/2026) tạo lãi tiền gửi H1 1.055 tỷ — phần LN tài chính không từ lọc dầu. Ước Q3 là số sơ bộ, chưa kiểm toán.",
-     "r": "mix"
+     "sig": "H1/2026 lãi tiền gửi 1.055 tỷ (tiền gửi kỳ hạn 47.116 tỷ, 30/06) — LN tài chính ngoài lọc dầu. LN gắn lãi tồn kho khi dầu tăng (tồn kho 31/03 21.574 tỷ, +70%). CFO H1 6.831 tỷ chỉ ~43% LNST 15.727 tỷ. Q2 LNST lệch: 7.666 tỷ (24hMoney) vs 7.461 tỷ (Nhadautu).",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "E10 RON95 thương mại từ 05/2026; SMFO đạt ISCC PLUS 01/2026; B5 từ 08/2026; SAF đã sản xuất lô thử, chuẩn bị nhà máy SAF 100.000–150.000 tấn/năm (~2030); nghiên cứu diesel tái tạo đồng xử lý LCO-HDT; nâng tỷ trọng hóa dầu (PP) sau nâng cấp. Đóng góp LN ngắn hạn chưa định lượng.",
-     "r": "pos"
+     "sig": "E10 RON95 thương mại toàn quốc từ 05/2026; B5 từ 08/2026; SMFO đạt ISCC PLUS 01/2026; SAF đã sản xuất lô thử, chuẩn bị nhà máy SAF 100–150 nghìn tấn/năm (~2030); nâng Nelson 6,6→8,1 sau nâng cấp. Đóng góp LN ngắn hạn chưa định lượng.",
+     "r": "pos",
+     "sigs": [
+      72,
+      75,
+      76
+     ],
+     "cls": "B"
     }
    ],
-   "summary": "Điểm mạnh: lợi nhuận 9T/2026 ước 22.900 tỷ kỷ lục nhờ crack spread cao, nhà máy chạy ~124% công suất, tiền mặt/tiền gửi rất lớn và dự án nâng cấp đã ký EPC. Rủi ro chính: lợi nhuận đỉnh chu kỳ phụ thuộc crack spread/Hormuz, lãi tồn kho có thể đảo chiều, bảo dưỡng TA6 và crack dự báo giảm ~28% năm 2027, PVN bán ≥2,13% tạo cung. Theo dõi BCTC Q3 chính thức (biên gộp, tồn kho, dự phòng), tiến độ thoái vốn trước 11/03/2027.",
+   "summary": "BSR đang ở đỉnh chu kỳ lợi nhuận: ước Q3/2026 LNST 6.900 tỷ (gấp 7,7 lần) và biên diesel tháng 10 còn cao hơn Q3, nên Q4/2026 nhiều khả năng vẫn tăng mạnh YoY so nền 3.062 tỷ. Tuy nhiên LN QoQ đã chững, CFO chỉ ~43% LNST, một phần LN từ tồn kho và tiền gửi, và crack dự báo giảm mạnh năm 2027 kèm bảo dưỡng TA6; tăng trưởng chỉ bền khi crack giữ trên ~30 USD/thùng.",
    "src": [
     {
-     "t": "CafeF 16/10/2026 - BSR ước lãi 9 tháng cao kỷ lục, hé lộ kế hoạch thoái vốn Nhà nước",
+     "t": "Vietnambiz 16/10/2026 - BSR báo lãi kỷ lục, hé lộ tiến độ thoái vốn Nhà nước",
+     "u": "https://vietnambiz.vn/bsr-bao-lai-ky-luc-he-lo-tien-do-thoai-von-nha-nuoc-202610168168594.htm"
+    },
+    {
+     "t": "24hMoney 16/10/2026 - BSR báo lãi 9 tháng cao kỷ lục",
+     "u": "https://24hmoney.vn/news/bsr-bao-lai-9-thang-cao-ky-luc-c1a2845503.html"
+    },
+    {
+     "t": "CafeF 16/10/2026 - BSR ước lãi 9 tháng cao kỷ lục, hé lộ kế hoạch thoái vốn",
      "u": "https://cafef.vn/bsr-uoc-lai-9-thang-cao-ky-luc-he-lo-ke-hoach-thoai-von-nha-nuoc-188261016092540928.chn"
     },
     {
-     "t": "Báo Pháp luật 17/10/2026 - BSR củng cố nội lực, mở rộng không gian tăng trưởng",
-     "u": "https://baophapluat.vn/bsr-cung-co-noi-luc-mo-rong-khong-gian-tang-truong.html"
+     "t": "VnEconomy/Baomoi 25/10/2026 - Đã có 465 doanh nghiệp công bố lợi nhuận quý 3/2026",
+     "u": "https://baomoi.com/da-co-465-doanh-nghiep-cong-bo-loi-nhuan-quy-3-2026-tang-truong-32-7-dau-khi-dan-dau-c56347553.epi"
     },
     {
-     "t": "Nông nghiệp Môi trường 30/07/2026 - BSR lập kỷ lục doanh thu, sản lượng nửa đầu năm 2026",
-     "u": "https://nongnghiepmoitruong.vn/bsr-lap-ky-luc-doanh-thu-san-luong-nua-dau-nam-2026-d823275.html"
+     "t": "Nhà đầu tư 31/07/2026 - BSR lãi kỷ lục, nắm hơn 47.000 tỷ đồng tiền gửi",
+     "u": "https://nhadautu.vn/bsr-lai-ky-luc-nam-hon-47000-ty-dong-tien-gui-ngan-hang-d106695.html"
+    },
+    {
+     "t": "24hMoney - BSR báo cáo tài chính",
+     "u": "https://24hmoney.vn/stock/BSR/financial-report"
+    },
+    {
+     "t": "Doanh nhân Báo Pháp luật - BSR dự báo lợi nhuận lập đỉnh 32.600 tỷ (Yuanta)",
+     "u": "https://doanhnhan.baophapluat.vn/loc-hoa-dau-binh-son-bsr-du-bao-loi-nhuan-lap-dinh-32-600-ty-dong-nho-chu-ky-crack-spread-va-dong-luc-dai-han-tu-du-an-dung-quat.html"
     },
     {
      "t": "Doanh nhân Báo Pháp luật 30/09/2026 - BSR lợi nhuận quý ba dự kiến vượt 4.500 tỷ",
      "u": "https://doanhnhan.baophapluat.vn/loc-hoa-dau-binh-son-bsr-tang-gia-gap-doi-tu-dau-nam-loi-nhuan-quy-ba-du-kien-vuot-4-500-ty-dong.html"
     },
     {
-     "t": "Vietnambiz - BSR báo lãi kỷ lục, hé lộ tiến độ thoái vốn Nhà nước",
-     "u": "https://vietnambiz.vn/bsr-bao-lai-ky-luc-he-lo-tien-do-thoai-von-nha-nuoc-202610168168594.htm"
+     "t": "Nông nghiệp Môi trường 30/07/2026 - BSR lập kỷ lục doanh thu, sản lượng nửa đầu năm 2026",
+     "u": "https://nongnghiepmoitruong.vn/bsr-lap-ky-luc-doanh-thu-san-luong-nua-dau-nam-2026-d823275.html"
     },
     {
-     "t": "Người Quan sát - BSR hé lộ KQKD quý III/2026",
-     "u": "https://nguoiquansat.vn/bsr-he-lo-ket-qua-kinh-doanh-quy-iii-2026-doanh-thu-dat-59-900-ty-dong-loi-nhuan-tang-670-322246.html"
+     "t": "rallies.ai 21/10/2026 - Asia distillates: diesel margin up slightly",
+     "u": "https://rallies.ai/news/asia-distillates-diesel-margin-up-slightly-though-market-structure-eases-705c469e3706b3e0"
+    },
+    {
+     "t": "FinanceFeeds 24/10/2026 - Brent crude settles at $116.72",
+     "u": "https://financefeeds.com/brent-crude-oil-price-116-72-saturday-week-ahead-houthi-saudi-fed-28-october-bull-120-bear-108/"
+    },
+    {
+     "t": "QCI 21/10/2026 - East of Suez: Dubai at monthly high, Singapore mogas crack slips",
+     "u": "https://www.qcintel.com/article/east-of-suez-dubai-at-monthly-high-singapore-mogas-crack-slips-75648.html"
     }
-   ]
+   ],
+   "score": 5.5,
+   "calc": {
+    "A": 4.0,
+    "B": 1.5,
+    "C": 1.0,
+    "R": 1.0
+   },
+   "main": [
+    "01",
+    "02"
+   ],
+   "check": {
+    "ok": 7,
+    "conflict": 1,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "no",
+      "note": "Có phần LN không cốt lõi/không lặp lại: lãi tồn kho khi dầu tăng và lãi tiền gửi 1.055 tỷ H1/2026; chưa tách được quy mô lãi tồn kho."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "yes",
+      "note": "Biên diesel châu Á ~70 USD/thùng (21/10) so 62,9 TB Q3 (+~11%); Brent 116,72 (23/10) tăng ~6% tuần. Crack xăng yếu đi."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "yes",
+      "note": "DT Q3 +70% khớp Brent +33% YoY và sản lượng +5%; LN tăng khớp crack diesel 2,2x YoY."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "yes",
+      "note": "YoY: biên gộp Q2 15,0% so ~2,8% Q2/2025; QoQ biên giảm từ 20,7% (Q1) và LN Q3 ước −9%."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "no",
+      "note": "Crack đỉnh chu kỳ do Hormuz; BSR/Yuanta dự báo crack 2027 giảm 28–40%, LN 2027 ~14.700 tỷ; TA6 2027."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "yes",
+      "note": "2 nhóm chính (Tài chính, Sản xuất) đủ ≥3 tín hiệu tích cực có số liệu."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "CFO H1 chỉ ~43% LNST; Brent cao làm tăng vốn lưu động; rủi ro lỗ tồn kho nếu dầu đảo chiều; nguồn cung CP từ PVN."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Crack spread diesel/gasoil Singapore (và giá dầu Brent)",
+    "now": "Biên diesel châu Á ~70 USD/thùng; Brent 116,72 USD/thùng",
+    "date": "21/10/2026 (diesel); 23/10/2026 (Brent)",
+    "base": "TB Q3/2026 crack diesel Platts Singapore 62,9 USD/thùng; Brent ~107 USD đầu 10/2026",
+    "chg": "Crack diesel +~11% so TB Q3; Brent +~9% so đầu tháng 10",
+    "impact": "Crack diesel cao hơn Q3 hỗ trợ biên gộp Q4; Brent tăng tạo lãi tồn kho ngắn hạn nhưng tăng nhu cầu vốn lưu động; crack xăng giảm là điểm trừ.",
+    "src": "rallies.ai/USO 21/10/2026; FinanceFeeds 24/10/2026; Vietnambiz (Vietcap) 16/10/2026"
+   },
+   "oneoff": "Lãi tồn kho khi giá dầu tăng (chưa định lượng) và lãi tiền gửi ~1.055 tỷ H1/2026 cần loại khỏi động lực cốt lõi.",
+   "risk": "Crack spread đỉnh chu kỳ do gián đoạn Hormuz có thể hạ nhanh (dự báo 2027 −28%), kèm lỗ tồn kho nếu dầu đảo chiều và CFO thấp hơn nhiều so LN.",
+   "driver": "Crack spread diesel/Jet A1 cao gấp 2,2–2,3 lần cùng kỳ cùng nhà máy chạy >120% công suất đẩy LN 9T/2026 lên ~22.900 tỷ."
   },
   "CTG": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "Repo: LNST Q2/2026 11.740 tỷ (+21,4% so Q2/2025 9.670 tỷ), doanh thu 26.385 tỷ (+26%). 6T/2026 (Baodautu 14/8): LNTT 25,9 nghìn tỷ (+36,7%), tín dụng +5% YTD, NIM 2,86%, nợ xấu 1,2% (nhích so cuối 2025), bao phủ 134%, CASA 23,5%. Chưa thấy KQKD Q3/2026 công bố tính đến 25/10.",
-     "r": "pos"
+     "sig": "Q2/2026 LNTT 14.729 tỷ (+21,8% YoY), 6T/2026 LNTT 25.868 tỷ (+36,7%); thu nhập lãi thuần 6T 40.116 tỷ (+28,1%), tổng thu nhập hoạt động Q2 khoảng 26.385 tỷ (+26,1%). Repo: LNST Q2 11.740 tỷ (+21,4%), ROE 6T trên 22%. KQKD Q3/2026 chưa công bố tính đến 26/10.",
+     "r": "pos",
+     "sigs": [
+      1,
+      2,
+      5
+     ],
+     "cls": "A"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "Vietcap (Mekong ASEAN 24/9/2026) dự báo CIR 2026 giảm còn 28,9% từ 30,4%; 6T/2026 tổng thu nhập hoạt động 51,5 nghìn tỷ (+24,5%), ROE 22,02%. Tổng tài sản 2.962 nghìn tỷ (+7% YTD), tức đã chạm kế hoạch tăng 5–10% cả năm. Không có số liệu mạng lưới.",
-     "r": "pos"
+     "sig": "CIR 6T/2026 giảm còn 24,5% (cùng kỳ 27,5%); chi phí hoạt động Q2 chỉ +8,7% trong khi PPOP Q2 20.029 tỷ (+32,9%). Tổng tài sản gần 2,96 triệu tỷ (+7% YTD, 30/6/2026). Không có dữ liệu mạng lưới mới.",
+     "r": "pos",
+     "sigs": [
+      18
+     ],
+     "cls": "A"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "NIM hồi phục 4 quý liên tiếp lên 2,86% (Q2/2026), nhưng chi phí huy động tăng: Vietcap nâng dự báo chi phí vốn 2026 lên 3,80% từ 3,60% (6T đạt 3,70%). Chi phí dự phòng 6T 13 nghìn tỷ (+17,3%); Vietcap nâng dự phòng 2026 lên 21.531 tỷ.",
-     "r": "mix"
+     "sig": "NIM Q2/2026 2,88% (+35 bps YoY), 6T 2,86%; nhưng chi phí lãi Q2 tăng 37,6%, nhanh hơn thu nhập lãi (+34,5%). Vietcap (24/9) nâng dự báo chi phí vốn 2026 lên 3,80% từ 3,60%, NIM 2,85%. LS huy động 12T tại quầy CTG 5,9% (20/10/2026).",
+     "r": "mix",
+     "sigs": [
+      20
+     ],
+     "cls": "B"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Dư nợ 2.093 nghìn tỷ cuối Q2/2026, +5% YTD (DN +9%), tiền gửi 1.891 nghìn tỷ (+5,4%, FDI +7,4%). Vietcap dự báo tín dụng 2026 chỉ +12% (2025: 15,7%), thấp hơn toàn ngành; 35 dự án hạ tầng trọng điểm chưa đưa vào dự báo.",
-     "r": "mix"
+     "sig": "Cho vay KH trên 2,05 triệu tỷ, +5,2% YTD (30/6), 7T +5,6%; trong khi tín dụng toàn ngành 9T khoảng +12% (TNCK 16/10): mất thị phần tương đối. Tiền gửi gần 1,89 triệu tỷ (+5,4%), CASA 23,5%. Khoản hợp vốn sân bay Long Thành khoảng 450 triệu USD chưa giải ngân.",
+     "r": "mix",
+     "sigs": [
+      30
+     ],
+     "cls": "B"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "NHNN nắm 54,46%, MUFG 19,73% (Mekong ASEAN 3/4/2026). ĐHĐCĐ 2026 trình chia cổ tức cổ phiếu từ hơn 16.200 tỷ LN còn lại, cùng tăng vốn từ LN 2023–2024 đang chờ phê duyệt; vốn có thể vượt 105.000 tỷ, pha loãng đáng kể về số CP. Không thấy xử phạt/ý kiến ngoại trừ kiểm toán.",
-     "r": "mix"
+     "sig": "Đã chia cổ tức CP 44,64% (chốt 10/2025), vốn lên 77.671 tỷ: pha loãng số CP, không tạo giá trị. Phân tích 25/10 ghi nhận kế hoạch chia tiếp cổ tức CP từ khoảng 16.200 tỷ LN để lại (chưa kiểm chứng lại trong phiên này). Không thấy xử phạt hay ý kiến kiểm toán ngoại trừ.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "Repo: không có đăng ký giao dịch nội bộ gần đây (gần nhất: người liên quan Mai Xuân Hiền bán 130.200 CP, 9–10/2025). Khối ngoại mua ròng 55,38 tỷ phiên gần nhất (fd=1). Cổ tức chủ yếu bằng cổ phiếu; tiền mặt repo FY2025 2.416,5 tỷ.",
-     "r": "mix"
+     "sig": "Repo: không có đăng ký giao dịch nội bộ trong 90 ngày (gần nhất người liên quan bán 130.200 CP, 9–10/2025). Khối ngoại mua ròng 55,38 tỷ phiên 23/10 (chỉ 1 ngày dữ liệu). Cổ tức tiền mặt 2025 ở mức 4,5% (450 đ/CP).",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Repo 23/10/2026: giá 30.950, +6,5% 3T nhưng −9,95% 6T, −12,9% 12T; kém VN-Index 15 điểm % trong 12T (x12 −0,15), cách đỉnh 52 tuần −27,8%. Tỷ lệ dòng tiền vào 20 phiên 0,549, KL tương đối 1,13. Xu hướng trung hạn còn giảm, mới hồi ngắn hạn; không có số MA50/MA200.",
-     "r": "neg"
+     "sig": "Repo 23/10/2026: giá 30.950 đ, +6,5% 3T (hơn VN-Index 2 điểm %) nhưng −10,0% 6T, −12,9% 12T (kém VN-Index 15 điểm %), cách đỉnh 52 tuần −27,8%. Tỷ lệ dòng tiền vào 20 phiên 0,549, KL tương đối 1,13: hồi ngắn hạn trong xu hướng giảm trung hạn.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Đầu 2026 room tín dụng giao CTG khoảng 11,1%, kỳ vọng được nới lên 15,5% (VDSC, 3/2026). Cuối Q3/2026 chi phí huy động toàn ngành đi lên; nhiều NH vẫn báo LN 9T tăng mạnh (VPBank, Techcombank, LPBank, tin 10/2026). Ngành thuận lợi nhưng áp lực chi phí vốn.",
-     "r": "mix"
+     "sig": "NHNN yêu cầu NH giảm LS huy động kỳ hạn từ 6T trở lên tối thiểu 0,5 điểm %; Agribank, Vietcombank áp dụng từ 20/10/2026. LS cho vay bình quân T9/2026 8,4–10,9% (T8: 8,4–10,7%). Tín dụng ngành 9T khoảng +12%; NH quốc doanh được dự báo NII Q3 +22,1%.",
+     "r": "pos",
+     "sigs": [
+      30,
+      54
+     ],
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "Tháng 8/2026: VietinBank cho biết đã xong thủ tục pháp lý chuyển nhượng VietinBank Tower cho một chủ đầu tư BĐS trong nước, dự kiến ký HĐ trong tháng 8 (Tuoi Tre 17/8). VPBankS dự báo LNST Q3/2026 khoảng 10.226 tỷ (+20,1%) (CafeF 7/10). Theo dõi KQ Q3 sắp công bố.",
-     "r": "pos"
+     "sig": "SSI (Dân trí 30/9) dự báo LN Q3/2026 khoảng 13.500 tỷ (+27%); Vietcap (24/9) giữ khuyến nghị Mua, giá mục tiêu 48.800 đ, dự báo LNST cổ đông mẹ 2026 41.595 tỷ (+20,2%). Đây là dự báo, chưa phải số thực hiện.",
+     "r": "pos",
+     "sigs": [
+      61
+     ],
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "VietinBank Tower: vốn đầu tư khoảng 10.267 tỷ, giá bán không thấp hơn giá trị đầu tư; Rồng Việt ước lãi một lần khoảng 5.000 tỷ (ước tính năm 2025), có thể ghi nhận Q3–Q4/2026: LN bất thường cần loại trừ. Thu hồi nợ đã XLRR 6T khoảng 4,4 nghìn tỷ (+10,7%), góp phần vào LN.",
-     "r": "pos"
+     "sig": "Bán VietinBank Tower: chi phí XDCB khoảng 5.720 tỷ (30/6/2026), dự kiến ký HĐ tháng 8/2026, giá không thấp hơn giá trị đầu tư; chưa thấy công bố ký kết hay mức lãi (Vietcap chưa đưa vào dự báo). Thu hồi nợ đã XLRR 6T khoảng 4.400 tỷ (44% KH 10.000 tỷ): one-off cần loại trừ.",
+     "r": "mix",
+     "sigs": [
+      71
+     ],
+     "cls": "B"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "6T/2026 có hơn 100 sáng kiến chương trình X01, trên 75 đã vận hành; iPay–eFAST nằm trong 6 dự án trọng điểm nửa cuối 2026 (Baodautu 14/8). Chưa có số liệu khách hàng số/đóng góp doanh thu.",
-     "r": "mix"
+     "sig": "Truyền thông 8/2026 nhấn mạnh chuyển đổi số (chương trình sáng kiến số, iPay/eFAST) nhưng chưa có số liệu khách hàng số hay đóng góp doanh thu đã kiểm chứng. Phí dịch vụ ròng Q2 2.269 tỷ (+58,2%), chủ yếu từ tài trợ thương mại.",
+     "r": "mix",
+     "cls": "C"
     }
    ],
-   "summary": "Điểm mạnh: LN 6T/2026 +36,7%, NIM hồi phục lên 2,86%, ROE trên 22%, có thể có thêm lãi một lần từ VietinBank Tower. Rủi ro: tín dụng tăng chậm hơn ngành, chi phí vốn và dự phòng tăng, nợ xấu nhích lên 1,2% với bao phủ 134%, giá vẫn trong xu hướng giảm 12T. Cần theo dõi KQ Q3/2026, cách ghi nhận khoản lãi Tower và tiến độ chia cổ tức cổ phiếu.",
+   "summary": "CTG có động lực cốt lõi rõ ở nhóm Tài chính: LNTT 6T/2026 +36,7%, NIM tăng lên 2,88%, CIR giảm còn 24,5%; dự báo Q3 của SSI là +27% nhưng KQKD thực tế chưa công bố. Tăng trưởng chỉ tập trung ở biên lãi, trong khi tín dụng tăng chậm, nợ nhóm 3–4 tăng mạnh và một phần LN có thể đến từ thu nợ đã xử lý hoặc bán VietinBank Tower. Điểm 4/10 chỉ nên nâng lên nếu BCTC Q3 xác nhận NIM giữ trên 2,8% và nợ xấu không tăng tiếp.",
    "src": [
     {
-     "t": "VietinBank 6 tháng đầu năm 2026 (Baodautu)",
-     "u": "https://amp.baodautu.vn/vietinbank-6-thang-dau-nam-2026-lam-chu-nang-luc-chuyen-doi-so-giu-da-tang-truong-ben-vung-d672443.html"
+     "t": "VietinBank (CTG) tăng dự phòng 78% vẫn lãi gần 15.000 tỷ đồng trong quý II (Người Quan sát)",
+     "u": "https://nguoiquansat.vn/vietinbank-ctg-tang-du-phong-78-van-lai-gan-15-000-ty-dong-trong-quy-ii-307477.html"
     },
     {
-     "t": "VietinBank được dự báo cải thiện biên lãi dù tăng trưởng tín dụng chậm lại (Mekong ASEAN)",
+     "t": "VietinBank được dự báo cải thiện biên lãi dù tăng trưởng tín dụng chậm lại (Mekong ASEAN, Vietcap 24/9)",
      "u": "https://mekongasean.vn/vietinbank-duoc-du-bao-cai-thien-bien-lai-du-tang-truong-tin-dung-cham-lai-59942.html"
     },
     {
-     "t": "VietinBank được kỳ vọng lãi tăng hai chữ số, thêm khoản thu từ VietinBank Tower",
-     "u": "https://mekongasean.vn/vietinbank-duoc-ky-vong-lai-tang-hai-chu-so-them-khoan-thu-tu-vietinbank-tower-57048.html"
+     "t": "Vietcap: VietinBank bán tòa tháp tại Ciputra (CafeF 15/8)",
+     "u": "https://cafef.vn/vietcap-vietinbank-ban-toa-thap-tai-ciputra-cho-mot-chu-dau-tu-bat-dong-san-hang-dau-viet-nam-188260815102040191.chn"
     },
     {
-     "t": "VietinBank dự kiến dùng hơn 16.200 tỷ đồng lợi nhuận để chia cổ tức",
-     "u": "https://mekongasean.vn/vietinbank-du-kien-dung-hon-16200-ty-dong-loi-nhuan-de-chia-co-tuc-53526.html"
+     "t": "Tổ hợp VietinBank Tower tìm thấy chủ mới, VietinBank siết chi phí vốn nửa cuối năm (Dân Việt 17/8)",
+     "u": "https://etime.danviet.vn/to-hop-vietinbank-tower-tim-thay-chu-moi-vietinbank-siet-chi-phi-von-nua-cuoi-nam-d1452009.html"
     },
     {
-     "t": "VietinBank Tower to change hands after 16 years in limbo (Tuoi Tre News)",
-     "u": "https://news.tuoitre.vn/vietnams-vietinbank-tower-to-change-hands-after-16-years-in-limbo-103260817223139803.htm"
+     "t": "Lợi nhuận ngân hàng quý III dự báo tăng mạnh (Dân trí 30/9)",
+     "u": "https://dantri.com.vn/kinh-doanh/loi-nhuan-ngan-hang-quy-iii-du-bao-tang-manh-nhung-cai-ten-gay-chu-y-20260930091604793.htm"
     },
     {
-     "t": "Dự báo lợi nhuận ngân hàng quý 3/2026 (CafeF)",
-     "u": "https://cafef.vn/du-bao-loi-nhuan-ngan-hang-quy-3-2026-se-co-bat-ngo-lon-vietcombank-vietinbank-mb-techcombank-vpbank-hdbank-188261006215558298.chn"
+     "t": "Lợi nhuận ngân hàng quý III vẫn sáng (Tin nhanh chứng khoán 16/10)",
+     "u": "https://www.tinnhanhchungkhoan.vn/loi-nhuan-ngan-hang-quy-iii-van-sang-post399230.html"
     },
     {
-     "t": "VietinBank CTG tiến tới mốc lợi nhuận 56.100 tỷ đồng (VDSC)",
-     "u": "https://doanhnhan.baophapluat.vn/vietinbank-ctg-tien-toi-moc-loi-nhuan-56-100-ty-dong-chot-thoi-han-ban-dut-du-an-tru-so.html"
+     "t": "Số liệu lãi suất tháng 9/2026: cho vay bình quân 8,4–10,9% (Nhịp sống kinh doanh)",
+     "u": "https://nhipsongkinhdoanh.vn/so-lieu-lai-suat-thang-9-2026--lai-suat-cho-vay-binh-quan-tang-tu-8-4-len-10-9--nam-34352.htm"
     },
     {
-     "t": "Lợi nhuận ngân hàng 9 tháng khởi sắc (VietnamPlus)",
-     "u": "https://www.vietnamplus.vn/loi-nhuan-ngan-hang-9-thang-khoi-sac-nhieu-nha-bang-bao-lai-lon-post1143367.vnp"
+     "t": "Lãi suất tiết kiệm ngày 20/10 tại Agribank, Vietcombank, VietinBank và BIDV (CafeF)",
+     "u": "https://cafef.vn/lai-suat-tiet-kiem-ngay-20-10-tai-agribank-vietcombank-vietinbank-va-bidv-chenh-lech-lon-o-ky-han-12-24-thang-188261020210034116.chn"
+    },
+    {
+     "t": "Một ngân hàng Big4 vừa giảm lãi suất sáng, chiều tăng trở lại (CafeBiz 20/10)",
+     "u": "https://cafebiz.vn/mot-ngan-hang-big4-vua-giam-lai-suat-sang-chieu-tang-tro-lai-176261020153052606.chn"
+    },
+    {
+     "t": "VietinBank triển khai chia cổ tức tỷ lệ 44,64% (Nhà đầu tư)",
+     "u": "https://nhadautu.vn/vietinbank-trien-khai-chia-co-tuc-ty-le-4464-d99808.html"
+    },
+    {
+     "t": "VietinBank 6 tháng đầu năm 2026: làm chủ năng lực chuyển đổi số (Tiền Phong)",
+     "u": "https://tienphong.vn/vietinbank-6-thang-dau-nam-2026-lam-chu-nang-luc-chuyen-doi-so-giu-da-tang-truong-ben-vung-post1867998.tpo"
+    },
+    {
+     "t": "Trưa 26/10: 10 ngân hàng báo lãi hơn 96.000 tỷ đồng (CafeBiz)",
+     "u": "https://cafebiz.vn/trua-26-10-10-ngan-hang-bao-lai-hon-96000-ty-dong-xuat-hien-nha-bang-dau-tien-sut-giam-loi-nhuan-176261026113042219.chn"
     }
-   ]
+   ],
+   "score": 4.0,
+   "calc": {
+    "A": 2.0,
+    "B": 2.0,
+    "C": 1.0,
+    "R": 1.0
+   },
+   "main": [
+    "01"
+   ],
+   "check": {
+    "ok": 6,
+    "conflict": 1,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "no",
+      "note": "Có: thu hồi nợ đã XLRR khoảng 4.400 tỷ trong 6T, lãi bán VietinBank Tower chưa định lượng có thể ghi nhận Q3–Q4/2026."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "yes",
+      "note": "NIM Q2/2026 2,88%, +35 bps YoY; trần LS cho vay bình quân ngành T9 tăng 0,2 điểm %; NHNN yêu cầu giảm LS huy động từ 20/10 có lợi cho chi phí vốn."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "yes",
+      "note": "NIM tăng khớp với thu nhập lãi thuần 6T +28,1% dù tín dụng chỉ +5,2%."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "yes",
+      "note": "Biên lãi và CIR cải thiện rõ; riêng thị phần tín dụng giảm tương đối (+5,2% so ngành khoảng 12% 9T)."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "na",
+      "note": "Chưa có KQKD Q3 để xác nhận; nợ nhóm 3 tăng hơn 3 lần, nhóm 4 từ 578 lên 4.464 tỷ trong 6T, dự phòng Q2 +78%."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "no",
+      "note": "Chỉ nhóm Tài chính đạt chuẩn TREND chính; các nhóm khác thiếu tín hiệu hoặc chỉ ở cấp ngành."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "Rủi ro chất lượng tài sản (nợ xấu 1,2%, nợ nhóm 3–4 tăng mạnh), chi phí vốn tăng, pha loãng EPS do cổ tức CP."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Lãi suất cho vay/NIM (biên lãi ròng)",
+    "now": "LS cho vay bình quân NHTM 8,4–10,9%/năm (T9/2026); NIM CTG Q2/2026 2,88%; LS huy động 12T tại quầy CTG 5,9%/năm (20/10/2026)",
+    "date": "T9/2026 (LS cho vay ngành), Q2/2026 (NIM), 20/10/2026 (LS huy động)",
+    "base": "LS cho vay T8/2026 8,4–10,7%/năm; NIM Q2/2025 khoảng 2,53%",
+    "chg": "Trần LS cho vay +0,2 điểm % (+1,9%); NIM +35 bps (+13,8%)",
+    "impact": "NIM tăng đẩy thu nhập lãi thuần 6T +28,1%; chi phí vốn tăng (Vietcap dự báo 3,80%) được bù một phần bởi chỉ đạo giảm LS huy động từ 20/10/2026.",
+    "src": "NHNN qua Nhịp sống kinh doanh; Người Quan sát 31/7/2026; CafeF 20/10/2026"
+   },
+   "oneoff": "Thu hồi nợ đã XLRR khoảng 4.400 tỷ (6T/2026) và khoản lãi bán VietinBank Tower chưa định lượng, có thể ghi nhận Q3–Q4/2026.",
+   "risk": "Nợ nhóm 3–4 tăng mạnh trong 6T (nhóm 4 từ 578 lên 4.464 tỷ) kéo chi phí dự phòng tăng (Q2 +78%), trong khi tín dụng chỉ tăng khoảng 5% so với ngành khoảng 12%.",
+   "driver": "Thu nhập lãi thuần tăng nhờ NIM mở rộng 4 quý liên tiếp và CIR giảm, bù cho tín dụng tăng chậm."
   },
   "FPT": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "9T/2026 (CBTT 21/10): DT 40.023 tỷ (+12,4%), LNTT 8.770 tỷ (+17%), LNST mẹ 7.778 tỷ (+13,3%), EPS 4.142đ. Suy ra Q3: LNST mẹ ~2.723 tỷ, LNTT ~3.056 tỷ (~+15% YoY). Q2 (repo) LNST +13,7%. Đạt 75% KH LNTT 11.629 tỷ. DT quý repo 2026 thấp hơn 2025 do FPT Telecom chuyển sang PP vốn chủ sở hữu, không phải suy giảm thật.",
-     "r": "pos"
+     "sig": "9T/2026 (CBTT 21/10): DT 40.023 tỷ (+12,4%), LNTT 8.770 tỷ (+17%), LNST mẹ 7.778 tỷ (+13,3%). Q3 (9T−6T): DT ~13.754 tỷ (+12%), LNTT ~3.056 tỷ (+15%), LNST mẹ ~2.723 tỷ (+11,8%, hụt ~2% dự báo CTCK). CFO 2025 10.136 tỷ > LNST 9.376 tỷ; cổ tức tiền 2026 tới 20%.",
+     "r": "pos",
+     "sigs": [
+      1,
+      2,
+      4,
+      9
+     ],
+     "cls": "A"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "Khối Công nghệ 9T/2026: DT 35.515 tỷ (+14,8%), LNTT 5.052 tỷ (+16,6%), chiếm 89% DT. CNTT trong nước DT 6.977 tỷ (+29,8%), LNTT 542 tỷ (+108,5%). Capex 2025 (repo) 5.098 tỷ, tăng từ 3.275 tỷ (2024), gắn đầu tư AI Factory/hạ tầng.",
-     "r": "pos"
+     "sig": "CNTT trong nước 9T: DT 6.977 tỷ (+29,8%), LNTT 542 tỷ (+108,5%). Ký mới nước ngoài Q3 ~9.799 tỷ chỉ +3,7% YoY (9T +23,1%, H1 +32,3%); tỷ lệ ký mới/DT Q3 ~1,02 lần vs 1,39 H1 (Elibook 22/10). Không có số backlog tuyệt đối.",
+     "r": "mix",
+     "sigs": [
+      13
+     ],
+     "cls": "B"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Biên LNTT 9T/2026 ~21,9% (tự tính), LNTT tăng nhanh hơn DT (17% vs 12,4%). Nhật Bản tăng 25,2% theo JPY nhưng chỉ 17,2% theo VND, cho thấy tỷ giá yên bất lợi. Nợ vay (repo) tăng 14.947→21.073 tỷ (2024→2025). Thiếu số liệu biên gộp Q3 và chi phí nhân sự.",
-     "r": "mix"
+     "sig": "Biên LNTT Q3 ~22,2% vs ~21,6% Q3/2025 (tự tính). DT Nhật 9T +25,2% theo JPY nhưng +17,2% theo VND → yên mất ~6,4% so VND YoY. JPY/VND Vietcombank bán 169,24 (25/10) ≈ 169,26 (1/8/2026), đi ngang 3 tháng; USD/VND trung tâm 25.627 (24/10).",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Ký mới CNTT nước ngoài 9T/2026 36.137 tỷ (~1,4 tỷ USD, +23,1%), 16 dự án >10 triệu USD; H1 ký mới +32%. DT CNTT nước ngoài 28.538 tỷ (+11,6%), Nhật Bản +17,2%. Ký mới tăng nhanh hơn DT báo hiệu backlog tốt; thiếu số liệu riêng Mỹ/Châu Âu/APAC.",
-     "r": "pos"
+     "sig": "Ký mới CNTT nước ngoài 9T/2026 36.137 tỷ (+23,1%), thắng 16 dự án >10 triệu USD (H1: 14). DT CNTT nước ngoài 9T 28.538 tỷ (+11,6%), Q3 ước chỉ +8% (H1 +13,4%). Thiếu số liệu Mỹ/EU/APAC.",
+     "r": "mix",
+     "sigs": [
+      26,
+      30
+     ],
+     "cls": "A"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "HĐQT 19/05/2026 duyệt phát hành >10,8 triệu cp ESOP giá 10.000đ (~0,63%), lãnh đạo FPT IS nhận 792.000 và 764.000 cp; ĐHĐCĐ 2026 duyệt thêm ESOP tới 0,5%/năm 2027–2029 (hạn chế 3 năm). Pha loãng nhỏ nhưng giá ưu đãi sâu. Thay TV HĐQT phía Sumitomo (Yokotsuka→Nambu). Chưa thấy vi phạm/ý kiến kiểm toán ngoại trừ.",
-     "r": "mix"
+     "sig": "HĐQT 19/5/2026 duyệt ESOP >10,8 triệu cp giá 10.000đ (~0,63%), thấp xa thị giá ~57.000đ → pha loãng cổ đông nhỏ; ĐHĐCĐ duyệt thêm ESOP tới 0,5%/năm 2027–2029. Chưa thấy vi phạm/ý kiến kiểm toán ngoại trừ.",
+     "r": "mix",
+     "sigs": [
+      38
+     ],
+     "cls": "B"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "Khối ngoại bán ròng ~16.800 tỷ từ đầu 2026 đến 24/7 (cao nhất thị trường), room trống ~22%; phiên 23/10 bán ròng 146,4 tỷ (repo). Các 'mua' nội bộ 24/06/2026 (repo) là nhận ESOP. Cổ tức: tiền 10% (Q2/2026, ~1.700 tỷ), thưởng cp 10:1 dự kiến Q3/2026, cổ tức tiền 2026 tới 20%.",
-     "r": "neg"
+     "sig": "Thưởng CP 10:1 (~171,4 triệu cp, chốt 22/9/2026; vốn 17.143→18.858 tỷ) – trung lập. SCIC đăng ký mua 0,75–2 triệu cp/đợt (1–5/2026). 'Mua' nội bộ 6/2026 là nhận ESOP. Khối ngoại bán ròng 146,4 tỷ phiên 23/10 (repo), FPT nhiều lần dẫn đầu bán ròng 2026.",
+     "r": "neg",
+     "sigs": [
+      47
+     ],
+     "cls": "B"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Giá 57.000đ (23/10/2026): -3,1% 3 tháng, -39,7% 9 tháng, -27,1% 12 tháng; kém VN-Index -7,2% (3T) và -28,9% (12T); cách đỉnh 52 tuần -41,5%. Dòng tiền vào chỉ 22% số phiên/20 phiên, KL tương đối 1,25. Xu hướng giảm dài hạn, chưa vượt nền; thiếu số MA50/MA200.",
-     "r": "neg"
+     "sig": "Giá 57.000đ (23/10/2026): -3,1% 3T, -14,8% 6T, -27,1% 12T; kém VN-Index -7,2 điểm % (3T), -28,9 (12T); cách đỉnh 52 tuần -41,5%; dòng tiền vào 22% số phiên/20 phiên; KL tương đối 1,25. Chưa có tín hiệu vượt nền.",
+     "r": "neg",
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Nhu cầu chuyển đổi số/AI toàn cầu tăng (AI/Data của FPT +55%), nhưng ngành outsourcing CNTT bị lo ngại AI tạo sinh thay thế dịch vụ truyền thống; đồng yên yếu làm giảm DT quy đổi. Dòng vốn ngoại rút khỏi VN gây áp lực lên cổ phiếu vốn hóa lớn như FPT.",
-     "r": "mix"
+     "sig": "Nhu cầu AI/chuyển đổi số tăng nhưng lo ngại AI tạo sinh giảm khối lượng outsourcing (Vietcap cắt 15% LNTT CNTT nước ngoài 2026–2031, hạ P/E mục tiêu 17x→15x). Yên phục hồi lên ~156 JPY/USD (đỉnh 5 tuần, 23–25/10) – nhẹ thuận lợi nếu kéo dài.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "21/10/2026 công bố KQKD 9T tăng 13–17%, giá đứng 57.400đ (-39% từ đầu năm). Tháng 7/2026 truyền thông nêu FPT mất ~4,4 tỷ USD vốn hóa, thấp nhất 3 năm. ĐHĐCĐ 16/4/2026 đặt KH LNTT +15% và chiến lược AI 2026–2028. Tin tức KQKD tích cực nhưng chưa đảo chiều tâm lý.",
-     "r": "mix"
+     "sig": "Sau KQ 9T: Vietcap Mua 77.800đ (16/10), SSI Khả quan 79.100đ, BSC Mua 80.600đ, VCBS 75.900đ; bình quân ~78.350đ (+36% so giá 21/10). Nhưng nhiều CTCK hạ dự phóng; KBSV loại FPT khỏi danh mục Q4.",
+     "r": "mix",
+     "sigs": [
+      61
+     ],
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "Từ 2026 FPT Telecom hạch toán theo PP vốn chủ sở hữu (2025 trình bày lại): DT giảm cơ học nhưng LN vẫn ghi nhận theo tỷ lệ sở hữu. Khối Giáo dục, Đầu tư & Khác: DT 4.508 tỷ (-3,1%) nhưng LNTT 3.719 tỷ (+17,6%), chủ yếu từ công ty liên kết (42% LNTT tập đoàn). CFO 2025 (repo) 10.136 tỷ > LNST 9.376 tỷ.",
-     "r": "mix"
+     "sig": "Từ 2026 FPT Telecom hạch toán theo PP vốn chủ sở hữu (2025 trình bày lại) → DT giảm cơ học. Khối Giáo dục, Đầu tư & Khác: DT 4.508 tỷ (-3,1%) nhưng LNTT 3.719 tỷ (+17,6%), ~42% LNTT tập đoàn, chủ yếu từ công ty liên kết – định kỳ, không phải one-off.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "9T/2026: DT AI/Data Analytics 2.915 tỷ (+55%), sản phẩm Made-by-FPT 2.284 tỷ (+19,9%), chuyển đổi số nước ngoài 14.411 tỷ (+16,3%). Chiến lược 2026–2028 ưu tiên AI Factory (hợp tác Nvidia) và mục tiêu đào tạo 10.000 nhân sự bán dẫn đến 2030.",
-     "r": "pos"
+     "sig": "9T/2026: AI/Data Analytics 2.915 tỷ (+55%; Q3 ước +57%), Made-by-FPT 2.284 tỷ (+19,9%), chuyển đổi số nước ngoài 14.411 tỷ (+16,3%). Đầu tư AI Factory: capex 2025 5.098 tỷ (2024: 3.275 tỷ, repo); chiến lược AI 2026–2028.",
+     "r": "pos",
+     "sigs": [
+      72,
+      75,
+      76
+     ],
+     "cls": "A"
     }
    ],
-   "summary": "Điểm mạnh: LN 9T/2026 tăng 13–17%, ký mới nước ngoài +23% với 16 hợp đồng lớn, AI/Data +55%, dòng tiền tốt. Rủi ro chính: khối ngoại bán ròng kỷ lục, giá cách đỉnh 52 tuần -41%, lo ngại AI tác động outsourcing, tỷ giá yên và tỷ trọng LN lớn từ công ty liên kết. Cần theo dõi việc chuyển hóa ký mới thành DT Q4, dòng vốn ngoại và tác động của thay đổi hợp nhất FPT Telecom khi so sánh số liệu.",
+   "summary": "LN 9T/2026 tăng đều 13–17% với biên cải thiện nhẹ và mảng AI tăng 55%, nhưng Q3 cho thấy giảm tốc rõ ở ký mới (+3,7%) và DT CNTT nước ngoài (~+8%), trong khi yên yếu YoY và khối ngoại bán ròng. Xu hướng tăng trưởng chỉ ở mức vừa; cần ký mới Q4 phục hồi để xác nhận động lực 2027.",
    "src": [
     {
-     "t": "FPT lãi hơn 2.700 tỷ trong quý 3, tiếp tục lập kỷ lục mới (CafeF)",
+     "t": "CafeF - FPT công bố KQKD 9 tháng, một mảng tăng trưởng tới 55%",
+     "u": "https://cafef.vn/fpt-cong-bo-ket-qua-kinh-doanh-9-thang-mot-mang-tang-truong-toi-55-188261021083848638.chn"
+    },
+    {
+     "t": "CafeF - FPT lãi hơn 2.700 tỷ trong quý 3",
      "u": "https://cafef.vn/fpt-lai-hon-2700-ty-trong-quy-3-tiep-tuc-lap-ky-luc-moi-188261021093213162.chn"
     },
     {
-     "t": "FPT báo lãi 8.770 tỷ, thắng thầu 16 dự án lớn (VnEconomy)",
+     "t": "VnEconomy - FPT báo lãi 8.770 tỷ, thắng thầu 16 dự án lớn",
      "u": "https://vneconomy.vn/fpt-bao-lai-8770-ty-thang-thau-16-du-an-lon.htm"
     },
     {
-     "t": "FPT lãi gần 8.800 tỷ đồng sau 9 tháng, mảng AI tăng trưởng 55%",
-     "u": "https://mekongasean.vn/fpt-lai-gan-8800-ty-dong-sau-9-thang-mang-ai-tang-truong-55-60925.html"
+     "t": "Elibook - FPT: Quý 3 trượt dự báo 2%, cỗ máy ký hợp đồng bất ngờ hụt hơi",
+     "u": "https://elibook.vn/2026/10/22/fpt-quy-3-truot-du-bao-2-co-may-ky-hop-dong-bat-ngo-hut-hoi/"
     },
     {
-     "t": "FPT đã đánh mất 4,4 tỷ USD giá trị ra sao? (VietnamFinance)",
-     "u": "https://vietnamfinance.vn/fpt-da-danh-mat-44-ty-usd-gia-tri-ra-sao-d148137.html"
+     "t": "Thị trường Tài chính Tiền tệ - FPT báo lãi tăng hơn 18% sau 6 tháng",
+     "u": "https://thitruongtaichinhtiente.vn/fpt-bao-lai-tang-hon-18-sau-6-thang-dau-nam-84315.html"
     },
     {
-     "t": "FPT phát hành 10,8 triệu cổ phiếu ESOP giá 10.000 đồng, chi 1.700 tỷ trả cổ tức",
+     "t": "CafeF - FPT chốt ngày phát hành hơn 171 triệu cổ phiếu thưởng",
+     "u": "https://cafef.vn/fpt-chot-ngay-phat-hanh-hon-171-trieu-co-phieu-thuong-1882609102017279.chn"
+    },
+    {
+     "t": "Doanh nhân - FPT phát hành 10,8 triệu cổ phiếu ESOP giá 10.000 đồng",
      "u": "https://doanhnhan.baophapluat.vn/fpt-phat-hanh-10-8-trieu-co-phieu-esop-gia-10-000-dong-chi-1-700-ty-tra-co-tuc.html"
     },
     {
-     "t": "FPT trình phương án chia cổ tức và thưởng cổ phiếu khi thị giá giảm 43,5% từ đỉnh",
-     "u": "https://doanhnhan.baophapluat.vn/fpt-trinh-phuong-an-chia-co-tuc-va-thuong-co-phieu-thi-gia-giam-43-5-tu-dinh.html"
+     "t": "Doanh nhân - Công ty con của SCIC gom cổ phiếu FPT",
+     "u": "https://doanhnhan.baophapluat.vn/cong-ty-con-cua-scic-gom-co-phieu-fpt-truoc-them-chot-quyen-chia-thuong-10-1-va-co-tuc-20.html"
+    },
+    {
+     "t": "Doanh nghiệp Hội nhập - Tỷ giá Yên Nhật 25/10/2026",
+     "u": "https://doanhnghiephoinhap.vn/ty-gia-yen-nhat-hom-nay-25102026-yen-nhat-tuan-qua-but-pha-len-dinh-152374.html"
+    },
+    {
+     "t": "VTC News - 1 Yên Nhật hôm nay 1/8/2026",
+     "u": "https://vtcnews.vn/1-yen-nhat-hom-nay-1-8-2026-doi-duoc-bao-nhieu-tien-viet-nam-ar1032119.html"
+    },
+    {
+     "t": "DN Kinh tế Xanh - Tỷ giá USD hôm nay 24/10/2026",
+     "u": "https://doanhnghiepkinhtexanh.vn/ty-gia-usd-hom-nay-24102026-ty-gia-trung-tam-giam-5-dong-a54996.html"
     }
-   ]
+   ],
+   "score": 5.0,
+   "calc": {
+    "A": 4.0,
+    "B": 1.0,
+    "C": 0.5,
+    "R": 0.5
+   },
+   "main": [
+    "01",
+    "11"
+   ],
+   "check": {
+    "ok": 7,
+    "conflict": 1,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "yes",
+      "note": "Không phát hiện one-off; LN từ công ty liên kết (FPT Telecom…) là định kỳ nhưng chiếm tỷ trọng lớn."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "no",
+      "note": "Yên yếu ~6,4% so VND YoY làm giảm ~8 điểm % tăng trưởng DT Nhật; 3 tháng gần nhất JPY/VND đi ngang."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "yes",
+      "note": "CafeF ghi LNST mẹ Q3 '2.273 tỷ' là lỗi đánh máy; 9T−6T = 2.723 tỷ, khớp tiêu đề và Elibook. BSC dùng ký mới 9T +28,2% vs FPT +23,1% (khác phạm vi)."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "yes",
+      "note": "Biên LNTT Q3 ~22,2% vs ~21,6%; DT +12% YoY trên cơ sở so sánh đã điều chỉnh."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "no",
+      "note": "Ký mới Q3 chỉ +3,7% YoY, DT CNTT nước ngoài Q3 ~+8% – tăng trưởng đang chậm lại; Q4 cần +19–22% để đạt dự phóng."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "yes",
+      "note": "T01 (4 tín hiệu) và T11 (3 tín hiệu) tích cực, có số liệu xác minh."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "Có: tỷ giá yên, AI thay thế outsourcing, khối ngoại bán ròng, ESOP giá 10.000đ pha loãng nhẹ."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Dịch vụ CNTT xuất khẩu (proxy: tỷ giá JPY/VND, USD/VND)",
+    "now": "JPY/VND Vietcombank bán 169,24 đ/JPY; USD/VND trung tâm 25.627 đ",
+    "date": "25/10/2026 (JPY); 24/10/2026 (USD)",
+    "base": "JPY/VND bán 169,26 (01/08/2026); YoY 9T: yên mất ~6,4% so VND (25,2% vs 17,2%)",
+    "chg": "~0% (3 tháng); ~-6,4% YoY (yên)",
+    "impact": "Yên yếu YoY bào mòn DT quy đổi thị trường Nhật (~8 điểm % tăng trưởng 9T); 3 tháng gần đây đi ngang nên áp lực Q4 giảm bớt.",
+    "src": "Doanh nghiệp Hội nhập 25/10/2026; VTC News 1/8/2026; DN Kinh tế Xanh 24/10/2026; VnEconomy 21/10/2026"
+   },
+   "oneoff": "Không phát hiện",
+   "risk": "Ký mới nước ngoài chững lại mạnh trong Q3/2026 (+3,7% YoY) cùng lo ngại AI thay thế outsourcing có thể làm chậm DT 2027.",
+   "driver": "Khối Công nghệ (CNTT nước ngoài, chuyển đổi số, AI/Data +55%) tăng LNTT ~16–17%/năm cùng biên LNTT cải thiện nhẹ."
   },
   "HAH": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "Theo repo, Q3/2026 LNST 328,5 tỷ (+8% so 304,1 tỷ Q3/2025), DT 1.419 tỷ (+5,3%); thấp hơn dự báo 339 tỷ của MBS (24hMoney 25/9). 1H/2026 DT 2.798 tỷ (+14,5%), LNST ~818 tỷ (+19%). CFO 1H 986,7 tỷ; FY2025 CFO 1.807 tỷ > LN 1.207 tỷ. Chưa thấy bài báo công bố Q3 để đối chiếu.",
-     "r": "pos"
+     "sig": "Q3/2026 (BCTC công bố 26/10): DT 1.419,3 tỷ (+5,3% YoY, -7,4% QoQ); LNST cty mẹ 328,5 tỷ (+8% YoY, -11,7% QoQ); hợp nhất ~366 tỷ (+3,7%). 9T: LNST hợp nhất 1.183,6 tỷ (+13,7%), đạt 94,7% KH 1.250 tỷ. CFO 9T >1.620 tỷ (+11,3%). ROE 2025 ~31% (2024 ~22%); nợ vay/VCSH ~0,40 (30/9) từ 0,71 (2024). Chi phí tài chính -3,9%.",
+     "r": "pos",
+     "sigs": [
+      2,
+      4,
+      5,
+      6
+     ],
+     "cls": "B"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "Đội tàu 20 chiếc/33.070 TEU (+13,1%) giữa 2026, tàu chạy 90–95% công suất tuyến nội địa, nội Á (SSV 13/8/2026). Sản lượng qua cảng Q2 giảm 10% vì chuyển hàng sang Nam Hải Đình Vũ. Đã đặt 4 tàu 3.000 TEU và 2 tàu 7.100 TEU (2027–2028); ngày 23/10/2026 thông qua thêm 2 tàu tối đa 70 triệu USD, giao 10–11/2029.",
-     "r": "pos"
+     "sig": "Đội tàu 20 chiếc/33.070 TEU (+13,1%) giữa 2026, tàu chạy 90–95% công suất (SSV 8/2026). DT khai thác tàu Q3 1.066 tỷ (+5,8%), DT cảng 99,1 tỷ (+19,5%). Đã trả trước 1.603 tỷ cho nhà máy đóng tàu (gồm 907,2 tỷ cho Dalian) tại 30/9/2026; 23/10 duyệt thêm 2 tàu tối đa 70 triệu USD (giao 2029).",
+     "r": "pos",
+     "sigs": [
+      11,
+      14
+     ],
+     "cls": "B"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Biên gộp FY2025 38,6% (1.965/5.091 tỷ), cao hơn 31,7% năm 2024 (repo). Giá thuê tàu khoảng 2 lần mức hòa vốn (DN Hội nhập 10/6/2026), có phụ phí nhiên liệu EBS. Ban lãnh đạo dự báo cước 2026 giảm ~5%, giá thuê giảm ~10%. Chi phí nhiên liệu là rủi ro (MBS).",
-     "r": "mix"
+     "sig": "ConTex 2.500 TEU 12 tháng 38.316 USD/ngày (01/10/2026): +11,3% YoY, +2,2% MoM; ConTex 1.651 điểm (+7,6% YoY, +0,1% WoW, 'không còn xu hướng tăng'). Nhưng chi phí nhiên liệu Q3 +17% lên 310 tỷ; biên gộp toàn DN 35,5% (Q3/2025: 36,8%); biên gộp mảng tàu 40,3% (39,9%).",
+     "r": "mix",
+     "sigs": [
+      20
+     ],
+     "cls": "B"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Khách thuê/đối tác gồm Maersk, COSCO, Hapag-Lloyd, MSC, HMM; đang mở rộng với ZIM, ONE (2026). HAH chiếm ~30% vận tải container nội địa bằng đường biển. Q3/2026 gia hạn hợp đồng thuê với cước thuận lợi và chuyển 1 tàu sang cho thuê (MBS, 9/2026).",
-     "r": "pos"
+     "sig": "Khách thuê/đối tác gồm Maersk, COSCO, Hapag-Lloyd, MSC, HMM; mở rộng hợp tác ZIM, ONE (2026, SSV). Q3/2026 gia hạn hợp đồng thuê tàu với giá thuận lợi (MBS 9/2026, qua phân tích trước). HAH chiếm ~30% vận tải container nội địa đường biển. DT đại lý, vận tải bộ, depot giảm trong Q3.",
+     "r": "pos",
+     "sigs": [
+      26,
+      28,
+      33
+     ],
+     "cls": "B"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "Cam kết vốn mua tàu chưa giải ngân 6.585 tỷ tại 30/6/2026 (+64% so cuối 2025). Nợ vay và thuê tài chính 2.661 tỷ (+460 tỷ). ĐHĐCĐ 2026 duyệt phát hành 1.883,4 tỷ trái phiếu kèm chứng quyền (rủi ro pha loãng). Góp 85% vốn tàu YZJ2025-1745 (1.083,7 tỷ) qua công ty liên quan Hải An Container. Chưa thấy vi phạm.",
-     "r": "mix"
+     "sig": "ESOP 3,5 triệu cp (6/2026; đợt 2025 từng đề xuất giá chiết khấu 82,6%) và ~17 triệu cp chuyển đổi trái phiếu (3/2026) gây pha loãng; ĐHĐCĐ 2026 duyệt 1.883,4 tỷ trái phiếu kèm chứng quyền. Vốn hợp tác kinh doanh 259,8 tỷ + lãi dồn tích 119,9 tỷ; góp 245,2 tỷ vào liên kết Hải An Green (lãi 2 tỷ).",
+     "r": "neg",
+     "sigs": [
+      38
+     ],
+     "cls": "B"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "VietinBank Capital mua ~10,4 triệu cp (30/7) và 15 triệu cp (23/9/2026), lên 33 triệu cp (17,2%). Gelex mua thêm lên 5,16% (21/8) rồi bán hết 9,7 triệu cp (~475 tỷ) ngày 23/9. 3 lãnh đạo mỗi người mua 7.660 cp (7/2026). Repo: 6 đăng ký mua/1 bán trong 90 ngày. Nhóm VSC giữ 22,3%.",
-     "r": "mix"
+     "sig": "VietinBank Capital mua 15 triệu cp (~706,6 tỷ, 9/2026) và thêm 2 triệu cp (10/2026), lên ~17,2%. Gelex bán toàn bộ 9,7 triệu cp (23/9). Lãnh đạo mua lượng nhỏ (mỗi người 7.660 cp, 7/2026). Repo: 6 đăng ký mua/1 bán 90 ngày; khối ngoại +1,73 tỷ (1 phiên).",
+     "r": "mix",
+     "sigs": [
+      42
+     ],
+     "cls": "B"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Giá 51.300đ (23/10/2026): +14% 3 tháng, hơn VN-Index 9,2 điểm %, nhưng -3,95% 12 tháng (kém 6,3 điểm %), vẫn cách đỉnh 52 tuần 25,5%. Vượt nền 18 phiên trước; dòng tiền vào 48,3% (20 phiên); KL tương đối 0,5. Chưa có MA50/MA200.",
-     "r": "mix"
+     "sig": "Giá 51.300đ (23/10/2026): +14% 3 tháng (hơn VN-Index 9,2 điểm %), -3,95% 12 tháng, cách đỉnh 52 tuần -25,5%. Vượt nền 18 phiên trước nhưng KL tương đối 0,5, dòng tiền vào 48,3% (20 phiên). Thiếu dữ liệu MA50/MA200.",
+     "r": "mix",
+     "sigs": [
+      48
+     ],
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Theo SSV (8/2026), cung tàu container thuê đang chặt, nhu cầu thuê vượt cung, bất ổn eo Hormuz giữ lại một phần năng lực và hỗ trợ cước. Ban lãnh đạo HAH lại lo dư cung tàu mới kéo dài tới ~2029. Ngành có tính chu kỳ cao.",
-     "r": "mix"
+     "sig": "ConTex đi ngang ở mức cao (+0,1% WoW, +1,1% MoM tới 01/10/2026). Ban lãnh đạo HAH lo dư cung tàu mới tới ~2029; giá dầu tăng (9/2026) đẩy chi phí nhiên liệu. Ngành có tính chu kỳ cao; không tìm được SCFI/cước nội Á mới nhất để kiểm chứng.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "3 tháng gần nhất: Gelex thoái vốn (24/9), VietinBank Capital gom 17,2% (4/10), HAH góp thêm 225 tỷ cho 3 tàu mới (1/10), duyệt đóng 2 tàu 70 triệu USD (23/10/2026). Mới đóng góp vào LN từ 2029; trước đó chủ yếu làm tăng capex và nợ.",
-     "r": "mix"
+     "sig": "Tin 10/2026: BCTC Q3 (26/10) LN cty mẹ +8% nhưng hợp nhất chỉ +3,7%, biên gộp thu hẹp; HSC dự báo FCF 2026 âm ~1.961 tỷ, âm tới 2028 (qua Elibook). Duyệt đóng thêm 2 tàu (23/10). VietinBank Capital tiếp tục gom.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "SSV ghi LNST Q2/2026 là 467 tỷ, 1H 818 tỷ; repo ghi Q2 372,1 tỷ, 1H 672 tỷ (có thể là LN của cổ đông công ty mẹ, phần lệch do cổ đông thiểu số). Chưa thấy LN bất thường Q3/2026; quý 3/2025 nhóm tàu biển từng có lãi thanh lý tàu (Vietstock 11/2025). Chưa có dữ liệu so giá trị sổ sách với giá thị trường đội tàu.",
-     "r": "na"
+     "sig": "Không phát hiện lãi thanh lý tàu hay đánh giá lại trong Q3/2026 theo báo cáo đã đọc. LN cổ đông thiểu số giảm từ 95 tỷ (Q2) còn 37,5 tỷ (Q3). Lãi liên doanh, liên kết 14,2 tỷ (gấp đôi). Khấu hao 9T 473,3 tỷ — sẽ tăng khi nhận tàu mới.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "Tập trung tàu feeder 1.800–3.000 TEU cho các cảng trung chuyển (Cái Mép, Singapore, Đông Bắc Á). Đóng thêm tàu 7.100 TEU (giao 2028) để lên phân khúc lớn hơn. Chưa có thông tin R&D hay công nghệ riêng.",
-     "r": "mix"
+     "sig": "Tập trung tàu feeder 1.800–3.000 TEU; đã đặt 4 tàu 3.000 TEU và 2 tàu 7.100 TEU (giao 2027–2028) để lên phân khúc lớn hơn; liên kết Hải An Green Shipping Lines. Chưa có thông tin R&D/công nghệ riêng.",
+     "r": "mix",
+     "sigs": [
+      76
+     ],
+     "cls": "C"
     }
    ],
-   "summary": "Điểm mạnh: LN Q3/2026 vẫn tăng 8% so cùng kỳ (repo), giá thuê tàu cao, khách hàng là các hãng tàu lớn và VietinBank Capital đang gom. Rủi ro: lượng tàu đặt rất lớn (cam kết 6.585 tỷ, trái phiếu kèm chứng quyền 1.883 tỷ) đúng lúc dư cung tàu được dự báo tới 2029, và Gelex đã thoái vốn. Cần theo dõi: BCTC Q3 chính thức, giá thuê tàu và tiến độ phát hành trái phiếu.",
+   "summary": "HAH vẫn tăng trưởng nhưng chậm lại: Q3/2026 LNST cty mẹ +8% YoY nhưng giảm 11,7% QoQ, biên gộp thu hẹp do nhiên liệu, dù giá thuê tàu vẫn cao hơn cùng kỳ ~11%. Nếu giá thuê giữ mức hiện tại và đội tàu mới vào khai thác đúng hạn, Q4/2026 có thể tăng nhẹ so nền 307,6 tỷ; ngược lại dư cung tàu và chu kỳ capex lớn là rủi ro chính.",
    "src": [
     {
-     "t": "Hải An: Nhóm cổ đông lớn ‘xáo trộn’ giữa cuộc đua mở rộng đội tàu",
-     "u": "https://mekongasean.vn/hai-an-nhom-co-dong-lon-xao-tron-giua-cuoc-dua-mo-rong-doi-tau-60152.html"
+     "t": "Xếp dỡ Hải An lãi ròng gần 366 tỷ đồng trong quý III/2026, biên lợi nhuận gộp thu hẹp",
+     "u": "https://antt.nguoiduatin.vn/xep-do-hai-an-lai-rong-gan-366-ty-dong-trong-quy-iii-2026-bien-loi-nhuan-gop-thu-hep-205261026094043367.htm"
     },
     {
-     "t": "SSV HAH Update Q2 2026",
-     "u": "https://shinhansec.com.vn/uploads/report/SSV_HAH_Update_Q2_2026_VN.pdf"
+     "t": "HAH: lãi 1,000 tỷ đồng, đặt cọc 907 tỷ đồng cho những con tàu chưa hạ thủy",
+     "u": "https://elibook.vn/2026/10/26/hah-lai-1000-ty-dong-dat-coc-907-ty-dong-cho-nhung-con-tau-chua-ha-thuy/"
     },
     {
-     "t": "Quý III/2026: 3 doanh nghiệp cảng biển được dự báo lãi to",
-     "u": "https://24hmoney.vn/news/quy-iii-2026-3-doanh-nghiep-cang-bien-duoc-du-bao-lai-to-c1a2836602.html"
+     "t": "Hải An (HAH) báo lãi 1.183,59 tỷ đồng trong 9 tháng đầu năm 2026",
+     "u": "https://www.tinnhanhchungkhoan.vn/hai-an-hah-bao-lai-118359-ty-dong-trong-9-thang-dau-nam-2026-post400219.html"
+    },
+    {
+     "t": "New ConTex Commentary 2026 week 40",
+     "u": "https://www.hellenicshippingnews.com/wp-content/uploads/2026/10/New-Contex-Commentary-2026-week-40.pdf"
     },
     {
      "t": "Hải An (HAH) muốn đóng thêm 2 tàu container tối đa 70 triệu USD",
      "u": "https://www.tinnhanhchungkhoan.vn/hai-an-hah-muon-dong-them-2-tau-container-voi-tong-von-dau-tu-toi-da-70-trieu-usd-post400048.html"
     },
     {
+     "t": "VietinBank Capital bỏ ra khoảng 706,59 tỷ đồng để mua thêm 15 triệu cổ phiếu HAH",
+     "u": "https://www.tinnhanhchungkhoan.vn/vietinbank-capital-bo-ra-khoang-70659-ty-dong-de-mua-them-15-trieu-co-phieu-hai-an-hah-post398325.html"
+    },
+    {
+     "t": "VietinBank Capital mua thêm 2 triệu cổ phiếu Hải An (HAH)",
+     "u": "https://www.tinnhanhchungkhoan.vn/vietinbank-capital-mua-them-2-trieu-co-phieu-hai-an-hah-post398750.html"
+    },
+    {
+     "t": "GELEX (GEX) đã bán toàn bộ hơn 9,7 triệu cổ phiếu HAH",
+     "u": "https://www.tinnhanhchungkhoan.vn/gelex-gex-da-ban-toan-bo-hon-97-trieu-co-phieu-hah-post398223.html"
+    },
+    {
+     "t": "Hải An (HAH) sắp phát hành 3,5 triệu cổ phiếu ESOP",
+     "u": "https://www.tinnhanhchungkhoan.vn/hai-an-hah-sap-phat-hanh-35-trieu-co-phieu-esop-post392504.html"
+    },
+    {
+     "t": "Hải An (HAH) muốn phát hành gần 17 triệu cổ phiếu để chuyển đổi trái phiếu",
+     "u": "https://www.tinnhanhchungkhoan.vn/hai-an-hah-muon-phat-hanh-gan-17-trieu-co-phieu-de-chuyen-doi-trai-phieu-post386673.html"
+    },
+    {
      "t": "Hải An (HAH) muốn huy động 1.883,4 tỷ đồng trái phiếu",
      "u": "https://www.tinnhanhchungkhoan.vn/hai-an-hah-muon-huy-dong-18834-ty-dong-trai-phieu-post390656.html"
     },
     {
-     "t": "Xếp dỡ Hải An duy trì lợi thế nhờ giá thuê tàu cao",
-     "u": "https://doanhnghiephoinhap.vn/xep-do-hai-an-duy-tri-loi-the-nho-gia-thue-tau-cao-chuan-bi-cho-chu-ky-canh-tranh-moi-139460.html"
-    },
-    {
-     "t": "Gelex bán toàn bộ 9,7 triệu cổ phiếu HAH",
-     "u": "https://doanhnhan.baophapluat.vn/gelex-gex-ban-toan-bo-9-7-trieu-co-phieu-hah-thu-ve-gan-475-ty-dong.html"
-    },
-    {
-     "t": "HAH: Tin tức liên quan",
-     "u": "https://24hmoney.vn/stock/hah/news"
+     "t": "SSV HAH Update Q2 2026",
+     "u": "https://shinhansec.com.vn/uploads/report/SSV_HAH_Update_Q2_2026_VN.pdf"
     }
-   ]
+   ],
+   "score": 5.0,
+   "calc": {
+    "A": 4.0,
+    "B": 1.5,
+    "C": 0.5,
+    "R": 1.0
+   },
+   "main": [
+    "01",
+    "04"
+   ],
+   "check": {
+    "ok": 6,
+    "conflict": 0,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "yes",
+      "note": "Không phát hiện lãi thanh lý tàu/đánh giá lại trong Q3/2026; lãi liên kết 14,2 tỷ là nhỏ (~4% LNST hợp nhất)."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "yes",
+      "note": "Giá thuê tàu ConTex 2.500 TEU 12T +11,3% YoY, +2,2% MoM (01/10/2026); ConTex tổng +7,6% YoY nhưng đi ngang tuần."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "yes",
+      "note": "Tương đối nhất quán: DT mảng tàu +5,8%, biên gộp mảng tàu 40,3% (+0,4 điểm); phần tăng giá thuê bị bù trừ bởi nhiên liệu +17%."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "no",
+      "note": "Biên gộp toàn DN giảm 36,8%→35,5%; DT và LN Q3 giảm QoQ (-7,4% và -11,7%); DT đại lý/vận tải bộ giảm."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "na",
+      "note": "Đội tàu tăng hỗ trợ sản lượng, nhưng chưa đủ dữ liệu giá thuê khi tái ký 2027 trong bối cảnh dư cung tàu mới đến 2029."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "yes",
+      "note": "TREND 01 (4 tín hiệu) và 04 (3 tín hiệu) đạt điều kiện, nhưng đều cls B."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "Có: FCF dự báo âm tới 2028 (HSC), nợ vay 2.599 tỷ (+18%), cam kết đóng tàu lớn, giá nhiên liệu, pha loãng ESOP/trái phiếu chuyển đổi."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Giá thuê tàu container (New ConTex, tàu 2.500 TEU kỳ hạn 12 tháng)",
+    "now": "38.316 USD/ngày (ConTex tổng 1.651 điểm)",
+    "date": "01/10/2026 (số mới nhất tìm được)",
+    "base": "02/10/2025: 34.420 USD/ngày; 01/09/2026: 37.482 USD/ngày",
+    "chg": "+11,3% YoY; +2,2% MoM",
+    "impact": "Hỗ trợ giá tái ký hợp đồng cho thuê tàu và DT mảng tàu (+5,8% Q3), nhưng nhiên liệu +17% làm biên gộp chung giảm; đà tăng đã chững lại",
+    "src": "VHBS New ConTex Commentary 2026 week 40 (hellenicshippingnews.com)"
+   },
+   "oneoff": "Không phát hiện trong Q3/2026; lưu ý LN cổ đông thiểu số biến động mạnh (95 tỷ Q2 → 37,5 tỷ Q3) làm lệch LN hợp nhất và cty mẹ.",
+   "risk": "Chu kỳ dư cung tàu container tới 2029 trùng lúc HAH cam kết đầu tư tàu lớn (FCF dự báo âm tới 2028, nợ vay +18%) và có pha loãng từ ESOP/trái phiếu chuyển đổi.",
+   "driver": "Mở rộng đội tàu (33.070 TEU, +13%) cho các hãng tàu lớn thuê với giá thuê tàu cao hơn cùng kỳ ~11%."
   },
   "HDB": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "Q2/2026: LNTT 7.095 tỷ (+51% YoY), 6T 13.202 tỷ (+31%, 44% KH 30.100 tỷ); repo LNST Q2 5.555 tỷ (+58% YoY). Nhưng TN lãi thuần Q2 -0,7% YoY (24hMoney), nợ xấu 2,79% (cuối 2025: 2,44%), nợ nhóm 2 ~4,7%, bao phủ ~50% (khớp repo). Chưa thấy KQKD Q3/2026 công bố tới 25/10; MBS dự báo LNTT Q3 7.500 tỷ (+58,7%).",
-     "r": "mix"
+     "sig": "LNTT Q2/2026 7.095 tỷ (+51% YoY, +16% QoQ), 6T 13.202 tỷ (+31%, 44% KH 30.100 tỷ); LNST Q2 5.555 tỷ (+58%, repo). Nhưng tổng TN hoạt động 6T chỉ +8,8%, TN lãi thuần Q2 chỉ tăng nhẹ YoY (SHS 3/9). ROE 25,4%, ROA 2,17% (6T). Đến 26/10/2026 chưa tìm thấy BCTC Q3/2026.",
+     "r": "mix",
+     "sigs": [
+      2
+     ],
+     "cls": "A"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "CIR Q2/2026 ~24%, thuộc nhóm thấp nhất ngành; ROE trượt 4 quý 24,5% (SHS 3/9/2026). Vikki Bank (tái cấu trúc từ DongA Bank) có lãi sau 7 tháng, >2,5 triệu KH. Thiếu số liệu mạng lưới chi nhánh.",
-     "r": "pos"
+     "sig": "CIR 6T/2026 24,9% (VietNamNet 1/8), thuộc nhóm thấp ngành; tổng tài sản 1,045 triệu tỷ (+12,3% YTD); LDR 72%, LCR/NSFR >100%. Chưa xác minh lại số liệu Vikki Bank/mạng lưới trong lần này.",
+     "r": "pos",
+     "sigs": [
+      18
+     ],
+     "cls": "B"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Chi phí vốn tăng lên ~6,1% (24hMoney 12/8); NIM Q2 hồi lên 4,11% (+32bps QoQ, SHS) sau ưu đãi lãi suất bán lẻ Q1; mục tiêu NIM H2 4,5% dựa vào nâng LDR 70%→80%. SHS dự báo NIM 2026 4,3% (-30bps YoY). Vay hợp vốn 721 triệu USD (ADB, SCB) 30/7/2026.",
-     "r": "mix"
+     "sig": "NIM Q2/2026 4,11% (+32bps QoQ) nhưng chi phí vốn tiếp tục tăng do cạnh tranh huy động (SHS 3/9); MBS kỳ vọng NIM Q3 4,7%. LS huy động 12T HDBank 5,3%/năm (1/10/2026), mặt bằng ngành ít biến động so T9/2026.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Cho vay KH 659 nghìn tỷ (+21% YTD 6T/2026), tiền gửi 674 nghìn tỷ (+20%); mục tiêu tín dụng +35%/+37% (KH ĐHĐCĐ). Bán lẻ 29,9% dư nợ, mục tiêu +45%; BĐS & xây dựng ~30% dư nợ; nợ xấu tập trung bán lẻ, hộ KD, nông nghiệp.",
-     "r": "mix"
+     "sig": "Tín dụng 6T/2026 698.355 tỷ (+18,76% YTD), cho vay KH 659 nghìn tỷ (+21% YTD), tiền gửi KH 674 nghìn tỷ (+20%), tiền gửi KKH +27% YoY (SHS) — vượt xa mục tiêu tín dụng toàn ngành 15%/2026. KH 2026 dư nợ +35%. Dư nợ tập trung cá nhân/hộ KD, BĐS, xây dựng.",
+     "r": "pos",
+     "sigs": [
+      29
+     ],
+     "cls": "A"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "Pha loãng: cổ tức CP 25% + thưởng 5% (chốt 12/10/2026), vốn điều lệ 50.053→65.069 tỷ; thêm 700 triệu cp riêng lẻ 2026–2027 (đã được NHNN chấp thuận), vốn >72.000 tỷ. Hệ sinh thái liên quan (HD Saison, Chứng khoán HD) – cần theo dõi giao dịch bên liên quan.",
-     "r": "neg"
+     "sig": "Hoàn tất cổ tức CP 25% + thưởng 5% (Vietstock 19/10/2026): vốn 50.053→65.069 tỷ — không tạo giá trị. Kế hoạch riêng lẻ tối đa 700 triệu cp, giá ≥ BQ 30 phiên và ≥ BV 30/6/2026 (vốn lên 72.069 tỷ). Không tìm thấy đợt ESOP mới năm 2026. ĐHĐCĐ duyệt KH LNTT +41%.",
+     "r": "mix",
+     "sigs": [
+      37
+     ],
+     "cls": "B"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "Repo: 2 mua/1 bán nội bộ 90 ngày; Quỹ CP Ngân hàng & Tài chính HD đăng ký mua 1 triệu cp (1–6/10/2026); người liên quan Đào Anh Minh bán 922.823 cp (19–21/10). Năm 2026 lãnh đạo có bán 460–670 nghìn cp (3–4/2026). Khối ngoại mua ròng 54,3 tỷ phiên gần nhất; >166 tổ chức ngoại. Cổ tức chỉ bằng CP.",
-     "r": "mix"
+     "sig": "Quỹ CP Ngân hàng & Tài chính HD mua 1 triệu cp (1–6/10/2026); người liên quan Đào Anh Minh bán 922.823 cp (19–21/10); 90 ngày: 2 mua/1 bán nội bộ (repo). Khối ngoại mua ròng 54,3 tỷ phiên 23/10 (1 ngày dữ liệu). Fitch xếp hạng lần đầu BB-, Moody's nâng triển vọng lên Tích cực (8/2026).",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Giá 22.550đ (23/10/2026, sau điều chỉnh quyền 30%), +12,9% 3T, +10,4% 6T, +16,9% 12T; vượt VN-Index +8,2% 3T, +14,1% 12T; cách đỉnh 52 tuần -3,8%; vượt nền 8 phiên, 8 pocket pivot, dòng tiền vào 65%/20 phiên, KL tương đối 0,74. Chưa có MA50/MA200 xác thực.",
-     "r": "pos"
+     "sig": "Giá 22.550đ (23/10/2026, sau điều chỉnh quyền 30%): +12,9% 3T, +16,9% 12T; vượt VN-Index +8,2 điểm % (3T), +14,1 (12T); cách đỉnh 52 tuần -3,8%; vượt nền 8 phiên, 8 pocket pivot, dòng tiền vào 65% số phiên/20 phiên; KL tương đối 0,74 (thấp).",
+     "r": "pos",
+     "sigs": [
+      51,
+      52
+     ],
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Hạn mức tín dụng NHNN cho HDB tới 35% (nhờ nhận chuyển giao bắt buộc); mặt bằng lãi suất huy động tăng 2026 gây áp lực NIM toàn ngành; ngành NH Q3/2026 vẫn được dự báo tăng LN (TNCK 16/10). Rủi ro nợ xấu bán lẻ/hộ KD toàn ngành.",
-     "r": "mix"
+     "sig": "Mục tiêu tín dụng toàn ngành 2026 15%; NHNN mở rộng gói tín dụng ưu đãi >407.000 tỷ, một số NH giảm LS huy động ~0,5 điểm % sau yêu cầu NHNN (10/2026, chưa xác minh đầy đủ). Đầu 2026 LS cho vay tăng 0,3–0,6 điểm %, NIM ngành thấp nhất từ 2018.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "Chốt quyền CP 30% ngày 12/10/2026; Chứng khoán HD báo LNTT 9T/2026 2.241 tỷ (gấp 3,7 lần), IPO ~121,8 triệu cp Q4/2026 (TNCK 22/10); HDB dự kiến IPO HD Saison/HDS cuối 2026–2027. MBS (26/9) dự báo HDB dẫn đầu tăng trưởng LN Q3.",
-     "r": "pos"
+     "sig": "VCBS (25/9) dự báo LNTT Q3/2026 7.225 tỷ (+53%), MBS (26/9) ~7.500 tỷ (+58,7%); SHS (3/9) khuyến nghị Tăng tỷ trọng, mục tiêu 33.000đ (giá trước quyền). Chứng khoán HD LNTT 9T 2.241 tỷ (gấp 3,7 lần), chuẩn bị IPO.",
+     "r": "pos",
+     "sigs": [
+      61,
+      62
+     ],
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "LN Q2/2026 được hỗ trợ bởi thu nhập khác từ tăng tỷ lệ sở hữu HD Saison (một lần) và dự phòng thấp, trong khi TN lãi thuần đi ngang – chất lượng LN yếu. Bao phủ nợ xấu ~50%, dù TSBĐ 282% dư nợ; SHS dự báo chi phí tín dụng 1,7% (cao hơn 1,39% lũy kế Q2). Tiềm năng định giá lại khi IPO HD Saison/HDS.",
-     "r": "neg"
+     "sig": "LN Q2/2026 được hỗ trợ bởi khoản thu từ tăng tỷ lệ sở hữu HD Saison (SHS 3/9, không công bố giá trị) – one-off. Nợ xấu 2,79% (cuối 2025: 2,44%), nợ nhóm 2 +100% QoQ, bao phủ ~50%; chi phí tín dụng 1,39% (SHS dự báo cả năm 1,7%) → rủi ro trích lập tăng H2.",
+     "r": "neg",
+     "sigs": [
+      68
+     ],
+     "cls": "B"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "Vikki Bank – ngân hàng số có lãi sau 7 tháng, >2,5 triệu KH; Galaxy Innovation Hub đạt chứng nhận UL SPIRE (PLO, ĐHĐCĐ 2026). Thiếu số liệu đóng góp LN định lượng cho kỳ tới.",
-     "r": "mix"
+     "sig": "Ngân hàng số Vikki (tái cấu trúc từ DongA Bank) và hệ sinh thái HD Saison/HDS được nêu trong phân tích trước; lần này chưa xác minh lại được số liệu định lượng đóng góp LN cho kỳ tới.",
+     "r": "na",
+     "cls": "C"
     }
    ],
-   "summary": "Điểm mạnh: tăng trưởng LN Q2/2026 +51% YoY, CIR ~24%, ROE ~24,5%, tín dụng +21% YTD và kỹ thuật mạnh (gần đỉnh 52 tuần, RS dương). Rủi ro: nợ xấu 2,79% với bao phủ chỉ ~50%, nợ nhóm 2 tăng gấp đôi, LN dựa vào khoản thu một lần từ HD Saison, pha loãng 30% + 700 triệu cp riêng lẻ. Theo dõi KQKD Q3/2026 (TN lãi thuần, nợ xấu, dự phòng) và giá phát hành riêng lẻ.",
+   "summary": "LNTT Q2/2026 +51% và tín dụng tăng nhanh, nhưng thu nhập cốt lõi đi ngang, LN có phần one-off HD Saison và chất lượng tài sản xấu đi; không nhóm TREND nào đủ điều kiện chính nên điểm thấp theo phương pháp. Nếu BCTC Q3/2026 (dự báo LNTT +53–59%) xác nhận TN lãi thuần tăng và nợ xấu chững lại, điểm có thể cải thiện đáng kể. Dấu hiệu tăng trưởng chưa chắc chắn. Cần theo dõi thêm.",
    "src": [
     {
      "t": "SHS - HDB cập nhật KQKD Q2/2026",
      "u": "https://s3-storage.shs.com.vn/shs-website/HDB_CAP_NHAT_KQKD_Q2_2026_78af881102.pdf"
     },
     {
-     "t": "24hMoney - HDB lợi nhuận kỷ lục nhưng nợ nhóm 2 tăng nhanh",
-     "u": "https://24hmoney.vn/news/hdb-loi-nhuan-ky-luc-nhung-no-nhom-2-dang-tang-nhanh-c30a2819580.html"
+     "t": "VietNamNet - Gia nhập nhóm ngân hàng triệu tỷ, lợi nhuận HDBank vượt 13.200 tỷ",
+     "u": "https://vietnamnet.vn/gia-nhap-nhom-ngan-hang-trieu-ty-loi-nhuan-hdbank-vuot-13-200-ty-dong-2541103.html"
     },
     {
-     "t": "CafeF - HDBank chốt chia cổ tức và cổ phiếu thưởng 30%",
-     "u": "https://cafef.vn/hdbank-chot-chia-co-tuc-va-co-phieu-thuong-ty-le-30-188261001065911031.chn"
+     "t": "Vietstock - HDBank hoàn tất 2 đợt phát hành, tăng vốn lên hơn 65.000 tỷ",
+     "u": "https://vietstock.vn/2026/10/hdbank-hoan-tat-2-dot-phat-hanh-trong-2026-tang-von-len-hon-65000-ty-757-1503679.htm"
     },
     {
-     "t": "Người Quan Sát - Dự báo KQKD 13 ngân hàng quý III/2026",
+     "t": "DN Kinh tế Xanh - Dự báo LN ngân hàng Q3/2026 (VCBS)",
+     "u": "https://doanhnghiepkinhtexanh.vn/du-bao-loi-nhuan-ngan-hang-quy-iii2026-hdbank-dan-dau-toc-do-tang-truong-vietinbank-vpbank-lai-tren-10000-ty-a53866.html"
+    },
+    {
+     "t": "Người Quan Sát - Dự báo KQKD 13 ngân hàng Q3/2026 (MBS)",
      "u": "https://nguoiquansat.vn/du-bao-kqkd-13-ngan-hang-trong-quy-iii-2026-hdbank-tang-truong-manh-3-nha-bang-di-lui-318609.html"
     },
     {
-     "t": "PLO - ĐHĐCĐ HDBank 2026",
-     "u": "https://plo.vn/dhdcd-hdbank-2026-loi-nhuan-tang-41-quy-mo-gan-12-trieu-ty-thu-hut-nha-dau-tu-ngoai-post905797.html"
+     "t": "The Leader - HDBank: tăng trưởng nhanh và bài kiểm tra chất lượng tài sản",
+     "u": "https://theleader.vn/hdbank-tang-truong-nhanh-chat-luong-tai-san-d46646.html"
+    },
+    {
+     "t": "Thị trường Tài chính Tiền tệ - Lãi suất đầu tháng 10/2026",
+     "u": "https://thitruongtaichinhtiente.vn/lai-suat-dau-thang-10-2026-tiet-kiem-giu-nhip-on-dinh-chung-chi-tien-gui-hut-khach-85944.html"
+    },
+    {
+     "t": "Báo Đấu thầu - Lãi suất cho vay vào đợt tăng mới",
+     "u": "https://baodauthau.vn/lai-suat-cho-vay-vao-dot-tang-moi-post192438.html"
     },
     {
      "t": "TNCK - Chứng khoán HD báo lãi 9 tháng gấp 3,7 lần",
      "u": "https://www.tinnhanhchungkhoan.vn/chung-khoan-hd-bao-lai-9-thang-gap-37-lan-cung-ky-vuot-xa-loi-nhuan-ca-nam-2025-post399988.html"
-    },
-    {
-     "t": "TNCK - Lợi nhuận ngân hàng quý III vẫn sáng",
-     "u": "https://www.tinnhanhchungkhoan.vn/loi-nhuan-ngan-hang-quy-iii-van-sang-post399230.html"
-    },
-    {
-     "t": "VnEconomy - HDBank đặt mục tiêu lợi nhuận tăng 41% năm 2026",
-     "u": "https://vneconomy.vn/hdbank-dat-muc-tieu-loi-nhuan-tang-41-trong-nam-2026.htm"
     }
-   ]
+   ],
+   "score": 2.0,
+   "calc": {
+    "A": 0.0,
+    "B": 2.0,
+    "C": 1.0,
+    "R": 1.0
+   },
+   "main": [],
+   "check": {
+    "ok": 7,
+    "conflict": 1,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "no",
+      "note": "Có: thu nhập từ tăng sở hữu HD Saison hỗ trợ LN Q2/2026, chưa công bố giá trị; dự phòng thấp hơn định hướng."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "no",
+      "note": "NIM Q2 4,11% hồi +32bps QoQ nhưng chi phí vốn vẫn tăng; NIM Q3/2025 ước ~4,5% (suy từ MBS) nên YoY vẫn thấp hơn."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "yes",
+      "note": "LNTT 6T khớp nhiều nguồn; tín dụng +18,76% (toàn bộ) vs cho vay KH +21% là khác phạm vi. TN lãi thuần Q2: SHS 'tăng nhẹ' vs nguồn khác '-0,7%' chưa kiểm chứng được."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "no",
+      "note": "Thị phần tín dụng tăng, nhưng tổng TN hoạt động 6T chỉ +8,8% so LNTT +31% – LN tăng nhờ one-off/dự phòng thấp hơn là nhờ biên."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "no",
+      "note": "Tăng trưởng tín dụng cao bền hơn, nhưng nợ xấu, nợ nhóm 2 tăng và bao phủ 50% đe dọa chi phí dự phòng H2."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "no",
+      "note": "Không nhóm nào đạt ≥3 tín hiệu rõ + tích cực; BCTC Q3/2026 chưa công bố."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "Có: chi phí vốn tăng, chất lượng tài sản xấu đi, pha loãng EPS 30% (CP) + tối đa 700 triệu cp riêng lẻ."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "NIM / lãi suất huy động (ngân hàng)",
+    "now": "NIM Q2/2026 4,11%; LS huy động 12T HDBank 5,3%/năm",
+    "date": "NIM: Q2/2026 (SHS 3/9/2026); LS: 01/10/2026",
+    "base": "NIM Q1/2026 ~3,79% (suy từ +32bps QoQ); LS huy động T9/2026 (ít biến động)",
+    "chg": "NIM +0,32 điểm % QoQ; LS huy động ~0%",
+    "impact": "NIM hồi QoQ hỗ trợ TN lãi thuần Q3 nếu LDR nâng lên; chi phí vốn tăng vẫn hạn chế biên so với cùng kỳ.",
+    "src": "SHS cập nhật KQKD Q2/2026; Thị trường Tài chính Tiền tệ 1/10/2026"
+   },
+   "oneoff": "Thu nhập từ tăng tỷ lệ sở hữu HD Saison ghi nhận Q2/2026 (chưa công bố giá trị) – cần loại khỏi LN cốt lõi.",
+   "risk": "Nợ xấu 2,79% và nợ nhóm 2 tăng gấp đôi trong khi bao phủ chỉ ~50% có thể buộc tăng mạnh trích lập nửa cuối 2026.",
+   "driver": "Tăng trưởng tín dụng cao (+18,8–21% YTD 6T/2026) với CIR thấp ~25% và hệ sinh thái HD Saison/HDS."
   },
   "KSV": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "Q2/2026 (repo): LNST 1.412,7 tỷ (+177% so 510,5 tỷ Q2/2025), DT 4.656,9 tỷ (+19%). H1/2026 DT 9.890 tỷ (+42%), LNTT 3.040 tỷ, LNST 2.426 tỷ (gấp ~3 lần), OCF H1 ~3.178 tỷ so 1.239 tỷ (KTCK 09/10/2026). Chưa thấy BCTC Q3/2026 của KSV đến 25/10/2026.",
-     "r": "pos"
+     "sig": "Q2/2026 DT 4.656,9 tỷ (+18,8% YoY), LNST cổ đông mẹ 1.412,7 tỷ (+177% YoY, +44% QoQ), biên gộp 47,5% so 20,4% (CafeF 30/07/2026). H1 LNST 2.427 tỷ, OCF ~3.178 tỷ; vay 1.487 tỷ (30/06) so 2.080 tỷ cuối 2025. Tạm ứng cổ tức 2026 30% tiền (900 tỷ) trả 11/11. BCTC Q3/2026 chưa công bố đến 26/10 (Q3/2025 công bố 02/11/2025).",
+     "r": "pos",
+     "sigs": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      9
+     ],
+     "cls": "A"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "Lợi nhuận tăng chủ yếu nhờ giá bán chứ không phải sản lượng (DN giải trình Q1, Q2/2026). Mảng yếu: Gang thép Cao Bằng lỗ 205 tỷ năm 2025 do thiếu quặng; Lavreco (đất hiếm, 55%) lỗ 7,7 tỷ 9T/2025 và bị thu hồi GCN đầu tư mỏ Đông Pao đầu 2026. Chưa có số sản lượng 9T/2026.",
-     "r": "mix"
+     "sig": "Q2/2026 sản lượng tiêu thụ tăng nhẹ YoY: đồng tấm +56 tấn, vàng +41 kg, bạc +186 kg, manhetit +1.070 tấn, nhưng kẽm thỏi −717 tấn (CafeF 30/07/2026). Tăng trưởng chủ yếu nhờ giá. Mảng yếu: Gang thép Cao Bằng lỗ 2025, Lavreco (đất hiếm) lỗ và nợ thuế. Chưa có số sản lượng 9T/2026.",
+     "r": "mix",
+     "sigs": [
+      13
+     ],
+     "cls": "B"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Biên gộp Q2/2026 ~47,5% so 20,5% Q2/2025 (tự tính trước đó). Giá vàng LBMA 4.169,5 USD/oz ngày 13/10/2026 (Bernama). Công ty con TMG Q3/2026: giá kẽm +34,2%, tinh quặng chì +51,5%, axit sunfuric +259% so cùng kỳ, biên gộp 12,7%→23,9% (Vietstock 19/10/2026).",
-     "r": "pos"
+     "sig": "Giá bán Q2/2026 YoY: đồng tấm 345,7 tr/tấn (+~99 tr), vàng 3,83 tỷ/kg (+1,48 tỷ), kẽm 87,7 tr/tấn (+14,9 tr). Nhưng giá gần đây đảo chiều: vàng spot 4.012 USD/oz (23/10) −3,8% tuần, HĐ tương lai −8% so 1 tháng và −1,8% YoY; đồng LME 14.089 USD/t (22/10) −5,3% so đỉnh 14.875 (10/9).",
+     "r": "mix",
+     "sigs": [
+      20
+     ],
+     "cls": "B"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Sản phẩm hàng hóa (đồng, vàng, bạc, kẽm, thiếc, axit) bán theo giá thế giới, cầu tốt: TMG (KSV nắm 51%) Q3/2026 DT 443 tỷ (+69%), LNST 67 tỷ (+305%), cao nhất từ 2016. Phải thu KH tăng 429→1.803 tỷ (2023→2025), nhanh hơn DT; chưa rõ khách hàng lớn/bên liên quan.",
-     "r": "mix"
+     "sig": "Hàng hóa bán theo giá thế giới, cầu tốt: công ty con TMG (KSV 51%) Q3/2026 DT 443 tỷ (+69%), LNST 67 tỷ (+305%) nhờ kẽm +34,2%, chì +51,5%, axit sunfuric +259% (Vietstock 19/10/2026). Phải thu KH tăng 429→1.803 tỷ (2023→2025), nhanh hơn DT; chưa rõ cơ cấu khách hàng.",
+     "r": "mix",
+     "sigs": [
+      30
+     ],
+     "cls": "B"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "TKV nắm 98,06% (294,17 triệu CP), free float 1,94%: chưa đáp ứng điều kiện công ty đại chúng (KTCK 09/10/2026), kiểm toán 2025 nhấn mạnh rủi ro này. Có CBTT giao dịch với người nội bộ/người liên quan 25/08 và 04/09/2026; ĐHĐCĐ bất thường 16/10/2026 và điều lệ mới (24hMoney) — chưa tìm được nội dung chi tiết.",
-     "r": "neg"
+     "sig": "TKV nắm 98,06%, free float 1,94%: chưa đáp ứng điều kiện công ty đại chúng, kiểm toán 2025 nhấn mạnh rủi ro này (KTCK 09/10/2026); 28/11/2025 KSV từng thông báo khả năng hủy tư cách đại chúng. Chưa tìm được nội dung ĐHĐCĐ bất thường 16/10/2026. LNST 2025 sau kiểm toán giảm >90 tỷ so tự lập.",
+     "r": "neg",
+     "cls": "A"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "Tạm ứng cổ tức 2026 30% tiền (3.000 đ/CP, ~900 tỷ), GDKHQ 23/10, trả 11/11/2026; trước đó 08/2026 trả 40,5% tiền + 50% cổ phiếu cho 2025. ~98% cổ tức về TKV. Nội bộ: chỉ có đăng ký BÁN (HĐQT bán 02–03/2025), không có mua; khối ngoại ròng 0 (repo fn=0).",
-     "r": "mix"
+     "sig": "~98% cổ tức về TKV (tạm ứng 900 tỷ, TKV nhận ~883 tỷ, Vietstock 18/10/2026); 08/2026 phát hành 100 triệu CP thưởng/cổ tức 50% (trung lập). Nội bộ chỉ có đăng ký BÁN (02–03/2025), không mua; khối ngoại ròng 0 (fn, 1 ngày). Thanh khoản ~8,8 tỷ/phiên.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Giá 113.000 (23/10/2026): +20,8% 3 tháng, +3,5% 12 tháng; vượt VN-Index +15,7 điểm % (3T), +1,0 điểm % (12T); cách đỉnh 52 tuần −24,4%; vượt nền 12 phiên; tỷ lệ dòng tiền vào 20 phiên 0,57; KL tương đối 0,62. Giá giảm ~15% từ 133.100 (08/10) sau 2 phiên trần. Thanh khoản thấp (~8,8 tỷ/phiên).",
-     "r": "mix"
+     "sig": "Giá 113.000 (23/10/2026, ngày GDKHQ 3.000đ): +20,8% 3T, +3,5% 12T; vượt VN-Index +15,7 điểm % (3T); cách đỉnh 52 tuần −24,4%; vượt nền 12 phiên; dòng tiền vào 20 phiên 0,57; KL tương đối 0,62 (thấp). Giảm từ 133.100 (08/10) sau 2 phiên trần.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Giá vàng vùng ~4.150–4.200 USD/oz giữa 10/2026 (Bernama 14/10/2026), kim loại màu tăng mạnh hỗ trợ ngành khai khoáng; nhưng đây là đỉnh chu kỳ, KSV là người chấp nhận giá. Quy định siết chuẩn công ty đại chúng (CV 1474/UBCK-GSĐC 24/02/2026) bất lợi cho DNNN free float thấp.",
-     "r": "mix"
+     "sig": "Kim loại vẫn cao so đầu năm (đồng LME +~13% so 12.423 USD/t đầu 2026; TC tinh quặng kẽm/đồng âm kỷ lục 10/2026, axit sunfuric tăng do Hormuz, Fastmarkets 14/10). Nhưng vàng giảm về đáy 3 tháng khi giá dầu đẩy kỳ vọng lãi suất cao (Yahoo 23/10). Siết chuẩn công ty đại chúng bất lợi DNNN free float thấp.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "07–08/10/2026 KSV tăng trần 2 phiên lên 133.100 trước ngày chốt cổ tức 900 tỷ; H1/2026 LNTT vượt 49% KH năm 2.042 tỷ (Vietstock 08/10/2026). Kế hoạch 2026 đặt thấp (LNTT −17%) nên khả năng vượt KH cao; BCTC Q3/2026 hợp nhất chưa công bố.",
-     "r": "pos"
+     "sig": "H1/2026 LNTT vượt ~49% KH năm 2.042 tỷ; cổ phiếu tăng trần 2 phiên 07–08/10 trước chốt cổ tức 900 tỷ (Vietstock 08/10/2026). Truyền thông tích cực nhưng chưa có báo cáo phân tích CTCK mới về KSV.",
+     "r": "pos",
+     "sigs": [
+      63
+     ],
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "LNST 2025 sau kiểm toán giảm >90 tỷ so tự lập (chi phí Đất hiếm Lai Châu); Lavreco nợ thuế >137 tỷ, bị cưỡng chế (TB 90/TB-LCH 21/8/2025). Capex 2023–2025 chỉ ~30% khấu hao → FCF bị phồng. Tài sản ẩn tiềm năng: trữ lượng mỏ (Sin Quyền, Đông Pao >5 triệu tấn oxit) chưa phản ánh trên sổ.",
-     "r": "mix"
+     "sig": "Không thấy lãi tài chính/thoái vốn lớn trong H1/2026 (LN từ giá bán). Cờ vàng: Lavreco nợ thuế >137 tỷ bị cưỡng chế (TB 21/8/2025); capex 2024–2025 (133–270 tỷ/năm) thấp → FCF có thể bị phồng. Trữ lượng mỏ (Sin Quyền, Đông Pao) chưa phản ánh hết nhưng GCN Đông Pao bị thu hồi đầu 2026.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "Không thấy sản phẩm/công nghệ mới hay R&D đáng kể được công bố trong 3 tháng gần nhất; danh mục vẫn là đồng tấm, vàng, bạc, kẽm, thiếc, axit sunfuric phụ phẩm. Thiếu dữ liệu về dự án chế biến sâu mới.",
-     "r": "na"
+     "sig": "Chưa đủ dữ liệu: không thấy sản phẩm/công nghệ mới, R&D hay dự án chế biến sâu mới được công bố trong 3 tháng gần nhất; danh mục vẫn là đồng tấm, vàng, bạc, kẽm, thiếc, axit sunfuric.",
+     "r": "na",
+     "cls": "C"
     }
    ],
-   "summary": "Điểm mạnh: lợi nhuận và dòng tiền H1/2026 kỷ lục nhờ giá vàng, đồng, kẽm đỉnh chu kỳ, bảng cân đối tiền ròng và cổ tức tiền mặt lớn. Rủi ro chính: lợi nhuận phụ thuộc giá hàng hóa, TKV nắm 98,06% khiến nguy cơ mất tư cách đại chúng/hủy niêm yết còn treo, thanh khoản rất thấp. Cần theo dõi BCTC hợp nhất Q3/2026, nội dung ĐHĐCĐ bất thường 16/10/2026 và phương án xử lý tư cách đại chúng.",
+   "summary": "KSV có lợi nhuận H1/2026 kỷ lục và tài chính lành mạnh, nhưng tăng trưởng gần như chỉ đến từ giá kim loại; giá vàng đã giảm ~8% trong 1 tháng và xấp xỉ cùng kỳ, đồng giảm ~5% từ đỉnh, nên đà tăng YoY quý 4 có thể chậm lại. Nếu BCTC Q3/2026 (dự kiến đầu 11/2026) giữ biên gộp >40% thì xu hướng còn được duy trì; rủi ro quản trị free float 1,94% vẫn treo.",
    "src": [
+    {
+     "t": "CafeF 30/07/2026 - Công ty đào kho báu lớn nhất Việt Nam báo lãi quý 2 cao nhất lịch sử 1.400 tỷ",
+     "u": "https://cafef.vn/cong-ty-dao-kho-bau-lon-nhat-viet-nam-bao-lai-quy-2-cao-nhat-lich-su-1400-ty-188260730144028791.chn"
+    },
+    {
+     "t": "Nhà đầu tư 22/08/2026 - Doanh nghiệp khai khoáng phân hóa lợi nhuận",
+     "u": "https://nhadautu.vn/doanh-nghiep-khai-khoang-phan-hoa-trong-song-gia-kim-loai-d107125.html"
+    },
+    {
+     "t": "Vietstock 18/10/2026 - Tuần 19-23/10: Nổi bật khoản tạm ứng cổ tức 900 tỷ của Vimico",
+     "u": "https://vietstock.vn/2026/10/tuan-19-2310-noi-bat-khoan-tam-ung-co-tuc-900-ty-cua-vimico-738-1503433.htm"
+    },
     {
      "t": "Vietstock 08/10/2026 - Vượt kế hoạch lợi nhuận, KSV sắp tạm ứng cổ tức tiền 30%",
      "u": "https://vietstock.vn/2026/10/vuot-ke-hoach-loi-nhuan-va-gia-co-phieu-tang-manh-ksv-sap-tam-ung-co-tuc-tien-30-738-1500024.htm"
     },
     {
-     "t": "Kinh tế Chứng khoán 09/10/2026 - Lãi nghìn tỷ, cổ tức lớn, vì sao Vimico từng tính hủy tư cách đại chúng?",
-     "u": "https://kinhtechungkhoan.vn/lai-nghin-ty-co-tuc-lon-vi-sao-vimico-ksv-tung-tinh-huy-tu-cach-dai-chung"
-    },
-    {
-     "t": "Vietstock 19/10/2026 - Một doanh nghiệp khai khoáng lãi gấp 4 nhờ giá kẽm, chì (TMG)",
+     "t": "Vietstock 19/10/2026 - Một doanh nghiệp khai khoáng lãi gấp 4 nhờ giá kẽm, chì tăng vọt (TMG)",
      "u": "https://vietstock.vn/2026/10/mot-doanh-nghiep-khai-khoang-lai-gap-4-nho-gia-kem-chi-tang-vot-737-1503724.htm"
     },
     {
-     "t": "CafeF 19/10/2026 - Công ty chốt cổ tức 30%, lợi nhuận quý 3 tăng hơn 300% (TMG)",
-     "u": "https://cafef.vn/mot-cong-ty-chot-tra-co-tuc-tien-mat-30-ngay-tuan-nay-loi-nhuan-quy-3-tang-hon-300-188261019091114969.chn"
+     "t": "Kinh tế Chứng khoán 09/10/2026 - Vì sao Vimico (KSV) từng tính hủy tư cách đại chúng?",
+     "u": "https://kinhtechungkhoan.vn/lai-nghin-ty-co-tuc-lon-vi-sao-vimico-ksv-tung-tinh-huy-tu-cach-dai-chung"
     },
     {
-     "t": "24hMoney - Sự kiện KSV",
-     "u": "https://24hmoney.vn/stock/KSV/events"
+     "t": "CafeF - Tag Vimico",
+     "u": "https://cafef.vn/vimico.html"
     },
     {
-     "t": "Doanh nhân Báo Pháp luật - Vimico lãi 9 tháng 2025, Lavreco nợ thuế 137 tỷ",
-     "u": "https://doanhnhan.baophapluat.vn/vimico-ksv-lai-9-thang-1368-ty-dong-cong-ty-con-nam-mo-dat-hiem-5-trieu-tan-no-thue-137-ty-88336.html"
+     "t": "Yahoo Finance 23/10/2026 - Gold opens at 3-month lows as oil prices keep rising",
+     "u": "https://finance.yahoo.com/personal-finance/investing/article/gold-price-today-friday-october-23-2026-gold-opens-at-3-month-lows-as-oil-prices-keep-rising-111248003.html"
     },
     {
-     "t": "Bernama 14/10/2026 - Gold futures",
-     "u": "https://bernama.com/tv/news.php?id=2620392"
+     "t": "Rio Times 23/10/2026 - Gold slips 0.30% to US$4,012",
+     "u": "https://www.riotimesonline.com/gold-silver-precious-metals-friday-october-23-2026/"
     },
     {
-     "t": "Tuổi Trẻ 28/11/2025 - Doanh nghiệp khai thác vàng lớn nhất đối diện nguy cơ rời sàn",
-     "u": "https://tuoitre.vn/doanh-nghiep-khai-thac-vang-lon-nhat-viet-nam-doi-dien-nguy-co-roi-san-chung-khoan-20251128175253839.htm"
+     "t": "Mining.com 22/10/2026 - Copper price falls to five-week low",
+     "u": "https://www.mining.com/web/copper-price-falls-to-five-week-low-as-lme-inventory-build-continues/"
+    },
+    {
+     "t": "The Vault Report - LME Zinc price and stocks",
+     "u": "https://thevaultreport.com/lme/zinc"
+    },
+    {
+     "t": "Fastmarkets 14/10/2026 - Base metals head to LME Week 2026",
+     "u": "https://www.fastmarkets.com/insights/base-metals-head-to-lme-week-2026-with-record-low-tcs-war-hit-supply-chains/"
     }
-   ]
+   ],
+   "score": 4.0,
+   "calc": {
+    "A": 2.0,
+    "B": 1.5,
+    "C": 1.0,
+    "R": 0.5
+   },
+   "main": [
+    "01"
+   ],
+   "check": {
+    "ok": 7,
+    "conflict": 0,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "yes",
+      "note": "Không phát hiện one-off lớn trong H1/2026; LN đến từ giá bán đồng, vàng, bạc, kẽm (DN giải trình). Q3/2026 chưa có BCTC để kiểm tra."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "no",
+      "note": "Vàng 4.012 USD/oz (23/10) −3,8% tuần, −8% so 1 tháng, ~−1,8% YoY; đồng 14.089 USD/t −5,3% so đỉnh 10/9. Đà tăng giá đã đảo chiều ngắn hạn."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "yes",
+      "note": "LNST Q2 +177% khớp giá bán đồng +~40%, vàng +~63% YoY; TMG Q3 khớp giá kẽm/chì/axit."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "yes",
+      "note": "Biên gộp Q2/2026 47,5% so 20,4%; DT H1 +42%. Thị phần không áp dụng (người chấp nhận giá)."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "no",
+      "note": "Phụ thuộc chu kỳ giá kim loại; sản lượng chỉ tăng nhẹ, kẽm giảm; giá vàng đã xấp xỉ cùng kỳ nên nền so sánh Q4 cao hơn."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "no",
+      "note": "Chỉ nhóm Tài chính đạt ≥3 tín hiệu tích cực; các nhóm khác hỗn hợp/tiêu cực."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "Rủi ro giá hàng hóa giảm, nguy cơ mất tư cách đại chúng (free float 1,94%), thanh khoản rất thấp."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Vàng, đồng tấm, kẽm thỏi",
+    "now": "Vàng spot 4.012 USD/oz (HĐ T12 4.042); đồng LME 3T 14.089 USD/tấn; kẽm LME cash 3.790 USD/tấn",
+    "date": "23/10/2026 (vàng, kẽm); 22/10/2026 (đồng)",
+    "base": "Vàng: ~1 tháng trước (HĐ tương lai) và 4.168 USD/oz ngày 16/10; Q3/2026 dao động 3.979–4.664 (LBMA). Đồng: đỉnh 14.875 (10/9/2026), đầu năm 12.423",
+    "chg": "Vàng −8% (1 tháng), −3,8% (1 tuần), −1,8% YoY; đồng −5,3% so đỉnh, +13,4% so đầu năm",
+    "impact": "Q4/2026 giá bán vàng gần ngang cùng kỳ nên đóng góp tăng trưởng YoY từ vàng thu hẹp; đồng/kẽm/axit vẫn cao hơn cùng kỳ hỗ trợ biên gộp nhưng QoQ có thể giảm.",
+    "src": "Yahoo Finance 23/10/2026; Rio Times 23/10/2026; Mining.com 22/10/2026; The Vault Report (LME zinc) 23/10/2026; LBMA Q3/2026 report"
+   },
+   "oneoff": "Không phát hiện khoản one-off lớn trong H1/2026; lưu ý LN mang tính chu kỳ giá hàng hóa và FCF có thể bị phồng do capex thấp.",
+   "risk": "Giá vàng/đồng đảo chiều giảm từ đỉnh 9/2026 cùng nguy cơ mất tư cách công ty đại chúng do TKV nắm 98,06%.",
+   "driver": "Giá bán đồng, vàng, bạc, kẽm, axit sunfuric cao hơn mạnh so cùng kỳ đẩy biên gộp từ ~20% lên ~47%."
   },
   "LPB": {
    "d": "2026-10-25",
@@ -731,285 +1433,543 @@
    ]
   },
   "MBB": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "Q2/2026: LNTT 10.560 tỷ (+40,7% YoY), LNST 8.445 tỷ (repo 8.229 tỷ, +40% YoY), TN lãi thuần 16.894 tỷ (+36,5%); NIM 4,16% (+35bps QoQ); tín dụng +13% YTD. Nợ xấu 1,45%, bao phủ ~94% (khớp repo); CASA giảm còn ~34,6% từ 37%. Chưa thấy KQKD Q3/2026 công bố tới 25/10.",
-     "r": "mix"
+     "sig": "Q2/2026: LNTT ~10.560 tỷ (+41%), TN lãi thuần 16.894 tỷ (+37%), NIM 4,16% (+35bps QoQ); LNTT 6T 20.188 tỷ (+27%, 51% KH 39.408 tỷ). Repo: DT Q2 20.434 tỷ (+18,5%), LNST 8.229 tỷ (+40%). Từ đầu 2026 phát hành 28 lô TP 21.600 tỷ. KQKD Q3 chưa công bố tới 26/10.",
+     "r": "pos",
+     "sigs": [
+      1,
+      2,
+      10
+     ],
+     "cls": "A"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "CIR 6T/2026 cải thiện còn 26,3% (2025: 31,1%), Q2 27,5% (SHS); ROE 21,6%, ROA 1,9%. Mục tiêu đạt 40 triệu khách hàng năm 2026; thị phần tín dụng tăng từ 6,0% lên 6,3% trong H1.",
-     "r": "pos"
+     "sig": "CIR Q2/2026 27,5% (SHS 19/8), thấp nhóm đầu ngành dù chi phí hoạt động +18%. ROE trượt 4 quý 21,14%. Tổng tài sản ~1,73 triệu tỷ (+7% YTD, 30/6).",
+     "r": "pos",
+     "sigs": [
+      18
+     ],
+     "cls": "B"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Áp lực chi phí vốn: tiền gửi KH chỉ +4,6% YTD so tín dụng +13%, LDR 82,8% (trần 85%), phụ thuộc giấy tờ có giá (17 lô TP H1 lãi 8,3–8,6%/năm); CASA giảm. SHS/SSI dự báo NIM Q3 thu hẹp, chi phí tín dụng tăng H2 (1,45% Q2).",
-     "r": "neg"
+     "sig": "Tiền gửi KH chỉ +4,6% YTD (963.815 tỷ, 30/6) so tín dụng +13%, LDR 82,8%; dựa vào TP: 22–23/9 phát hành 1.750 tỷ kỳ hạn 6 năm lãi 9%/năm. Từ 19/10 giảm lãi vay 1,5% (tới 2%) cho 5 lĩnh vực ưu tiên, còn từ 7,9%/năm: biên lãi Q4 chịu áp lực.",
+     "r": "neg",
+     "cls": "B"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Hạn mức tín dụng ưu đãi 30–35%/năm đến 2028 nhờ nhận chuyển giao bắt buộc (MBV); SSI dự báo tín dụng 18–19% YTD cuối Q3. Cho vay BĐS +38% YTD, chiếm ~14% dư nợ (trần nội bộ 15%); nợ xấu bán lẻ tăng (SHS 8/2026).",
-     "r": "mix"
+     "sig": "Tín dụng 6T +13% YTD (Q2 +10%) so ngành 9T ~12%. Hạn mức NHNN 30–35%; VPBankS dự báo tín dụng 19–20% YTD cuối Q3. Cho vay BĐS +38% YTD, chiếm 14% dư nợ (trần nội bộ 15%).",
+     "r": "pos",
+     "sigs": [
+      29,
+      30
+     ],
+     "cls": "B"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "Pha loãng lớn 2026: cổ tức CP 15% (chốt 12/8), quyền mua 805,5 triệu cp giá 10.000đ (xong đầu 9/2026), riêng lẻ 200 triệu cp chưa định giá. QĐ 67/QĐ-KPHQ (20/01/2026) của Thanh tra UBCKNN; MBB phải mua lại ~6.000 tỷ TP do vi phạm mục đích sử dụng vốn (Elibook 18/9).",
-     "r": "neg"
+     "sig": "Pha loãng 2026: CP cổ tức 15% (~1,21 tỷ CP, 8/2026), quyền mua 805,5 triệu CP giá 10.000đ (tỷ lệ 10:1, xong 7/9), riêng lẻ tối đa 200 triệu CP; vốn 80.550 → ~102.687 tỷ (+27%). QĐ 67/QĐ-KPHQ (20/01/2026) buộc thu hồi 6 mã TP do dùng vốn sai mục đích.",
+     "r": "neg",
+     "sigs": [
+      37
+     ],
+     "cls": "A"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "Repo: 36 đăng ký mua/1 bán nội bộ 90 ngày; 7 lãnh đạo đăng ký mua 72–200 nghìn cp ngày 21/09/2026 (trùng đợt quyền mua giá 10.000đ), 1 người bán 113 nghìn cp (6/10). Vợ TGĐ mua 2 triệu cp 19–23/3/2026. Room ngoại 22,2%/23,2%; khối ngoại bán ròng 54,45 tỷ phiên gần nhất (repo).",
-     "r": "mix"
+     "sig": "Repo: 36 đăng ký mua/1 bán nội bộ 90 ngày, nhưng các lệnh mua 23/9/2026 (72–240 nghìn CP/người) trùng đợt quyền mua giá 10.000đ, không phải mua khớp lệnh; 1 lãnh đạo bán 113 nghìn CP (6/10). Khối ngoại bán ròng 54,45 tỷ (repo, 1 phiên).",
+     "r": "mix",
+     "sigs": [
+      47
+     ],
+     "cls": "C"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Giá 19.800đ (23/10/2026), +7,8% 3T nhưng -5,6% 6T, -8,8% 12T; vượt VN-Index +3,2% 3T nhưng kém -11% 12T; cách đỉnh 52 tuần -16,2%. Dòng tiền vào 50,5%/20 phiên, KL tương đối 0,93, 2 pocket pivot. Chưa có MA50/MA200 xác thực.",
-     "r": "mix"
+     "sig": "Giá 19.800đ (23/10/2026): +7,8% 3T (vượt VN-Index 3,2 điểm %), nhưng -5,6% 6T, -8,8% 12T (kém VN-Index 11 điểm %); cách đỉnh 52 tuần -16,2%. 2 pocket pivot, dòng tiền vào 0,505, KL tương đối 0,93.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Lãi suất huy động tăng (một số NH 8–9% kỳ ≥6 tháng, CafeF 6/8/2026), NHNN yêu cầu giữ lãi suất ổn định; thanh khoản TTCK giảm (môi giới MBS -66% Q3). LN ngành NH Q3 vẫn được dự báo tăng (TNCK 16/10). Tích cực ngành nhưng áp lực chi phí vốn.",
-     "r": "mix"
+     "sig": "Lãi huy động bình quân tăng 11 tháng liên tiếp tới 9/2026; NHNN yêu cầu giảm ≥0,5 điểm % huy động kỳ hạn ≥6 tháng và 1,5–2% lãi vay (Vietstock 20/10). MBS: NIM ngành chịu áp lực, tín dụng ngành ~12% YTD.",
+     "r": "mix",
+     "sigs": [
+      54
+     ],
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "Khối ngoại mua ~4,6 triệu cp phiên 3/8 khi giá lên 24.000đ; sau đó giá tham chiếu về ~20.550đ đầu 9/2026 (điều chỉnh quyền). Công ty con MBS Q3/2026 LNST 315 tỷ (-5% YoY). Dự kiến phát hành TP quốc tế và 10–15 nghìn tỷ TP Tier 2 H2/2026.",
-     "r": "mix"
+     "sig": "SHS (19/8): giá mục tiêu 26.000đ, \"Tăng tỷ trọng\". VPBankS (CafeF 7/10) dự báo LNST Q3 ~7.875 tỷ (+35,8%). Công ty con MBS Q3/2026 LNST 315 tỷ (-5%), lỗ FVTPL 481 tỷ.",
+     "r": "mix",
+     "sigs": [
+      61
+     ],
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "LN Q2 hỗ trợ bởi chi phí dự phòng giảm 11,3% YoY dù bao phủ nợ xấu chỉ ~94% (<100%); dòng tiền kinh doanh được báo âm lớn (Nông nghiệp & Môi trường). MBS lỗ FVTPL 481 tỷ Q3. Chưa thấy khoản thu nhập bất thường lớn được nêu.",
-     "r": "neg"
+     "sig": "Q2/2026 chi phí dự phòng ~4.247 tỷ (-11% YoY) dù nợ xấu 17.797 tỷ (+27% YTD), tỷ lệ nợ xấu 1,45% (đầu năm 1,29%), bao phủ ~94%. Thu ngoài lãi Q2 giảm hầu hết các mảng, không thấy one-off đẩy LN.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "Ngân hàng số dẫn đầu CASA (top 2 ngành), mục tiêu thêm 2,5 triệu KH lên 40 triệu năm 2026 (CafeF 6/8). Thiếu số liệu giao dịch số/sản phẩm mới định lượng cho kỳ tới.",
-     "r": "mix"
+     "sig": "Chưa đủ dữ liệu: không có số liệu định lượng mới (người dùng số, giao dịch số, sản phẩm mới) trong các nguồn đã mở được cho kỳ gần nhất.",
+     "r": "na",
+     "cls": "C"
     }
    ],
-   "summary": "Điểm mạnh: LN Q2/2026 +40% YoY, NIM hồi lên 4,16%, CIR thấp ~26% và hạn mức tín dụng ưu đãi 30–35% nhờ MBV. Rủi ro: pha loãng lớn (cổ tức CP 15%, quyền mua 10.000đ, riêng lẻ 200 triệu cp), CASA giảm, LDR sát trần, bao phủ nợ xấu <100% và tiền lệ vi phạm trái phiếu. Theo dõi KQKD Q3/2026 (NIM, nợ xấu, dự phòng) và giá chào bán riêng lẻ.",
+   "summary": "MBB có tăng trưởng lợi nhuận thực từ thu nhập lãi (Q2 +40%, NIM 4,16%), nhưng chỉ nhóm Tài chính đạt chuẩn TREND chính. Chi phí vốn, nợ xấu tăng, dự phòng thấp và pha loãng ~27% kéo điểm xuống. Điểm chỉ nâng được nếu KQKD Q3 xác nhận LNST quanh 7.900 tỷ (+35%) với NIM giữ ~4% và bao phủ không giảm.",
    "src": [
     {
-     "t": "SHS - MBB cập nhật KQKD Q2/2026",
+     "t": "SHS - MBB cập nhật KQKD Q2/2026 (19/8/2026)",
      "u": "https://s3-storage.shs.com.vn/shs-website/MBB_CAP_NHAT_KQKD_Q2_2026_d5fe1969e1.pdf"
     },
     {
-     "t": "Elibook - MBB: Lợi nhuận tăng 40%, bài toán vốn",
-     "u": "https://elibook.vn/2026/09/18/mbb-loi-nhuan-tang-40-nop-ngan-sach-lap-ky-luc-nhung-bai-toan-von-moi-la-phep-thu-thuc-su/"
+     "t": "Lợi nhuận MBBank vượt 20.000 tỷ bán niên 2026, tín dụng tăng 13%",
+     "u": "https://doanhnhan.baophapluat.vn/loi-nhuan-mbbank-mbb-vuot-20-000-ty-dong-ban-nien-2026-tin-dung-tang-truong-13.html"
     },
     {
-     "t": "Elibook - MBB tự tin hoàn thành kế hoạch 2026",
-     "u": "https://elibook.vn/2026/08/09/mbb-tu-tin-hoan-thanh-ke-hoach-loi-nhuan-2026-va-khoa-ty-trong-du-no-bat-dong-san-o-muc-15-tuyen-bo-lai-suat-tu-nay-den-cuoi-nam-khong-the-tang-nua/"
+     "t": "Dự báo lợi nhuận ngân hàng quý 3/2026 (CafeF 7/10/2026)",
+     "u": "https://cafef.vn/du-bao-loi-nhuan-ngan-hang-quy-3-2026-se-co-bat-ngo-lon-vietcombank-vietinbank-mb-techcombank-vpbank-hdbank-188261006215558298.chn"
     },
     {
-     "t": "CafeF - MB tự tin kế hoạch lợi nhuận 2026",
-     "u": "https://cafef.vn/mb-tu-tin-ke-hoach-loi-nhuan-2026-tren-39000-40000-ty-dong-tiep-tuc-dan-dau-ve-casa-va-fix-cung-ty-le-cho-vay-bat-dong-san-o-muc-13---2-188260806162716814.chn"
+     "t": "MB giảm lãi suất cho vay tới 2%/năm (19/10/2026)",
+     "u": "https://thitruongtaichinhtiente.vn/mb-giam-lai-suat-cho-vay-toi-2-nam-dong-hanh-cung-doanh-nghiep-va-nguoi-dan-thuc-day-tang-truong-kinh-te-86407.html"
     },
     {
-     "t": "Diễn đàn Doanh nghiệp - Vì sao khối ngoại mua MBB",
-     "u": "https://diendandoanhnghiep.vn/vi-sao-khoi-ngoai-do-tien-mua-co-phieu-mbb-10182814.html"
+     "t": "Lãi suất ngân hàng MB (Simplize 26/10/2026)",
+     "u": "https://simplize.vn/lai-suat-ngan-hang/MB"
     },
     {
-     "t": "VnEconomy - Vợ TGĐ MB mua 2 triệu cp MBB",
-     "u": "https://vneconomy.vn/vo-tong-giam-doc-mb-mua-vao-2-trieu-co-phieu-mbb.htm"
+     "t": "MB huy động thêm 1.750 tỷ trái phiếu trong hai ngày (28/9/2026)",
+     "u": "https://mekongasean.vn/mb-huy-dong-them-1750-ty-dong-trai-phieu-trong-hai-ngay-60088.html"
     },
     {
-     "t": "TNCK - Lợi nhuận ngân hàng quý III vẫn sáng",
-     "u": "https://www.tinnhanhchungkhoan.vn/loi-nhuan-ngan-hang-quy-iii-van-sang-post399230.html"
+     "t": "MB hoàn tất phát hành 1,2 tỷ CP trả cổ tức (Vietstock 19/8/2026)",
+     "u": "https://vietstock.vn/2026/08/mb-hoan-tat-phat-hanh-12-ty-cp-tra-co-tuc-nang-von-len-hon-92600-ty-sap-buoc-vao-dot-chao-ban-tiep-theo-764-1482431.htm"
     },
     {
-     "t": "Vietstock - Lợi nhuận MBS bước lùi quý 3",
+     "t": "MB đặt mục tiêu lợi nhuận 2026 tăng 15%, tăng vốn lên gần 103.000 tỷ (Vietstock)",
+     "u": "https://vietstock.vn/2026/03/mb-dat-muc-tieu-loi-nhuan-2026-tang-15-tang-von-len-gan-103000-ty-737-1419280.htm"
+    },
+    {
+     "t": "MBBank phải thu hồi trái phiếu, hoàn tiền và lãi cho nhà đầu tư (VnBusiness 22/1/2026)",
+     "u": "https://vnbusiness.vn/mbbank-phai-thu-hoi-trai-phieu-hoan-tien-va-lai-cho-nha-dau-tu.html"
+    },
+    {
+     "t": "Lợi nhuận MBS bước lùi trong quý 3 (Vietstock)",
      "u": "https://vietstock.vn/2026/10/loi-nhuan-mbs-buoc-lui-trong-quy-3-doanh-thu-mang-moi-gioi-giam-den-66-737-1502712.htm"
     },
     {
-     "t": "Nông nghiệp & Môi trường - Dòng tiền kinh doanh MBBank âm",
-     "u": "https://nongnghiepmoitruong.vn/dong-tien-kinh-doanh-mbbank-bat-ngo-am-toi-53000-ty-dong-no-xau-17797-ty-d824171.html"
+     "t": "Lãi suất huy động đồng loạt hạ nhiệt (Vietstock 20/10/2026)",
+     "u": "https://vietstock.vn/2026/10/lai-suat-huy-dong-dong-loat-ha-nhiet-xu-huong-nao-cho-quy-cuoi-nam-757-1504177.htm"
+    },
+    {
+     "t": "MBS: Dự báo KQKD Q3/26 ngành ngân hàng",
+     "u": "https://www.mbs.com.vn/files/uploads/2026/09/DU-BAO-KQKD-3Q26_NGAN-HANG_20260924.pdf"
     }
-   ]
+   ],
+   "score": 3.5,
+   "calc": {
+    "A": 2.0,
+    "B": 1.5,
+    "C": 1.0,
+    "R": 1.0
+   },
+   "main": [
+    "01"
+   ],
+   "check": {
+    "ok": 6,
+    "conflict": 1,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "yes",
+      "note": "Không phát hiện one-off; thu ngoài lãi Q2 giảm. Riêng chi phí dự phòng giảm 11% khi nợ xấu tăng là điểm cần lưu ý về chất lượng LN."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "no",
+      "note": "Lãi vay ưu tiên giảm 1,5–2%/năm từ 19/10 (còn từ 7,9%), trong khi vốn TP mới vẫn ~9%/năm: bất lợi cho NIM."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "yes",
+      "note": "Repo LNST Q2 8.229 tỷ (+40%) khớp LNTT +41%. NIM tăng Q2 phù hợp tín dụng tăng nhanh trước đợt giảm lãi vay. Mâu thuẫn chưa giải quyết: VPBankS dự báo LNST Q3 ~7.875 tỷ là +35,8%, nhưng theo nền repo Q3/2025 (5.571 tỷ) thì là +41%, tức hai nguồn dùng nền khác nhau."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "yes",
+      "note": "TN lãi thuần Q2 +37%, NIM 4,16%, tín dụng +13% H1 vượt ngành."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "na",
+      "note": "Hạn mức tín dụng cao còn dài hạn, nhưng huy động +4,6% và nợ xấu tăng. Cần KQKD Q3."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "yes",
+      "note": "Chỉ T01 đạt 3 tín hiệu; các nhóm khác hỗn hợp hoặc tiêu cực."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "EPS pha loãng ~27% vốn trong 2026; LDR 82,8% sát trần 85%; chi phí vốn TP 8–9%; bao phủ <100%."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Lãi suất huy động/cho vay (NIM)",
+    "now": "Tiết kiệm 12 tháng 4,85%/năm, 6 tháng 4,20%/năm (Simplize); lãi vay ưu tiên giảm 1,5% (tới 2%), còn từ 7,9%/năm",
+    "date": "26/10/2026 (tiết kiệm); 19/10/2026 (cho vay)",
+    "base": "Chưa đủ dữ liệu biểu lãi tiết kiệm MB kỳ trước; NIM Q2/2026 4,16% (tăng 35bps QoQ, tức Q1 ~3,81%)",
+    "chg": "Cho vay ưu tiên -1,5 đến -2 điểm %; tiết kiệm: chưa đủ dữ liệu",
+    "impact": "Giảm lãi vay trong khi vốn TP mới 9%/năm: NIM Q4/2026 có thể thu hẹp so Q2. VPBankS kỳ vọng NIM Q3 đi ngang.",
+    "src": "https://thitruongtaichinhtiente.vn/mb-giam-lai-suat-cho-vay-toi-2-nam-dong-hanh-cung-doanh-nghiep-va-nguoi-dan-thuc-day-tang-truong-kinh-te-86407.html"
+   },
+   "oneoff": "Không phát hiện. Lưu ý chi phí dự phòng Q2 giảm 11% YoY dù nợ xấu tăng 27% YTD, nên một phần LN đến từ trích lập thấp.",
+   "risk": "Chi phí vốn và chất lượng tài sản: tiền gửi chỉ +4,6%, LDR 82,8%, phụ thuộc TP 8–9%, nợ xấu tăng lên 1,45%, bao phủ ~94%, trong khi vốn pha loãng ~27% năm 2026.",
+   "driver": "Tín dụng tăng nhanh (13% H1, hạn mức 30–35%) kéo thu nhập lãi thuần +37% và NIM 4,16% trong Q2/2026."
   },
   "NAB": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "9T/2026 LNTT hơn 4.700 tỷ (+25%, 75,8% KH 6.200 tỷ), Q3 hơn 1.500 tỷ (+16%) (Mekong ASEAN 4/10). Repo: LNST Q2/2026 1.210 tỷ (+16,9%). 6T tổng thu nhập hoạt động chỉ +3%, LN tăng chủ yếu nhờ giảm dự phòng. Nợ xấu 1,47% (30/6, từ 2,16%), quanh 1,5% cuối Q3; bao phủ gần 70%. Chưa có số NIM/CASA.",
-     "r": "mix"
+     "sig": "LNTT 9T/2026 hơn 4.700 tỷ (+25% YoY, 75,8% KH 6.200 tỷ), Q3 ước hơn 1.500 tỷ (+16%) (Mekong ASEAN 4/10). Nhưng tổng thu nhập hoạt động 6T chỉ 5.143 tỷ (+3%), Q1 thu nhập lãi thuần 2.072 tỷ giảm nhẹ YoY; ROE ~20% không cải thiện so 2024. BCTC Q3 chưa công bố tới 26/10.",
+     "r": "mix",
+     "sigs": [
+      2,
+      10
+     ],
+     "cls": "B"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "CIR 6T/2026 khoảng 40% (Đại biểu Nhân dân 30/7), cao hơn nhiều NH cùng quy mô. Tổng tài sản gần 465.000 tỷ cuối Q3/2026 (452 nghìn tỷ cuối Q2, +8% YTD). CAR 10,8%, dự trữ thanh khoản gần 20%. Không có số liệu mạng lưới.",
-     "r": "mix"
+     "sig": "CIR 6T/2026 khoảng 40% (VnEconomy 31/7), cao so NH cùng quy mô. Tổng tài sản tiệm cận 465.000 tỷ cuối Q3/2026 (cuối 2025: 418.333 tỷ, ~+11%), đạt hơn 95% KH quy mô. CAR 11,3% (30/9).",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Chi phí vốn dài hạn cao: 2 lô trái phiếu 7 năm phát hành tháng 9/2026 (100 tỷ và 495 tỷ), lãi thả nổi 9,6–9,7%/năm (Doanh nhân 10/2026). Tổng thu nhập hoạt động 6T chỉ +3% dù tín dụng +10%, cho thấy biên lãi chịu áp lực (không có số NIM cụ thể).",
-     "r": "neg"
+     "sig": "Từ 19/10/2026 giảm 0,5%/năm lãi huy động KH tổ chức kỳ hạn ≥6 tháng, nhưng gói 25.000 tỷ giảm lãi vay 1,5–2%/năm (tối đa 3,25%). Vốn dài hạn đắt: TP 7 năm phát hành 9/2026 lãi thả nổi 9,6–9,7%/năm (100 tỷ, 495 tỷ). Lãi vay giảm mạnh hơn huy động: NIM Q4 chịu áp lực.",
+     "r": "neg",
+     "cls": "B"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Tín dụng 9T/2026 +10,8% YTD (dư nợ cho vay gần 220 nghìn tỷ cuối Q2); huy động TCKT, dân cư và GTCG gần 254.000 tỷ (+gần 20%). Danh mục chứng khoán đầu tư 48.700 tỷ (+21,5%), TPCP 32.600 tỷ. Có vốn quốc tế hơn 300–350 triệu USD (IFC, ADB, J.P. Morgan) cho tín dụng xanh.",
-     "r": "pos"
+     "sig": "Tín dụng 9T/2026 +10,8% YTD (ngành ~12%), huy động TCKT, dân cư và GTCG gần 254.000 tỷ (+gần 20% so cuối 2025). Danh mục CK đầu tư ~48.700 tỷ (+21,5%), TPCP ~32.600 tỷ (+31%). Vốn quốc tế ~350 triệu USD tới 6/2026.",
+     "r": "mix",
+     "sigs": [
+      30
+     ],
+     "cls": "B"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "Pha loãng liên tục: cổ tức CP 20% (5/2026), ESOP 100 triệu CP giá 10.000 đ (4,86%, hạn chế chuyển nhượng 1 năm), vốn lên khoảng 21.588 tỷ; kế hoạch chào bán riêng lẻ 100 triệu CP nửa cuối 2026, hướng tới vốn 25.000 tỷ. ESOP đợt 2: 9 Phó TGĐ mỗi người 1 triệu CP, 2 lãnh đạo mỗi người hơn 3,6 triệu.",
-     "r": "neg"
+     "sig": "Pha loãng 2026: CP thưởng 20% (~343,1 triệu CP), ESOP 100 triệu CP giá 10.000đ (3.782 nhân viên; lãnh đạo nhận 1–6,2 triệu CP/người, 6/2026), chào bán riêng lẻ 100 triệu CP; vốn từ 17.157 tỷ lên ~22.588 tỷ (+~32%).",
+     "r": "neg",
+     "sigs": [
+      38,
+      47
+     ],
+     "cls": "A"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "Repo ghi nhiều lãnh đạo \"mua\" 1 triệu CP (6/2026), nhưng thực chất là mua ESOP đợt 2 giá 10.000 đ (thị giá 11.900 ngày 10/6), không phải mua khớp lệnh trên thị trường. Khối ngoại mua ròng 5,3 tỷ phiên gần nhất (repo fd=1). Cổ tức chủ yếu bằng cổ phiếu (20%).",
-     "r": "mix"
+     "sig": "Các giao dịch \"mua\" của lãnh đạo 6/2026 (1 triệu CP/người, Hà Huy Cường 6,2 triệu) là nhận ESOP giá 10.000đ, không phải mua khớp lệnh. Khối ngoại mua ròng 5,3 tỷ (repo, chỉ 1 phiên). Cổ tức chủ yếu bằng cổ phiếu.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Repo 23/10/2026: giá 12.600, +0,8% 3T, +8,2% 6T, +1,9% 12T; ngang VN-Index (x12 −0,5 điểm %, x3 −3,5 điểm %), cách đỉnh 52 tuần −6,7%. Vượt nền 13 phiên trước, KL tương đối 1,73, tỷ lệ dòng tiền vào 0,572. Thanh khoản thấp (GTGD bình quân khoảng 29,7 tỷ/phiên). Không có số MA50/MA200.",
-     "r": "mix"
+     "sig": "Giá 12.600đ (23/10/2026): +0,8% 3T, +8,2% 6T, +1,9% 12T; kém VN-Index 3,5 điểm % (3T); cách đỉnh 52 tuần -6,7%. Vượt nền 13 phiên, KL tương đối 1,73, dòng tiền vào 0,572. GTGD ~29,7 tỷ/phiên.",
+     "r": "mix",
+     "sigs": [
+      48
+     ],
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Ngành NH 9T/2026 nhiều nhà băng báo lãi lớn, nhưng chi phí huy động đi lên. NAB là NH quy mô nhỏ–vừa, phụ thuộc huy động GTCG lãi suất cao. Moody's nâng triển vọng lên Tích cực, Fitch giữ hạng (6T/2026).",
-     "r": "mix"
+     "sig": "Lãi huy động bình quân tăng 11 tháng liên tiếp tới 9/2026 (CafeF 26/10). NHNN yêu cầu giảm ≥0,5 điểm % huy động kỳ hạn ≥6 tháng và giảm 1,5–2% lãi vay SXKD (Vietstock 20/10). MBS: NIM ngành chịu áp lực, nặng nhất ở NH TMCP tư nhân.",
+     "r": "mix",
+     "sigs": [
+      54
+     ],
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "Đầu 10/2026 công bố LNTT 9T hơn 4.700 tỷ (+25%). Tháng 9–10/2026 phát hành thêm trái phiếu, tổng 7 lô từ đầu năm. Moody's nâng triển vọng Tích cực. Không thấy tin tiêu cực lớn trong 3 tháng qua.",
-     "r": "pos"
+     "sig": "Đầu 10/2026 công bố LNTT 9T hơn 4.700 tỷ (+25%). Từ đầu 2026 đã phát hành 7 lô TP. 20/10 công bố gói 25.000 tỷ giảm lãi vay. Không thấy tin tiêu cực lớn trong 3 tháng qua.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "LN 6T/2026 +25% trong khi tổng thu nhập hoạt động chỉ +3%: tăng trưởng LN chủ yếu nhờ giảm chi phí dự phòng (VnBusiness). Bao phủ nợ xấu chỉ khoảng 70% (cuối 2025: 54%), còn mỏng; repo FY ghi bao phủ 68,3%. Chưa thấy khoản thu nhập một lần lớn.",
-     "r": "neg"
+     "sig": "Q1/2026 PPOP giảm nhẹ YoY, LN tăng mạnh nhờ giảm/hoàn nhập dự phòng (The Leader 12/7). 6T tổng thu nhập +3% mà LNTT +25%. Bao phủ nợ xấu ~70% (30/6), nợ xấu ~1,5% (30/9, trước CIC). Chưa thấy khoản thu nhập một lần lớn.",
+     "r": "neg",
+     "cls": "B"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "Mảng giấy tờ có giá tăng 30%, đóng góp 5% LNTT 9T/2026; thu nhập ngoài lãi chiếm 26% tổng thu nhập. Không có số liệu về sản phẩm số (Open Banking/ONEBANK) trong nguồn đã đọc.",
-     "r": "na"
+     "sig": "Thu nhập ngoài lãi chiếm 26% tổng thu nhập 9T/2026; mảng giấy tờ có giá +30%, đóng góp 5% LNTT. Chưa có số liệu định lượng về sản phẩm số (ONEBANK/Open Banking).",
+     "r": "mix",
+     "cls": "C"
     }
    ],
-   "summary": "Điểm mạnh: LNTT 9T/2026 +25%, tín dụng +10,8% và huy động gần +20%, nợ xấu giảm về khoảng 1,5%, giá giữ gần đỉnh 52 tuần. Rủi ro: LN tăng chủ yếu nhờ giảm dự phòng trong khi thu nhập hoạt động gần như đi ngang, CIR khoảng 40%, bao phủ nợ xấu khoảng 70%, pha loãng liên tục (cổ tức CP, ESOP, chào bán riêng lẻ), trái phiếu lãi 9,6–9,7%. Cần theo dõi NIM và dự phòng trong BCTC Q3, cùng giá chào bán riêng lẻ.",
+   "summary": "LNTT 9T/2026 +25% nhưng phần lớn nhờ giảm dự phòng; tổng thu nhập hoạt động gần như đi ngang (+3% 6T), trong khi vốn bị pha loãng ~32% và lãi vay ưu đãi vừa giảm mạnh. Chỉ khi BCTC Q3 cho thấy thu nhập lãi thuần tăng tương xứng tín dụng, tăng trưởng mới được coi là bền vững. Dấu hiệu tăng trưởng chưa chắc chắn. Cần theo dõi thêm.",
    "src": [
     {
-     "t": "Thu nhập ngoài lãi góp 26% nguồn thu của Nam A Bank sau 9 tháng",
+     "t": "Thu nhập ngoài lãi góp 26% nguồn thu của Nam A Bank sau 9 tháng (Mekong ASEAN 4/10/2026)",
      "u": "https://mekongasean.vn/thu-nhap-ngoai-lai-gop-26-nguon-thu-cua-nam-a-bank-sau-9-thang-60294.html"
     },
     {
-     "t": "Nam A Bank huy động liên tiếp các lô trái phiếu, lợi nhuận 9 tháng vượt 4.700 tỷ",
+     "t": "Nam A Bank bứt phá, LNTT 9 tháng hơn 4.700 tỷ (Thời báo Tài chính)",
+     "u": "https://thoibaotaichinhvietnam.vn/nam-a-bank-but-pha-loi-nhuan-truoc-thue-9-thang-dat-hon-4-700-ty-dong-tong-tai-san-tiem-can-465-000-ty-dong-204873.html"
+    },
+    {
+     "t": "Lợi nhuận Nam A Bank tăng 25%, chất lượng tài sản cải thiện 6 tháng (VnEconomy 31/7/2026)",
+     "u": "https://vneconomy.vn/loi-nhuan-nam-a-bank-tang-25-chat-luong-tai-san-cai-thien-ro-net-trong-6-thang-dau-nam.htm"
+    },
+    {
+     "t": "Nam A Bank: Sau cú nhảy quy mô là câu chuyện nâng chất tăng trưởng (The Leader 12/7/2026)",
+     "u": "https://theleader.vn/nam-a-bank-sau-cu-nhay-quy-mo-la-ap-luc-nang-chat-tang-truong-d46828.html"
+    },
+    {
+     "t": "Nam A Bank giảm đồng loạt lãi suất, tung hơn 25.000 tỷ vốn ưu đãi (20/10/2026)",
+     "u": "https://doanhnhan.baophapluat.vn/nam-a-bank-giam-dong-loat-lai-suat-tung-hon-25-000-ty-dong-von-uu-dai-ho-tro-doanh-nghiep.md"
+    },
+    {
+     "t": "Nam A Bank huy động liên tiếp các lô trái phiếu",
      "u": "https://doanhnhan.baophapluat.vn/nam-a-bank-nab-huy-dong-lien-tiep-cac-lo-trai-phieu-loi-nhuan-9-thang-vuot-4-700-ty-dong.html"
     },
     {
-     "t": "Lợi nhuận trước thuế Nam A Bank tăng mạnh 6 tháng đầu năm 2026 (Đại biểu Nhân dân)",
-     "u": "https://daibieunhandan.vn/loi-nhuan-truoc-thue-nam-a-bank-tang-manh-trong-6-thang-dau-nam-2026-no-xau-giam-sau-ty-le-bao-phu-no-xau-tang-vuot-troi-10425496.html"
+     "t": "Vượt mốc vốn 20.500 tỷ, Nam A Bank chuẩn bị chào bán thêm 200 triệu CP (19/5/2026)",
+     "u": "https://doanhnhan.baophapluat.vn/vuot-moc-von-dieu-le-20-500-ty-dong-nam-a-bank-nab-chuan-bi-chao-ban-them-200-trieu-co-phieu.html"
     },
     {
-     "t": "Nam A Bank sắp phân phối thêm 16 triệu cổ phiếu ESOP cho lãnh đạo",
-     "u": "https://mekongasean.vn/nam-a-bank-sap-phan-phoi-them-16-trieu-co-phieu-esop-cho-lanh-dao-56128.html"
+     "t": "Ngân hàng Nam A phát hành 543 triệu CP tăng vốn lên 22.588 tỷ",
+     "u": "https://doanhnhan.baophapluat.vn/ngan-hang-nam-a-nab-phat-hanh-543-trieu-co-phieu-tang-von-len-22-588-ty-dong.html"
     },
     {
-     "t": "Nam A Bank chào bán 100 triệu cổ phiếu ESOP giá 10.000 đồng",
-     "u": "https://doanhnhan.baophapluat.vn/nam-a-bank-nab-chao-ban-100-trieu-co-phieu-esop-gia-10-000-dong-von-dieu-le-ap-sat-moc-21-600-ty.html"
+     "t": "Lãi suất huy động đồng loạt hạ nhiệt (Vietstock 20/10/2026)",
+     "u": "https://vietstock.vn/2026/10/lai-suat-huy-dong-dong-loat-ha-nhiet-xu-huong-nao-cho-quy-cuoi-nam-757-1504177.htm"
     },
     {
-     "t": "Nam A Bank lãi tăng mạnh nhờ giảm dự phòng, tỷ lệ nợ xấu giảm còn 1,47%",
-     "u": "https://vnbusiness.vn/nam-a-bank-lai-tang-manh-nho-giam-du-phong-ty-le-no-xau-giam-con-147.html"
+     "t": "Đà tăng lãi suất tiết kiệm nhiều khả năng đã chấm dứt (CafeF 26/10/2026)",
+     "u": "https://cafef.vn/da-tang-lai-suat-tiet-kiem-nhieu-kha-nang-da-cham-dut-188261026110527281.chn"
+    },
+    {
+     "t": "MBS: Dự báo KQKD Q3/26 ngành ngân hàng",
+     "u": "https://www.mbs.com.vn/files/uploads/2026/09/DU-BAO-KQKD-3Q26_NGAN-HANG_20260924.pdf"
+    },
+    {
+     "t": "Banks poised for Q3 profit growth amid margin pressure (VIR 16/10/2026)",
+     "u": "https://vir.com.vn/banks-poised-for-q3-profit-growth-amid-margin-pressure-163056.html"
     }
-   ]
+   ],
+   "score": 1.5,
+   "calc": {
+    "A": 0.0,
+    "B": 1.5,
+    "C": 1.0,
+    "R": 1.0
+   },
+   "main": [],
+   "check": {
+    "ok": 7,
+    "conflict": 0,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "no",
+      "note": "Không có lãi bán tài sản, nhưng LN tăng chủ yếu nhờ giảm/hoàn nhập dự phòng (Q1 PPOP giảm nhẹ). Chất lượng LN thấp."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "no",
+      "note": "Từ 19/10: huy động TC kỳ hạn ≥6T -0,5%/năm, cho vay ưu đãi -1,5 đến -3,25%/năm. Lãi vay giảm nhiều hơn chi phí vốn."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "yes",
+      "note": "Repo: tổng thu nhập Q1+Q2/2026 = 2.307+2.836 = 5.143 tỷ, khớp nguồn báo chí (+3%). LNST Q2 +16,9%."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "no",
+      "note": "Tín dụng +10,8% nhưng tổng thu nhập 6T chỉ +3%, NII Q1 giảm nhẹ: biên lãi thu hẹp."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "no",
+      "note": "Động lực từ giảm dự phòng không lặp lại lâu dài khi bao phủ chỉ ~70%."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "no",
+      "note": "Không nhóm nào đạt ≥3 tín hiệu rõ và tích cực."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "EPS pha loãng ~32% (CP thưởng, ESOP 10.000đ, riêng lẻ); NIM chịu áp lực do giảm lãi vay; TP lãi 9,6–9,7%."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Lãi suất huy động/cho vay (NIM)",
+    "now": "Huy động KH tổ chức kỳ hạn ≥6 tháng giảm 0,5%/năm; gói cho vay 25.000 tỷ giảm 1,5–2%/năm (tối đa 3,25%). Nguồn không nêu mức tuyệt đối",
+    "date": "hiệu lực 19/10/2026",
+    "base": "biểu lãi suất trước 19/10/2026 (lãi huy động bình quân ngành tăng 11 tháng liên tiếp tới 9/2026)",
+    "chg": "Huy động -0,5 điểm %; cho vay ưu đãi -1,5 đến -3,25 điểm %",
+    "impact": "Chi phí vốn giảm ít hơn lợi suất cho vay, cộng TP 9,6–9,7%/năm: NIM Q4/2026 dễ thu hẹp tiếp",
+    "src": "https://doanhnhan.baophapluat.vn/nam-a-bank-giam-dong-loat-lai-suat-tung-hon-25-000-ty-dong-von-uu-dai-ho-tro-doanh-nghiep.md"
+   },
+   "oneoff": "Không có thu nhập một lần lớn, nhưng tăng trưởng LN chủ yếu nhờ giảm/hoàn nhập dự phòng (tổng thu nhập 6T chỉ +3%). Cần loại khi đánh giá động lực cốt lõi.",
+   "risk": "Biên lãi thu hẹp (cho vay ưu đãi giảm 1,5–3,25%, TP 9,6–9,7%) và pha loãng ~32% vốn (ESOP 10.000đ, CP thưởng, riêng lẻ) làm EPS tăng chậm hơn LN.",
+   "driver": "Mở rộng quy mô (tín dụng +10,8%, huy động +20% YTD) kết hợp giảm chi phí dự phòng nhờ nợ xấu giảm về ~1,5%."
   },
   "NCT": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "Q3/2026 (công bố 23/10): DT 360 tỷ (+13,4%), LN gộp 163,8 tỷ (+22,1%), nhưng LNST 98,1 tỷ (-14,2%) do DT tài chính chỉ còn 6,9 tỷ (cùng kỳ 31,9 tỷ) và chi phí tăng. 9T/2026: DT 972 tỷ (+15,8%), LNST 317 tỷ (+20%), bằng ~74% KH 427,5 tỷ. FY2025 CFO 414 tỷ, LN 387 tỷ (repo); không vay nợ.",
-     "r": "mix"
+     "sig": "Q3/2026: DT 360,1 tỷ (+13,4% YoY, +12,8% QoQ), LN gộp 163,8 tỷ (+22%), biên gộp ~45,5% (Q3/2025 ~42,3%); LNST 98,1 tỷ (-14,2%) do DT tài chính 6,9 tỷ (cùng kỳ 31,9 tỷ). 9T: DT 972 tỷ (+15,8%), LNST 317 tỷ (+20%), đạt 74% KH 427,5 tỷ. CFO 9T 227,8 tỷ (-22%). Không vay nợ; KH cổ tức tiền 2026 100%.",
+     "r": "pos",
+     "sigs": [
+      1,
+      3,
+      9
+     ],
+     "cls": "B"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "Sản lượng hàng hóa 9T/2026 tăng 8,6% (Tinnhanhchungkhoan 23/10/2026). Kế hoạch đầu tư 151,9 tỷ cho xe nâng/xe kéo điện, truckdock, CNTT (giải ngân 73,3 tỷ năm 2026). Q3 có chi phí sửa chữa, nâng cấp khu vực xử lý hàng. Chưa có số liệu công suất nhà ga.",
-     "r": "pos"
+     "sig": "Sản lượng hàng hóa 9T/2026 +8,6% (Tinnhanhchungkhoan 23/10/2026). TSCĐ hữu hình +47 tỷ (30/9); capex 9T 52,5 tỷ trong gói 151,9 tỷ (xe nâng/xe kéo điện, truckdock, CNTT). Chưa có số liệu công suất nhà ga.",
+     "r": "pos",
+     "sigs": [
+      11,
+      13
+     ],
+     "cls": "B"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Biên gộp Q3/2026 ~45,5% (163,8/360 tỷ), cao hơn ~42,3% Q3/2025 (tự tính theo số báo: giá vốn chỉ +7% trong khi DT +13,4%). Chi phí bán hàng +136% (12,3 tỷ), chi phí QLDN +31% (35,2 tỷ) cho đào tạo, xúc tiến thương mại. Căng thẳng Trung Đông làm tăng giá nhiên liệu bay cho các hãng.",
-     "r": "mix"
+     "sig": "Biên gộp Q3 tăng lên ~45,5% (giá vốn +7% so DT +13,4%). Chi phí bán hàng +136% (12,3 tỷ), QLDN +31% (35,2 tỷ). Không có biểu giá dịch vụ mới công khai; DT/tấn ước tính 9T +6,6% (tự tính: DT +15,8% so sản lượng +8,6%).",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Hàng hóa qua các cảng hàng không VN 9T/2026 đạt 1,4 triệu tấn (+>10%, Cục HK qua Vietnam+ 1/10/2026). Động lực chính là linh kiện điện thoại, điện tử, dệt may nhờ FDI. NCT tăng 8,6%, thấp hơn mức chung của ngành. Đang tìm hiểu cơ hội ở sân bay Gia Bình (mới ở mức thăm dò).",
-     "r": "mix"
+     "sig": "Hàng hóa qua các cảng ACV 9T/2026 ~1,4 triệu tấn (+9,8%), nhưng Q3 chỉ +4,2% (ACV 14/10/2026). Nội Bài 6T/2026 >548.000 tấn (+21%, Znews 18/7) trong khi NCT 9T chỉ +8,6% — có thể mất thị phần (khác kỳ, chưa xác minh). Gia Bình mới ở mức tiếp cận.",
+     "r": "mix",
+     "sigs": [
+      30
+     ],
+     "cls": "B"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "Chủ tịch Hồ Quang Tuấn từ nhiệm HĐQT từ 25/6/2026, chưa công bố người thay; CEO Trần Việt Phương (từ 3/2026) được đề cử bổ sung vào HĐQT. Không vay nợ, nợ phải trả giảm còn 206,3 tỷ. Chưa thấy pha loãng, xử phạt hay giao dịch bên liên quan đáng chú ý.",
-     "r": "mix"
+     "sig": "Chủ tịch Hồ Quang Tuấn từ nhiệm từ 25/6/2026, chưa thấy công bố người thay; CEO Trần Việt Phương (từ 3/2026) vào HĐQT. Không vay nợ; nợ phải trả giảm còn 206,3 tỷ. Chưa thấy pha loãng, xử phạt.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "Cổ đông lớn America LLC bán liên tiếp 5 lần (11/2025, 1/2026, 4/2026, 6/2026, 8/2026; repo không có số lượng). Khối ngoại fn=-0,55 (1 phiên, repo). Cổ tức 2025 80% tiền mặt (8.000đ/cp); KH 2026 nâng lên 100% (10.000đ/cp), tức lợi suất ~12% ở giá 83.100đ.",
-     "r": "mix"
+     "sig": "Cổ đông lớn America LLC bán 5 lần liên tiếp (11/2025–8/2026; repo không có số lượng). Khối ngoại -0,55 tỷ (1 phiên). Không thấy tổ chức/nội bộ mua vào.",
+     "r": "neg",
+     "cls": "B"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Giá 83.100đ (23/10/2026): -2,2% 3 tháng (kém VN-Index 6,3 điểm %), -7% 12 tháng (kém 9,3 điểm %), cách đỉnh 52 tuần 13,2%. Giảm ~14% từ 97.000đ (25/6). Dòng tiền vào chỉ 28,3% (20 phiên), KL tương đối 1,33, thanh khoản thấp (~1,1 tỷ/phiên). RS yếu.",
-     "r": "neg"
+     "sig": "Giá 83.100đ (23/10/2026): -2,2% 3 tháng (kém VN-Index 6,3 điểm %), -7% 12 tháng (kém 9,3 điểm %), cách đỉnh 52 tuần -13,2%. Dòng tiền vào 28,3% (20 phiên), KL tương đối 1,33, thanh khoản ~1,1 tỷ/phiên.",
+     "r": "neg",
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Hàng không VN 9T/2026: khách ~102 triệu lượt (+12%), hàng hóa +>10%. FDI điện tử ở miền Bắc hỗ trợ sản lượng hàng tại Nội Bài. Rủi ro: giá nhiên liệu bay do Trung Đông, thêm năng lực cạnh tranh từ sân bay Gia Bình/Long Thành trong trung hạn.",
-     "r": "pos"
+     "sig": "Hàng không VN 9T/2026: hàng hóa ~1,4 triệu tấn (+>10%, Cục HK 1/10); khách ACV 94,1 triệu (+8,6%). FDI điện tử miền Bắc hỗ trợ. Nhưng tăng trưởng hàng hóa Q3 chậm lại (+4,2%); cạnh tranh tiềm năng từ Gia Bình (dự kiến bay quốc tế 3/2027).",
+     "r": "pos",
+     "sigs": [
+      59
+     ],
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "KQKD Q3/2026 (23/10) cho thấy LN giảm 14% dù DT tăng, khả năng gây áp lực tâm lý ngắn hạn. ĐHĐCĐ 25/6 duyệt cổ tức cao và thay đổi nhân sự. Gia Bình dự kiến có bay quốc tế dịp APEC 3/2027; NCT chưa có thỏa thuận.",
-     "r": "mix"
+     "sig": "KQKD Q3 (22–23/10/2026) với LN giảm 14% được báo chí đưa tin tiêu cực. ĐHĐCĐ 25/6 duyệt KH LN kỷ lục 427,5 tỷ và cổ tức 100%. Chưa có báo cáo CTCK mới sau Q3.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "Mức nền Q3/2025 cao vì DT tài chính 31,9 tỷ (Q3/2026 chỉ 6,9 tỷ); nếu loại phần này, LN cốt lõi Q3/2026 vẫn tăng nhờ LN gộp +22%. Đầu tư tài chính ngắn hạn 600,7 tỷ (+12%), chiếm ~61% tổng tài sản 990,5 tỷ, nhưng lãi tài chính giảm mạnh; chưa rõ nguyên nhân.",
-     "r": "mix"
+     "sig": "DT tài chính không đều: Q3/2025 31,9 tỷ, 6T/2026 ~52,4 tỷ, Q3/2026 6,9 tỷ (tự tính); 9T 59,4 tỷ (+47%) ≈15% LNTT. Đầu tư nắm giữ đến đáo hạn 600,7 tỷ (~61% tổng TS). Loại trừ thu tài chính, LN hoạt động cốt lõi Q3 ~116 tỷ (+~14%, tự tính).",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "Là đơn vị đầu tiên ở Nội Bài dùng xe kéo hành lý điện, hướng tới 'Green Airport'; đầu tư CNTT và truckdock trong gói 151,9 tỷ (2026). Chưa có số liệu đóng góp vào DT/LN.",
-     "r": "mix"
+     "sig": "Đơn vị đầu tiên ở Nội Bài dùng xe kéo hành lý điện, hướng tới sân bay xanh; đầu tư CNTT, truckdock trong gói 151,9 tỷ. Chưa có số liệu đóng góp DT/LN.",
+     "r": "mix",
+     "sigs": [
+      76
+     ],
+     "cls": "C"
     }
    ],
-   "summary": "Điểm mạnh: hoạt động cốt lõi tốt (DT Q3 +13,4%, LN gộp +22%, biên gộp ~45%), không vay nợ và kế hoạch cổ tức 100% tiền mặt. Rủi ro: LNST Q3 giảm 14% do thu tài chính giảm và chi phí tăng, cổ đông lớn America LLC bán liên tục, RS yếu, thanh khoản thấp. Cần theo dõi: Q4 có đạt KH 427,5 tỷ, ai làm Chủ tịch mới và tác động của Gia Bình.",
+   "summary": "Hoạt động cốt lõi NCT vẫn tăng (DT Q3 +13,4%, LN gộp +22%, biên gộp ~45,5%), nhưng LNST Q3 giảm 14% vì nền thu tài chính cao, CFO 9T giảm 22%, và Q4/2026 nhiều khả năng đi ngang/giảm nhẹ so nền 122,7 tỷ. Chỉ khi sản lượng Nội Bài tăng tốc lại và chi phí được kiểm soát thì tăng trưởng LN mới rõ; hiện là kịch bản đi ngang với cổ tức cao.",
    "src": [
+    {
+     "t": "Dịch vụ Hàng hóa Nội Bài (NCT) doanh thu quý III tăng nhưng lợi nhuận vẫn giảm hơn 14%",
+     "u": "https://thuongtruong.com.vn/news/dich-vu-hang-hoa-noi-bai-nct-doanh-thu-quy-iii-tang-nhung-loi-nhuan-van-giam-hon-14-171013.html"
+    },
     {
      "t": "Dịch vụ Hàng hóa Nội Bài (NCT): Doanh thu quý III/2026 tăng, lợi nhuận vẫn giảm 14%",
      "u": "https://www.tinnhanhchungkhoan.vn/dich-vu-hang-hoa-noi-bai-nct-doanh-thu-quy-iii2026-tang-loi-nhuan-van-giam-14-post400064.html"
@@ -1023,8 +1983,16 @@
      "u": "https://mekongasean.vn/dhdcd-ncts-muc-tieu-lai-ky-luc-nang-muc-co-tuc-len-100-56641.html"
     },
     {
+     "t": "ACV cập nhật kết quả kinh doanh 9 tháng đầu năm 2026",
+     "u": "https://mekongasean.vn/acv-cap-nhat-ket-qua-kinh-doanh-9-thang-dau-nam-2026-60624.html"
+    },
+    {
      "t": "Hàng không Việt Nam duy trì đà tăng trưởng hai con số trong 9 tháng qua",
      "u": "https://www.vietnamplus.vn/hang-khong-viet-nam-duy-tri-da-tang-truong-hai-con-so-trong-9-thang-qua-post1139439.vnp"
+    },
+    {
+     "t": "Sân bay Nội Bài báo tin vui",
+     "u": "https://znews.vn/san-bay-noi-bai-bao-tin-vui-post1670262.html"
     },
     {
      "t": "NCT báo lãi quý II/2026 tăng 32,3% đạt 112,9 tỷ đồng",
@@ -1033,216 +2001,503 @@
     {
      "t": "NCT: Report on change of ownership of major shareholders - America LLC",
      "u": "https://www.bsc.com.vn/en/tin-tuc/tin-tuc-ma-co-phieu/1255475-nct-report-on-change-of-ownership-of-major-shareholders-america-llc"
-    },
-    {
-     "t": "NCTS muốn nâng cổ tức lên 100%, đón cơ hội ở sân bay Gia Bình",
-     "u": "https://vietnamfinance.vn/ncts-muon-nang-co-tuc-len-100-don-co-hoi-o-san-bay-gia-binh-d146685.html"
     }
-   ]
+   ],
+   "score": 3.0,
+   "calc": {
+    "A": 2.0,
+    "B": 1.0,
+    "C": 1.0,
+    "R": 1.0
+   },
+   "main": [
+    "01"
+   ],
+   "check": {
+    "ok": 5,
+    "conflict": 1,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "no",
+      "note": "Thu tài chính không đều làm méo LN: nền Q3/2025 cao (31,9 tỷ), 1H/2026 cao (~52,4 tỷ); khoảng 15% LNTT 9T đến từ thu tài chính."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "na",
+      "note": "Không tìm thấy biểu giá dịch vụ phục vụ hàng hóa mới; chỉ có DT/tấn tự ước +6,6% (9T) làm proxy."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "yes",
+      "note": "Nhất quán nội bộ: DT +15,8% > sản lượng +8,6% và biên gộp tăng → giá/cơ cấu cải thiện."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "yes",
+      "note": "Biên gộp Q3 45,5% (42,3%), DT +13,4%; riêng thị phần chưa rõ (NCT tăng chậm hơn Nội Bài)."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "na",
+      "note": "Hàng hóa ACV Q3 chỉ +4,2%, Gia Bình có thể chia sẻ sản lượng từ 2027; chưa đủ dữ liệu."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "no",
+      "note": "Chỉ 1 TREND chính (01, cls B), tín hiệu tập trung tài chính; LNST quý giảm."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "Có: CFO 9T -22% (0,72 lần LNST), chi phí bán hàng/QLDN tăng mạnh, Q4 cần ~110,5 tỷ (thấp hơn ~10% nền 122,7 tỷ) để đạt KH."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Dịch vụ phục vụ hàng hóa hàng không tại Nội Bài (proxy: DT bình quân/tấn)",
+    "now": "Chưa có biểu giá công khai mới; DT/tấn ước tính tăng ~6,6% YoY (tự tính)",
+    "date": "9T/2026 (BCTC Q3 công bố 22–23/10/2026)",
+    "base": "9T/2025 (DT 839,3 tỷ; sản lượng gốc không công bố tuyệt đối)",
+    "chg": "~+6,6% (proxy, chưa xác minh bằng biểu giá)",
+    "impact": "Giá/cơ cấu dịch vụ tốt hơn giúp biên gộp tăng lên ~45,5% Q3; sản lượng tăng chậm lại theo ngành (ACV Q3 +4,2%)",
+    "src": "Thương Trường 22/10/2026; Tinnhanhchungkhoan 23/10/2026; tự tính"
+   },
+   "oneoff": "DT tài chính không đều (Q3/2025 31,9 tỷ; 6T/2026 ~52,4 tỷ; Q3/2026 6,9 tỷ) — cần loại khỏi so sánh tăng trưởng cốt lõi.",
+   "risk": "Sản lượng hàng hóa hàng không chậm lại (ACV Q3 +4,2%) và nguy cơ mất thị phần tại Nội Bài/Gia Bình trong khi chi phí bán hàng, QLDN tăng nhanh.",
+   "driver": "Sản lượng hàng hóa điện tử/linh kiện qua Nội Bài tăng (+8,6% 9T) cùng giá/cơ cấu dịch vụ cải thiện, đẩy LN gộp Q3 +22%."
   },
   "QNS": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "BCTC Q3/2026 (bài 24/10/2026): DT ~3.073 tỷ (+14%), LNST ~450 tỷ (+18% so 380,9 tỷ Q3/2025 trong repo), biên gộp 32%→35%. 9T/2026 DT ~9.125 tỷ (+16%), LNST ~1.407 tỷ (+7%), đạt ~93% KH LNST năm 1.512 tỷ. Số ước Vietcap 13/10 (DT 3.265 tỷ, LNTT 530 tỷ) lệch nhẹ BCTC.",
-     "r": "pos"
+     "sig": "BCTC Q3/2026: DT 3.073 tỷ (+14%), LNST 450 tỷ (+18%), LN gộp 1.086 tỷ (+25%), biên gộp 32%→35%. 9T: DT 9.125 tỷ (+16%), LNST 1.407 tỷ (+7%) = 93% KH 1.512 tỷ. CFO 2025 2.106 tỷ (repo), dương ổn định. Cổ tức tiền 2025 40% (~1.470 tỷ).",
+     "r": "pos",
+     "sigs": [
+      1,
+      2,
+      3,
+      4,
+      9
+     ],
+     "cls": "A"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "Sữa đậu nành Q3/2026: sản lượng 85 triệu lít (+16%); 9T sản lượng +12%. Đường 9T/2026: sản lượng tiêu thụ +25%. XDCB dở dang tăng lên 774 tỷ (30/09/2026), chủ yếu mở rộng công suất nhà máy đường và điện sinh khối. Chưa có số công suất cụ thể của dự án.",
-     "r": "pos"
+     "sig": "Sữa đậu nành Q3/2026 85 triệu lít (+16%, Vietcap ước). XDCB dở dang 774 tỷ (30/9/2026) cho mở rộng nhà máy đường, điện sinh khối. Tồn kho +15% lên 1.573 tỷ, thành phẩm +78% so đầu năm — cần theo dõi khả năng tiêu thụ.",
+     "r": "mix",
+     "sigs": [
+      13
+     ],
+     "cls": "B"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Giá đường bình quân Q3/2026 của QNS chỉ 15.726 đ/kg (hợp đồng cũ giá thấp) dù giá nội địa đã hồi lên 18.000–19.000 đ/kg; hợp đồng mới 19.000–20.000 đ/kg. Biên gộp đường 9T giảm 22%→19%; sữa đậu nành tăng 44%→48%, giá bán +7–8%. Chi phí bán hàng 9T tăng gần 50%.",
-     "r": "mix"
+     "sig": "Giá bán đường BQ Q3/2026 của QNS 15.726 đ/kg (hợp đồng cũ), thấp hơn giá nội địa 18.000–19.000 đ/kg; hợp đồng mới 19.000–20.000 đ/kg (Vietcap 10/2026). Giá bán sữa đậu nành +8%. Biên gộp đường 9T 22%→19%; chi phí bán hàng Q3 +37% (574 tỷ), 9T +49%.",
+     "r": "mix",
+     "sigs": [
+      20
+     ],
+     "cls": "B"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Sữa đậu nành (Fami/Vinasoy) dẫn dắt: DT 9T ~4.373 tỷ (+22%), Q3 LNTT ~255 tỷ (+24%); mở rộng xuất khẩu. Mảng đường Q3 DT ~975 tỷ (−6%), LNTT ~130 tỷ (−15%), chịu cạnh tranh đường nhập lậu và HFCS (TNCK 16/03/2026). Mảng khác (bia, bánh kẹo, nước, điện) DT 9T +17%.",
-     "r": "mix"
+     "sig": "Sữa đậu nành DT 9T 4.373 tỷ (+22%), biên gộp 44%→48%. Mảng đường DT 9T +8% nhưng LN gộp −7%; Q3 DT đường ước 975 tỷ (−6%). Đường nhập lậu từ Lào, Campuchia và HFCS (8T/2026 nhập 152.965 tấn) chiếm thị phần đường công nghiệp (VSSA 10/2026).",
+     "r": "mix",
+     "sigs": [
+      30
+     ],
+     "cls": "B"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "ĐHĐCĐ 2026 trình phát hành ESOP 1–3% số CP theo giá sổ sách, hạn chế 3 năm (pha loãng nhẹ). Nhóm NutiFood liên tục gom cổ phần (2 pháp nhân, mục tiêu ~8,4%) → khả năng thay đổi cơ cấu cổ đông/kiểm soát. Không tìm thấy vi phạm, xử phạt hay ý kiến kiểm toán ngoại trừ (chưa đọc BCKT 2025).",
-     "r": "mix"
+     "sig": "ĐHĐCĐ 2026 duyệt ESOP 1–3% theo giá sổ sách (BV 2025 ~29.000đ/cp so thị giá 50.100đ) → pha loãng nhẹ, bất lợi. NutiFood (2 pháp nhân) gom lên ~3,74% và ~4,54% → cổ đông chiến lược ngành sữa. KH LNST 2026 1.512 tỷ (−21%) thận trọng. Không thấy xử phạt/kiểm toán ngoại trừ.",
+     "r": "mix",
+     "sigs": [
+      35
+     ],
+     "cls": "B"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "Nội bộ: 3 đăng ký mua/1 bán trong 90 ngày; PCT HĐQT kiêm TGĐ Võ Thành Đàng đăng ký mua 1 triệu CP 3 đợt (07, 08, 09/2026; đợt đầu chỉ mua 4.000 CP), sở hữu 10,14%→10,41%. NutiFood + NutiFood Bình Dương đăng ký mua 1 triệu CP (09–10/2026). Tạm ứng cổ tức 2026 10% trả 27/08/2026. Khối ngoại bán ròng 4,43 tỷ (repo, 1 ngày).",
-     "r": "pos"
+     "sig": "PCT kiêm TGĐ Võ Thành Đàng đăng ký mua 1 triệu CP liên tục hằng tháng (đợt mới 30/9–29/10/2026), sở hữu ~10,3%. NutiFood mua thêm (9–10/2026, chưa mua hết KL đăng ký). Khối ngoại nắm 9,16% nhưng bán ròng 4,43 tỷ (1 phiên, repo).",
+     "r": "pos",
+     "sigs": [
+      41,
+      42
+     ],
+     "cls": "B"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Giá 50.100 (23/10/2026): +7,1% 3 tháng, +16,1% 6 tháng, +16,4% 12 tháng; vượt VN-Index +2,6 điểm % (3T), +13,6 điểm % (12T); cách đỉnh 52 tuần −5,7%; vượt nền 15 phiên; tỷ lệ dòng tiền vào 20 phiên 0,61; nhưng KL tương đối chỉ 0,34 và thanh khoản ~13 tỷ/phiên (UPCoM).",
-     "r": "pos"
+     "sig": "Giá 50.100đ (23/10/2026): +7,1% 3T, +16,1% 6T, +16,4% 12T; vượt VN-Index +2,6 điểm % (3T), +13,6 điểm % (12T); cách đỉnh 52 tuần −5,7%; vượt nền 15 phiên; dòng tiền vào 0,61 nhưng KL tương đối 0,34, GTGD ~13 tỷ/phiên (UPCoM).",
+     "r": "pos",
+     "sigs": [
+      52,
+      53
+     ],
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Giá đường nội địa phục hồi từ 16.000–17.000 lên 18.000–19.000 đ/kg (gồm VAT, Vietcap 10/2026), hỗ trợ biên mảng đường khi hợp đồng cũ kết thúc. Rủi ro ngành: đường nhập lậu, HFCS lỏng, tồn kho ngành cao (TNCK 16/03/2026). Ngành sữa thực vật tăng trưởng ổn định.",
-     "r": "mix"
+     "sig": "Đường thô ICE NY 20,20 cent/lb (5/10/2026), cao nhất từ 12/2024; đến 19/10 tăng 37% so đầu Q3, cao nhất 19 tháng (Thời báo Tài chính 23/10). Nhưng giá nội địa giảm nhẹ giữa 9/2026 do dư cung, đường lậu; MXV dự báo chỉ phục hồi nhẹ cuối năm.",
+     "r": "mix",
+     "sigs": [
+      57
+     ],
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "14–15/10/2026 Vietcap ước LNTT Q3 530 tỷ (+19,4%); 24/10/2026 BCTC Q3 xác nhận LNST ~450 tỷ (+18%) nhưng báo chí nhấn mạnh chi phí bán hàng 9T +~50%. 08/2026 truyền thông về NutiFood và lãnh đạo gom cổ phiếu. Tác động: LN 2026 nhiều khả năng vượt KH thận trọng (−21%).",
-     "r": "pos"
+     "sig": "SSV khuyến nghị MUA, giá mục tiêu 61.400đ (22/9/2026). Vietcap 14–15/10 ước LNTT Q3 ~530 tỷ (+19,4%); BCTC 24/10 xác nhận LNST +18% nhưng báo chí nhấn mạnh chi phí bán hàng 9T +~49%.",
+     "r": "pos",
+     "sigs": [
+      61
+     ],
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "Tiền + tiền gửi ngắn hạn ~8.926 tỷ (~57% tổng TS 15.737 tỷ) ngày 30/09/2026, tạo thu nhập tài chính đáng kể; vay ngắn hạn 3.183 tỷ (+25%). Tồn kho +15%, thành phẩm +78% — cần theo dõi giảm giá tồn kho đường. Không thấy LN bất thường/một lần trong Q3/2026.",
-     "r": "mix"
+     "sig": "Tiền và tiền gửi ngắn hạn ~8.926 tỷ (~57% tổng TS 15.737 tỷ, 30/9/2026) tạo thu nhập lãi định kỳ; vay ngắn hạn +25% lên 3.183 tỷ. Không thấy lãi bất thường, đánh giá lại hay thoái vốn trong Q3/2026.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "Thương hiệu Fami/Vinasoy là động lực chính: giá bán bình quân +7–8% và biên gộp 48% cho thấy sức định giá; đẩy mạnh xuất khẩu và marketing. Chưa tìm thấy công bố sản phẩm/công nghệ mới cụ thể trong 3 tháng gần nhất.",
-     "r": "mix"
+     "sig": "Thương hiệu Fami/Vinasoy có sức định giá (giá bán +8%, biên gộp 48%). Chưa xác minh được sản phẩm/công nghệ mới cụ thể trong 3 tháng gần nhất.",
+     "r": "mix",
+     "cls": "C"
     }
    ],
-   "summary": "Điểm mạnh: mảng sữa đậu nành tăng trưởng và biên gộp cải thiện, LNST Q3/2026 +18%, tiền mặt dồi dào, lãnh đạo và NutiFood liên tục đăng ký mua. Rủi ro chính: mảng đường giảm lợi nhuận do hợp đồng giá thấp và cạnh tranh nhập lậu/HFCS, chi phí bán hàng tăng ~50%, thành phẩm tồn kho +78%. Theo dõi giá đường bình quân Q4 khi hợp đồng mới 19.000–20.000 đ/kg chiếm tỷ trọng lớn hơn và động thái tăng sở hữu của NutiFood.",
+   "summary": "QNS có TREND tài chính tích cực đã xác minh: LNST Q3/2026 +18%, biên gộp 35%, 9T đạt 93% KH năm, nhờ sữa đậu nành; mảng đường còn yếu nhưng giá hợp đồng mới 19.000–20.000 đ/kg cao hơn giá bán BQ Q3 15.726 đ/kg. Đánh giá chỉ được nâng nếu Q4 cho thấy giá bán đường BQ tăng thực tế và chi phí bán hàng chậm lại; tín hiệu hiện tập trung ở một nhóm nên điểm còn thấp.",
    "src": [
     {
-     "t": "Doanh Nhân VN (Baomoi) 24/10/2026 - QNS lãi hơn 1.400 tỷ sau 9 tháng, chi phí bán hàng tăng gần 50%",
+     "t": "Baomoi (Doanh Nhân VN) 24/10/2026 - QNS lãi hơn 1.400 tỷ sau 9 tháng, chi phí bán hàng tăng gần 50%",
      "u": "https://baomoi.com/qns-lai-hon-1-400-ty-dong-sau-9-thang-chi-phi-ban-hang-tang-gan-50-c56344411.epi"
-    },
-    {
-     "t": "Kinh tế Chứng khoán 14/10/2026 - QNS lãi quý III tăng gần 20%, mảng đường vẫn giảm",
-     "u": "https://kinhtechungkhoan.vn/duong-quang-ngai-qns-lai-quy-iii-tang-gan-20-mang-duong-van-giam-loi-nhuan"
-    },
-    {
-     "t": "Doanh nghiệp Hội nhập 15/10/2026 - Doanh thu mảng đường quý III của QNS hụt hơi",
-     "u": "https://doanhnghiephoinhap.vn/doanh-thu-mang-duong-quy-iii-cua-duong-quang-ngai-qns-hut-hoi-151635.html"
-    },
-    {
-     "t": "Tin nhanh Chứng khoán 16/03/2026 - QNS cài số lùi 21% mục tiêu lợi nhuận 2026",
-     "u": "https://www.tinnhanhchungkhoan.vn/duong-quang-ngai-qns-cai-so-lui-21-muc-tieu-loi-nhuan-2026-chia-co-tuc-2025-o-muc-40-post386837.html"
-    },
-    {
-     "t": "Doanh nhân Báo Pháp luật - Nhóm NutiFood và ban lãnh đạo đăng ký mua cổ phiếu QNS",
-     "u": "https://doanhnhan.baophapluat.vn/nhom-nutifood-va-ban-lanh-dao-dang-ky-mua-luong-lon-co-phieu-duong-quang-ngai-qns-chi-hon-367-ty-dong-tra-co-tuc.html"
-    },
-    {
-     "t": "CafeF - Tag Đường Quảng Ngãi",
-     "u": "https://cafef.vn/duong-quang-ngai.html"
     },
     {
      "t": "Doanh nhân Báo Pháp luật - QNS ước lãi trước thuế quý III/2026 tăng gần 20%",
      "u": "https://doanhnhan.baophapluat.vn/duong-quang-ngai-qns-uoc-lai-truoc-thue-quy-iii-2026-tang-gan-20-mang-sua-dau-nanh-tiep-tuc-dan-dat.html"
+    },
+    {
+     "t": "Vietstock 8/10/2026 - Giá đường trong nước ngược chiều thế giới",
+     "u": "https://vietstock.vn/2026/10/gia-duong-trong-nuoc-nguoc-chieu-the-gioi-118-1499968.htm"
+    },
+    {
+     "t": "Vietstock 6/10/2026 - Giá đường tiếp đà tăng lên mức cao nhất kể từ năm 2024",
+     "u": "https://vietstock.vn/2026/10/gia-duong-tiep-da-tang-len-muc-cao-nhat-ke-tu-nam-2024-118-1499113.htm"
+    },
+    {
+     "t": "Công Thương 16/10/2026 - Giá đường tăng lên đỉnh một năm ở mức 561,1 USD/tấn",
+     "u": "https://congthuong.vn/gia-duong-tang-len-dinh-mot-nam-o-muc-561-1-usd-tan-477145.html"
+    },
+    {
+     "t": "Thời báo Tài chính 23/10/2026 - Giá đường trước rủi ro về nguồn cung",
+     "u": "https://thoibaotaichinhvietnam.vn/gia-duong-truoc-rui-ro-ve-nguon-cung-205848.html"
+    },
+    {
+     "t": "Thương Trường 23/10/2026 - Giá đường thế giới tăng mạnh, thị trường trong nước chịu sức ép nguồn cung",
+     "u": "https://thuongtruong.com.vn/news/gia-duong-the-gioi-tang-manh-thi-truong-trong-nuoc-chiu-suc-ep-nguon-cung-171063.html"
+    },
+    {
+     "t": "Thương Trường 16/3/2026 - QNS đặt kế hoạch lợi nhuận 2026 giảm 21%",
+     "u": "https://thuongtruong.com.vn/news/duong-quang-ngai-qns-dat-ke-hoach-loi-nhuan-2026-giam-21-161464.html"
+    },
+    {
+     "t": "24hMoney - QNS",
+     "u": "https://24hmoney.vn/stock/QNS"
     }
-   ]
+   ],
+   "score": 4.0,
+   "calc": {
+    "A": 2.0,
+    "B": 2.0,
+    "C": 0.5,
+    "R": 0.5
+   },
+   "main": [
+    "01"
+   ],
+   "check": {
+    "ok": 7,
+    "conflict": 1,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "yes",
+      "note": "Không thấy LN bất thường trong Q3/2026; thu nhập tài chính từ ~8.926 tỷ tiền gửi là định kỳ."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "yes",
+      "note": "Giá đường nội địa 18.000–19.000 đ/kg cao hơn giá bán BQ Q3 của QNS 15.726 đ/kg (+14% đến +21%, giá thị trường gồm VAT); đường thô thế giới +37% so đầu Q3. Giữa 9/2026 giá nội địa giảm nhẹ do đường lậu."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "yes",
+      "note": "LN Q3 +18% nhất quán với biên gộp tăng nhờ sữa đậu nành; số ước theo mảng của Vietcap (tổng ~2.575 tỷ) không khớp tổng DT ước 3.265 tỷ và BCTC 3.073 tỷ, nên dùng số BCTC."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "yes",
+      "note": "Biên gộp 32%→35%, DT Q3 +14%; riêng mảng đường biên giảm 22%→19%."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "yes",
+      "note": "Sữa đậu nành tăng cả lượng (+16%) và giá (+8%); mảng đường có thể cải thiện khi hợp đồng giá mới chiếm tỷ trọng lớn hơn, nhưng còn phụ thuộc đường lậu."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "yes",
+      "note": "Nhóm 01 có 5 tín hiệu rõ (1, 2, 3, 4, 9)."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "Rủi ro: chi phí bán hàng tăng nhanh (9T +49%), thành phẩm tồn kho +78%, đường lậu/HFCS ép giá, ESOP pha loãng 1–3%."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Đường kính trắng nội địa (mảng đường); mảng sữa đậu nành: giá bán BQ +8%; giá đậu nành nhập: chưa đủ dữ liệu mới",
+    "now": "18.000–19.000 đ/kg (gồm VAT, Vietcap 10/2026); miền Trung 18.200–19.200 đ/kg (15/9/2026, VSSA); đường thô ICE 20,20 cent/lb (5/10/2026)",
+    "date": "10/2026 (đường nội địa); 5–19/10/2026 (đường thế giới)",
+    "base": "Giá bán BQ của QNS Q3/2026 15.726 đ/kg; đường thô ICE đầu Q3/2026",
+    "chg": "+14% đến +21% (giá thị trường so giá bán BQ Q3, chưa loại VAT); đường thô ICE +37% (19/10 so đầu Q3)",
+    "impact": "Hợp đồng mới 19.000–20.000 đ/kg giúp giá bán BQ đường Q4/2026 tăng và biên gộp đường (9T 19%) có thể cải thiện; mức độ phụ thuộc tỷ trọng hợp đồng mới và đường lậu.",
+    "src": "Doanh nhân Báo Pháp luật (Vietcap) 10/2026; Vietstock 8/10/2026; Vietstock 6/10/2026; Thời báo Tài chính 23/10/2026"
+   },
+   "oneoff": "Không phát hiện",
+   "risk": "Chi phí bán hàng tăng nhanh (9T +49%) cùng đường lậu/HFCS ép giá đường nội địa có thể bào mòn phần biên gộp cải thiện.",
+   "driver": "Mảng sữa đậu nành Fami/Vinasoy tăng cả sản lượng (+16%) lẫn giá bán (+8%), kéo biên gộp hợp nhất từ 32% lên 35% trong Q3/2026."
   },
   "SHB": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "Q2/2026 (TCBS 13/8): LNTT 4.436 tỷ (−3,1%), thu nhập lãi thuần 6.709 tỷ (−26,8%), NIM quý 3,2% (cùng kỳ 5,0%); repo LNST Q2 3.603 tỷ (−1,2%). 9T/2026 LNTT khoảng 14.300 tỷ (+17%, 81% KH) (Thị trường Tài chính Tiền tệ 16/10), tức Q3 khoảng 5.200 tỷ (tự tính, có thể gồm lãi bán SHBFinance). Nợ xấu 2,1%, bao phủ 82,5%, CASA 7,8%.",
-     "r": "mix"
+     "sig": "9T/2026 LNTT ước hơn 14.300 tỷ (+gần 17%, 81% KH) (15/10); tự tính Q3 khoảng 5.200 tỷ so Q3/2025 khoảng 3.360 tỷ (+khoảng 55%), chưa có BCTC chi tiết. Nhưng Q2/2026 thu nhập lãi thuần 6.709 tỷ (−26,8%), LNTT Q2 4.436 tỷ; repo LNST Q2 3.603 tỷ (−1,2%). ROE ước 25,9%.",
+     "r": "mix",
+     "sigs": [
+      2
+     ],
+     "cls": "B"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "CIR thấp: 15,0% trong Q2 và 16,0% lũy kế 6T/2026 (TCBS); 9T khoảng 19,2%, ROE khoảng 25,9%. Tổng tài sản khoảng 990.000 tỷ cuối Q3/2026, vốn chủ khoảng 102.000 tỷ. Không có số liệu mạng lưới.",
-     "r": "pos"
+     "sig": "CIR 9T/2026 19,2% (6T 16%); tổng tài sản khoảng 993.500 tỷ (+11,4% YTD, 30/9); CAR 11,95% (cuối Q2 11,81%); LDR 80,5%. Không có dữ liệu mạng lưới.",
+     "r": "pos",
+     "sigs": [
+      18
+     ],
+     "cls": "B"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Chi phí vốn Q2/2026 6,3% (cùng kỳ 4,9%), NIM trượt 4 quý giảm còn 2,6%, giảm 3 quý liên tiếp (TCBS). Chi phí tín dụng Q2 khoảng 2,4% (quy năm), dự phòng Q2 3.825 tỷ. Biên lãi chịu áp lực rõ.",
-     "r": "neg"
+     "sig": "Chi phí vốn Q2/2026 6,3% (Q2/2025 4,9%, Q1/2026 5,7%); NIM quý 3,2% (cùng kỳ 5,0%), NIM 4 quý gần nhất 2,6%; CASA chỉ 7,8% (TCBS 13/8). Chỉ đạo giảm LS huy động từ 20/10 có thể giảm áp lực từ Q4, chưa có số liệu.",
+     "r": "neg",
+     "cls": "A"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "Dư nợ 659.611 tỷ cuối Q2/2026, +7,3% YTD (hệ thống 7,4%); tiền gửi 687.843 tỷ (+7%), LDR 80,6%. Tập trung cao: BĐS và xây dựng chiếm 48,1% dư nợ (TCBS). HĐQT 12/10/2026 duyệt khoản vay hợp vốn 340 triệu USD.",
-     "r": "mix"
+     "sig": "Dư nợ khoảng 680.000 tỷ (+9,52% YTD), huy động TT1 khoảng 720.000 tỷ (+12,2%) đến 30/9/2026; tín dụng ngành 9T khoảng +12%. Tập trung BĐS và xây dựng 48,1% dư nợ. HĐQT 12/10 duyệt vay hợp vốn 340 triệu USD; SGX chấp thuận nguyên tắc niêm yết trái phiếu SGD.",
+     "r": "mix",
+     "cls": "B"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "Phát hành 750 triệu CP (16,32%), gồm 200 triệu riêng lẻ, 459,4 triệu cho cổ đông hiện hữu và 90,6 triệu ESOP; vốn lên 53.442 tỷ và sẽ lên 58.786 tỷ sau cổ tức CP. Ngày 8/10/2026 có tin đồn về đợt chào bán, SHB bác bỏ. TCBS: 75.520 tỷ phải thu mua hẳn bộ chứng từ chưa phân loại chất lượng, dự phòng chỉ 48 tỷ.",
-     "r": "neg"
+     "sig": "Phát hành hơn 459 triệu CP cho cổ đông hiện hữu giá 12.500 đ (cao hơn thị giá 10.900), dự kiến giao dịch giữa 11/2026, cùng 200 triệu CP riêng lẻ và 90,6 triệu CP ESOP (pha loãng). Phải thu mua hẳn bộ chứng từ 75.520 tỷ (cuối 2025: 61.562 tỷ), dự phòng chỉ 48 tỷ (TCBS). Đã thoái 100% SHBFinance.",
+     "r": "neg",
+     "sigs": [
+      36
+     ],
+     "cls": "B"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "Có 2 đăng ký mua nội bộ trong 90 ngày (repo ib=2, is=0): hai Phó TGĐ Đinh Ngọc Dũng và Nguyễn Huy Tài mỗi người đăng ký 2 triệu CP (15/10–12/11/2026); 5/2026 có nhiều lãnh đạo mua. Khối ngoại mua ròng 122,7 tỷ ngày 9/10 (MarketTimes). Cổ tức 2025 16% (10% CP, 6% tiền, trả 11/2026).",
-     "r": "pos"
+     "sig": "Hai Phó TGĐ đăng ký mua mỗi người 2 triệu CP (15/10–12/11/2026); 5/2026 nhiều lãnh đạo mua lượng nhỏ. Nhưng 22–24/4/2026 người liên quan và tổ chức liên quan bán lớn (Đỗ Thị Thu Hà 93,4 triệu, T&T 36 triệu, Đỗ Quang Vinh 12,7 triệu CP). Khối ngoại mua ròng 18,33 tỷ phiên 23/10.",
+     "r": "mix",
+     "sigs": [
+      41
+     ],
+     "cls": "B"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Repo 23/10/2026: giá 10.900, −9,2% 3T, −28,3% 6T, −39,0% 12T; kém VN-Index 40 điểm % trong 12T (x12 −0,40), cách đỉnh 52 tuần −38,6%. Ngày 9/10 về 10.000, thấp nhất hơn 1 năm, chuỗi 12 phiên không tăng. Tỷ lệ dòng tiền vào 0,348, KL tương đối 0,94. Xu hướng giảm mạnh.",
-     "r": "neg"
+     "sig": "Repo 23/10/2026: giá 10.900 đ, −9,2% 3T, −28,3% 6T, −39,0% 12T; kém VN-Index 40 điểm % trong 12T, cách đỉnh 52 tuần −38,6%. Tỷ lệ dòng tiền vào 20 phiên 0,348, KL tương đối 0,94: xu hướng giảm, chưa có tín hiệu đảo chiều.",
+     "r": "neg",
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "Chi phí huy động toàn ngành tăng trong 2026; SHB chịu tác động mạnh hơn do CASA thấp (7,8%). Tỷ trọng BĐS/xây dựng 48,1% khiến NH nhạy với chu kỳ BĐS. Nhiều NH báo LN 9T tăng (10/2026).",
-     "r": "mix"
+     "sig": "NHNN yêu cầu giảm LS huy động kỳ hạn từ 6T tối thiểu 0,5 điểm % (áp dụng từ 19–20/10/2026), có lợi cho NH CASA thấp như SHB nếu duy trì. LS cho vay bình quân T9/2026 8,4–10,9%. Một số NH tư nhân vẫn trả trên 9% để giữ thanh khoản; NH tư nhân được dự báo tăng dự phòng 28,8% trong Q3.",
+     "r": "mix",
+     "sigs": [
+      54
+     ],
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "Ngày 8/10/2026 CP giảm sàn −6,94% vì tin đồn về đợt chào bán; SHB phản hồi tối 9/10, cho biết BVPS 16.360 đ (30/6), cao hơn thị giá (CafeF 10/10). Ngày 16/10 nhận đủ tiền bán 100% SHBFinance cho Krungsri. Tâm lý thị trường xấu nhưng LN 9T vẫn tăng.",
-     "r": "mix"
+     "sig": "8/10/2026 CP giảm sàn vì tin đồn về đợt chào bán, SHB bác bỏ ngày 9/10. Ngày 15/10 nhận đủ tiền bán SHBFinance từ Krungsri. TCBS (13/8): P/B 0,7 lần, khuyến nghị nắm giữ, dự báo LNTT 2026 18.943 tỷ (+26,1%).",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "Lãi bán SHBFinance TCBS ước gần 1.000 tỷ, dự kiến ghi nhận Q3/2026 (một lần). Phí dịch vụ Q2 +270,7% chủ yếu từ mua hẳn miễn truy đòi bộ chứng từ, có thể không bền. Nợ xấu giảm từ 2,6% xuống 2,1% chủ yếu nhờ xóa nợ 4.164 tỷ. Chất lượng LN cần soi kỹ.",
-     "r": "neg"
+     "sig": "Lãi bán SHBFinance TCBS ước gần 1.000 tỷ; SHB cho biết sẽ hạch toán vào Q4/2026 (TCBS dự kiến Q3). Phí dịch vụ ròng 6T 3.825 tỷ (+277%) chủ yếu từ mua hẳn bộ chứng từ, khó bền. Q2 xóa nợ 4.164 tỷ (gấp khoảng 10 lần Q1), giúp nợ xấu giảm từ 2,6% về 2,1%, bao phủ 82,5%.",
+     "r": "neg",
+     "sigs": [
+      71
+     ],
+     "cls": "A"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "Sản phẩm tài trợ thương mại/mua hẳn bộ chứng từ đẩy lãi thuần dịch vụ 6T lên 3.825 tỷ (+277%). Chưa có dữ liệu về ngân hàng số/khách hàng số hay R&D trong nguồn đã đọc.",
-     "r": "na"
+     "sig": "Sản phẩm tài trợ thương mại/mua hẳn bộ chứng từ đẩy phí dịch vụ thanh toán 6T lên 3.745 tỷ; chưa rõ rủi ro và tính lặp lại. Không có dữ liệu về ngân hàng số hay R&D trong nguồn đã đọc.",
+     "r": "mix",
+     "cls": "C"
     }
    ],
-   "summary": "Điểm mạnh: CIR thấp, LNTT 9T/2026 khoảng 14.300 tỷ (+17%), lãnh đạo đăng ký mua, P/B dưới 1 lần (BVPS 16.360 đ). Rủi ro lớn: NIM sụt mạnh do chi phí vốn 6,3%, bao phủ nợ xấu chỉ 82,5%, 48% dư nợ BĐS/xây dựng, 75.520 tỷ phải thu bộ chứng từ chưa phân loại, LN dựa vào phí và khoản bán SHBFinance, pha loãng ROE sau tăng vốn. Cần theo dõi BCTC Q3 chi tiết (NIM, nợ xấu, lãi một lần) và việc niêm yết bổ sung CP mới.",
+   "summary": "SHB báo LNTT 9T/2026 ước hơn 14.300 tỷ (+17%), nhưng thu nhập lãi cốt lõi giảm mạnh (Q2 −26,8%) do NIM co hẹp, và tăng trưởng LN dựa vào phí bộ chứng từ, CIR thấp và khoản bán SHBFinance sẽ ghi nhận Q4. Chất lượng tài sản mỏng (bao phủ 82,5%) và pha loãng từ khoảng 750 triệu CP mới làm giảm chất lượng tăng trưởng EPS. Dấu hiệu tăng trưởng chưa chắc chắn. Cần theo dõi thêm.",
    "src": [
     {
      "t": "SHB Báo cáo cập nhật KQKD Q2/2026 (TCBS)",
      "u": "https://www.tcbs.com.vn/wp-content/uploads/2026/08/20260813_SHB_Bao_cao_cap_nhat_KQKD_Q2_2026.pdf"
     },
     {
-     "t": "SHB hoàn tất nhận toàn bộ giá trị chuyển nhượng SHBFinance từ Krungsri",
-     "u": "https://thitruongtaichinhtiente.vn/shb-hoan-tat-nhan-toan-bo-gia-tri-chuyen-nhuong-shbfinance-tu-krungsri-86337.html"
+     "t": "SHB ước đạt hơn 14.300 tỷ đồng lợi nhuận trước thuế sau 9 tháng (Doanh nghiệp Kinh tế Xanh 15/10)",
+     "u": "https://doanhnghiepkinhtexanh.vn/shb-uoc-dat-hon-14300-ty-dong-loi-nhuan-truoc-thue-sau-9-thang-a54659.html"
     },
     {
-     "t": "SHB báo lãi bán niên vượt 9.000 tỷ đồng",
-     "u": "https://doanhnhan.baophapluat.vn/shb-bao-lai-ban-nien-vuot-9-000-ty-dong-tong-tai-san-tiem-can-moc-trieu-ty.html"
+     "t": "Ngân hàng SHB báo lãi lớn trong quý III/2026 (Kinh doanh net 16/10)",
+     "u": "https://kinhdoanhnet.vn/ngan-hang-shb-bao-lai-lon-trong-quy-iii2026-a80754.html"
     },
     {
-     "t": "Lãnh đạo ngân hàng SHB đăng ký mua vào lượng lớn cổ phiếu (CafeF)",
-     "u": "https://cafef.vn/lanh-dao-ngan-hang-shb-dang-ky-mua-vao-luong-lon-co-phieu-188261009142819549.chn"
+     "t": "Chốt thương vụ bán SHBFinance, SHB báo lãi 14.300 tỷ đồng và dồn dập đón dòng vốn ngoại",
+     "u": "https://doanhnhan.baophapluat.vn/chot-thuong-vu-ban-shbfinance-shb-bao-lai-14-300-ty-dong-va-don-dap-don-dong-von-ngoai.html"
     },
     {
-     "t": "Cổ phiếu rơi về đáy hơn 1 năm, lãnh đạo SHB đăng ký mua thêm 2 triệu cổ phiếu",
-     "u": "https://markettimes.vn/co-phieu-roi-ve-day-hon-1-nam-lanh-dao-ngan-hang-shb-dang-ky-mua-them-2-trieu-co-phieu-132610.html"
+     "t": "SHB báo lãi hơn 9.000 tỷ đồng nhờ thu ngoài lãi bứt tốc (Thời báo Tài chính)",
+     "u": "https://thoibaotaichinhvietnam.vn/shb-bao-lai-hon-9-000-ty-dong-nho-thu-ngoai-lai-but-toc-tong-tai-san-tien-sat-1-trieu-ty-dong-201552.html"
     },
     {
-     "t": "Một ngân hàng lên tiếng về tin đồn cổ phiếu (CafeF)",
-     "u": "https://cafef.vn/mot-ngan-hang-len-tieng-ve-tin-don-co-phieu-188261010094829385.chn"
+     "t": "SHB lãi trước thuế 9 tháng tăng 36% đạt 12.307 tỷ đồng (2025, Tạp chí Công Thương)",
+     "u": "https://tapchicongthuong.vn/shb-lai-truoc-thue-9-thang-tang-36--dat-12-307-ty-dong--tang-truong-manh-me-280422.htm"
     },
     {
-     "t": "SHB được UBCKNN cấp giấy phép đăng ký chào bán cổ phiếu ra công chúng",
-     "u": "https://mekongasean.vn/shb-duoc-ubcknn-cap-giay-phep-dang-ky-chao-ban-co-phieu-ra-cong-chung-53060.html"
+     "t": "SHB lãi hơn 8.900 tỉ đồng trong 6 tháng 2025 (Báo Văn hóa)",
+     "u": "https://baovanhoa.vn/kinh-te/shb-lai-hon-8900-ti-dong-trong-6-thang-hoan-thanh-61-ke-hoach-nam-157819.html"
+    },
+    {
+     "t": "SHB ước lãi hơn 14.300 tỷ đồng, hé lộ lịch trả cổ tức (Mekong ASEAN)",
+     "u": "https://mekongasean.vn/shb-uoc-lai-hon-14300-ty-dong-he-lo-lich-tra-co-tuc-vao-thang-toi-60700.html"
+    },
+    {
+     "t": "Số liệu lãi suất tháng 9/2026 (Nhịp sống kinh doanh)",
+     "u": "https://nhipsongkinhdoanh.vn/so-lieu-lai-suat-thang-9-2026--lai-suat-cho-vay-binh-quan-tang-tu-8-4-len-10-9--nam-34352.htm"
+    },
+    {
+     "t": "Một ngân hàng Big4 vừa giảm lãi suất sáng, chiều tăng trở lại (CafeBiz 20/10)",
+     "u": "https://cafebiz.vn/mot-ngan-hang-big4-vua-giam-lai-suat-sang-chieu-tang-tro-lai-176261020153052606.chn"
+    },
+    {
+     "t": "Lợi nhuận ngân hàng quý III vẫn sáng (Tin nhanh chứng khoán 16/10)",
+     "u": "https://www.tinnhanhchungkhoan.vn/loi-nhuan-ngan-hang-quy-iii-van-sang-post399230.html"
+    },
+    {
+     "t": "Trưa 26/10: 10 ngân hàng báo lãi hơn 96.000 tỷ đồng (CafeBiz)",
+     "u": "https://cafebiz.vn/trua-26-10-10-ngan-hang-bao-lai-hon-96000-ty-dong-xuat-hien-nha-bang-dau-tien-sut-giam-loi-nhuan-176261026113042219.chn"
     }
-   ]
+   ],
+   "score": 1.5,
+   "calc": {
+    "A": 0.0,
+    "B": 2.0,
+    "C": 1.0,
+    "R": 1.5
+   },
+   "main": [],
+   "check": {
+    "ok": 6,
+    "conflict": 2,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "no",
+      "note": "Lãi bán SHBFinance khoảng 1.000 tỷ (Q4 theo SHB), phí mua hẳn bộ chứng từ tăng đột biến, xóa nợ lớn làm đẹp tỷ lệ nợ xấu."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "no",
+      "note": "Chi phí vốn Q2 6,3% so 4,9% cùng kỳ (+28,6%); NIM quý 3,2% so 5,0%."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "na",
+      "note": "Q2 nhất quán (NII −26,8%), nhưng LNTT Q3 ước khoảng 5.200 tỷ (+khoảng 55%) chưa có BCTC để giải thích nguồn tăng."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "no",
+      "note": "NIM giảm 3 quý liên tiếp; tín dụng +9,52% thấp hơn ngành khoảng 12%."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "no",
+      "note": "LN dựa vào phí bộ chứng từ và khoản bán công ty con, không dựa vào thu nhập lãi cốt lõi."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "no",
+      "note": "Không nhóm nào đạt 3 tín hiệu tích cực rõ ràng."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "Bao phủ nợ xấu 82,5%, 48,1% dư nợ BĐS/xây dựng, 75.520 tỷ phải thu bộ chứng từ dự phòng 48 tỷ, pha loãng EPS do phát hành khoảng 750 triệu CP."
+     }
+    ]
+   },
+   "conf": "thap",
+   "product": {
+    "name": "Chi phí vốn/NIM (biên lãi ròng)",
+    "now": "Chi phí vốn quý 6,3%/năm, NIM quý 3,2% (Q2/2026); LS cho vay bình quân NHTM 8,4–10,9%/năm (T9/2026)",
+    "date": "Q2/2026 (SHB, TCBS 13/8/2026); T9/2026 (NHNN). Chưa có NIM Q3/2026.",
+    "base": "Q2/2025: chi phí vốn 4,9%, NIM quý 5,0%",
+    "chg": "Chi phí vốn +1,4 điểm % (+28,6%); NIM −1,8 điểm % (−36%)",
+    "impact": "Thu nhập lãi thuần Q2 −26,8% YoY; LN phải dựa vào phí dịch vụ. Chỉ đạo giảm LS huy động từ 20/10 có thể giảm áp lực chi phí vốn từ Q4 nhưng chưa có số liệu.",
+    "src": "TCBS 13/8/2026; NHNN qua Nhịp sống kinh doanh"
+   },
+   "oneoff": "Lãi bán SHBFinance khoảng 1.000 tỷ (TCBS ước, SHB dự kiến ghi nhận Q4/2026); phí dịch vụ bộ chứng từ tăng đột biến; xóa nợ 4.164 tỷ Q2 làm giảm tỷ lệ nợ xấu.",
+   "risk": "NIM co hẹp mạnh do chi phí vốn cao (CASA 7,8%) cùng bao phủ nợ xấu 82,5%, 48% dư nợ BĐS/xây dựng và 75.520 tỷ phải thu bộ chứng từ gần như chưa trích dự phòng.",
+   "driver": "Thu nhập phí từ mua hẳn bộ chứng từ và CIR thấp giúp LNTT 9T ước +17% dù thu nhập lãi cốt lõi giảm."
   },
   "TCB": {
    "d": "2026-10-25",
@@ -1461,106 +2716,225 @@
    ]
   },
   "VHC": {
-   "d": "2026-10-25",
+   "d": "2026-10-26",
    "trends": [
     {
      "id": "01",
      "name": "Tài chính",
-     "sig": "Chưa có BCTC Q3/2026. DT 9T/2026 10.229 tỷ (báo cáo tháng), suy ra Q3 ~3.830 tỷ, +10% so 3.471 tỷ Q3/2025 (repo). Q2/2026: DT 3.444 tỷ (+7,9%), LNST 469 tỷ (-8,9%, repo 475 tỷ). 1H LN 735 tỷ = 46% KH 1.600 tỷ. CFO 1H âm 220,8 tỷ (cùng kỳ +726 tỷ) do phải thu tăng 44,9% lên 2.875 tỷ.",
-     "r": "mix"
+     "sig": "Q2/2026: DT 3.394 tỷ (+6,3%), LNST 475 tỷ (−7,7% YoY, repo). CFO 1H/2026 âm ~220,8 tỷ (DSC, cùng kỳ dương). BCTC Q3/2026 chưa công bố tới 26/10; Vietcap ước DT Q3 ~3.300 tỷ (+1%), 9T ~9.700 tỷ (+6%). Mua 15 triệu CP quỹ (~930 tỷ, giá BQ 61.988đ, 20/4–15/5/2026). KH 2026 cổ tức tiền cao nhất 8 năm.",
+     "r": "mix",
+     "sigs": [
+      8,
+      9
+     ],
+     "cls": "B"
     },
     {
      "id": "02",
      "name": "Sản xuất, vận hành",
-     "sig": "Số ngày tồn kho Q2/2026 giảm từ 107 xuống 92, nhưng số ngày phải thu tăng từ 68 lên 80 vì vận chuyển kéo dài do xung đột Trung Đông (DSC 8/2026). Đang đầu tư >1.100 tỷ: Feed One 2 (300 tỷ, lên 550.000 tấn), nhà máy Sa Giang (>600 tỷ), collagen (~200 tỷ). Chưa công bố mốc vận hành.",
-     "r": "mix"
+     "sig": "Số ngày tồn kho Q2/2026 giảm 107→92 ngày trong khi DT Q2 tăng; số ngày phải thu tăng 68→80 do vận chuyển kéo dài (DSC 8/2026). Đang đầu tư >1.100 tỷ (Feed One 2, nhà máy Sa Giang, collagen) nhưng chưa có mốc vận hành. Chưa có số sản lượng Q3.",
+     "r": "mix",
+     "sigs": [
+      16
+     ],
+     "cls": "B"
     },
     {
      "id": "03",
      "name": "Chi phí, giá cả",
-     "sig": "Biên gộp Q2/2026 20,6% (cùng kỳ 19,8%, Tinnhanhchungkhoan 29/7/2026), nhờ giá bán xuất khẩu tốt hơn trong khi nguyên liệu tăng nhẹ. Chi phí tài chính tăng 662% lên 34,4 tỷ; vay ngắn hạn +20,7% lên 2.470 tỷ. Giá cá giống neo cao, chi phí nuôi có thể tăng 5–7% mỗi quý (TT WTO 6/2026).",
-     "r": "mix"
+     "sig": "Giá cá tra nguyên liệu ĐBSCL 30.000–33.000 đ/kg (BQ ~31.000, 2–23/10/2026, Tép Bạc), giảm ~11% so đỉnh ~35.000 (2/2026, VASEP); cá giống 52–62 nghìn/kg, −5.000 (Tuổi Trẻ 12/10). Biên gộp Q2/2026 20,6% (cùng kỳ 19,8%). Chưa có giá XK phi lê mới; thuế 301 12,5% gây áp lực giá FOB sang Mỹ.",
+     "r": "mix",
+     "sigs": [
+      19
+     ],
+     "cls": "B"
     },
     {
      "id": "04",
      "name": "Thị trường, khách hàng",
-     "sig": "DT tháng 9/2026 1.038 tỷ (+13%): Mỹ 302 tỷ (+22%), EU 247 tỷ (+41%), nội địa 289 tỷ (+11%), Trung Quốc chỉ 14 tỷ (-82%). Cá tra 600 tỷ (+30%); bánh phồng tôm, bún gạo, hàng giá trị gia tăng giảm 15–18%. Chiếm ~22% giá trị thị trường cá tra EU.",
-     "r": "mix"
+     "sig": "DT tháng 9/2026 ~1.000 tỷ (+13%): Mỹ +22%, EU +41%, TQ −82%; phi lê đông lạnh +30%, collagen/gelatin −19% (Người Quan Sát, theo Vietcap). Q3 ước: Mỹ −16% do nền cao 2025. Ngành: XK cá tra 9T/2026 1,7 tỷ USD (+11%), Mỹ −13% (VASEP 20/10/2026).",
+     "r": "mix",
+     "sigs": [
+      32
+     ],
+     "cls": "B"
     },
     {
      "id": "05",
      "name": "Nội bộ, quản trị",
-     "sig": "Gia đình Chủ tịch nắm quyền chi phối: bà Trương Thị Lệ Khanh giữ ~42,3%, con gái Lê Ngọc Tiên mua 5,7 triệu cp (đầu 2026, lên 2,54%). Danh mục chứng khoán 44,5 tỷ đã trích lập 10,3 tỷ (~23%). Chưa thấy thông tin pha loãng, xử phạt hay ý kiến kiểm toán ngoại trừ.",
-     "r": "mix"
+     "sig": "Gia đình Chủ tịch chi phối (~42% sở hữu). ĐHĐCĐ 4/2026 đặt KH DT kỷ lục 14.000 tỷ (+16%), LNST 1.600 tỷ. HoSE nhắc nhở chậm nộp BCTC Q4/2025 (4/2/2026) — cờ vàng về kỷ luật công bố thông tin. Không thấy ESOP, xử phạt lớn hay ý kiến ngoại trừ.",
+     "r": "mix",
+     "sigs": [
+      37
+     ],
+     "cls": "C"
     },
     {
      "id": "06",
      "name": "Nhà đầu tư, cổ đông",
-     "sig": "Con gái Chủ tịch mua 5,7 triệu cp (>320 tỷ, 1/2026). Tháng 10/2026: Công đoàn VHC đăng ký mua 62.692 cp, nội bộ Phạm Thanh Tùng đăng ký bán 7.200 cp (khối lượng nhỏ). Khối ngoại: fn=+0,48 (1 phiên, repo). Năm 2025 chi cổ tức 448,9 tỷ (repo).",
-     "r": "mix"
+     "sig": "Mua 15 triệu CP quỹ (~6,7% lưu hành, ~930 tỷ, 4–5/2026). Con gái Chủ tịch mua 5,7 triệu CP (1/2026). 10/2026: Công đoàn đăng ký mua 62.692 CP, nội bộ đăng ký bán 7.200 CP (nhỏ). Khối ngoại +0,48 tỷ (1 phiên, repo) — chưa đủ kết luận.",
+     "r": "pos",
+     "sigs": [
+      41,
+      46
+     ],
+     "cls": "B"
     },
     {
      "id": "07",
      "name": "Phân tích kỹ thuật",
-     "sig": "Giá 52.100đ (23/10/2026): -3,3% 3 tháng (kém VN-Index 7,4 điểm %), -16,2% 6 tháng, -4,2% 12 tháng, cách đỉnh 52 tuần 25,5%. Giảm 14,8% từ 62.700đ (20/4) và đi ngang 50–52 nghìn từ đầu 10/2026. Vượt nền 11 phiên trước, dòng tiền vào 54,9%, KL tương đối 0,82. RS yếu.",
-     "r": "neg"
+     "sig": "Giá 52.100đ (23/10/2026): −3,3% 3T (kém VN-Index 7,4 điểm %), −16,2% 6T, −4,2% 12T, cách đỉnh 52 tuần −25,5%. Vượt nền 11 phiên, tỷ lệ dòng tiền vào 0,55 nhưng KL tương đối 0,82 — RS yếu.",
+     "r": "neg",
+     "cls": "C"
     },
     {
      "id": "08",
      "name": "Vĩ mô, ngành",
-     "sig": "VHC hưởng thuế chống bán phá giá 0% tại Mỹ, nhưng Mỹ áp thuế bổ sung 12,5% theo Mục 301 từ 24/7/2026 (trước 10%), còn 2 cuộc điều tra 301 chưa có kết luận (DSC). Cung cá thịt trắng (cod, pollock) giảm, giá tăng gấp đôi; điều này có lợi cho cá tra ở EU.",
-     "r": "mix"
+     "sig": "Mỹ áp thêm thuế Section 301 12,5% với thủy sản VN từ 24/7/2026 (cao hơn mức 10% của Ecuador, Ấn Độ, Indonesia), tác động rõ từ 8/2026 và Q4 (TT WTO 7/8/2026); VHC hưởng thuế CBPG 0%. Cung cá thịt trắng thắt chặt hỗ trợ cá tra tại EU.",
+     "r": "mix",
+     "sigs": [
+      59
+     ],
+     "cls": "B"
     },
     {
      "id": "09",
      "name": "Truyền thông, sự kiện",
-     "sig": "3 tháng gần nhất: LN Q2 giảm (29/7), DT tháng 8 tăng lại, tháng 9 +13% nhưng TQ -82% (Mekong ASEAN 10/2026). BCTC Q3/2026 chưa công bố (VHC thường công bố muộn). Đà DT Q3 tích cực nhưng thuế 301 có thể ảnh hưởng biên LN.",
-     "r": "mix"
+     "sig": "DSC (11/8/2026) giá mục tiêu 59.841đ (+15%) nhưng cảnh báo KH LN 1.600 tỷ “rất thách thức”. Truyền thông 10/2026 tích cực về DT tháng 9 (Mỹ, EU hồi), song nêu TQ −82%. BCTC Q3 chưa ra.",
+     "r": "mix",
+     "sigs": [
+      61
+     ],
+     "cls": "C"
     },
     {
      "id": "10",
      "name": "Tài sản ẩn, kế toán",
-     "sig": "Doanh thu tài chính Q2/2026 giảm 53,8%; tiền và đầu tư ngắn hạn giảm 27,2% (30/6/2026). DSC nêu số liệu không khớp nội bộ (LNST Q2 469 và 493 tỷ). Chưa thấy khoản LN một lần hay đánh giá lại tài sản; quỹ đất vùng nuôi 100–200 ha chưa định giá.",
-     "r": "na"
+     "sig": "Q3/2025 (kỳ gốc) có hoàn nhập dự phòng đầu tư >40 tỷ và lãi tài chính cao (Vietstock 11/2025) → nền LN Q3 cao, so sánh YoY Q3/2026 bất lợi. Q2/2026 DT tài chính −53,8%. Chưa thấy khoản thu một lần trong 2026.",
+     "r": "mix",
+     "cls": "C"
     },
     {
      "id": "11",
      "name": "Sản phẩm, công nghệ",
-     "sig": "Sa Giang chuyển sang phở khô, nui gạo (đã chiếm 50% DT, ngang bánh phồng tôm). Nhà máy collagen hợp tác đối tác Nhật làm kẹo dẻo gelatin. Thành Ngọc mở rộng sấy lạnh trái cây. Tuy vậy tháng 9/2026 sản phẩm sức khỏe -19%, hàng giá trị gia tăng giảm.",
-     "r": "mix"
+     "sig": "Tháng 9/2026 collagen/gelatin −19%, SP phụ −3%; tháng 8 mì, bánh tráng +30%, bánh phồng tôm +20% (DNSE 13/9/2026). Chưa có sản phẩm mới quy mô lớn được xác minh trong 3 tháng gần nhất.",
+     "r": "mix",
+     "cls": "C"
     }
    ],
-   "summary": "Điểm mạnh: doanh thu Q3/2026 ước tăng ~10% nhờ Mỹ và EU, VHC hưởng thuế chống bán phá giá 0% và có lợi thế ở EU. Rủi ro: thuế Mục 301 12,5%, thị trường Trung Quốc sụt mạnh, dòng tiền kinh doanh âm và phải thu tăng nhanh; giá cổ phiếu có RS yếu. Cần theo dõi: BCTC Q3 (LN và CFO) và kết luận các cuộc điều tra 301.",
+   "summary": "VHC chưa có TREND chính: LNST Q2/2026 −7,7%, DT Q3 ước chỉ +1% (Mỹ −16%), CFO 1H âm; điểm sáng là mua 15 triệu CP quỹ, DT tháng 9 +13% nhờ EU/Mỹ và giá cá nguyên liệu giảm ~11% so đỉnh. Nếu BCTC Q3 (sắp công bố) cho thấy biên gộp ≥20% và CFO dương trở lại thì mới đủ cơ sở nâng đánh giá; ngược lại tác động thuế 301 sẽ tiếp tục đè lên LN. Dấu hiệu tăng trưởng chưa chắc chắn. Cần theo dõi thêm.",
    "src": [
     {
-     "t": "Xuất khẩu của Vĩnh Hoàn sang thị trường Trung Quốc sụt giảm mạnh",
-     "u": "https://mekongasean.vn/xuat-khau-cua-vinh-hoan-sang-thi-truong-trung-quoc-sut-giam-manh-60761.html"
+     "t": "Người Quan Sát - Vĩnh Hoàn thu về 1.000 tỷ trong tháng 9/2026",
+     "u": "https://nguoiquansat.vn/don-tin-vui-tu-my-va-chau-au-doanh-nghiep-viet-xuat-khau-mat-hang-ty-usd-thu-ve-1-000-ty-dong-trong-thang-9-2026-322666.html"
     },
     {
-     "t": "Lợi nhuận Vĩnh Hoàn (VHC) đi lùi trong quý II/2026",
-     "u": "https://www.tinnhanhchungkhoan.vn/loi-nhuan-vinh-hoan-vhc-di-lui-trong-quy-ii2026-duoi-ap-luc-chi-phi-va-hut-doanh-thu-tai-chinh-post394929.html"
+     "t": "DNSE - Doanh thu Vĩnh Hoàn lấy lại đà tăng trong tháng 8/2026",
+     "u": "https://www.dnse.com.vn/senses/tin-tuc/doanh-thu-vinh-hoan-lay-lai-da-tang-trong-thang-82026-35286436"
+    },
+    {
+     "t": "Tép Bạc - Lịch sử giá cá tra tại ao",
+     "u": "https://tepbac.com/gia-thuy-san/history/14/ca-tra-tai-ao.html"
+    },
+    {
+     "t": "Tuổi Trẻ 12/10/2026 - Giá cá tra, cá linh cùng giảm nhẹ",
+     "u": "https://tuoitre.vn/gia-ca-dau-ngay-gia-ca-tra-ca-linh-cung-giam-nhe-sieu-thi-tung-khuyen-mai-20-10-100261012074050875.htm"
+    },
+    {
+     "t": "VASEP - Giá cá tra ĐBSCL lập mặt bằng cao nhất nhiều năm",
+     "u": "https://vasep.com.vn/san-pham-xuat-khau/ca-tra/nguyen-lieu/gia-ca-tra-dbscl-lap-mat-bang-cao-nhat-nhieu-namatro-la-i-day-35973.html"
+    },
+    {
+     "t": "Doanh nghiệp Hội nhập 20/10/2026 - Xuất khẩu cá tra 9 tháng đầu năm 2026",
+     "u": "https://doanhnghiephoinhap.vn/xuat-khau-ca-tra-9-thang-dau-nam-2026-diem-sang-tu-thi-truong-trung-quoc-brazil-va-ky-vong-phuc-hoi-tu-hoa-ky-152027.html"
+    },
+    {
+     "t": "Trung tâm WTO - Thuế Section 301 của Mỹ sẽ tác động rõ từ tháng 8/2026",
+     "u": "https://trungtamwto.vn/tin-tuc/33185-thue-section-301-cua-my-se-tac-dong-ro-tu-thang-82026"
+    },
+    {
+     "t": "Vietbao - VHC gặp cơn gió ngược",
+     "u": "https://vietbao.vn/vhc-gap-con-gio-nguoc-610526.html"
+    },
+    {
+     "t": "Vietstock 18/5/2026 - Vĩnh Hoàn chi gần 930 tỷ đồng mua cổ phiếu quỹ",
+     "u": "https://vietstock.vn/2026/05/vinh-hoan-chi-gan-930-ty-dong-mua-co-phieu-quy-739-1443913.htm"
+    },
+    {
+     "t": "CafeF - Tag Vĩnh Hoàn",
+     "u": "https://cafef.vn/vinh-hoan.html"
+    },
+    {
+     "t": "Vietstock 11/2025 - Vĩnh Hoàn thắng đậm quý 3/2025 nhờ giá cổ phiếu BĐS phục hồi",
+     "u": "https://vietstock.vn/2025/11/nu-hoang-ca-tra-vinh-hoan-thang-dam-quy-3-nho-gia-co-phieu-bds-phuc-hoi-737-1369092.htm"
     },
     {
      "t": "DSC - Báo cáo VHC Q2/2026",
      "u": "https://extgw.dsc.com.vn/eback/uploads/BC_VHC_Q2_2026_20260826_1644_30adfa9aa2.pdf"
-    },
-    {
-     "t": "ĐHĐCĐ Vĩnh Hoàn 2026: cá tra đón cơ hội thay thế cá thịt trắng",
-     "u": "https://doanhnhan.baophapluat.vn/dhdcd-vinh-hoan-vhc-2026-ca-tra-don-co-hoi-thay-the-ca-thit-trang-tai-chau-au-don-hon-1-100-ty-dong-mo-rong-chuoi-san-xuat.html"
-    },
-    {
-     "t": "Con gái Chủ tịch Vĩnh Hoàn chi hơn 320 tỷ đồng mua cổ phiếu VHC",
-     "u": "https://mekongasean.vn/con-gai-chu-tich-vinh-hoan-chi-hon-320-ty-dong-mua-co-phieu-vhc-50316.html"
-    },
-    {
-     "t": "Đơn hàng xuất khẩu thủy sản nửa cuối năm diễn biến thận trọng",
-     "u": "https://trungtamwto.vn/tin-tuc/32798-don-hang-xuat-khau-thuy-san-nua-cuoi-nam-dien-bien-than-trong"
-    },
-    {
-     "t": "Doanh thu Vĩnh Hoàn lấy lại đà tăng trong tháng 8/2026",
-     "u": "https://mekongasean.vn/doanh-thu-vinh-hoan-lay-lai-da-tang-trong-thang-82026-59560.html"
     }
-   ]
+   ],
+   "score": 2.0,
+   "calc": {
+    "A": 0.0,
+    "B": 2.0,
+    "C": 0.5,
+    "R": 0.5
+   },
+   "main": [],
+   "check": {
+    "ok": 7,
+    "conflict": 1,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "yes",
+      "note": "Chưa phát hiện one-off trong 2026; lưu ý nền Q3/2025 có hoàn nhập dự phòng >40 tỷ nên LN Q3/2026 khó tăng YoY."
+     },
+     {
+      "q": "Giá SP chính tăng hay giảm so kỳ gốc?",
+      "a": "yes",
+      "note": "Giá cá tra nguyên liệu giảm ~11% so đỉnh 2/2026 (31.000 vs 35.000 đ/kg) → thuận lợi giá vốn; giá XK phi lê chưa có dữ liệu mới."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá SP có nhất quán?",
+      "a": "no",
+      "note": "DT Q3 ước của Vietcap (~3.300 tỷ, +1%; 9T ~9.700 tỷ) lệch phân tích hôm qua (~3.830 tỷ, +10%; 9T 10.229 tỷ); chưa thống nhất do khác cơ sở báo cáo tháng/hợp nhất."
+     },
+     {
+      "q": "Biên LN, DT, thị phần có thực sự cải thiện?",
+      "a": "no",
+      "note": "Biên gộp Q2 nhích 19,8%→20,6% nhưng LNST Q2 −7,7%, DT Q3 ước chỉ +1%, mảng Mỹ Q3 −16%."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "no",
+      "note": "Động lực EU (+41% tháng 9) tích cực nhưng Mỹ chịu thuế 301 12,5% và TQ −82%; chưa bền vững."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "no",
+      "note": "Không nhóm nào có ≥3 tín hiệu rõ và r=pos."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "no",
+      "note": "Rủi ro: CFO 1H âm 220,8 tỷ, phải thu tăng, thuế 301 12,5%, 2 cuộc điều tra 301 chưa kết luận."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Cá tra nguyên liệu ĐBSCL (giá tại ao) — đầu vào chính; giá XK phi lê chưa có số mới",
+    "now": "30.000–33.000 đ/kg, bình quân ~31.000 đ/kg (10 báo giá An Giang, Đồng Tháp 2–23/10/2026)",
+    "date": "23/10/2026 (33.000 đ/kg, Đồng Tháp); 12/10/2026 30.000–32.000 đ/kg, −2.000 so tuần trước",
+    "base": "Đỉnh 2/2026 ~35.000 đ/kg (VASEP 6/2/2026)",
+    "chg": "≈ −11%",
+    "impact": "Giá cá nguyên liệu và cá giống giảm hỗ trợ giá vốn phần cá mua ngoài từ Q4/2026; nhưng giá bán sang Mỹ có thể bị ép do thuế 301 12,5%, nên tác động ròng lên biên gộp chưa chắc.",
+    "src": "tepbac.com (lịch sử giá cá tra tại ao); Tuổi Trẻ 12/10/2026; VASEP 6/2/2026"
+   },
+   "oneoff": "Không phát hiện trong 2026; kỳ gốc Q3/2025 có hoàn nhập dự phòng đầu tư >40 tỷ (làm nền LN cao).",
+   "risk": "Thuế Section 301 12,5% của Mỹ (cùng 2 cuộc điều tra 301 chưa kết luận) và CFO 1H/2026 âm do phải thu tăng có thể làm LN Q3–Q4 tiếp tục đi lùi.",
+   "driver": "Phục hồi DT tại EU (+41% tháng 9/2026) và Mỹ (+22% tháng 9) nhờ thiếu hụt cá thịt trắng và thuế CBPG 0%, cộng giá cá nguyên liệu hạ nhiệt."
   },
   "FOX": {
    "d": "2026-10-25",
@@ -1681,5 +3055,5 @@
    ]
   }
  },
- "updated": "2026-10-25"
+ "updated": "2026-10-26"
 }
