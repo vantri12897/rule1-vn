@@ -489,7 +489,7 @@ const R1 = (() => {
     if (qs && qs.length >= 5) {
       const k = qs.length - 1, yoy = (a, b) => a != null && b != null && b > 0 ? a / b - 1 : null;
       const g0 = yoy(qs[k].ni, qs[k - 4].ni), g1 = qs.length >= 6 ? yoy(qs[k - 1].ni, qs[k - 5].ni) : null;
-      qg = {p: qs[k].p, ni: qs[k].ni, yoy: g0, prev: g1, rev: yoy(qs[k].rev, qs[k - 4].rev), accel: g0 != null && g1 != null ? g0 > g1 : null,
+      qg = {p: qs[k].p, ni: qs[k].ni, qoq: qs[k - 1].ni > 0 ? qs[k].ni / qs[k - 1].ni - 1 : null, yoy: g0, prev: g1, rev: yoy(qs[k].rev, qs[k - 4].rev), accel: g0 != null && g1 != null ? g0 > g1 : null,
         loss: qs[k].ni <= 0, turn: qs[k].ni > 0 && qs[k - 4].ni <= 0};
     }
     // Định giá CI (theo file DG_TEST): Giá trị DN = [Σ LN TB 10 năm tới ÷ (1+r)^n + Vốn chủ] × (1 − hệ số trừ)
@@ -601,7 +601,7 @@ const COLS=[
  {k:'ticker',l:'Mã',cls:'tk'},{k:'exchange',l:'Sàn'},{k:'sector',l:'Ngành'},
  {k:'price',l:'Giá',n:1},{k:'mcap',l:'Vốn hóa (tỷ)',n:1},{k:'pe',l:'P/E',n:1},{k:'pb_',l:'P/B',n:1},
  {k:'roe',l:'ROE %',n:1},{k:'epsL',l:'EPS TTM',n:1},{k:'g',l:'g %',n:1},
- {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'mosR1',l:'MOS R1',n:1},{k:'gapR1',l:'Giá/MOS R1',n:1},{k:'mosR2',l:'MOS R2',n:1},{k:'gapR2',l:'Giá/MOS R2',n:1},{k:'mosPB',l:'MOS P/B',n:1},{k:'gapPB',l:'Giá/MOS P/B',n:1},{k:'ciV',l:'Giá trị CI',n:1},{k:'lvCI',l:'Lãi vốn CI',n:1},{k:'ciTot',l:'Lợi ích 1N',n:1},{k:'ci5',l:'Lợi ích 5N',n:1},{k:'payback',l:'Payback',n:1},{k:'score',l:'Big 5'},{k:'b5s',l:'BBIT7',n:1},{k:'nWarn',l:'Cảnh báo',n:1},{k:'fsc',l:'F-Score',n:1},{k:'qyoy',l:'LN quý',n:1},{k:'rs',l:'RS',n:1},{k:'m3',l:'3M'}
+ {k:'sticker',l:'Sticker',n:1},{k:'mos',l:'MOS',n:1},{k:'gap',l:'Giá/MOS',n:1},{k:'mosT',l:'MOS Town',n:1},{k:'gapT',l:'Giá/MOS Town',n:1},{k:'mosR1',l:'MOS R1',n:1},{k:'gapR1',l:'Giá/MOS R1',n:1},{k:'mosR2',l:'MOS R2',n:1},{k:'gapR2',l:'Giá/MOS R2',n:1},{k:'mosPB',l:'MOS P/B',n:1},{k:'gapPB',l:'Giá/MOS P/B',n:1},{k:'ciV',l:'Giá trị CI',n:1},{k:'lvCI',l:'Lãi vốn CI',n:1},{k:'ciTot',l:'Lợi ích 1N',n:1},{k:'ci5',l:'Lợi ích 5N',n:1},{k:'payback',l:'Payback',n:1},{k:'score',l:'Big 5'},{k:'b5s',l:'BBIT7',n:1},{k:'gsc',l:'Tăng trưởng',n:1},{k:'nWarn',l:'Cảnh báo',n:1},{k:'fsc',l:'F-Score',n:1},{k:'qyoy',l:'LN quý',n:1},{k:'rs',l:'RS',n:1},{k:'m3',l:'3M'}
 ];
 
 /* ===== Định dạng ===== */
@@ -635,8 +635,8 @@ function rsTip(t){const m=flowOf(t);if(!m)return 'Chưa có dữ liệu sức m�
 const fsTip=a=>!a.fs?'F-Score không áp dụng cho nhóm tài chính':`Piotroski F-Score năm ${a.fs.year}: ${a.fs.score??'—'}/${a.fs.n} tiêu chí có dữ liệu\n`+a.fs.items.map(x=>(x.pass==null?'❔':x.pass?'✅':'❌')+' '+x.lab).join('\n')+'\n\n≥ 7: tài chính đang khỏe lên · ≤ 3: dễ là bẫy giá trị';
 const qTxt=v=>v==null?'—':(v>0?'+':'')+pf(v,0);
 function qCell(a){const q=a.qg;if(!q)return '—';if(q.turn)return `<b class="c-good">Có lãi</b>`;if(q.loss)return `<span class="c-bad">Lỗ</span>`;if(q.yoy==null)return '—';
-  return `<span class="${q.yoy>=.2?'c-good':q.yoy<0?'c-bad':''}">${qTxt(q.yoy)}</span>${q.accel!=null?` <span class="${q.accel?'c-good':'c-bad'}" style="font-size:.8rem">${q.accel?'⤴':'⤵'}</span>`:''}`}
-function qTip(a){const q=a.qg;if(!q)return 'Chưa có chuỗi lợi nhuận quý';const qs=a.s.qSeries;return `LNST công ty mẹ ${q.p}: ${nf(q.ni,1)} tỷ, so với cùng kỳ ${q.turn?'(cùng kỳ lỗ, nay có lãi)':qTxt(q.yoy)}; quý trước: ${qTxt(q.prev)} → ${q.accel==null?'—':q.accel?'TĂNG TỐC ⤴':'GIẢM TỐC ⤵'}\nDoanh thu so với cùng kỳ: ${qTxt(q.rev)}\n\n`+qs.slice(-9).map(x=>`${x.p}: ${nf(x.ni,1)} tỷ`).join('\n')}
+  return `<span class="${q.yoy>=.2?'c-good':q.yoy<0?'c-bad':''}">${qTxt(q.yoy)}</span>${q.accel!=null?` <span class="${q.accel?'c-good':'c-bad'}" style="font-size:.8rem">${q.accel?'⤴':'⤵'}</span>`:''}${q.qoq!=null?`<br><span class="muted" style="font-size:.72rem">QoQ ${qTxt(q.qoq)}</span>`:''}`}
+function qTip(a){const q=a.qg;if(!q)return 'Chưa có chuỗi lợi nhuận quý';const qs=a.s.qSeries;return `LNST công ty mẹ ${q.p}: ${nf(q.ni,1)} tỷ, so với cùng kỳ (YoY) ${q.turn?'(cùng kỳ lỗ, nay có lãi)':qTxt(q.yoy)}; so với quý liền trước (QoQ) ${q.qoq!=null?qTxt(q.qoq):'—'}\nTăng trưởng YoY của quý trước: ${qTxt(q.prev)} → ${q.accel==null?'—':q.accel?'TĂNG TỐC ⤴':'GIẢM TỐC ⤵'}\nDoanh thu so với cùng kỳ: ${qTxt(q.rev)}\n\n`+qs.slice(-9).map(x=>`${x.p}: ${nf(x.ni,1)} tỷ`).join('\n')}
 function ciTip(a){const C=a.stCI;if(!C||!C.ok)return C&&C.reason||'';return `Định giá CI (chiết khấu ${pf(C.r,1)}, trừ ${pf(C.h,1)}): giá trị thực ${nf(C.vps)} đ/cp; sau 1 năm ${nf(C.vps1)}\nLN TB 10 năm tới ${nf(C.Eavg,1)} tỷ (LN gốc ${nf(C.E0,1)} tỷ, g ${pf(C.gC,1)})\nTổng lợi ích 1 năm ${pf(C.total,0)} = lãi vốn ${pf(C.gain,0)} + cổ tức ${pf(C.yld,1)} + tăng giá trị ${pf(C.grow,0)}`}
 function ci5Tip(a){const C=a.stCI;if(!C||!C.ok)return C&&C.reason||'';return `Lợi ích 5 năm (mua hôm nay ${nf(a.price)} đ, giữ 5 năm): ${pf(C.total5,0)} ≈ ${C.cagr5!=null?pf(C.cagr5,1):'—'}/năm\n= (giá trị CI năm 5 ${nf(C.v5)} + cổ tức 5 năm sau thuế ${nf(C.divSum)}) ÷ giá − 1\nGồm: lãi vốn hôm nay ${pf(C.gain5,0)} · tăng giá trị 5 năm ${pf(C.grow5,0)} · cổ tức ${pf(C.div5,1)}\nGiả định: ROE ${pf(C.roeC,1)} giữ nguyên, chi trả cổ tức ${pf(C.pay,0)} LN, thị trường định giá đúng bằng giá trị CI vào năm 5.\nXanh khi ≥ 15%/năm (MARR Rule #1).\n\n`+C.path.map(x=>`Năm ${x.k}: LN ${nf(x.E,1)} tỷ · vốn chủ ${nf(x.BV,1)} tỷ · giá trị ${nf(x.vps)} đ/cp`).join('\n')}
 function compute(){
@@ -709,15 +709,17 @@ function computeBBIT7(list){
     const AI=TRENDS[a.ticker],aiAge=AI&&AI.d?(Date.now()-new Date(AI.d+'T00:00:00+07:00'))/864e5:999;
     if(AI&&AI.trends&&aiAge<=60){const W={pos:1,mix:0.5,neg:0},kn=AI.trends.filter(x=>x.r in W),sc=kn.reduce((t,x)=>t+W[x.r],0);
       const RL={pos:'✅ Tích cực',mix:'🟡 Hỗn hợp',neg:'❌ Tiêu cực',na:'❔ Chưa đủ dữ liệu'};
-      B.trend={ok:kn.length>=6?sc>=kn.length*0.6:null,ai:true,d:AI.d,nOk:sc,nKnown:kn.length,
-        t:`🔍 AI phân tích sâu ngày ${fmtD(AI.d)}: ${nf(sc,1)}/${kn.length} điểm (tích cực = 1, hỗn hợp = 0,5; cần ≥ 60%)\n`+AI.trends.map(x=>`  ${RL[x.r]||'❔'} TREND ${x.id} ${x.name}: ${x.sig}`).join('\n')+(AI.summary?`\n\nKết luận: ${AI.summary}`:''),items:AI.trends,aiObj:AI,quant:tr};
+      const G=AI.score!=null?{sc:AI.score,ck:AI.check?AI.check.ok:null,cf:AI.check?AI.check.conflict||0:0,mn:(AI.main||[]).length}:null;
+      const gOk=G?G.sc>=7&&G.ck!=null&&G.ck>=5&&G.cf<2&&G.mn>=1:null;
+      B.trend={ok:G?gOk:(kn.length>=6?sc>=kn.length*0.6:null),ai:true,d:AI.d,nOk:sc,nKnown:kn.length,ci:G,
+        t:(G?`🔍 CI Growth (AI, ${fmtD(AI.d)}): điểm tăng trưởng ${nf(G.sc,1)}/10 · tự phản biện ${G.ck??'—'}/7${G.cf?` (${G.cf} mâu thuẫn)`:''} · TREND chính: ${(AI.main||[]).map(x=>'T'+x).join(', ')||'chưa có'}${AI.conf?` · tin cậy dữ liệu ${CONF[AI.conf]}`:''}\nĐạt khi điểm ≥ 7, tự phản biện ≥ 5/7, < 2 mâu thuẫn và có ≥ 1 TREND chính (≥ 3 tín hiệu rõ ràng)\n`:`🔍 AI phân tích sâu ngày ${fmtD(AI.d)}: ${nf(sc,1)}/${kn.length} điểm (tích cực = 1, hỗn hợp = 0,5; cần ≥ 60%)\n`)+AI.trends.map(x=>`  ${RL[x.r]||'❔'} TREND ${x.id} ${x.name}: ${x.sig}`).join('\n')+(AI.summary?`\n\nKết luận: ${AI.summary}`:''),items:AI.trends,aiObj:AI,quant:tr};
     }else{
     const known=tr.filter(x=>x.ok!=null),nOk=known.filter(x=>x.ok).length;
     B.trend={ok:known.length>=8?nOk>=Math.ceil(known.length*0.6):null,t:`${nOk}/${known.length} trend đạt (cần ≥ 60%):\n`+tr.map(x=>`  ${x.ok==null?'❔':x.ok?'✅':'❌'} TREND ${x.k}: ${x.t}`).join('\n')+'\n  (ước lượng định lượng — chưa có phân tích sâu bằng AI)',items:tr,nOk,nKnown:known.length};
     }
     // 7: 7 năm gần nhất đều có lãi
     const last7=ys.slice(-7);B.y7=ys.length>=7?{ok:last7.every(y=>y.ni>0),t:`LNST ${last7[0].year}–${L.year}: ${last7.filter(y=>y.ni>0).length}/7 năm có lãi`}:{ok:false,t:`Chỉ có ${ys.length} năm dữ liệu (cần 7)`};
-    a.b5=B;const v=[B.best,B.buy,B.inc,B.trend,B.y7];a.b5s=v.filter(x=>x.ok).length;a.b5n=v.filter(x=>x.ok!=null).length;
+    a.gsc=B.trend.ci?B.trend.ci.sc:null;a.b5=B;const v=[B.best,B.buy,B.inc,B.trend,B.y7];a.b5s=v.filter(x=>x.ok).length;a.b5n=v.filter(x=>x.ok!=null).length;
   });
 }
 function b5Cell(a){if(!a.b5)return '—';const B=a.b5,c=(x,l)=>`<i class="${x.ok?'y':''} ${x.ok==null?'q':''}">${l}</i>`;return `<span class="b5c">${c(B.best,'B')}${c(B.buy,'B')}${c(B.inc,'I')}${c(B.trend,B.trend.ai?'T🔍':'T')}${c(B.y7,'7')}</span><b class="${a.b5s>=4?'c-good':a.b5s<=1?'c-bad':''}">${a.b5s}</b>`}
@@ -783,6 +785,7 @@ const epsLossFlag=a=>a.gE==null&&a.gB!=null&&GOV[a.ticker]==null;
 function epsInfoTag(a){ // nhãn thông tin nguồn EPS (không phải cảnh báo): TB3 / năm / ↓
   const t=epsTag0(a);return ttmSpike(a)?'':t;
 }
+const CONF={cao:'cao',tb:'trung bình',thap:'thấp'};
 function warnList(a){
   const w=[],L=(l,c,t)=>w.push({l,c,t});
   if(isStale(a))L('giá cũ','t-bad',`Giao dịch gần nhất ${fmtD(a.s.priceDate)} (${staleDays(a)} ngày trước phiên ${fmtD(PRICE_META.session)}): có thể bị đình chỉ, hủy niêm yết hoặc không có thanh khoản.`);
@@ -792,8 +795,19 @@ function warnList(a){
   if(ttmSpike(a))L('↑','t-warn',a.epsA>0?`EPS TTM cao hơn EPS năm gần nhất (${nf(a.epsA)}) hơn 50%: có thể là đỉnh chu kỳ / lãi bất thường`:`Năm gần nhất lỗ, TTM có lãi`);
   if(epsLossFlag(a))L('EPS lỗ','t-warn','Không tính được CAGR EPS 5 năm (năm gốc hoặc năm cuối lỗ): g chỉ dựa trên BVPS.');
   if(a.fs&&a.fs.score!=null&&a.fs.score<=3)L('F≤3','t-warn',`F-Score ${a.fs.score}/${a.fs.n}: sức khỏe tài chính đang xấu đi — dễ là bẫy giá trị.`);
+  {const L0=a.ys[a.ys.length-1];if(!a.s.financial&&L0&&L0.gp!=null&&L0.sell!=null&&L0.adm!=null&&L0.pbt>0){const cr=(L0.gp-L0.sell-L0.adm)/L0.pbt;if(cr<0.7)L('LN cốt lõi thấp',cr<0.4?'t-bad':'t-warn',`Năm ${L0.year}: LN cốt lõi (LN gộp − CP bán hàng − CP quản lý) chỉ bằng ${pf(cr,0)} LNTT — phần lớn lợi nhuận đến từ thu nhập tài chính, công ty liên kết, thanh lý tài sản… (one-off). Cẩm nang CI Growth chương 8: tách tăng trưởng cốt lõi khỏi khoản bất thường.`)}}
+  {const y3=a.ys.slice(-3);if(!a.s.financial&&y3.length===3&&y3.every(y=>y.cfo!=null&&y.ni!=null)){const sn=y3.reduce((t,y)=>t+y.ni,0),sc=y3.reduce((t,y)=>t+y.cfo,0);if(sn>0&&sc<0.5*sn)L('CFO yếu',sc<0?'t-bad':'t-warn',`Dòng tiền HĐKD ${y3[0].year}–${y3[2].year}: ${nf(sc,0)} tỷ, chỉ bằng ${pf(sc/sn,0)} tổng LNST ${nf(sn,0)} tỷ — lãi trên sổ sách nhưng tiền chưa về (phải thu, tồn kho tăng). Kiểm tra khoản phải thu.`)}}
   if(isCyclical(a))L('chu kỳ','t-warn',`Ngành chu kỳ (${a.sector}): không ngoại suy từ đỉnh; g định giá nên thấp hơn g lịch sử.`);
   return w;
+}
+function ciGrowthBox(A){
+  if(A.score==null)return '';const ck=A.check,AN={yes:'✅',no:'❌',na:'❔'},cl=A.calc||{};
+  const pr=A.product;
+  return `<p class="note" style="font-size:.95rem"><b>Điểm tăng trưởng: <span class="${A.score>=7?'c-good':A.score<=4?'c-bad':'c-warn'}">${nf(A.score,1)}/10</span></b>${cl.A!=null?` = A ${nf(cl.A,1)} + B ${nf(cl.B||0,1)} + C ${nf(cl.C||0,1)} − R ${nf(cl.R||0,1)}`:''}${A.conf?` · tin cậy dữ liệu: <b>${CONF[A.conf]}</b>`:''} · TREND chính: <b>${(A.main||[]).map(x=>'T'+x).join(', ')||'chưa có'}</b></p>`
+   +(A.driver?`<p class="note"><b>Động lực chính:</b> ${esc(A.driver)}</p>`:'')+(A.oneoff?`<p class="note"><b>Lợi nhuận bất thường cần loại trừ:</b> ${esc(A.oneoff)}</p>`:'')+(A.risk?`<p class="note"><b>Rủi ro lớn nhất:</b> ${esc(A.risk)}</p>`:'')
+   +(pr?`<p class="note"><b>Giá sản phẩm chính — ${esc(pr.name)}:</b> ${esc(pr.now)}${pr.date?` (${esc(pr.date)})`:''}${pr.base?` so với ${esc(pr.base)}`:''}${pr.chg?` → <b>${esc(pr.chg)}</b>`:''}${pr.impact?`. ${esc(pr.impact)}`:''}</p>`:'')
+   +(ck?`<details${ck.ok<5||ck.conflict>=2?' open':''}><summary>Tự phản biện: <b class="${ck.ok>=5&&ck.conflict<2?'c-good':'c-warn'}">${ck.ok}/7</b>${ck.conflict?` · ${ck.conflict} mâu thuẫn`:''}${ck.ok<5||ck.conflict>=2?' — ⚠️ Dấu hiệu tăng trưởng chưa chắc chắn. Cần theo dõi thêm.':''}</summary><div class="tbl"><table class="ai-tr"><tbody>${ck.items.map(i=>`<tr><td>${AN[i.a]||'❔'}</td><td><b>${esc(i.q)}</b>${i.note?`<br>${esc(i.note)}`:''}</td></tr>`).join('')}</tbody></table></div></details>`:'')
+   +`<p class="note">Theo Cẩm nang CI Growth: A = các nhóm TREND chính (2 điểm/nhóm, tối đa 6), B = tín hiệu mạnh bổ sung (0,5/tín hiệu, tối đa 2), C = nhóm phụ (0,5–1), R = trừ cho one-off, lợi nhuận kém chất lượng, thông tin chưa xác thực. Điểm là mức hội tụ tín hiệu cho 1–12 tháng tới, không phải xác suất.</p>`;
 }
 function warnBox(a){
   const w=[];
@@ -844,6 +858,7 @@ function render(){
     <td class="n">${pbCell(a,c)}</td>
     <td>${dots(a)}</td>
     <td class="n" title="${esc(b5Tip(a))}">${b5Cell(a)}</td>
+    <td class="n" title="${esc(a.b5&&a.b5.trend.ci?a.b5.trend.t.split('\n').slice(0,2).join('\n')+(TRENDS[a.ticker].driver?'\nĐộng lực: '+TRENDS[a.ticker].driver:'')+(TRENDS[a.ticker].risk?'\nRủi ro: '+TRENDS[a.ticker].risk:''):'Điểm tăng trưởng 1–10 theo Cẩm nang CI Growth — chỉ có ở các mã AI đã phân tích sâu (danh sách ngắn hằng tuần)')}">${a.gsc!=null?`<b class="${a.gsc>=7?'c-good':a.gsc<=4?'c-bad':'c-warn'}">${nf(a.gsc,1)}</b><span class="muted">/10</span>${a.b5.trend.ci.ck!=null&&(a.b5.trend.ci.ck<5||a.b5.trend.ci.cf>=2)?'<span class="tag t-warn" title="Tự phản biện chưa đạt: dấu hiệu tăng trưởng chưa chắc chắn, cần theo dõi thêm">?</span>':''}`:'<span class="muted">—</span>'}</td>
     <td class="wcell">${a.warns.map(w=>`<span class="tag ${w.c}" title="${esc(w.t)}">${w.l}</span>`).join('')||'<span class="muted">—</span>'}</td>
     <td class="n" title="${esc(fsTip(a))}">${a.fsc!=null?`<b class="${a.fsc>=7?'c-good':a.fsc<=3?'c-bad':''}">${a.fsc}</b><span class="muted">/${a.fs.n}</span>`:'—'}</td>
     <td class="n" title="${esc(qTip(a))}">${qCell(a)}</td>
@@ -1000,7 +1015,7 @@ MOS Town       = ${nf(sT.sticker)} × ${pf(c.mosPct,0)} = ${nf(sT.mos)}  →  gi
     ${s.financial?b5row('ROE trung bình (ngưỡng 15%)','roe'):b5row('ROIC trung bình','roic')}${b5row('Tăng trưởng Doanh thu','rev')}${b5row('Tăng trưởng EPS','eps')}${b5row('Tăng trưởng BVPS (vốn chủ)','bvps')}${s.financial?'':b5row('Tăng trưởng FCF','fcf')}
    </tbody></table></div><p class="note">Số trong ngoặc là số năm thực tế dùng để tính khi dữ liệu ngắn hơn mốc. Big 5 Score chấm ở mốc 5 năm: ${a.score}/${a.maxScore}. EPS, BVPS từng năm ${a.adjYears?`tính trên số cổ phiếu đã điều chỉnh cổ phiếu thưởng/cổ tức bằng cổ phiếu (${a.adjYears}/${a.ys.length} năm có số liệu); phát hành thu tiền và ESOP được giữ nguyên như pha loãng thật`:'tính trên số cổ phiếu hiện tại (chưa có số cổ phiếu từng năm)'}.</p>
    ${niChart(a)}
-   ${a.b5&&a.b5.trend.ai?(()=>{const A=a.b5.trend.aiObj,RL={pos:'Tích cực',mix:'Hỗn hợp',neg:'Tiêu cực',na:'Chưa đủ dữ liệu'};return `<div class="sec"><h3>🔍 11 trend — AI phân tích sâu ngày ${fmtD(A.d)}</h3><div class="tbl"><table class="ai-tr"><thead><tr><th>Nhóm</th><th>Tín hiệu</th><th>Đánh giá</th></tr></thead><tbody>${A.trends.map(x=>`<tr><td><b>TREND ${esc(x.id)}</b><br>${esc(x.name)}</td><td>${esc(x.sig)}</td><td class="r-${esc(x.r)}">${RL[x.r]||esc(x.r)}</td></tr>`).join('')}</tbody></table></div>${A.summary?`<p class="note"><b>Kết luận:</b> ${esc(A.summary)}</p>`:''}${A.src&&A.src.length?`<p class="note">Nguồn: ${A.src.map(x=>`<a href="${esc(x.u)}" target="_blank" rel="noopener">${esc(x.t||x.u)}</a>`).join(' · ')}</p>`:''}<p class="note">Phân tích tự động bằng AI từ tin tức, BCTC và công bố thông tin công khai; có thể sai hoặc thiếu — kiểm tra lại nguồn trước khi quyết định.</p></div>`})():''}
+   ${a.b5&&a.b5.trend.ai?(()=>{const A=a.b5.trend.aiObj,RL={pos:'Tích cực',mix:'Hỗn hợp',neg:'Tiêu cực',na:'Chưa đủ dữ liệu'};return `<div class="sec"><h3>🔍 11 trend — AI phân tích sâu ngày ${fmtD(A.d)}</h3><div class="tbl"><table class="ai-tr"><thead><tr><th>Nhóm</th><th>Tín hiệu</th><th>Đánh giá</th></tr></thead><tbody>${A.trends.map(x=>`<tr><td><b>TREND ${esc(x.id)}</b><br>${esc(x.name)}</td><td>${esc(x.sig)}</td><td class="r-${esc(x.r)}">${RL[x.r]||esc(x.r)}${x.cls?`<br><span class="muted" style="font-size:.75rem">loại ${esc(x.cls)}</span>`:''}${x.sigs&&x.sigs.length?`<br><span class="muted" style="font-size:.75rem">TH ${x.sigs.join(', ')}</span>`:''}${(A.main||[]).includes(x.id)?'<br><b class="c-good" style="font-size:.75rem">TREND chính</b>':''}</td></tr>`).join('')}</tbody></table></div>${ciGrowthBox(A)}${A.summary?`<p class="note"><b>Kết luận:</b> ${esc(A.summary)}</p>`:''}${A.src&&A.src.length?`<p class="note">Nguồn: ${A.src.map(x=>`<a href="${esc(x.u)}" target="_blank" rel="noopener">${esc(x.t||x.u)}</a>`).join(' · ')}</p>`:''}<p class="note">Phân tích tự động bằng AI từ tin tức, BCTC và công bố thông tin công khai; có thể sai hoặc thiếu — kiểm tra lại nguồn trước khi quyết định.</p></div>`})():''}
    ${a.b5?`<div class="sec"><h3>BBIT7: ${a.b5s}/5</h3><div class="steps">${esc(b5Tip(a).split('\n').slice(1).join('\n'))}</div><p class="note">Best = top 3 ngành theo chất lượng · Buy = nội bộ/tổ chức đăng ký mua nhiều hơn bán trong 90 ngày, hoặc khối ngoại mua ròng · Income = LN cốt lõi ≥ 70% LNTT · Trend = ≥ 60% trong 11 trend chấm tự động bằng số liệu (xem từng trend ở trên) · 7 = 7 năm liên tiếp có lãi. Tiêu chí hỗ trợ lọc, không thay cho định giá MOS.</p></div>`:''}
    ${(()=>{const qs=s.qSeries;const fsx=a.fs;let h='';
      if(fsx)h+=`<div class="sec"><h3>Piotroski F-Score: ${fsx.score??'—'}/${fsx.n} (năm ${fsx.year} so với ${fsx.year-1})</h3><div class="tbl"><table><tbody>${fsx.items.map(x=>`<tr><td>${x.pass==null?'❔':x.pass?'✅':'❌'}</td><td>${x.lab}</td></tr>`).join('')}</tbody></table></div><p class="note">≥ 7 điểm: tài chính đang khỏe lên; ≤ 3: dễ là bẫy giá trị. Trong nhóm cổ phiếu rẻ, mã F-Score cao vượt trội rõ rệt mã F-Score thấp (Piotroski 2000). ❔ = thiếu dữ liệu, không tính vào điểm.</p></div>`;
