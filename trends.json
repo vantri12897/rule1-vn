@@ -3270,6 +3270,206 @@
    "oneoff": "Lãi hoạt động khác Q2/2026 2.852 tỷ (nhiều khả năng thu hồi nợ đã xử lý) cần loại khỏi động lực bền vững; cổ phiếu thưởng 6,84% không tạo giá trị.",
    "risk": "Nợ xấu tăng 46% trong 6 tháng (1,83%, vượt trần 1,6% của ĐHĐCĐ) trong khi bao phủ chỉ còn ~76%, buộc tăng trích lập và kéo LN các quý tới, cộng pha loãng EPS lớn.",
    "driver": "Thu nhập lãi thuần tăng ~19% nhờ quy mô tài sản >3,4 triệu tỷ, trong khi chi phí dự phòng chưa tăng tương ứng với nợ xấu."
+  },
+  "HTG": {
+   "d": "2026-10-26",
+   "trends": [
+    {
+     "id": "01",
+     "name": "Tài chính",
+     "sig": "Q3/2026: DT 1.718 tỷ (+13% YoY), LN gộp 223,4 tỷ (+42%), biên gộp ~13% (cùng kỳ ~10,4%), LNST hợp nhất 111,5 tỷ (+37,2%); 9T/2026 DT 4.541 tỷ (+11%), LNST >311 tỷ (+15,5%). CFO 9T 626,6 tỷ (+24%) cao hơn LNST. Cổ tức tiền 12 năm liên tục (tạm ứng 2.500đ/cp, trả 19/1/2026). Điểm trừ: vay nợ 1.644 tỷ, lãi vay Q2 tăng ~110% lên 25,2 tỷ.",
+     "r": "pos",
+     "sigs": [
+      1,
+      2,
+      3,
+      4,
+      9
+     ],
+     "cls": "A"
+    },
+    {
+     "id": "02",
+     "name": "Sản xuất, vận hành",
+     "sig": "Tồn kho giảm từ 842 tỷ (đầu năm) còn 663 tỷ (30/9/2026) trong khi DT Q3 tăng 13%, tồn kho đóng góp ~180,7 tỷ vào CFO. KH 2026 nâng năng suất >5% và phát triển dòng sợi giá trị cao (nâng cấp nhà máy sợi), chưa có số liệu sản lượng/công suất cụ thể.",
+     "r": "mix",
+     "sigs": [
+      16
+     ],
+     "cls": "B"
+    },
+    {
+     "id": "03",
+     "name": "Chi phí, giá cả",
+     "sig": "Bông ICE ~80,3 cents/lb (26/10/2026), hồi từ đáy 77,0–77,2 nhưng vẫn dưới MA200 ~82,1: giá đầu vào thấp hỗ trợ biên may (biên gộp Q3 lên ~13%), nhưng bất lợi cho giá bán mảng sợi. Lương tối thiểu vùng tăng từ 1/1/2026 và lãi vay tăng là áp lực chi phí.",
+     "r": "mix",
+     "sigs": [
+      19
+     ],
+     "cls": "B"
+    },
+    {
+     "id": "04",
+     "name": "Thị trường, khách hàng",
+     "sig": "Ngành: XK dệt may 5T/2026 17,81 tỷ USD (+0,6%), hàng may −1,5%; đơn hàng đủ tới Q3 nhưng nhỏ, ngắn, đơn giá không tăng theo chi phí (VITAS, 6/2026). HTG đặt KH XK 2026 269 triệu USD, gần như đi ngang 2025 (268 triệu USD). Chưa có thông tin hợp đồng/khách hàng mới lớn.",
+     "r": "mix",
+     "cls": "C"
+    },
+    {
+     "id": "05",
+     "name": "Nội bộ, quản trị",
+     "sig": "Vinatex nắm >60%; trả cổ tức tiền đều đặn. Không thấy ESOP, cầm cố hay xử phạt trong các nguồn đã đọc. Chưa có thông tin thay đổi chiến lược/lãnh đạo mới trong 2026.",
+     "r": "mix",
+     "cls": "C"
+    },
+    {
+     "id": "06",
+     "name": "Nhà đầu tư, cổ đông",
+     "sig": "Phát hành 7,2 triệu cp trả cổ tức tỷ lệ 5:1 (17/7/2026), vốn điều lệ 360 → 432 tỷ: không tạo thêm giá trị, EPS bị chia nhỏ ~17%. Khối ngoại gần như không giao dịch (prices.json fn = 0), thanh khoản thấp; không có đăng ký giao dịch nội bộ gần đây.",
+     "r": "mix",
+     "sigs": [
+      47
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "07",
+     "name": "Phân tích kỹ thuật",
+     "sig": "Giá 34.600đ (26/10/2026): vượt nền 2 phiên trước, có pocket pivot, phiên KL ×4,6 TB20 cách 3 phiên (+1,2%); nhưng 12 tháng −0,7%, 3 tháng kém VN-Index 4,4 điểm %, cách đỉnh 52 tuần −9,8%.",
+     "r": "mix",
+     "sigs": [
+      48,
+      51
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "08",
+     "name": "Vĩ mô, ngành",
+     "sig": "Dệt may chịu thuế đối ứng Mỹ, nhu cầu tiêu dùng yếu ở thị trường lớn, yêu cầu tuân thủ ESG tăng chi phí; giá bông thấp là điểm hỗ trợ. Mục tiêu XK ngành 48–49 tỷ USD được VITAS đánh giá rất thách thức.",
+     "r": "mix",
+     "sigs": [
+      57
+     ],
+     "cls": "C"
+    },
+    {
+     "id": "09",
+     "name": "Truyền thông, sự kiện",
+     "sig": "KQKD Q3/2026 công bố ~20/10/2026 với LNST +37%; giá phản ứng tích cực nhẹ (phiên KL ×4,6, +1,2%). Không có sự kiện lớn khác trong 3 tháng.",
+     "r": "mix",
+     "cls": "C"
+    },
+    {
+     "id": "10",
+     "name": "Tài sản ẩn, kế toán",
+     "sig": "Lãi tiền gửi/cho vay 6T/2026 45,3 tỷ (gấp >3 lần cùng kỳ) từ ~1.465 tỷ tiền gửi có kỳ hạn, song song vay 1.644 tỷ. LNST Q2/2026 tăng nhờ lợi nhuận khác và thuế TNDN giảm; hoàn nhập dự phòng tồn kho 2,2 tỷ (nhỏ). Q3 chưa thấy khoản bất thường.",
+     "r": "mix",
+     "cls": "C"
+    },
+    {
+     "id": "11",
+     "name": "Sản phẩm, công nghệ",
+     "sig": "Chỉ có định hướng phát triển dòng sợi giá trị cao hơn (KH 2026); không tìm thấy sản phẩm, bằng sáng chế hay R&D cụ thể có đóng góp đáng kể.",
+     "r": "na",
+     "cls": "C"
+    }
+   ],
+   "summary": "HTG có quý 3/2026 tốt thực chất (LNST +37%, biên gộp lên ~13%, CFO 9T 627 tỷ > LNST, tồn kho giảm), nhưng động lực chỉ tập trung ở nhóm Tài chính trong khi ngành xuất khẩu may gần như đi ngang và KH xuất khẩu 2026 của HTG không tăng, nên điểm theo phương pháp còn thấp. Điểm có thể nâng nếu Q4 giữ biên gộp ≥ 13% và có tín hiệu đơn hàng 2027 tăng.",
+   "src": [
+    {
+     "t": "Dệt may Hòa Thọ lãi hơn 311 tỷ đồng, nợ vay vượt 1.600 tỷ (20/10/2026)",
+     "u": "https://kinhtechungkhoan.vn/det-may-hoa-tho-lai-hon-311-ty-dong-tien-gui-doi-dao-nhung-no-vay-van-vuot-moc-1600-ty"
+    },
+    {
+     "t": "Dệt may Hòa Thọ lãi gần 200 tỷ sau 6 tháng (4/8/2026)",
+     "u": "https://vietnamfinance.vn/det-may-hoa-tho-lai-gan-200-ty-dong-sau-6-thang-nam-giu-gan-1460-ty-dong-tien-gui-d148571.html"
+    },
+    {
+     "t": "HTG phân phối 7,2 triệu cổ phiếu trả cổ tức",
+     "u": "https://doanhnhan.baophapluat.vn/det-may-hoa-tho-htg-phan-phoi-thanh-cong-7-2-trieu-co-phieu-tra-co-tuc-lai-6-thang-dat-gan-200-ty-dong.html"
+    },
+    {
+     "t": "HTG đặt mục tiêu 2026: DT 5.550 tỷ, LNTT 420 tỷ",
+     "u": "https://doanhnhan.baophapluat.vn/cong-ty-det-may-hoa-tho-htg-dat-muc-tieu-doanh-thu-nam-2026-dat-5550-ty-lai-truoc-thue-420-ty-dong-90053.html"
+    },
+    {
+     "t": "Dệt may Hòa Thọ sắp tạm ứng cổ tức 2.500đ/cp",
+     "u": "https://24hmoney.vn/news/det-may-hoa-tho-sap-tam-ung-co-tuc-2-500-dong-cp-c1a2686470.html"
+    },
+    {
+     "t": "Bản tin nguyên liệu công nghiệp 26/10/2026 (giá bông)",
+     "u": "https://dautuhanghoa.vn/ban-tin-nhom-nguyen-lieu-cong-nghiep-ngay-26-10-2026/"
+    },
+    {
+     "t": "Đơn hàng không thiếu, áp lực 49 tỷ USD vẫn đè nặng ngành dệt may (VITAS)",
+     "u": "https://daibieunhandan.vn/don-hang-khong-thieu-ap-luc-49-ty-usd-van-de-nang-nganh-det-may-10419526.html"
+    }
+   ],
+   "score": 3.5,
+   "calc": {
+    "A": 2.0,
+    "B": 1.0,
+    "C": 1.0,
+    "R": 0.5
+   },
+   "main": [
+    "01"
+   ],
+   "check": {
+    "ok": 7,
+    "conflict": 1,
+    "items": [
+     {
+      "q": "Có khoản lợi nhuận bất thường?",
+      "a": "yes",
+      "note": "Q2/2026 có lợi nhuận khác tăng và thuế giảm; lãi tiền gửi 45 tỷ/6T là thu nhập tài chính. Q3 chưa thấy one-off; LN cốt lõi 2025 ≈ 86% LNTT."
+     },
+     {
+      "q": "Giá sản phẩm chính tăng hay giảm so với kỳ gốc?",
+      "a": "yes",
+      "note": "Bông ~80,3 cents/lb, hồi từ đáy 77 nhưng dưới MA200 82,1 — đầu vào rẻ."
+     },
+     {
+      "q": "Dữ liệu tài chính và giá sản phẩm có nhất quán?",
+      "a": "yes",
+      "note": "Biên gộp Q3 tăng lên ~13% khớp với giá bông thấp."
+     },
+     {
+      "q": "Biên lợi nhuận, doanh thu, thị phần có thực sự cải thiện?",
+      "a": "yes",
+      "note": "Q3 DT +13%, biên gộp +2,6 điểm %; nhưng Q2 biên gộp giảm 16,5% → 15,9% (mâu thuẫn giữa 2 quý)."
+     },
+     {
+      "q": "Động lực tăng trưởng có bền vững?",
+      "a": "no",
+      "note": "Ngành XK gần như đi ngang, đơn hàng nhỏ, đơn giá không tăng; KH XK 2026 HTG đi ngang."
+     },
+     {
+      "q": "TREND chính có đủ tín hiệu?",
+      "a": "no",
+      "note": "Chỉ nhóm Tài chính đủ ≥ 3 tín hiệu; tăng trưởng tập trung một nhóm."
+     },
+     {
+      "q": "Có rủi ro dòng tiền, biên LN, EPS, tỷ giá, lãi suất, vĩ mô?",
+      "a": "yes",
+      "note": "Nợ vay 1.644 tỷ, lãi vay tăng mạnh; pha loãng EPS 20% do cổ tức cổ phiếu; thuế Mỹ, lương tối thiểu."
+     }
+    ]
+   },
+   "conf": "tb",
+   "product": {
+    "name": "Bông (Cotton ICE) — đầu vào sợi/may",
+    "now": "~80,3 cents/lb",
+    "date": "26/10/2026",
+    "base": "đáy gần nhất 77,0–77,2; MA200 ~82,1",
+    "chg": "+4% từ đáy, −2% so MA200",
+    "impact": "Đầu vào rẻ hỗ trợ biên mảng may; giá sợi khó tăng.",
+    "src": "https://dautuhanghoa.vn/ban-tin-nhom-nguyen-lieu-cong-nghiep-ngay-26-10-2026/"
+   },
+   "oneoff": "Q3 không phát hiện; Q2/2026 có lợi nhuận khác tăng và thuế giảm; lãi tiền gửi (45 tỷ/6T) là thu nhập tài chính, không phải cốt lõi.",
+   "risk": "Ngành xuất khẩu may đi ngang với đơn giá không tăng, trong khi nợ vay 1.644 tỷ và chi phí lãi vay tăng gấp đôi; EPS bị pha loãng 20% do cổ tức cổ phiếu.",
+   "driver": "Biên gộp Q3/2026 cải thiện mạnh (~10,4% → ~13%) nhờ đầu vào rẻ và tối ưu chi phí, kéo LNST +37% dù doanh thu chỉ +13%."
   }
  },
  "updated": "2026-10-26"
