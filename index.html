@@ -300,6 +300,8 @@ body{margin:0}
         <button data-preset="all" class="on">Tất cả mã đủ điều kiện</button>
         <button data-preset="rule1">Rule #1 chuẩn</button>
         <button data-preset="watch">Ứng viên theo dõi</button>
+        <button data-preset="strong" title="Big 5 ≥ 4 · không nhãn cảnh báo đỏ · F-Score ≥ 6 (ngân hàng: không cờ nợ xấu) · LN quý ≥ +20% so cùng kỳ · giá ≤ Sticker R2 · RS ≥ 70. Xếp theo RS giảm dần.">💪 Mạnh nhất</button>
+        <div id="strongNote" class="note" style="display:none;font-size:.78rem;margin:2px 0 0"></div>
       </div>
       <div><h3>Sàn</h3><div class="chk" id="exch"></div></div>
       <label class="f" for="fSector">Ngành<select id="fSector"><option value="">Tất cả</option></select></label>
@@ -760,6 +762,7 @@ function filtered(){
     if(f3==='unrated'&&m3rated(s.ticker))return false;
     if(fq){const g=qYoY(s);if(g==null||(fq==='up'?!(g>0):fq==='up20'?!(g>=0.2):!(g<0)))return false}
     if(preset==='rule1'&&!(a.score>=Math.min(4,a.maxScore)&&a.status==='below'&&!isStale(a)&&(s.financial?(!bankBad(a)&&(a.mosPB==null||a.price<=a.mosPB)):(a.payback!=null&&a.payback<=c.pbGood))))return false; // tài chính: thêm dưới MOS P/B, không cờ nợ xấu
+    if(preset==='strong'&&!isStrong(a))return false;
     if(preset==='watch'&&!(a.score>=Math.min(4,a.maxScore)&&(a.status==='below'||a.status==='between')))return false;
     return true});
 }
@@ -841,6 +844,19 @@ function ciGrowthBox(A){
    +(ck?`<details${ck.ok<5||ck.conflict>=2?' open':''}><summary>Tự phản biện: <b class="${ck.ok>=5&&ck.conflict<2?'c-good':'c-warn'}">${ck.ok}/7</b>${ck.conflict?` · ${ck.conflict} mâu thuẫn`:''}${ck.ok<5||ck.conflict>=2?' — ⚠️ Dấu hiệu tăng trưởng chưa chắc chắn. Cần theo dõi thêm.':''}</summary><div class="tbl"><table class="ai-tr"><tbody>${ck.items.map(i=>`<tr><td>${AN[i.a]||'❔'}</td><td><b>${esc(i.q)}</b>${i.note?`<br>${esc(i.note)}`:''}</td></tr>`).join('')}</tbody></table></div></details>`:'')
    +`<p class="note">Theo Cẩm nang CI Growth: A = các nhóm TREND chính (2 điểm/nhóm, tối đa 6), B = tín hiệu mạnh bổ sung (0,5/tín hiệu, tối đa 2), C = nhóm phụ (0,5–1), R = trừ cho one-off, lợi nhuận kém chất lượng, thông tin chưa xác thực. Điểm là mức hội tụ tín hiệu cho 1–12 tháng tới, không phải xác suất.</p>`;
 }
+/* Bộ lọc "Mạnh nhất": chất lượng + tăng tốc lợi nhuận + giá hợp lý + dòng tiền xác nhận */
+function isStrong(a){
+  if(!(a.score>=Math.min(4,a.maxScore)))return false;
+  if(a.warns.some(w=>w.c==='t-bad'))return false;
+  if(a.s.financial?bankBad(a):!(a.fsc!=null&&a.fsc>=6))return false;
+  const g=qYoY(a.s);if(!(g!=null&&g>=0.2))return false;
+  if(!(a.stR2&&a.stR2.ok&&a.price<=a.stR2.sticker))return false;
+  return a.rs!=null&&a.rs>=70;
+}
+function strongNote(){const el=$('strongNote');if(!el)return;if(preset!=='strong'){el.style.display='none';return}
+  let t='Big 5 ≥ 4 · không nhãn đỏ · F-Score ≥ 6 · LN quý ≥ +20% YoY · giá ≤ Sticker R2 · RS ≥ 70.';
+  try{const st=typeof marketState==='function'?marketState():null;if(st&&st.I&&st.b50!=null){const weak=st.I.c<st.I.ma200||st.b50<50;t+=weak?` ⚠️ Thị trường chưa xác nhận xu hướng tăng (${pf(st.b50/100,0)} mã trên MA50, VN-Index ${st.I.c<st.I.ma200?'dưới':'trên'} MA200): chỉ nên giải ngân thăm dò.`:` ✅ Thị trường thuận lợi (${pf(st.b50/100,0)} mã trên MA50).`}}catch(e){}
+  el.textContent=t+' Bước cuối: xem biểu đồ (3 công cụ Town, vượt nền), đặt cắt lỗ 2×ATR, chạy /ci.';el.style.display='block'}
 function warnBox(a){
   const w=[];
   if(epsLossFlag(a))w.push(`<b>EPS từng lỗ:</b> không tính được CAGR EPS 5 năm (${(()=>{const i0=Math.max(0,a.eps.length-6),i1=a.eps.length-1,l=[];if(!(a.eps[i0]>0))l.push('năm gốc '+a.ys[i0].year);if(!(a.eps[i1]>0))l.push('năm '+a.ys[i1].year);return (l.join(' và ')||'thiếu số liệu')+' lỗ'})()}), nên g chỉ dựa trên tăng trưởng BVPS. Kiểm tra lợi nhuận đã ổn định chưa trước khi tin Sticker/MOS.`);
@@ -1147,7 +1163,7 @@ const DRAG={on:false,moved:false,x:0,y:0,sl:0,sy:0};
     if(DRAG.moved){tb.scrollLeft=DRAG.sl-dx;window.scrollTo(window.scrollX,DRAG.sy-dy);e.preventDefault()}});
   window.addEventListener('mouseup',()=>{if(!DRAG.on)return;DRAG.on=false;tb.classList.remove('dragging');setTimeout(()=>{DRAG.moved=false},0)});
 })();
-document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}render()});
+document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}if(preset==='strong'){sortKey='rs';sortDir=-1}render();strongNote()});
 $('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fQ').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
 
 /* ===== Biểu đồ nến ===== */

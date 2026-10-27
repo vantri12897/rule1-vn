@@ -2,8 +2,11 @@ name: Cập nhật giá hàng ngày
 
 on:
   schedule:
-    # 09:30 UTC = 16:30 giờ Việt Nam, thứ Hai đến thứ Sáu (sau khi thị trường đóng cửa 15:00)
-    - cron: "30 9 * * 1-5"
+    # 09:13 UTC = 16:13 giờ Việt Nam, thứ Hai đến thứ Sáu (sau khi thị trường đóng cửa 15:00).
+    # Tránh phút :00/:30 vì GitHub hay trễ lịch ở các mốc đông; lịch dự phòng 12:47 UTC (19:47 VN)
+    # chỉ chạy tiếp khi lượt chính chưa lấy được giá phiên hôm nay (xem bước "Kiểm tra cần chạy").
+    - cron: "13 9 * * 1-5"
+    - cron: "47 12 * * 1-5"
   workflow_dispatch:      # cho phép bấm "Run workflow" để chạy tay
     inputs:
       symbols:
@@ -25,19 +28,44 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Kiểm tra cần chạy (lịch dự phòng bỏ qua nếu đã có giá phiên hôm nay)
+        id: chk
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          from datetime import datetime, timezone, timedelta
+          today = datetime.now(timezone(timedelta(hours=7))).strftime("%Y-%m-%d")
+          skip = False
+          if os.environ.get("EV") == "schedule" and os.environ.get("CRON") == "47 12 * * 1-5":
+              try:
+                  p = json.load(open("prices.json"))["prices"]
+                  n = sum(1 for v in p.values() if v.get("d") == today)
+                  skip = n >= 0.5 * len(p)
+              except Exception:
+                  pass
+          print("skip=" + ("true" if skip else "false"))
+          PY
+        env:
+          EV: ${{ github.event_name }}
+          CRON: ${{ github.event.schedule }}
+
       - uses: actions/setup-python@v6
+        if: steps.chk.outputs.skip != 'true'
         with:
           python-version: "3.12"
 
       - name: Cài vnstock
+        if: steps.chk.outputs.skip != 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
 
       - name: Lấy dữ liệu nến hiện có (nhánh charts-data)
+        if: steps.chk.outputs.skip != 'true'
         run: git clone -q --depth 1 -b charts-data "https://github.com/${{ github.repository }}.git" charts_out || mkdir -p charts_out
 
       - name: Lấy giá đóng cửa
+        if: steps.chk.outputs.skip != 'true'
         id: run
         continue-on-error: true
         run: |
@@ -57,7 +85,7 @@ jobs:
           wait $PID
 
       - name: Lưu prices.json vào repo
-        if: always()
+        if: always() && steps.chk.outputs.skip != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -76,7 +104,7 @@ jobs:
           fi
 
       - name: Lưu dữ liệu nến (nhánh charts-data, chỉ giữ bản mới nhất)
-        if: always()
+        if: always() && steps.chk.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -92,7 +120,7 @@ jobs:
           echo "Đã lưu dữ liệu nến cho $n mã"
 
       - name: Báo lỗi nếu lấy giá thất bại
-        if: steps.run.outcome == 'failure'
+        if: (steps.run.outcome == 'failure') && steps.chk.outputs.skip != 'true'
         run: |
           echo "::error::Lấy giá thất bại hoặc dưới 50% mã cập nhật được. Website vẫn giữ giá của lần thành công gần nhất."
           exit 1
