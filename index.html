@@ -287,8 +287,8 @@ body{margin:0}
       <label class="f" for="pFcf">FCF gốc cho Payback<select id="pFcf"><option value="avg3" selected>Trung bình 3 năm</option><option value="last">Năm gần nhất</option></select></label>
       <label class="f" for="pPbGood">Payback tốt (≤ năm)<input id="pPbGood" type="number" step="1" value="8"></label>
       <label class="f" for="pPbWarn">Payback chấp nhận (≤ năm)<input id="pPbWarn" type="number" step="1" value="12"></label>
-      <label class="f" for="pCapMin">Vốn hóa tối thiểu (tỷ)<input id="pCapMin" type="number" step="100" value="500"></label>
-      <label class="f" for="pAdvMin">Thanh khoản TB tối thiểu (tỷ/phiên)<input id="pAdvMin" type="number" step="0.5" value="1"></label>
+      <label class="f" for="pCapMin">Vốn hóa tối thiểu (tỷ)<input id="pCapMin" type="number" step="100" value="0"></label>
+      <label class="f" for="pAdvMin">Thanh khoản TB tối thiểu (tỷ/phiên)<input id="pAdvMin" type="number" step="0.1" value="0.1"></label>
       <label class="f" for="pYrMin">Số năm dữ liệu tối thiểu<input id="pYrMin" type="number" step="1" value="5"></label>
     </div>
   </details>
@@ -306,14 +306,14 @@ body{margin:0}
       <div><h3>Sàn</h3><div class="chk" id="exch"></div></div>
       <label class="f" for="fSector">Ngành<select id="fSector"><option value="">Tất cả</option></select></label>
       <label class="f" for="fSearch">Tìm mã / tên<input id="fSearch" type="search" placeholder="VD: SX1"></label>
-      <label class="f" for="fBig5">Big 5 Score tối thiểu (mốc 5 năm)<input id="fBig5" type="number" min="0" max="5" value="0"></label>
+      <label class="f" for="fBig5">Big 5 Score tối thiểu (mốc 5 năm)<input id="fBig5" type="number" min="0" max="5" value="3"></label>
       <label class="f" for="fPb">Payback tối đa (năm)<input id="fPb" type="number" placeholder="bỏ trống = không lọc"></label>
-      <label class="f" for="fPe">P/E tối đa<input id="fPe" type="number" placeholder="bỏ trống = không lọc"></label>
-      <label class="f" for="fRoe">ROE tối thiểu (%)<input id="fRoe" type="number" placeholder="bỏ trống = không lọc"></label>
-      <label class="f" for="fDe">Nợ vay/Vốn chủ tối đa<input id="fDe" type="number" step="0.1" placeholder="bỏ trống = không lọc"></label>
+      <label class="f" for="fPe">P/E tối đa<input id="fPe" type="number" value="15" placeholder="bỏ trống = không lọc"></label>
+      <label class="f" for="fRoe">ROE tối thiểu (%)<input id="fRoe" type="number" value="12" placeholder="bỏ trống = không lọc"></label>
+      <label class="f" for="fDe">Nợ vay/Vốn chủ tối đa<input id="fDe" type="number" step="0.1" value="5" placeholder="bỏ trống = không lọc"></label>
       <label class="f" for="fMos">Vị thế giá<select id="fMos"><option value="">Mọi vị thế</option><option value="below">Dưới MOS</option><option value="between">Dưới Sticker</option></select></label>
       <label class="f" for="f3m">Đánh giá 3M<select id="f3m"><option value="">Không lọc</option><option value="pass">Đạt cả 3M</option><option value="rated">Đã chấm</option><option value="unrated">Chưa chấm</option></select></label>
-      <label class="f" for="fQ">LN quý gần nhất so với cùng kỳ<select id="fQ"><option value="">Không lọc</option><option value="up">Tăng so cùng kỳ</option><option value="up20">Tăng ≥ 20% so cùng kỳ</option><option value="down">Giảm so cùng kỳ</option></select></label>
+      <label class="f" for="fQ">LN quý gần nhất so với cùng kỳ<select id="fQ"><option value="">Không lọc</option><option value="up" selected>Tăng so cùng kỳ</option><option value="up20">Tăng ≥ 20% so cùng kỳ</option><option value="down">Giảm so cùng kỳ</option></select></label>
       <div class="chk"><label for="fFin"><input id="fFin" type="checkbox" checked> Hiện nhóm tài chính</label></div>
       <button id="btnReset">Xóa bộ lọc</button>
     </aside>
