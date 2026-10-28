@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Kiểm tra cần chạy (lịch dự phòng bỏ qua nếu đã có giá phiên hôm nay)
+      - name: Kiểm tra cần chạy (lịch tự động bỏ qua nếu đã xong phiên hôm nay)
         id: chk
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
@@ -36,11 +36,12 @@ jobs:
           from datetime import datetime, timezone, timedelta
           today = datetime.now(timezone(timedelta(hours=7))).strftime("%Y-%m-%d")
           skip = False
-          if os.environ.get("EV") == "schedule" and os.environ.get("CRON") == "47 12 * * 1-5":
+          # Lịch GitHub (schedule) có thể trễ nhiều giờ: bỏ qua nếu lượt đầy đủ của phiên hôm nay đã xong
+          # (thường do tác vụ hẹn giờ bên ngoài gọi workflow_dispatch đúng giờ).
+          if os.environ.get("EV") == "schedule":
               try:
-                  p = json.load(open("prices.json"))["prices"]
-                  n = sum(1 for v in p.values() if v.get("d") == today)
-                  skip = n >= 0.5 * len(p)
+                  d = json.load(open("prices.json"))
+                  skip = d.get("session") == today and not d.get("partial") and not d.get("quick")
               except Exception:
                   pass
           print("skip=" + ("true" if skip else "false"))
