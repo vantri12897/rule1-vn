@@ -1,11 +1,11 @@
 {
- "updated": "2026-10-25T04:56+07:00",
- "checked": "2026-10-25T04:56+07:00",
+ "updated": "2026-11-01T04:54+07:00",
+ "checked": "2026-11-01T04:54+07:00",
  "exchanges": {
   "HOSE": {
    "status": "updated",
-   "tickers": 405,
-   "previous": 406
+   "tickers": 406,
+   "previous": 405
   },
   "HNX": {
    "status": "updated",
@@ -14,8 +14,8 @@
   },
   "UPCoM": {
    "status": "updated",
-   "tickers": 797,
-   "previous": 807
+   "tickers": 796,
+   "previous": 797
   }
  }
 }
