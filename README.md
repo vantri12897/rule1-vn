@@ -8,7 +8,26 @@ Website tạo và chấm đề trắc nghiệm tiếng Anh từ file PDF. Chạy
 
 ---
 
-## Hướng dẫn đưa website lên mạng (khoảng 20–30 phút, không cần biết lập trình)
+## ⚡ Cách nhanh nhất (khoảng 5 phút, không cần copy khoá Supabase hay chạy SQL)
+
+1. Lấy API key Gemini miễn phí: mở https://aistudio.google.com/apikey → **Create API key** → copy chuỗi `AIza…`.
+2. Bấm nút dưới đây → đăng nhập Vercel bằng **GitHub**:
+
+   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvantri12897%2Frule1-vn%2Ftree%2Fyd-english&project-name=yd-english&repository-name=yd-english&env=GEMINI_API_KEY&envDescription=API%20key%20Gemini%20mi%E1%BB%85n%20ph%C3%AD%20%28b%E1%BA%AFt%20%C4%91%E1%BA%A7u%20b%E1%BA%B1ng%20AIza...%29&envLink=https%3A%2F%2Faistudio.google.com%2Fapikey&products=%5B%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22supabase%22%2C%22integrationSlug%22%3A%22supabase%22%7D%5D&stores=%5B%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22supabase%22%2C%22integrationSlug%22%3A%22supabase%22%7D%5D)
+
+3. Vercel hỏi 3 thứ, làm lần lượt:
+   - **Create Git Repository**: giữ tên `yd-english` → Create.
+   - **Supabase**: bấm **Add / Create** → chọn gói **Free**, Region **Singapore** → Create (Vercel tự tạo database và tự điền khoá).
+   - **Environment Variables**: dán key Gemini vào ô `GEMINI_API_KEY`.
+4. Bấm **Deploy**, chờ 2–4 phút. Database được tạo bảng tự động trong lúc build.
+5. Mở địa chỉ `https://yd-english-….vercel.app` → **Bắt đầu miễn phí** → đăng ký. **Tài khoản đầu tiên là chủ website**; người khác không tự đăng ký được (muốn thêm giáo viên: đặt biến `TEACHER_SIGNUP_CODE` trên Vercel và đưa mã cho họ).
+
+> Nếu bước Supabase không hiện ra: vào project trên Vercel → tab **Storage** → **Create Database** → **Supabase** → Connect với project `yd-english` → tab **Deployments** → **Redeploy**.
+
+---
+
+## Cách thủ công (nếu không dùng nút Deploy)
+
 
 Bạn cần 4 tài khoản miễn phí: **Google**, **GitHub**, **Supabase**, **Vercel**. Không cần thẻ thanh toán.
 
