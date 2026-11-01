@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* Bảng màu YD-English: xanh lá + trắng. Đổi sắc độ tại đây là áp dụng toàn site. */
+@theme {
+  --color-primary: #16a34a;
+  --color-primary-dark: #15803d;
+  --color-primary-soft: #f0fdf4;
+  --color-primary-line: #bbf7d0;
+  --color-ink: #1f2937;
+  --color-muted: #6b7280;
+  --color-danger: #dc2626;
+  --color-warn: #ea580c;
+  --font-sans: "Be Vietnam Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html, body { background: #ffffff; color: var(--color-ink); }
+body { font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; }
+
+@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed; }
+@utility btn-primary { @apply btn bg-primary text-white hover:bg-primary-dark; }
+@utility btn-outline { @apply btn border border-primary text-primary-dark bg-white hover:bg-primary-soft; }
+@utility btn-ghost { @apply btn text-ink hover:bg-gray-100; }
+@utility btn-danger { @apply btn border border-red-300 text-danger bg-white hover:bg-red-50; }
+@utility card { @apply rounded-2xl border border-gray-200 bg-white shadow-sm; }
+@utility input { @apply w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20; }
+@utility label { @apply mb-1 block text-sm font-medium text-ink; }
+@utility badge { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold; }

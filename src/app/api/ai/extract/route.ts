@@ -1,0 +1,140 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { geminiJson } from "@/lib/gemini";
+import { aiErrorResponse, bumpUsage, requireTeacher } from "@/lib/api-auth";
+
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
+const Body = z.object({
+  pages: z
+    .array(
+      z.object({
+        page: z.number().int().positive(),
+        text: z.string().max(60_000).nullable(),
+        image: z.string().max(3_500_000).nullable(), // base64 JPEG
+      })
+    )
+    .min(1)
+    .max(10),
+});
+
+const SCHEMA = {
+  type: "object",
+  properties: {
+    title: { type: ["string", "null"] },
+    sections: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          instruction: { type: ["string", "null"] },
+          passage: { type: ["string", "null"] },
+        },
+        required: ["instruction", "passage"],
+      },
+    },
+    questions: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          number: { type: "integer" },
+          section_ref: { type: ["integer", "null"] },
+          stem: { type: "string" },
+          options: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: { label: { type: "string" }, text: { type: "string" } },
+              required: ["label", "text"],
+            },
+          },
+          marked_answer: { type: ["string", "null"] },
+        },
+        required: ["number", "stem", "options", "marked_answer", "section_ref"],
+      },
+    },
+    answer_key: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { number: { type: "integer" }, label: { type: "string" } },
+        required: ["number", "label"],
+      },
+    },
+  },
+  required: ["title", "sections", "questions", "answer_key"],
+};
+
+const SYSTEM = `You extract English multiple-choice tests from exam pages into JSON. Be exact and faithful.
+Rules:
+- Extract EVERY multiple-choice question that appears on these pages, keeping the original question numbers.
+- "stem": the question text exactly as printed (for cloze tests where the question is only a blank number in a passage, use e.g. "(12) ____" or the sentence fragment). Keep underlined parts by wrapping them in <u>...</u> (important for pronunciation/stress/error-identification questions). Do not translate.
+- "options": every choice with its letter label (A, B, C, D, ...), text without the leading letter.
+- "sections": shared instructions and reading/cloze passages on these pages (full passage text). Each question's "section_ref" is the index in this "sections" array, or null if none.
+- "marked_answer": ONLY if the page visibly marks the correct option for that question (circled, ticked, bold/highlighted differently from the other options). Otherwise null. NEVER guess.
+- "answer_key": if these pages contain an answer key / "Key" / "Đáp án" table, list every entry. Otherwise [].
+- Skip questions that are cut off so badly that the options are missing; partial questions at a page boundary will be recovered from the neighbouring chunk.
+- "title": the test title if visible, else null.`;
+
+type Raw = {
+  title: string | null;
+  sections: { instruction: string | null; passage: string | null }[];
+  questions: {
+    number: number;
+    section_ref: number | null;
+    stem: string;
+    options: { label: string; text: string }[];
+    marked_answer: string | null;
+  }[];
+  answer_key: { number: number; label: string }[];
+};
+
+export async function POST(req: Request) {
+  const user = await requireTeacher();
+  if (!user) return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
+
+  const parsed = Body.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: "Dữ liệu không hợp lệ" }, { status: 400 });
+
+  const parts: ({ text: string } | { inlineData: { mimeType: string; data: string } })[] = [];
+  for (const p of parsed.data.pages) {
+    parts.push({ text: `--- PAGE ${p.page} ---` });
+    if (p.text && p.text.trim().length > 0) parts.push({ text: p.text });
+    if (p.image) parts.push({ inlineData: { mimeType: "image/jpeg", data: p.image } });
+  }
+  parts.push({ text: "Extract all multiple-choice questions from the pages above as JSON." });
+
+  try {
+    await bumpUsage(user.id);
+    const raw = await geminiJson<Raw>(parts, SCHEMA, SYSTEM);
+    const valid = /^[A-F]$/;
+    const questions = (raw.questions ?? [])
+      .filter((q) => Array.isArray(q.options) && q.options.length >= 2 && Number.isFinite(q.number))
+      .map((q) => {
+        const marked = q.marked_answer?.trim().toUpperCase() ?? null;
+        const hasMark = !!marked && valid.test(marked) && q.options.some((o) => o.label.toUpperCase() === marked);
+        return {
+          number: q.number,
+          section_ref: q.section_ref ?? null,
+          section_index: null,
+          stem: q.stem ?? "",
+          options: q.options.map((o) => ({ label: o.label.trim().toUpperCase().replace(/[^A-F]/g, "") || "?", text: o.text.trim() })),
+          correct_label: hasMark ? marked : null,
+          answer_source: hasMark ? ("from_pdf" as const) : ("manual" as const),
+          confidence: null,
+          needs_review: false,
+          explanation: null,
+        };
+      });
+    const answer_key: Record<string, string> = {};
+    for (const k of raw.answer_key ?? []) {
+      const l = k.label?.trim().toUpperCase();
+      if (Number.isFinite(k.number) && l && valid.test(l)) answer_key[String(k.number)] = l;
+    }
+    return NextResponse.json({ title: raw.title ?? null, sections: raw.sections ?? [], questions, answer_key });
+  } catch (e) {
+    return aiErrorResponse(e);
+  }
+}

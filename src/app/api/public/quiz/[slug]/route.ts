@@ -1,0 +1,48 @@
+import { NextResponse } from "next/server";
+import { activeAttempt, buildResult, deadlineOf, loadQuizBySlug, toPublicQuestions, UUID_RE } from "@/lib/public-quiz";
+
+export const dynamic = "force-dynamic";
+
+/** Lấy đề cho học viên — tuyệt đối không trả correct_label trước khi nộp */
+export async function GET(req: Request, ctx: { params: Promise<{ slug: string }> }) {
+  const { slug } = await ctx.params;
+  const token = new URL(req.url).searchParams.get("token");
+  const data = await loadQuizBySlug(slug);
+  if (!data) return NextResponse.json({ error: "Không tìm thấy đề hoặc đề chưa được xuất bản" }, { status: 404 });
+  const { quiz, questions } = data;
+
+  const attempt = token && UUID_RE.test(token) ? await activeAttempt(quiz.id, token) : null;
+
+  const base = {
+    quiz: {
+      title: quiz.title,
+      status: quiz.status,
+      sections: quiz.sections,
+      time_limit_min: quiz.time_limit_min,
+      question_count: questions.length,
+    },
+  };
+
+  if (attempt?.status === "submitted") {
+    return NextResponse.json({
+      ...base,
+      questions: toPublicQuestions(quiz, questions, token),
+      attempt: { status: "submitted", student_name: attempt.student_name },
+      result: buildResult(quiz, questions, attempt),
+    });
+  }
+  return NextResponse.json({
+    ...base,
+    questions: attempt ? toPublicQuestions(quiz, questions, token) : [],
+    attempt: attempt
+      ? {
+          status: attempt.status,
+          student_name: attempt.student_name,
+          started_at: attempt.started_at,
+          deadline: deadlineOf(quiz, attempt),
+          answers: attempt.answers,
+        }
+      : null,
+    server_time: new Date().toISOString(),
+  });
+}

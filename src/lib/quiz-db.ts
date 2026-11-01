@@ -1,0 +1,87 @@
+"use client";
+import { customAlphabet } from "nanoid";
+import { supabaseBrowser } from "./supabase/client";
+import type { DraftQuestion, Section } from "./types";
+
+const slugId = customAlphabet("23456789abcdefghijkmnpqrstuvwxyz", 10);
+
+export async function createQuiz(input: {
+  title: string;
+  sections: Section[];
+  questions: DraftQuestion[];
+  source_file_hash?: string | null;
+}): Promise<string> {
+  const sb = supabaseBrowser();
+  const { data: u } = await sb.auth.getUser();
+  if (!u.user) throw new Error("Chưa đăng nhập");
+  const { data: quiz, error } = await sb
+    .from("quizzes")
+    .insert({
+      owner_id: u.user.id,
+      title: input.title.trim() || "Đề trắc nghiệm",
+      slug: slugId(),
+      sections: input.sections,
+      source_file_hash: input.source_file_hash ?? null,
+    })
+    .select("id")
+    .single();
+  if (error || !quiz) throw new Error("Không lưu được đề: " + (error?.message ?? ""));
+  if (input.questions.length) {
+    const rows = input.questions.map((q, i) => ({
+      quiz_id: quiz.id,
+      position: i,
+      number: q.number,
+      section_index: q.section_index,
+      stem: q.stem,
+      options: q.options,
+      correct_label: q.correct_label,
+      answer_source: q.answer_source,
+      confidence: q.confidence,
+      needs_review: q.needs_review,
+      explanation: q.explanation,
+    }));
+    const { error: e2 } = await sb.from("questions").insert(rows);
+    if (e2) throw new Error("Không lưu được câu hỏi: " + e2.message);
+  }
+  return quiz.id;
+}
+
+/** Chấm lại toàn bộ bài đã nộp theo đáp án hiện tại (sau khi giáo viên sửa đáp án). */
+export async function regradeQuiz(quizId: string): Promise<number> {
+  const { grade } = await import("./grading");
+  const sb = supabaseBrowser();
+  const [{ data: qs }, { data: atts }] = await Promise.all([
+    sb.from("questions").select("id, number, correct_label").eq("quiz_id", quizId),
+    sb.from("attempts").select("id, answers").eq("quiz_id", quizId).eq("status", "submitted"),
+  ]);
+  let n = 0;
+  for (const a of atts ?? []) {
+    const g = grade(qs ?? [], a.answers ?? {});
+    const { error } = await sb.from("attempts").update({ score: g.score, total: g.total }).eq("id", a.id);
+    if (!error) n++;
+  }
+  return n;
+}
+
+export async function duplicateQuiz(quizId: string): Promise<string> {
+  const sb = supabaseBrowser();
+  const { data: q } = await sb.from("quizzes").select("*").eq("id", quizId).single();
+  const { data: qs } = await sb.from("questions").select("*").eq("quiz_id", quizId).order("position");
+  if (!q) throw new Error("Không tìm thấy đề");
+  return createQuiz({
+    title: `${q.title} (bản sao)`,
+    sections: q.sections,
+    source_file_hash: q.source_file_hash,
+    questions: (qs ?? []).map((x) => ({
+      number: x.number,
+      section_index: x.section_index,
+      stem: x.stem,
+      options: x.options,
+      correct_label: x.correct_label,
+      answer_source: x.answer_source,
+      confidence: x.confidence,
+      needs_review: x.needs_review,
+      explanation: x.explanation,
+    })),
+  });
+}
