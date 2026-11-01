@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { Logo } from "@/components/Logo";
 import { LogoutButton } from "@/components/LogoutButton";
+import { AccountBadge } from "@/components/AccountBadge";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const sb = await supabaseServer();
@@ -13,7 +14,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Logo href="/dashboard" />
           <div className="flex items-center gap-2">
-            <span className="hidden text-sm text-muted sm:inline">{data.user.email}</span>
+            <AccountBadge email={data.user.email ?? ""} />
             <LogoutButton />
           </div>
         </div>

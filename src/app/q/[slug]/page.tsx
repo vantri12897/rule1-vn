@@ -125,7 +125,7 @@ export default function TakeQuiz({ params }: { params: Promise<{ slug: string }>
   return (
     <main className="min-h-screen bg-primary-soft">
       <header className="sticky top-0 z-30 border-b border-primary-line bg-white">
-        <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
+        <div className={`mx-auto flex items-center gap-3 px-4 py-3 ${view === "taking" ? "max-w-7xl" : "max-w-2xl"}`}>
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-xs font-extrabold text-white">YD</span>
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-bold">{quiz?.title ?? "YD-English"}</div>
@@ -136,7 +136,7 @@ export default function TakeQuiz({ params }: { params: Promise<{ slug: string }>
         {view === "taking" && <Progress done={questions.filter((q) => answers[q.id]).length} total={questions.length} />}
       </header>
 
-      <div className="mx-auto max-w-2xl px-4 py-5">
+      <div className={`mx-auto px-4 py-5 ${view === "taking" ? "max-w-7xl" : "max-w-2xl"}`}>
         {view === "loading" && <p className="py-20 text-center text-muted">Đang tải đề…</p>}
         {view === "notfound" && <Message title="Không tìm thấy bài kiểm tra" text="Link không đúng hoặc đề chưa được giáo viên xuất bản." />}
         {view === "closed" && <Message title="Đề đã đóng" text="Giáo viên đã ngừng nhận bài cho đề này." />}
@@ -241,84 +241,184 @@ function TakingView({
   onSubmit: () => void;
 }) {
   const [showNav, setShowNav] = useState(false);
+  const [current, setCurrent] = useState<string | null>(questions[0]?.id ?? null);
+  const sheetRef = useRef<HTMLDivElement>(null);
   const done = questions.filter((q) => answers[q.id]).length;
+  const pick = (qid: string, label: string) => setAnswers((a) => ({ ...a, [qid]: label }));
+
+  // Theo dõi câu đang xem ở cột trái để tô sáng dòng tương ứng trên phiếu trả lời
+  useEffect(() => {
+    const els = questions.map((q) => document.getElementById(`q-${q.id}`)).filter(Boolean) as HTMLElement[];
+    const io = new IntersectionObserver(
+      (entries) => {
+        const vis = entries.filter((e) => e.isIntersecting).sort((x, y) => x.boundingClientRect.top - y.boundingClientRect.top)[0];
+        if (vis) setCurrent(vis.target.id.slice(2));
+      },
+      { rootMargin: "-90px 0px -55% 0px" }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [questions]);
+
+  // Giữ dòng đang xem luôn nằm trong khung phiếu trả lời
+  useEffect(() => {
+    const row = current ? sheetRef.current?.querySelector<HTMLElement>(`[data-row="${current}"]`) : null;
+    const box = sheetRef.current;
+    if (row && box) {
+      const top = row.offsetTop - box.offsetTop;
+      if (top < box.scrollTop || top > box.scrollTop + box.clientHeight - row.offsetHeight) {
+        box.scrollTo({ top: top - box.clientHeight / 2, behavior: "smooth" });
+      }
+    }
+  }, [current]);
+
+  const goTo = (qid: string) => document.getElementById(`q-${qid}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
   let lastSection: number | null = null;
 
   return (
-    <div>
-      <div className="mb-4 flex items-center justify-between">
-        <span className="text-sm text-muted">
-          Đã làm <b className="text-primary-dark">{done}</b>/{questions.length} câu
-        </span>
-        <button className="btn-ghost border border-primary-line bg-white px-3 py-1.5 text-sm" onClick={() => setShowNav(!showNav)}>
-          {showNav ? "Ẩn" : "Danh sách câu"}
-        </button>
-      </div>
-      {showNav && (
-        <div className="card mb-4 grid grid-cols-8 gap-1.5 p-3 sm:grid-cols-10">
-          {questions.map((q, i) => (
-            <a
-              key={q.id}
-              href={`#q-${q.id}`}
-              onClick={() => setShowNav(false)}
-              className={`grid h-9 place-items-center rounded-lg text-sm font-semibold ${answers[q.id] ? "bg-primary text-white" : "border border-gray-300 bg-white text-ink"}`}
-            >
-              {i + 1}
-            </a>
-          ))}
+    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
+      {/* ===== CỘT TRÁI: ĐỀ (QUESTIONS) ===== */}
+      <div>
+        <div className="mb-4 flex items-center justify-between lg:hidden">
+          <span className="text-sm text-muted">
+            Đã làm <b className="text-primary-dark">{done}</b>/{questions.length} câu
+          </span>
+          <button className="btn-ghost border border-primary-line bg-white px-3 py-1.5 text-sm" onClick={() => setShowNav(!showNav)}>
+            {showNav ? "Ẩn" : "Danh sách câu"}
+          </button>
         </div>
-      )}
+        {showNav && (
+          <div className="card mb-4 grid grid-cols-8 gap-1.5 p-3 sm:grid-cols-10 lg:hidden">
+            {questions.map((q, i) => (
+              <button
+                key={q.id}
+                onClick={() => { setShowNav(false); goTo(q.id); }}
+                className={`grid h-9 place-items-center rounded-lg text-sm font-semibold ${answers[q.id] ? "bg-primary text-white" : "border border-gray-300 bg-white text-ink"}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
 
-      <div className="space-y-4">
-        {questions.map((q, i) => {
-          const sec = q.section_index != null ? quiz.sections[q.section_index] : null;
-          const showSec = sec && q.section_index !== lastSection;
-          lastSection = q.section_index;
-          return (
-            <div key={q.id}>
-              {showSec && (sec!.instruction || sec!.passage) && (
-                <div className="card mb-4 border-primary-line p-4">
-                  {sec!.instruction && <p className="font-semibold italic"><Html text={sec!.instruction} /></p>}
-                  {sec!.passage && <p className="mt-2 whitespace-pre-line leading-relaxed"><Html text={sec!.passage} /></p>}
-                </div>
-              )}
-              <fieldset id={`q-${q.id}`} className="card scroll-mt-24 p-4">
-                <legend className="sr-only">Câu {i + 1}</legend>
-                <p className="mb-3 leading-relaxed">
-                  <b className="text-primary-dark">Câu {i + 1}.</b> <Html text={q.stem} />
-                </p>
-                <div className="space-y-2">
-                  {q.options.map((o) => {
-                    const on = answers[q.id] === o.label;
-                    return (
-                      <label
-                        key={o.label}
-                        className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 px-3 py-3 transition ${on ? "border-primary bg-primary-soft" : "border-gray-200 bg-white active:bg-gray-50"}`}
-                      >
-                        <input
-                          type="radio"
-                          name={q.id}
-                          className="mt-0.5 h-5 w-5 shrink-0 accent-[#16a34a]"
-                          checked={on}
-                          onChange={() => setAnswers((a) => ({ ...a, [q.id]: o.label }))}
-                        />
-                        <span>
-                          <b>{o.label}.</b> <Html text={o.text} />
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </fieldset>
-            </div>
-          );
-        })}
+        <h2 className="mb-3 hidden text-sm font-bold uppercase tracking-wide text-muted lg:block">Đề bài (Questions)</h2>
+        <div className="space-y-4">
+          {questions.map((q, i) => {
+            const sec = q.section_index != null ? quiz.sections[q.section_index] : null;
+            const showSec = sec && q.section_index !== lastSection;
+            lastSection = q.section_index;
+            const isCur = current === q.id;
+            return (
+              <div key={q.id}>
+                {showSec && (sec!.instruction || sec!.passage) && (
+                  <div className="card mb-4 border-primary-line p-4">
+                    {sec!.instruction && <p className="font-semibold italic"><Html text={sec!.instruction} /></p>}
+                    {sec!.passage && <p className="mt-2 whitespace-pre-line leading-relaxed"><Html text={sec!.passage} /></p>}
+                  </div>
+                )}
+                <fieldset id={`q-${q.id}`} className={`card scroll-mt-24 p-4 transition ${isCur ? "lg:ring-2 lg:ring-primary/40" : ""}`}>
+                  <legend className="sr-only">Câu {i + 1}</legend>
+                  <p className="mb-3 leading-relaxed">
+                    <b className="text-primary-dark">Câu {i + 1}.</b> <Html text={q.stem} />
+                  </p>
+                  <div className="space-y-2">
+                    {q.options.map((o) => {
+                      const on = answers[q.id] === o.label;
+                      return (
+                        <label
+                          key={o.label}
+                          className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 px-3 py-3 transition lg:py-2 ${on ? "border-primary bg-primary-soft" : "border-gray-200 bg-white active:bg-gray-50"}`}
+                        >
+                          <input
+                            type="radio"
+                            name={q.id}
+                            className="mt-0.5 h-5 w-5 shrink-0 accent-[#16a34a]"
+                            checked={on}
+                            onChange={() => pick(q.id, o.label)}
+                          />
+                          <span>
+                            <b>{o.label}.</b> <Html text={o.text} />
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Nút nộp cho điện thoại / màn hình nhỏ */}
+        <div className="lg:hidden">
+          {error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-danger">{error}</p>}
+          <button className="btn-primary mt-6 w-full py-3.5 text-base" disabled={busy} onClick={onSubmit}>
+            {busy ? "Đang nộp…" : `Nộp bài (${done}/${questions.length})`}
+          </button>
+        </div>
       </div>
 
-      {error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-danger">{error}</p>}
-      <button className="btn-primary mt-6 w-full py-3.5 text-base" disabled={busy} onClick={onSubmit}>
-        {busy ? "Đang nộp…" : `Nộp bài (${done}/${questions.length})`}
-      </button>
+      {/* ===== CỘT PHẢI: PHIẾU TRẢ LỜI (ANSWERS) — đứng yên khi cuộn đề ===== */}
+      <aside className="hidden lg:sticky lg:top-24 lg:block">
+        <div className="card flex max-h-[calc(100vh-7.5rem)] flex-col overflow-hidden">
+          <div className="border-b border-gray-100 px-4 py-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold">Phiếu trả lời (Answers)</h2>
+              <span className="text-sm text-muted">
+                <b className="text-primary-dark">{done}</b>/{questions.length}
+              </span>
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">
+              <div className="h-full bg-primary transition-all" style={{ width: `${questions.length ? (done / questions.length) * 100 : 0}%` }} />
+            </div>
+          </div>
+          <div ref={sheetRef} className="flex-1 overflow-y-auto px-2 py-2">
+            {questions.map((q, i) => {
+              const isCur = current === q.id;
+              return (
+                <div
+                  key={q.id}
+                  data-row={q.id}
+                  className={`flex items-center gap-2 rounded-lg px-2 py-1.5 ${isCur ? "bg-primary-soft" : ""}`}
+                >
+                  <button
+                    onClick={() => goTo(q.id)}
+                    title="Xem câu này bên trái"
+                    className={`w-14 shrink-0 text-left text-sm font-semibold hover:underline ${answers[q.id] ? "text-primary-dark" : "text-ink"}`}
+                  >
+                    Câu {i + 1}
+                  </button>
+                  <div className="flex gap-1.5">
+                    {q.options.map((o) => {
+                      const on = answers[q.id] === o.label;
+                      return (
+                        <button
+                          key={o.label}
+                          onClick={() => pick(q.id, o.label)}
+                          aria-label={`Câu ${i + 1} chọn ${o.label}`}
+                          aria-pressed={on}
+                          className={`grid h-8 w-8 place-items-center rounded-full border-2 text-sm font-bold transition ${
+                            on ? "border-primary bg-primary text-white" : "border-gray-300 bg-white text-ink hover:border-primary"
+                          }`}
+                        >
+                          {o.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="border-t border-gray-100 p-3">
+            {error && <p className="mb-2 rounded-xl bg-red-50 p-2 text-sm text-danger">{error}</p>}
+            <button className="btn-primary w-full py-3 text-base" disabled={busy} onClick={onSubmit}>
+              {busy ? "Đang nộp…" : `Nộp bài (${done}/${questions.length})`}
+            </button>
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }
