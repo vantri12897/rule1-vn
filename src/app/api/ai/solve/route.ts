@@ -4,7 +4,7 @@ import { geminiJson } from "@/lib/gemini";
 import { aiErrorResponse, bumpUsage, requireTeacher } from "@/lib/api-auth";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 300; // Vercel Hobby (Fluid compute) cho phép tối đa 300 giây
 
 const Body = z.object({
   questions: z
@@ -69,7 +69,8 @@ export async function POST(req: Request) {
     const out = await geminiJson<{ answers: { number: number; label: string; confidence: number; explanation: string }[] }>(
       [{ text: lines.join("\n\n") }],
       SCHEMA,
-      SYSTEM
+      SYSTEM,
+      2048 // giải đề cần suy nghĩ nhiều hơn tách câu
     );
     return NextResponse.json({
       answers: (out.answers ?? []).map((a) => ({

@@ -4,7 +4,7 @@ import { geminiJson } from "@/lib/gemini";
 import { aiErrorResponse, bumpUsage, requireTeacher } from "@/lib/api-auth";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 300; // Vercel Hobby (Fluid compute) cho phép tối đa 300 giây
 
 const Body = z.object({
   pages: z

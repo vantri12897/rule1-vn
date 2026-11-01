@@ -2,6 +2,8 @@
 import type { DraftQuestion, Section } from "./types";
 
 export class DailyQuotaError extends Error {}
+/** Máy chủ hết thời gian (504): nên chia nhỏ yêu cầu thay vì thử lại y nguyên */
+export class TimeoutError extends Error {}
 
 /** Gọi API AI; tự chờ khi gặp giới hạn 429 của gói miễn phí. */
 export async function callAi<T>(
@@ -38,6 +40,7 @@ export async function callAi<T>(
     }
     if (res.status === 401) throw new Error("Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.");
     if (res.status === 413) throw new Error("Cụm trang quá lớn để gửi.");
+    if (res.status === 504) throw new TimeoutError("AI xử lý quá lâu (504).");
     if (++fails > 3) throw new Error(data.error || `Lỗi máy chủ (${res.status})`);
     await sleep(2000 * fails);
   }

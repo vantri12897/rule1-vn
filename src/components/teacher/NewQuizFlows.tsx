@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { makeChunks, openPdf, renderPage, savePdfLocal, sha256, type PagePayload } from "@/lib/pdf-client";
-import { callAi, DailyQuotaError, solveMissing } from "@/lib/ai-client";
+import { callAi, DailyQuotaError, solveMissing, TimeoutError } from "@/lib/ai-client";
 import { mergeChunks, type ChunkResult } from "@/lib/merge";
 import { parseAnswerKey, parseQuizText } from "@/lib/parse";
 import { createQuiz } from "@/lib/quiz-db";
@@ -84,13 +84,20 @@ export function PdfFlow({ onDone }: { onDone: (id: string) => void }) {
         }
 
         const merged: ChunkResult = { sections: [], questions: [], answer_key: {} };
-        for (const g of groups) {
-          const r = await callAi<ChunkResult & { title: string | null }>(
-            "/api/ai/extract",
-            { pages: g },
-            (w) => setWaitSec(w),
-            ac.signal
-          );
+        // Nếu cả cụm bị quá thời gian (504) thì tự chia ra gửi từng trang
+        const extract = async (pagesPayload: PagePayload[]): Promise<(ChunkResult & { title: string | null })[]> => {
+          try {
+            return [await callAi<ChunkResult & { title: string | null }>("/api/ai/extract", { pages: pagesPayload }, (w) => setWaitSec(w), ac.signal)];
+          } catch (err) {
+            if (err instanceof TimeoutError && pagesPayload.length > 1) {
+              const out: (ChunkResult & { title: string | null })[] = [];
+              for (const p of pagesPayload) out.push(...(await extract([p])));
+              return out;
+            }
+            throw err;
+          }
+        };
+        for (const g of groups) for (const r of await extract(g)) {
           const offset = merged.sections.length;
           merged.title = merged.title || r.title;
           merged.sections.push(...r.sections);

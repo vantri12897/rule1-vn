@@ -22,7 +22,12 @@ let cachedModel: string | null = null;
 type Part = { text: string } | { inlineData: { mimeType: string; data: string } };
 
 /** Gọi Gemini, ép trả về JSON theo schema. Tự chuyển model nếu model không tồn tại. */
-export async function geminiJson<T>(parts: Part[], schema: unknown, systemInstruction: string): Promise<T> {
+export async function geminiJson<T>(
+  parts: Part[],
+  schema: unknown,
+  systemInstruction: string,
+  thinkingBudget = 512
+): Promise<T> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("Thiếu GEMINI_API_KEY trong biến môi trường");
   const ai = new GoogleGenAI({ apiKey });
@@ -30,7 +35,8 @@ export async function geminiJson<T>(parts: Part[], schema: unknown, systemInstru
 
   let lastErr: unknown = null;
   for (const model of candidates) {
-    for (let attempt = 0; attempt < 2; attempt++) {
+    let useThinking = true;
+    for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const res = await ai.models.generateContent({
           model,
@@ -40,6 +46,8 @@ export async function geminiJson<T>(parts: Part[], schema: unknown, systemInstru
             responseMimeType: "application/json",
             responseJsonSchema: schema,
             temperature: 0.1,
+            // Giới hạn thời gian "suy nghĩ" để trả lời nhanh hơn (model không hỗ trợ thì bỏ)
+            ...(useThinking ? { thinkingConfig: { thinkingBudget } } : {}),
           },
         });
         const text = res.text ?? "";
@@ -52,6 +60,10 @@ export async function geminiJson<T>(parts: Part[], schema: unknown, systemInstru
             const m = /retry in ([\d.]+)s/i.exec(e.message) || /"retryDelay":\s*"(\d+)s"/i.exec(e.message);
             const daily = /per[\s_-]?day|PerDay|daily/i.test(e.message);
             throw new RateLimitError(m ? Math.ceil(Number(m[1])) + 1 : 30, daily);
+          }
+          if (e.status === 400 && useThinking && /thinking/i.test(e.message)) {
+            useThinking = false;
+            continue;
           }
           if (e.status === 404 || e.status === 400 && /not found|not supported|unknown name/i.test(e.message)) {
             break; // thử model kế tiếp
