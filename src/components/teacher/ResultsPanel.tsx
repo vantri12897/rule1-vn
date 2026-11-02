@@ -152,9 +152,9 @@ export function ResultsPanel({
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-3 gap-3">
-        <Stat value={submitted.length} label="đã nộp" />
-        <Stat value={active.length - submitted.length} label="đang làm" />
-        <Stat value={avg == null ? "—" : `${Math.round(avg * 100)}%`} label="điểm TB" />
+        <Stat value={submitted.length} label="đã nộp" tone="green" />
+        <Stat value={active.length - submitted.length} label="đang làm" tone="sky" />
+        <Stat value={avg == null ? "—" : `${Math.round(avg * 100)}%`} label="điểm TB" tone="sun" />
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -307,10 +307,11 @@ export function ResultsPanel({
   );
 }
 
-function Stat({ value, label }: { value: React.ReactNode; label: string }) {
+function Stat({ value, label, tone }: { value: React.ReactNode; label: string; tone: "green" | "sky" | "sun" }) {
+  const c = { green: "border-t-primary text-primary-dark", sky: "border-t-sky text-sky-ink", sun: "border-t-sun text-sun-ink" }[tone];
   return (
-    <div className="card p-4 text-center">
-      <div className="text-2xl font-extrabold text-primary-dark">{value}</div>
+    <div className={`card border-t-4 p-4 text-center ${c}`}>
+      <div className="text-2xl font-extrabold">{value}</div>
       <div className="text-xs text-muted">{label}</div>
     </div>
   );

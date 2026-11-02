@@ -60,8 +60,9 @@ function LoginForm() {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-primary-soft px-4">
-      <div className="card w-full max-w-sm p-6">
+    <main className="bg-hero grid min-h-screen place-items-center px-4">
+      <div className="card w-full max-w-sm overflow-hidden p-6 pt-0 shadow-lg">
+        <div className="stripe -mx-6 mb-6 h-1.5" />
         <div className="mb-6 flex justify-center"><Logo /></div>
         <h1 className="mb-4 text-center text-xl font-bold">{mode === "login" ? "Đăng nhập giáo viên" : "Tạo tài khoản giáo viên"}</h1>
         <form onSubmit={submit} className="space-y-3">

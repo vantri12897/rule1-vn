@@ -54,7 +54,7 @@ export default function Dashboard() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Đề của tôi</h1>
+        <h1 className="text-2xl font-bold">📚 Đề của tôi</h1>
         <Link href="/dashboard/new" className="btn-primary">+ Tạo đề mới</Link>
       </div>
 
@@ -75,10 +75,11 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((c) => {
+          {cards.map((c, idx) => {
             const st = STATUS_LABEL[c.status];
+            const accent = ["border-t-primary", "border-t-sky", "border-t-sun", "border-t-teal"][idx % 4];
             return (
-              <div key={c.id} className="card flex flex-col p-5">
+              <div key={c.id} className={`card flex flex-col border-t-4 p-5 transition hover:-translate-y-0.5 hover:shadow-md ${accent}`}>
                 <Link href={`/dashboard/quiz/${c.id}`} className="group flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <h2 className="line-clamp-2 font-bold group-hover:text-primary-dark">{c.title}</h2>
@@ -86,12 +87,12 @@ export default function Dashboard() {
                   </div>
                   <p className="mt-1 text-xs text-muted">{c.qcount} câu · tạo {fmtDate(c.created_at)}</p>
                   <div className="mt-4 grid grid-cols-2 gap-2">
-                    <div className="rounded-xl bg-primary-soft p-3">
-                      <div className="text-2xl font-extrabold text-primary-dark">{c.submitted}</div>
+                    <div className="rounded-xl bg-sky-soft p-3">
+                      <div className="text-2xl font-extrabold text-sky-ink">{c.submitted}</div>
                       <div className="text-xs text-muted">bài đã nộp</div>
                     </div>
-                    <div className="rounded-xl bg-primary-soft p-3">
-                      <div className="text-2xl font-extrabold text-primary-dark">{c.avgPct == null ? "—" : `${c.avgPct.toFixed(0)}%`}</div>
+                    <div className="rounded-xl bg-sun-soft p-3">
+                      <div className="text-2xl font-extrabold text-sun-ink">{c.avgPct == null ? "—" : `${c.avgPct.toFixed(0)}%`}</div>
                       <div className="text-xs text-muted">điểm trung bình</div>
                     </div>
                   </div>

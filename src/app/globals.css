@@ -9,6 +9,18 @@
   --color-ink: #1f2937;
   --color-muted: #556070;
   --color-danger: #dc2626;
+  /* Màu phụ để trang trí (chỉ dùng nền/viền; chữ dùng bản *-ink đủ tương phản) */
+  --color-sun: #f59e0b;
+  --color-sun-soft: #fffbeb;
+  --color-sun-ink: #b45309;
+  --color-sky: #0ea5e9;
+  --color-sky-soft: #f0f9ff;
+  --color-sky-ink: #0369a1;
+  --color-teal: #0d9488;
+  --color-teal-soft: #f0fdfa;
+  --color-teal-ink: #0f766e;
+  --color-rose-soft: #fff1f2;
+  --color-rose-ink: #be123c;
   --color-warn: #c2410c;
   --font-sans: "Be Vietnam Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -30,3 +42,30 @@ body { font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; 
 @keyframes yd-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
 .yd-pop { animation: yd-pop .16s ease-out; }
 @media (prefers-reduced-motion: reduce) { .yd-pop { animation: none; } }
+
+/* ===== Trang trí nhẹ: chỉ CSS, không tải thêm ảnh ===== */
+/* Nền "bầu trời" cho trang chủ, đăng nhập: các vệt màu loang mờ */
+@utility bg-hero {
+  background:
+    radial-gradient(55rem 28rem at 0% -10%, #dcfce7 0%, transparent 60%),
+    radial-gradient(38rem 24rem at 100% 0%, #fef3c7 0%, transparent 60%),
+    radial-gradient(45rem 30rem at 50% 115%, #e0f2fe 0%, transparent 60%),
+    #ffffff;
+}
+/* Nền chấm bi xanh nhạt cho trang làm việc */
+@utility bg-dots {
+  background-color: #f7fdf9;
+  background-image: radial-gradient(#cdeed8 1.1px, transparent 1.1px);
+  background-size: 22px 22px;
+}
+/* Dải màu mảnh trên đầu trang */
+@utility stripe {
+  background: linear-gradient(90deg, #15803d 0%, #0d9488 35%, #0ea5e9 65%, #f59e0b 100%);
+}
+/* Chữ chuyển màu cho tiêu đề lớn */
+@utility text-gradient {
+  background: linear-gradient(90deg, #15803d, #0d9488 55%, #0369a1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

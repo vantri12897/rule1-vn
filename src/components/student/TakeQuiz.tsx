@@ -142,8 +142,9 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
   );
 
   return (
-    <main className="min-h-screen bg-primary-soft">
+    <main className="bg-dots min-h-screen">
       <header className="sticky top-0 z-30 border-b border-primary-line bg-white/95 backdrop-blur">
+        <div className="stripe h-1" />
         <div className={`mx-auto flex items-center gap-3 px-4 py-3 ${view === "taking" ? "max-w-7xl" : "max-w-2xl"}`}>
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-xs font-extrabold text-white">YD</span>
           <div className="min-w-0 flex-1">
@@ -198,17 +199,21 @@ function NameForm({ quiz, busy, error, onStart }: { quiz: QuizInfo; busy: boolea
   const [cls, setCls] = useState("");
   return (
     <form
-      className="card mt-4 space-y-4 p-6"
+      className="card mt-4 space-y-4 overflow-hidden p-6 pt-0 shadow-md"
       onSubmit={(e) => {
         e.preventDefault();
         if (name.trim()) onStart(name.trim(), cls.trim());
       }}
     >
-      <div className="text-center">
+      <div className="-mx-6 bg-gradient-to-br from-primary-soft via-teal-soft to-sky-soft px-6 pb-5 pt-6 text-center">
+        <div className="mx-auto mb-2 grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl shadow-sm" aria-hidden>📝</div>
         <h1 className="text-xl font-bold">{quiz.title}</h1>
-        <p className="mt-1 text-sm text-muted">
-          {quiz.question_count} câu{quiz.time_limit_min ? ` · ${quiz.time_limit_min} phút` : " · không giới hạn thời gian"}
-        </p>
+        <div className="mt-3 flex flex-wrap justify-center gap-2 text-sm">
+          <span className="rounded-full bg-white px-3 py-1 font-semibold text-primary-dark shadow-sm">📋 {quiz.question_count} câu</span>
+          <span className="rounded-full bg-white px-3 py-1 font-semibold text-sun-ink shadow-sm">
+            ⏱ {quiz.time_limit_min ? `${quiz.time_limit_min} phút` : "Không giới hạn"}
+          </span>
+        </div>
       </div>
       <div>
         <label htmlFor="f41519" className="label">Họ và tên *</label>
@@ -515,17 +520,27 @@ function ResultView({ result, questions, sections }: { result: Result; questions
   const ordered = questions.length
     ? questions.map((q, i) => ({ ...detailById.get(q.id)!, idx: i + 1 })).filter((d) => d.question_id)
     : result.details.map((d, i) => ({ ...d, idx: i + 1 }));
+  // Màu và lời nhắn theo mức điểm
+  const mood =
+    pct >= 80
+      ? { icon: "🎉", text: "Xuất sắc!", ink: "text-primary-dark", bar: "bg-gradient-to-r from-primary to-teal" }
+      : pct >= 50
+        ? { icon: "👍", text: "Khá tốt, cố thêm chút nữa!", ink: "text-sun-ink", bar: "bg-gradient-to-r from-sun to-orange-400" }
+        : { icon: "💪", text: "Đừng nản, ôn lại và thử lần sau nhé!", ink: "text-rose-ink", bar: "bg-gradient-to-r from-rose-400 to-sun" };
   return (
     <div>
-      <div className="card p-6 text-center">
-        <div className="text-sm font-semibold uppercase tracking-wide text-muted">Kết quả của bạn</div>
-        <div className="mt-2 text-5xl font-extrabold text-primary-dark">
+      <div className={`card overflow-hidden p-6 pt-0 text-center shadow-md`}>
+        <div className={`-mx-6 mb-4 h-2 ${mood.bar}`} />
+        <div className="text-4xl" aria-hidden>{mood.icon}</div>
+        <div className={`mt-1 text-lg font-bold ${mood.ink}`}>{mood.text}</div>
+        <div className="mt-2 text-sm font-semibold uppercase tracking-wide text-muted">Kết quả của bạn</div>
+        <div className={`mt-1 text-5xl font-extrabold ${mood.ink}`}>
           {result.score}
           <span className="text-2xl text-muted">/{result.total}</span>
         </div>
         <div className="mt-1 text-lg font-semibold">Đúng {result.score} / {result.total} câu · {pct}%</div>
         <div className="mx-auto mt-4 h-3 max-w-xs overflow-hidden rounded-full bg-gray-100">
-          <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+          <div className={`h-full ${mood.bar}`} style={{ width: `${pct}%` }} />
         </div>
         <p className="mt-3 text-sm text-muted">Kết quả đã được gửi tới giáo viên.</p>
       </div>

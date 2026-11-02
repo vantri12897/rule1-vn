@@ -9,8 +9,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { data } = await sb.auth.getUser();
   if (!data.user) redirect("/login");
   return (
-    <div className="min-h-screen bg-gray-50 print:bg-white">
+    <div className="bg-dots min-h-screen print:bg-white">
       <header className="sticky top-0 z-30 border-b border-primary-line bg-white/95 backdrop-blur print:hidden">
+        <div className="stripe h-1" />
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Logo href="/dashboard" />
           <div className="flex items-center gap-2">
