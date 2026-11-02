@@ -488,12 +488,12 @@ function TakingView({
                       return (
                         <label
                           key={o.label}
-                          className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 px-3 py-3 transition lg:py-2.5 ${on ? "border-primary bg-primary-soft" : "border-gray-200 bg-white hover:border-primary-line active:bg-gray-50"}`}
+                          className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 px-3 py-3 transition duration-150 active:scale-[.99] lg:py-2.5 ${on ? "border-primary bg-primary-soft" : "border-gray-200 bg-white hover:border-primary-line active:bg-gray-50"}`}
                         >
                           <input
                             type="radio"
                             name={q.id}
-                            className="mt-0.5 h-5 w-5 shrink-0 accent-[#15803d]"
+                            className={`mt-0.5 h-5 w-5 shrink-0 accent-[#15803d] ${on ? "yd-tick" : ""}`}
                             checked={on}
                             onChange={() => pick(q.id, o.label)}
                           />

@@ -15,6 +15,7 @@ import { PageSkeleton } from "@/components/ui/Skeleton";
 import { useT } from "@/lib/i18n/client";
 
 type Tab = "questions" | "results" | "settings";
+const TABS: Tab[] = ["questions", "results", "settings"];
 
 export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
   const { t } = useT();
@@ -105,7 +106,12 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
       )}
       {quiz.status !== "draft" && <div className="mt-4"><SharePanel slug={quiz.slug} /></div>}
 
-      <div role="tablist" className="mt-6 grid grid-cols-3 gap-1.5 rounded-2xl border border-primary/20 bg-primary-soft/70 p-1.5 shadow-sm">
+      <div role="tablist" className="relative mt-6 grid grid-cols-3 gap-1.5 rounded-2xl border border-primary/20 bg-primary-soft/70 p-1.5 shadow-sm">
+        <span
+          aria-hidden
+          className="yd-slide absolute bottom-1.5 left-1.5 top-1.5 rounded-xl bg-primary shadow-md transition-transform duration-300 ease-[cubic-bezier(.2,.8,.2,1)]"
+          style={{ width: "calc((100% - 1.5rem) / 3)", transform: `translateX(calc(${TABS.indexOf(tab)} * (100% + 0.375rem)))` }}
+        />
         {(
           [
             ["questions", "📝", t("Đề & đáp án"), t("Câu hỏi"), null],
@@ -121,8 +127,8 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
               if (dirty && k !== "questions" && !(await confirmDialog({ title: t("Chưa lưu thay đổi"), message: t("Có thay đổi chưa lưu ở tab Đề & đáp án. Rời tab này?"), confirmText: t("Rời tab"), cancelText: t("Ở lại") }))) return;
               setTab(k);
             }}
-            className={`flex min-h-12 items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1 py-2.5 sm:gap-1.5 sm:px-2 text-sm font-bold transition sm:text-base ${
-              tab === k ? "bg-primary text-white shadow-md" : "text-primary-dark hover:bg-white/80 active:bg-white"
+            className={`relative z-10 flex min-h-12 items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1 py-2.5 sm:gap-1.5 sm:px-2 text-sm font-bold transition-[color,background-color,transform] duration-200 sm:text-base ${
+              tab === k ? "text-white" : "text-primary-dark hover:bg-white/70"
             }`}
           >
             <span aria-hidden className="text-base sm:text-lg">{icon}</span>
@@ -135,7 +141,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         ))}
       </div>
 
-      <div className="mt-5">
+      <div key={tab} className="yd-fade-up mt-5">
         {tab === "questions" && (
           <QuestionsEditor quiz={quiz} questions={questions} submittedCount={submittedCount} onSaved={load} onDirtyChange={setDirty} />
         )}

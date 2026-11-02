@@ -28,7 +28,7 @@
 html, body { background: #ffffff; color: var(--color-ink); }
 body { font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; }
 
-@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed; }
+@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed; }
 @utility btn-primary { @apply btn bg-primary text-white hover:bg-primary-dark; }
 @utility btn-outline { @apply btn border border-primary text-primary-dark bg-white hover:bg-primary-soft; }
 @utility btn-ghost { @apply btn text-ink hover:bg-gray-100; }
@@ -41,7 +41,24 @@ body { font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; 
 /* Hiệu ứng nhẹ cho hộp thoại & thông báo */
 @keyframes yd-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
 .yd-pop { animation: yd-pop .16s ease-out; }
-@media (prefers-reduced-motion: reduce) { .yd-pop { animation: none; } }
+
+/* Hiệu ứng chuyển động nhẹ — chỉ CSS, không thêm thư viện */
+@keyframes yd-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* Bắt đầu từ 0.4 (không phải 0) để trình duyệt vẫn tính là đã hiện nội dung ngay → không làm chậm điểm tốc độ */
+@keyframes yd-fade { from { opacity: .4; } to { opacity: 1; } }
+@keyframes yd-tick { 0% { transform: scale(.6); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+.yd-fade-up { animation: yd-fade-up .22s ease-out both; }
+/* Vào trang: chỉ đổi độ mờ (không dùng transform để thanh cố định ở đáy/đầu trang không bị xê dịch) */
+.yd-page { animation: yd-fade .2s ease-out both; }
+.yd-tick { animation: yd-tick .22s ease-out; }
+/* Bấm nút hơi lún xuống */
+.btn:active:not(:disabled), [role="tab"]:active { transform: scale(.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  .yd-pop, .yd-fade-up, .yd-page, .yd-tick { animation: none !important; }
+  .btn:active:not(:disabled), [role="tab"]:active { transform: none; }
+  .yd-slide { transition: none !important; }
+}
 
 /* ===== Trang trí nhẹ: chỉ CSS, không tải thêm ảnh ===== */
 /* Nền "bầu trời" cho trang chủ, đăng nhập: các vệt màu loang mờ */
