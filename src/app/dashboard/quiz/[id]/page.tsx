@@ -105,23 +105,32 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
       )}
       {quiz.status !== "draft" && <div className="mt-4"><SharePanel slug={quiz.slug} /></div>}
 
-      <div className="mt-5 flex gap-1 border-b border-gray-200">
+      <div role="tablist" className="mt-6 grid grid-cols-3 gap-1.5 rounded-2xl border border-primary/20 bg-primary-soft/70 p-1.5 shadow-sm">
         {(
           [
-            ["questions", t("Đề & đáp án")],
-            ["results", t("Kết quả ({n})", { n: submittedCount })],
-            ["settings", t("Cài đặt")],
-          ] as [Tab, string][]
-        ).map(([k, l]) => (
+            ["questions", "📝", t("Đề & đáp án"), t("Câu hỏi"), null],
+            ["results", "📊", t("Kết quả"), t("Kết quả"), submittedCount],
+            ["settings", "⚙️", t("Cài đặt"), t("Cài đặt"), null],
+          ] as [Tab, string, string, string, number | null][]
+        ).map(([k, icon, label, short, count]) => (
           <button
             key={k}
+            role="tab"
+            aria-selected={tab === k}
             onClick={async () => {
               if (dirty && k !== "questions" && !(await confirmDialog({ title: t("Chưa lưu thay đổi"), message: t("Có thay đổi chưa lưu ở tab Đề & đáp án. Rời tab này?"), confirmText: t("Rời tab"), cancelText: t("Ở lại") }))) return;
               setTab(k);
             }}
-            className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-semibold ${tab === k ? "border-primary text-primary-dark" : "border-transparent text-muted"}`}
+            className={`flex min-h-12 items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1 py-2.5 sm:gap-1.5 sm:px-2 text-sm font-bold transition sm:text-base ${
+              tab === k ? "bg-primary text-white shadow-md" : "text-primary-dark hover:bg-white/80 active:bg-white"
+            }`}
           >
-            {l}
+            <span aria-hidden className="text-base sm:text-lg">{icon}</span>
+            <span className="hidden sm:inline">{label}</span>
+            <span className="sm:hidden">{short}</span>
+            {count != null && (
+              <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold leading-none ${tab === k ? "bg-white text-primary-dark" : "bg-primary text-white"}`}>{count}</span>
+            )}
           </button>
         ))}
       </div>

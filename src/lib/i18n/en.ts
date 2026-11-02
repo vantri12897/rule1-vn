@@ -1,6 +1,8 @@
 // English UI strings. Key = Vietnamese source text.
 export const EN: Record<string, string> = {
   "STT": "No.",
+  "Câu hỏi": "Questions",
+  "Kết quả": "Results",
   "✗ Sai": "✗ Wrong",
   "Không xoá được: ": "Couldn't delete: ",
   "Đã reset toàn bộ bài làm": "All attempts reset",
