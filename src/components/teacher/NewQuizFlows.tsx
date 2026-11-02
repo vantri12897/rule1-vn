@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { makeChunks, openPdf, renderPage, savePdfLocal, sha256, type PagePayload } from "@/lib/pdf-client";
+import { cropFigure, makeChunks, openPdf, renderPage, savePdfLocal, sha256, type PagePayload } from "@/lib/pdf-client";
 import { callAi, DailyQuotaError, solveMissing, TimeoutError } from "@/lib/ai-client";
 import { mergeChunks, type ChunkResult } from "@/lib/merge";
 import { parseAnswerKey, parseQuizText } from "@/lib/parse";
@@ -87,7 +87,14 @@ export function PdfFlow({ onDone }: { onDone: (id: string) => void }) {
         // Nếu cả cụm bị quá thời gian (504) thì tự chia ra gửi từng trang
         const extract = async (pagesPayload: PagePayload[]): Promise<(ChunkResult & { title: string | null })[]> => {
           try {
-            return [await callAi<ChunkResult & { title: string | null }>("/api/ai/extract", { pages: pagesPayload }, (w) => setWaitSec(w), ac.signal)];
+            const r = await callAi<ChunkResult & { title: string | null }>("/api/ai/extract", { pages: pagesPayload }, (w) => setWaitSec(w), ac.signal);
+            // Cắt hình minh hoạ (biển báo, thông báo…) từ ảnh trang cho các câu cần hình
+            for (const q of r.questions as (ChunkResult["questions"][number] & { figure?: { page: number; box: [number, number, number, number] } | null })[]) {
+              const pg = q.figure ? pagesPayload.find((p) => p.page === q.figure!.page) : null;
+              if (q.figure && pg?.image) q.image = await cropFigure(pg.image, q.figure.box);
+              delete q.figure;
+            }
+            return [r];
           } catch (err) {
             if (err instanceof TimeoutError && pagesPayload.length > 1) {
               const out: (ChunkResult & { title: string | null })[] = [];
@@ -107,7 +114,11 @@ export function PdfFlow({ onDone }: { onDone: (id: string) => void }) {
           Object.assign(merged.answer_key!, r.answer_key ?? {});
         }
         saved[i] = merged;
-        localStorage.setItem(progressKey, JSON.stringify(saved));
+        try {
+          localStorage.setItem(progressKey, JSON.stringify(saved));
+        } catch {
+          /* bộ nhớ trình duyệt đầy (đề nhiều hình): bỏ qua lưu tiến độ, vẫn xử lý tiếp */
+        }
       }
       const result = mergeChunks(chunks.map((_, i) => saved[i]));
       if (result.questions.length === 0) {

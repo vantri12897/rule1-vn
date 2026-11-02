@@ -322,6 +322,10 @@ function TakingView({
                   <p className="mb-3 leading-relaxed">
                     <b className="text-primary-dark">Câu {i + 1}.</b> <Html text={q.stem} />
                   </p>
+                  {q.image && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={q.image} alt={`Hình câu ${i + 1}`} className="mb-3 max-h-96 max-w-full rounded-xl border border-gray-200 bg-white object-contain" />
+                  )}
                   <div className="space-y-2">
                     {q.options.map((o) => {
                       const on = answers[q.id] === o.label;
@@ -460,6 +464,10 @@ function ResultView({ result, questions, sections }: { result: Result; questions
                 <span className="text-sm font-semibold">Câu {d.idx}</span>
               </div>
               {q && <p className="mb-2 text-sm leading-relaxed"><Html text={q.stem} /></p>}
+              {q?.image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={q.image} alt={`Hình câu ${d.idx}`} className="mb-2 max-h-64 max-w-full rounded-xl border border-gray-200 object-contain" />
+              )}
               {q && (
                 <div className="space-y-1">
                   {q.options.map((o) => {

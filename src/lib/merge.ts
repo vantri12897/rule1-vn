@@ -51,18 +51,23 @@ export function mergeChunks(chunks: ChunkResult[]): { title: string | null; sect
         confidence: q.confidence,
         needs_review: q.needs_review,
         explanation: q.explanation,
+        image: q.image ?? null,
       };
       const prev = byNumber.get(q.number);
       const score = (x: DraftQuestion) => x.options.length * 1000 + x.stem.length + x.options.reduce((a, o) => a + o.text.length, 0);
       if (!prev || score(mapped) > score(prev)) {
+        if (prev && !mapped.image && prev.image) mapped.image = prev.image;
         if (prev && !mapped.correct_label && prev.correct_label) {
           mapped.correct_label = prev.correct_label;
           mapped.answer_source = prev.answer_source;
         }
         byNumber.set(q.number, mapped);
-      } else if (!prev.correct_label && mapped.correct_label) {
-        prev.correct_label = mapped.correct_label;
-        prev.answer_source = mapped.answer_source;
+      } else {
+        if (!prev.correct_label && mapped.correct_label) {
+          prev.correct_label = mapped.correct_label;
+          prev.answer_source = mapped.answer_source;
+        }
+        if (!prev.image && mapped.image) prev.image = mapped.image;
       }
     }
     if (c.answer_key) {

@@ -39,6 +39,7 @@ export async function createQuiz(input: {
       confidence: q.confidence,
       needs_review: q.needs_review,
       explanation: q.explanation,
+      image: q.image ?? null,
     }));
     const { error: e2 } = await sb.from("questions").insert(rows);
     if (e2) throw new Error("Không lưu được câu hỏi: " + e2.message);
@@ -82,6 +83,7 @@ export async function duplicateQuiz(quizId: string): Promise<string> {
       confidence: x.confidence,
       needs_review: x.needs_review,
       explanation: x.explanation,
+      image: x.image ?? null,
     })),
   });
 }

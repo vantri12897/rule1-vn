@@ -155,7 +155,7 @@ function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSav
   }
 
   async function remove() {
-    if (!confirm(`Xoá vĩnh viễn đề "${quiz.title}" và toàn bộ kết quả? Không thể hoàn tác.`)) return;
+    if (!confirm(`Xoá vĩnh viễn đề "${quiz.title}" và toàn bộ kết quả?\n\nNếu chưa sao lưu, hãy bấm Huỷ rồi vào Tài khoản & sao lưu → Tải file sao lưu trước. Có file sao lưu thì khôi phục lại được.`)) return;
     const { error } = await supabaseBrowser().from("quizzes").delete().eq("id", quiz.id);
     if (error) return alert(error.message);
     onDeleted();

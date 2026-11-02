@@ -73,3 +73,15 @@ test("mergeChunks: khử trùng lặp vùng chồng lấn + áp bảng đáp án
   assert.equal(r.questions[0].answer_source, "from_pdf");
   assert.equal(r.questions[3].correct_label, "D");
 });
+
+test("mergeChunks giữ hình của câu khi bản trùng ở cụm sau không có hình", () => {
+  const base = { section_index: null, section_ref: null, stem: "What does the sign say?", correct_label: null, answer_source: "manual" as const, confidence: null, needs_review: false, explanation: null };
+  const opts = ["A", "B", "C", "D"].map((l) => ({ label: l, text: "x" }));
+  const r = mergeChunks([
+    { sections: [], questions: [{ ...base, number: 5, options: opts, image: "data:image/jpeg;base64,AAA" }] },
+    { sections: [], questions: [{ ...base, number: 5, options: [...opts, { label: "E", text: "y" }], image: null }] },
+  ]);
+  assert.equal(r.questions.length, 1);
+  assert.equal(r.questions[0].options.length, 5);
+  assert.equal(r.questions[0].image, "data:image/jpeg;base64,AAA");
+});

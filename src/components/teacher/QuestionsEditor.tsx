@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { parseAnswerKey } from "@/lib/parse";
-import { loadPdfLocal } from "@/lib/pdf-client";
+import { fileToImageDataUrl, loadPdfLocal } from "@/lib/pdf-client";
 import { regradeQuiz } from "@/lib/quiz-db";
 import { Html } from "@/components/QuestionText";
 import type { DraftQuestion, Quiz, QuestionRow, Section } from "@/lib/types";
@@ -118,6 +118,7 @@ export function QuestionsEditor({
         confidence: q.confidence,
         needs_review: q.needs_review,
         explanation: q.explanation,
+        image: q.image ?? null,
       }));
       const existing = rows.filter((r) => "id" in r);
       const fresh = rows.filter((r) => !("id" in r));
@@ -321,6 +322,40 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
         </div>
       ) : (
         <p className="mb-2 leading-relaxed"><Html text={q.stem} /></p>
+      )}
+
+      {q.image && (
+        <div className="mb-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={q.image} alt={`Hình câu ${q.number}`} className="max-h-72 max-w-full rounded-xl border border-gray-200 object-contain" />
+        </div>
+      )}
+      {editing && (
+        <div className="mb-2 flex flex-wrap gap-2">
+          <label className="btn-ghost cursor-pointer border border-gray-200 text-xs">
+            {q.image ? "🖼️ Thay hình" : "🖼️ Thêm hình"}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={async (e) => {
+                const f = e.target.files?.[0];
+                e.target.value = "";
+                if (!f) return;
+                try {
+                  onChange({ image: await fileToImageDataUrl(f) });
+                } catch {
+                  alert("Không đọc được file ảnh này.");
+                }
+              }}
+            />
+          </label>
+          {q.image && (
+            <button className="btn-ghost border border-gray-200 text-xs text-danger" onClick={() => onChange({ image: null })}>
+              Xoá hình
+            </button>
+          )}
+        </div>
       )}
 
       <div className="mt-2 grid gap-2 sm:grid-cols-2">

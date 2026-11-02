@@ -109,3 +109,48 @@ export async function loadPdfLocal(hash: string): Promise<Blob | null> {
     return null;
   }
 }
+
+/** Cắt vùng hình từ ảnh trang (base64 JPEG). box = [ymin, xmin, ymax, xmax] theo thang 0–1000. */
+export async function cropFigure(pageJpegBase64: string, box: [number, number, number, number], maxWidth = 1000): Promise<string | null> {
+  try {
+    const img = new Image();
+    img.src = "data:image/jpeg;base64," + pageJpegBase64;
+    await img.decode();
+    const pad = 12; // nới khung một chút (thang 0–1000) để không cắt mất mép hình
+    const [y0, x0, y1, x1] = [Math.max(0, box[0] - pad), Math.max(0, box[1] - pad), Math.min(1000, box[2] + pad), Math.min(1000, box[3] + pad)];
+    const sx = (x0 / 1000) * img.width, sy = (y0 / 1000) * img.height;
+    const sw = ((x1 - x0) / 1000) * img.width, sh = ((y1 - y0) / 1000) * img.height;
+    const scale = Math.min(1, maxWidth / sw);
+    const c = document.createElement("canvas");
+    c.width = Math.round(sw * scale);
+    c.height = Math.round(sh * scale);
+    const ctx = c.getContext("2d")!;
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+    return c.toDataURL("image/jpeg", 0.82);
+  } catch {
+    return null;
+  }
+}
+
+/** Đọc ảnh giáo viên tự chọn, thu nhỏ về JPEG ≤ maxWidth px */
+export async function fileToImageDataUrl(file: File, maxWidth = 1000): Promise<string> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const scale = Math.min(1, maxWidth / img.width);
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.width * scale);
+    c.height = Math.round(img.height * scale);
+    const ctx = c.getContext("2d")!;
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL("image/jpeg", 0.82);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}

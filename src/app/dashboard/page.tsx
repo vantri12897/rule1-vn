@@ -10,6 +10,18 @@ type Card = Quiz & { qcount: number; submitted: number; avgPct: number | null };
 export default function Dashboard() {
   const [cards, setCards] = useState<Card[] | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [reminder, setReminder] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/account/recovery-code", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.exists) return setReminder("Bạn chưa tạo mã khôi phục mật khẩu — nếu quên mật khẩu sẽ không vào lại được website.");
+        const last = localStorage.getItem("yd-last-backup");
+        if (!last || Date.now() - new Date(last).getTime() > 7 * 86400_000) setReminder("Đã hơn 7 ngày chưa sao lưu dữ liệu (hoặc chưa sao lưu lần nào trên máy này).");
+      })
+      .catch(() => {});
+  }, []);
 
   const load = useCallback(async () => {
     const sb = supabaseBrowser();
@@ -44,6 +56,13 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold">Đề của tôi</h1>
         <Link href="/dashboard/new" className="btn-primary">+ Tạo đề mới</Link>
       </div>
+
+      {reminder && (
+        <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-warn">
+          <span className="flex-1">⚠️ {reminder}</span>
+          <Link href="/dashboard/account" className="btn-outline border-orange-300 text-warn">Mở Tài khoản & sao lưu</Link>
+        </div>
+      )}
 
       {cards === null ? (
         <p className="text-muted">Đang tải…</p>

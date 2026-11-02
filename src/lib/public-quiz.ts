@@ -25,7 +25,7 @@ export async function loadQuizBySlug(slug: string) {
   if (!quiz || quiz.status === "draft") return null;
   const { data: questions } = await sb
     .from("questions")
-    .select("id, quiz_id, position, number, section_index, stem, options, correct_label")
+    .select("id, quiz_id, position, number, section_index, stem, options, correct_label, image")
     .eq("quiz_id", quiz.id)
     .order("position");
   return { quiz, questions: (questions ?? []) as QuestionRow[] };
@@ -49,6 +49,7 @@ export function toPublicQuestions(quiz: Quiz, questions: QuestionRow[], token: s
     section_index: q.section_index,
     stem: q.stem,
     options: q.options,
+    image: q.image ?? null,
   }));
   if (!quiz.shuffle_questions || !token) return pub;
   // Xáo theo nhóm section để câu đọc hiểu vẫn đi cùng đoạn văn

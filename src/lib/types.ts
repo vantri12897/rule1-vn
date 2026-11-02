@@ -16,6 +16,8 @@ export type DraftQuestion = {
   confidence: number | null;
   needs_review: boolean;
   explanation: string | null;
+  /** Hình minh hoạ (biển báo, thông báo, biểu đồ…) dạng data URL JPEG/PNG */
+  image?: string | null;
 };
 
 export type Quiz = {
@@ -56,4 +58,5 @@ export type PublicQuestion = {
   section_index: number | null;
   stem: string;
   options: Option[];
+  image?: string | null;
 };

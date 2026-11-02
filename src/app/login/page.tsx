@@ -82,6 +82,11 @@ function LoginForm() {
           {msg && (
             <p className={`rounded-lg p-2 text-sm ${msg.type === "error" ? "bg-red-50 text-danger" : "bg-primary-soft text-primary-dark"}`}>{msg.text}</p>
           )}
+          {mode === "login" && (
+            <div className="text-right">
+              <a href="/forgot-password" className="text-sm text-primary-dark hover:underline">Quên mật khẩu?</a>
+            </div>
+          )}
           <button className="btn-primary w-full" disabled={busy}>{busy ? "Đang xử lý…" : mode === "login" ? "Đăng nhập" : "Đăng ký"}</button>
         </form>
         <button className="mt-4 w-full text-center text-sm text-primary-dark hover:underline" onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMsg(null); }}>

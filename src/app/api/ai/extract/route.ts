@@ -51,8 +51,10 @@ const SCHEMA = {
             },
           },
           marked_answer: { type: ["string", "null"] },
+          figure_page: { type: "integer" },
+          figure_box: { type: "array", items: { type: "number" } },
         },
-        required: ["number", "stem", "options", "marked_answer", "section_ref"],
+        required: ["number", "stem", "options", "marked_answer", "section_ref", "figure_page", "figure_box"],
       },
     },
     answer_key: {
@@ -76,7 +78,8 @@ Rules:
 - "marked_answer": ONLY if the page visibly marks the correct option for that question (circled, ticked, bold/highlighted differently from the other options). Otherwise null. NEVER guess.
 - "answer_key": if these pages contain an answer key / "Key" / "Đáp án" table, list every entry. Otherwise [].
 - Skip questions that are cut off so badly that the options are missing; partial questions at a page boundary will be recovered from the neighbouring chunk.
-- "title": the test title if visible, else null.`;
+- "title": the test title if visible, else null.
+- "figure_page" / "figure_box": if the question CANNOT be answered without a picture printed on the page (a sign, notice, label, advertisement image, chart, map, photo, diagram — NOT plain text), give the page number it is on and its bounding box as [ymin, xmin, ymax, xmax] normalized to 0–1000 of that page image, covering the whole picture. Several questions may share the same picture. Otherwise figure_page = 0 and figure_box = [].`;
 
 type Raw = {
   title: string | null;
@@ -87,9 +90,20 @@ type Raw = {
     stem: string;
     options: { label: string; text: string }[];
     marked_answer: string | null;
+    figure_page?: number;
+    figure_box?: number[];
   }[];
   answer_key: { number: number; label: string }[];
 };
+
+function figureOf(q: { figure_page?: number; figure_box?: number[] }) {
+  const b = q.figure_box;
+  if (!q.figure_page || !Array.isArray(b) || b.length !== 4 || b.some((v) => !Number.isFinite(v))) return null;
+  const [y0, x0, y1, x1] = b.map((v) => Math.max(0, Math.min(1000, v)));
+  const area = ((y1 - y0) * (x1 - x0)) / 1_000_000;
+  if (y1 <= y0 || x1 <= x0 || area < 0.002 || area > 0.8) return null; // bỏ khung vô lý
+  return { page: q.figure_page, box: [y0, x0, y1, x1] as [number, number, number, number] };
+}
 
 export async function POST(req: Request) {
   const user = await requireTeacher();
@@ -126,6 +140,7 @@ export async function POST(req: Request) {
           confidence: null,
           needs_review: false,
           explanation: null,
+          figure: figureOf(q),
         };
       });
     const answer_key: Record<string, string> = {};

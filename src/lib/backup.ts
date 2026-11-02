@@ -1,0 +1,85 @@
+"use client";
+import { customAlphabet } from "nanoid";
+import { supabaseBrowser } from "./supabase/client";
+
+const slugId = customAlphabet("23456789abcdefghijkmnpqrstuvwxyz", 10);
+
+type Row = Record<string, unknown>;
+export type BackupFile = {
+  app: "YD-English";
+  version: 1;
+  exported_at: string;
+  quizzes: Row[];
+  questions: Row[];
+  attempts: Row[];
+};
+
+async function fetchAll(table: string): Promise<Row[]> {
+  const sb = supabaseBrowser();
+  const out: Row[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await sb.from(table).select("*").range(from, from + 999);
+    if (error) throw new Error(`Không đọc được ${table}: ${error.message}`);
+    out.push(...(data ?? []));
+    if (!data || data.length < 1000) break;
+  }
+  return out;
+}
+
+/** Tải toàn bộ đề, câu hỏi, bài làm của giáo viên đang đăng nhập về 1 file JSON. */
+export async function downloadBackup(): Promise<{ quizzes: number; questions: number; attempts: number }> {
+  const [quizzes, questions, attempts] = await Promise.all([fetchAll("quizzes"), fetchAll("questions"), fetchAll("attempts")]);
+  const data: BackupFile = { app: "YD-English", version: 1, exported_at: new Date().toISOString(), quizzes, questions, attempts };
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, "0");
+  const name = `YD-English-saoluu-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}.json`;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: "application/json" }));
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  localStorage.setItem("yd-last-backup", d.toISOString());
+  return { quizzes: quizzes.length, questions: questions.length, attempts: attempts.length };
+}
+
+async function upsertBatches(table: string, rows: Row[]) {
+  const sb = supabaseBrowser();
+  for (let i = 0; i < rows.length; i += 300) {
+    const { error } = await sb.from(table).upsert(rows.slice(i, i + 300), { onConflict: "id", ignoreDuplicates: true });
+    if (error) throw new Error(`Lỗi khôi phục ${table}: ${error.message}`);
+  }
+}
+
+/**
+ * Khôi phục từ file sao lưu. Chỉ THÊM những gì đang thiếu (đề đã bị xoá),
+ * không ghi đè đề đang có. Đề được khôi phục giữ nguyên link cũ (nếu link chưa bị dùng).
+ */
+export async function restoreBackup(file: File): Promise<{ restored: number; skipped: number }> {
+  let data: BackupFile;
+  try {
+    data = JSON.parse(await file.text());
+  } catch {
+    throw new Error("File không đúng định dạng sao lưu.");
+  }
+  if (data?.app !== "YD-English" || !Array.isArray(data.quizzes)) throw new Error("Đây không phải file sao lưu của YD-English.");
+
+  const sb = supabaseBrowser();
+  const { data: u } = await sb.auth.getUser();
+  if (!u.user) throw new Error("Chưa đăng nhập");
+  const { data: existing } = await sb.from("quizzes").select("id");
+  const have = new Set((existing ?? []).map((r) => r.id as string));
+
+  const missing = data.quizzes.filter((q) => !have.has(q.id as string));
+  const ids = new Set(missing.map((q) => q.id as string));
+  for (const q of missing) {
+    const row = { ...q, owner_id: u.user.id };
+    let { error } = await sb.from("quizzes").insert(row);
+    if (error && /slug/i.test(error.message)) {
+      ({ error } = await sb.from("quizzes").insert({ ...row, slug: slugId() })); // link cũ đã bị dùng → tạo link mới
+    }
+    if (error) throw new Error(`Không khôi phục được đề "${q.title}": ${error.message}`);
+  }
+  await upsertBatches("questions", (data.questions ?? []).filter((r) => ids.has(r.quiz_id as string)));
+  await upsertBatches("attempts", (data.attempts ?? []).filter((r) => ids.has(r.quiz_id as string)));
+  return { restored: missing.length, skipped: data.quizzes.length - missing.length };
+}

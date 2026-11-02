@@ -127,3 +127,19 @@ create policy reset_logs_owner on public.reset_logs
 drop policy if exists ai_usage_owner on public.ai_usage;
 create policy ai_usage_owner on public.ai_usage
   for select to authenticated using (owner_id = auth.uid());
+
+-- =====================================================================
+-- Bổ sung (02/11/2026): hình ảnh trong câu hỏi + mã khôi phục mật khẩu
+-- =====================================================================
+alter table public.questions add column if not exists image text;
+alter table public.questions drop constraint if exists questions_image_check;
+alter table public.questions add constraint questions_image_check
+  check (image is null or (image like 'data:image/%' and length(image) <= 600000));
+
+-- Mã khôi phục mật khẩu (chỉ lưu bản băm). Không có policy → chỉ server (service role) đọc/ghi được.
+create table if not exists public.recovery_codes (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  code_hash text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.recovery_codes enable row level security;
