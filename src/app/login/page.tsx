@@ -66,17 +66,17 @@ function LoginForm() {
         <h1 className="mb-4 text-center text-xl font-bold">{mode === "login" ? "Đăng nhập giáo viên" : "Tạo tài khoản giáo viên"}</h1>
         <form onSubmit={submit} className="space-y-3">
           <div>
-            <label className="label">Email</label>
-            <input className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+            <label htmlFor="f404" className="label">Email</label>
+            <input id="f404" className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
           </div>
           <div>
-            <label className="label">Mật khẩu</label>
-            <input className="input" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === "login" ? "current-password" : "new-password"} />
+            <label htmlFor="f81253" className="label">Mật khẩu</label>
+            <input id="f81253" className="input" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === "login" ? "current-password" : "new-password"} />
           </div>
           {mode === "signup" && needCode && (
             <div>
-              <label className="label">Mã đăng ký giáo viên</label>
-              <input className="input" value={code} onChange={(e) => setCode(e.target.value)} />
+              <label htmlFor="f92651" className="label">Mã đăng ký giáo viên</label>
+              <input id="f92651" className="input" value={code} onChange={(e) => setCode(e.target.value)} />
             </div>
           )}
           {msg && (

@@ -41,20 +41,20 @@ export default function ForgotPassword() {
         ) : (
           <form onSubmit={submit} className="space-y-3">
             <div>
-              <label className="label">Email</label>
-              <input className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+              <label htmlFor="f19918" className="label">Email</label>
+              <input id="f19918" className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
             </div>
             <div>
-              <label className="label">Mã khôi phục</label>
-              <input className="input font-mono uppercase" required value={code} onChange={(e) => setCode(e.target.value)} placeholder="ABCD-EFGH-JKLM-NPQR" autoComplete="off" />
+              <label htmlFor="f2932" className="label">Mã khôi phục</label>
+              <input id="f2932" className="input font-mono uppercase" required value={code} onChange={(e) => setCode(e.target.value)} placeholder="ABCD-EFGH-JKLM-NPQR" autoComplete="off" />
             </div>
             <div>
-              <label className="label">Mật khẩu mới</label>
-              <input className="input" type="password" required minLength={6} value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" />
+              <label htmlFor="f89171" className="label">Mật khẩu mới</label>
+              <input id="f89171" className="input" type="password" required minLength={6} value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" />
             </div>
             <div>
-              <label className="label">Nhập lại mật khẩu mới</label>
-              <input className="input" type="password" required minLength={6} value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" />
+              <label htmlFor="f48274" className="label">Nhập lại mật khẩu mới</label>
+              <input id="f48274" className="input" type="password" required minLength={6} value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" />
             </div>
             {msg && <p className="rounded-lg bg-red-50 p-2 text-sm text-danger">{msg.text}</p>}
             <button className="btn-primary w-full" disabled={busy}>{busy ? "Đang xử lý…" : "Đặt lại mật khẩu"}</button>

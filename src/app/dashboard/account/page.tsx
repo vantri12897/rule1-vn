@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { downloadBackup, restoreBackup } from "@/lib/backup";
 import { fmtDate } from "@/lib/ui";
+import { confirmDialog, toast } from "@/components/ui/feedback";
 
 export default function AccountPage() {
   const [email, setEmail] = useState("");
@@ -35,12 +36,12 @@ function RecoveryCard({ email }: { email: string }) {
   }, []);
 
   async function create() {
-    if (status?.exists && !confirm("Tạo mã mới sẽ làm mã cũ hết hiệu lực. Tiếp tục?")) return;
+    if (status?.exists && !(await confirmDialog({ title: "Tạo mã mới", message: "Tạo mã mới sẽ làm mã cũ hết hiệu lực. Tiếp tục?", confirmText: "Tạo mã mới" }))) return;
     setBusy(true);
     const r = await fetch("/api/account/recovery-code", { method: "POST" });
     const d = await r.json().catch(() => ({}));
     setBusy(false);
-    if (!r.ok) return alert(d.error || "Không tạo được mã");
+    if (!r.ok) return toast(d.error || "Không tạo được mã", "error");
     setCode(d.code);
     load();
   }
@@ -137,7 +138,7 @@ function BackupCard() {
             const f = e.target.files?.[0];
             e.target.value = "";
             if (!f) return;
-            if (!confirm("Khôi phục sẽ thêm lại các đề có trong file mà hiện không còn trên website (đề đang có giữ nguyên). Tiếp tục?")) return;
+            if (!(await confirmDialog({ title: "Khôi phục dữ liệu", message: "Khôi phục sẽ thêm lại các đề có trong file mà hiện không còn trên website (đề đang có giữ nguyên). Tiếp tục?", confirmText: "Khôi phục" }))) return;
             setBusy("up");
             setMsg(null);
             try {

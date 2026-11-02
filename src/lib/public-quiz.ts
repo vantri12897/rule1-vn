@@ -38,16 +38,43 @@ export function rateLimited(ip: string, max = 30, windowMs = 60_000) {
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const GRACE_SEC = 60;
 
+const QUESTION_COLS = "id, quiz_id, position, number, section_index, stem, options, correct_label, image";
+
+/** Lấy đề + câu hỏi trong 1 lần gọi database */
 export async function loadQuizBySlug(slug: string) {
-  const sb = supabaseAdmin();
-  const { data: quiz } = await sb.from("quizzes").select("*").eq("slug", slug).maybeSingle<Quiz>();
-  if (!quiz || quiz.status === "draft") return null;
-  const { data: questions } = await sb
-    .from("questions")
-    .select("id, quiz_id, position, number, section_index, stem, options, correct_label, image")
-    .eq("quiz_id", quiz.id)
-    .order("position");
-  return { quiz, questions: (questions ?? []) as QuestionRow[] };
+  const { data } = await supabaseAdmin()
+    .from("quizzes")
+    .select(`*, questions(${QUESTION_COLS})`)
+    .eq("slug", slug)
+    .order("position", { referencedTable: "questions" })
+    .maybeSingle<Quiz & { questions: QuestionRow[] }>();
+  if (!data || data.status === "draft") return null;
+  const { questions, ...quiz } = data;
+  return { quiz: quiz as Quiz, questions: (questions ?? []) as QuestionRow[] };
+}
+
+/** Bài làm đang hoạt động, tra theo slug đề — chạy song song với loadQuizBySlug */
+export async function activeAttemptBySlug(slug: string, token: string) {
+  const { data } = await supabaseAdmin()
+    .from("attempts")
+    .select("*, quizzes!inner(slug)")
+    .eq("quizzes.slug", slug)
+    .eq("student_token", token)
+    .neq("status", "archived")
+    .maybeSingle<Attempt & { quizzes?: unknown }>();
+  if (!data) return null;
+  const { quizzes: _q, ...attempt } = data;
+  void _q;
+  return attempt as Attempt;
+}
+
+/** Đề + bài làm của học viên: 2 truy vấn chạy song song */
+export async function loadQuizAndAttempt(slug: string, token: string | null) {
+  const [data, attempt] = await Promise.all([
+    loadQuizBySlug(slug),
+    token && UUID_RE.test(token) ? activeAttemptBySlug(slug, token) : Promise.resolve(null),
+  ]);
+  return data ? { ...data, attempt } : null;
 }
 
 export async function activeAttempt(quizId: string, token: string) {

@@ -2,14 +2,14 @@
 
 /* Bảng màu YD-English: xanh lá + trắng. Đổi sắc độ tại đây là áp dụng toàn site. */
 @theme {
-  --color-primary: #16a34a;
-  --color-primary-dark: #15803d;
+  --color-primary: #15803d;
+  --color-primary-dark: #166534;
   --color-primary-soft: #f0fdf4;
   --color-primary-line: #bbf7d0;
   --color-ink: #1f2937;
-  --color-muted: #6b7280;
+  --color-muted: #556070;
   --color-danger: #dc2626;
-  --color-warn: #ea580c;
+  --color-warn: #c2410c;
   --font-sans: "Be Vietnam Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -25,3 +25,8 @@ body { font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; 
 @utility input { @apply w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20; }
 @utility label { @apply mb-1 block text-sm font-medium text-ink; }
 @utility badge { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold; }
+
+/* Hiệu ứng nhẹ cho hộp thoại & thông báo */
+@keyframes yd-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+.yd-pop { animation: yd-pop .16s ease-out; }
+@media (prefers-reduced-motion: reduce) { .yd-pop { animation: none; } }

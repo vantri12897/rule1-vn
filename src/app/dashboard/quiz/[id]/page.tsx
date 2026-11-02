@@ -10,6 +10,8 @@ import { duplicateQuiz } from "@/lib/quiz-db";
 import { downloadDocx, loadExportData } from "@/lib/export-doc";
 import { STATUS_LABEL } from "@/lib/ui";
 import type { Quiz, QuestionRow } from "@/lib/types";
+import { alertDialog, confirmDialog, toast } from "@/components/ui/feedback";
+import { PageSkeleton } from "@/components/ui/Skeleton";
 
 type Tab = "questions" | "results" | "settings";
 
@@ -56,21 +58,22 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   async function setStatus(status: Quiz["status"]) {
     if (!quiz) return;
     if (status === "open" && quiz.status === "draft") {
-      if (dirty) return alert("Hãy bấm “Lưu thay đổi” trước khi xuất bản.");
-      if (questions.length === 0) return alert("Đề chưa có câu hỏi nào.");
+      if (dirty) return alertDialog("Hãy bấm “Lưu thay đổi” trước khi xuất bản.", "Chưa lưu thay đổi");
+      if (questions.length === 0) return alertDialog("Đề chưa có câu hỏi nào.", "Chưa thể xuất bản");
       const missing = questions.filter((q) => !q.correct_label);
-      if (missing.length) return alert(`Còn ${missing.length} câu chưa có đáp án (câu ${missing.slice(0, 10).map((q) => q.number).join(", ")}…). Hãy bổ sung trước khi xuất bản.`);
+      if (missing.length) return alertDialog(`Còn ${missing.length} câu chưa có đáp án (câu ${missing.slice(0, 10).map((q) => q.number).join(", ")}…). Hãy bổ sung trước khi xuất bản.`);
       const review = questions.filter((q) => q.needs_review).length;
-      if (review && !confirm(`Còn ${review} câu được đánh dấu “Cần kiểm tra”. Vẫn xuất bản?`)) return;
+      if (review && !(await confirmDialog({ title: "Còn câu cần kiểm tra", message: `Còn ${review} câu được đánh dấu “Cần kiểm tra”. Vẫn xuất bản?`, confirmText: "Vẫn xuất bản", cancelText: "Kiểm tra lại" }))) return;
     }
     const { error } = await supabaseBrowser().from("quizzes").update({ status }).eq("id", quiz.id);
-    if (error) return alert(error.message);
+    if (error) return toast(error.message, "error");
+    toast(status === "open" ? "Đề đã mở" : status === "closed" ? "Đã đóng đề" : "Đã cập nhật");
     setMsg(status === "open" ? "Đề đã mở — gửi link cho học viên." : status === "closed" ? "Đã đóng đề, không nhận bài mới." : null);
     load();
   }
 
   if (notFound) return <p className="card p-6 text-center">Không tìm thấy đề. <Link className="text-primary-dark underline" href="/dashboard">Về danh sách</Link></p>;
-  if (!quiz || !tab) return <p className="text-muted">Đang tải…</p>;
+  if (!quiz || !tab) return <PageSkeleton />;
 
   const st = STATUS_LABEL[quiz.status];
 
@@ -110,8 +113,8 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         ).map(([k, l]) => (
           <button
             key={k}
-            onClick={() => {
-              if (dirty && k !== "questions" && !confirm("Có thay đổi chưa lưu. Rời tab này?")) return;
+            onClick={async () => {
+              if (dirty && k !== "questions" && !(await confirmDialog({ title: "Chưa lưu thay đổi", message: "Có thay đổi chưa lưu ở tab Đề & đáp án. Rời tab này?", confirmText: "Rời tab", cancelText: "Ở lại" }))) return;
               setTab(k);
             }}
             className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-semibold ${tab === k ? "border-primary text-primary-dark" : "border-transparent text-muted"}`}
@@ -144,12 +147,12 @@ function ExportMenu({ quizId, dirty }: { quizId: string; dirty: boolean }) {
   const [busy, setBusy] = useState(false);
   const word = async (withAnswers: boolean) => {
     setOpen(false);
-    if (dirty && !confirm("Có thay đổi chưa lưu — file xuất sẽ dùng bản đã lưu. Tiếp tục?")) return;
+    if (dirty && !(await confirmDialog({ title: "Chưa lưu thay đổi", message: "File xuất sẽ dùng bản đã lưu, chưa gồm thay đổi mới. Tiếp tục?", confirmText: "Tiếp tục" }))) return;
     setBusy(true);
     try {
       await downloadDocx(await loadExportData(quizId), withAnswers);
     } catch (e) {
-      alert("Không xuất được file Word: " + (e instanceof Error ? e.message : String(e)));
+      toast("Không xuất được file Word: " + (e instanceof Error ? e.message : String(e)), "error");
     }
     setBusy(false);
   };
@@ -194,13 +197,15 @@ function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSav
       .update({ title: title.trim() || quiz.title, time_limit_min: n > 0 ? n : null, shuffle_questions: shuffle, shuffle_options: shuffleOpts, show_answers: showAns })
       .eq("id", quiz.id);
     setMsg(error ? "Lỗi: " + error.message : "Đã lưu cài đặt.");
+    if (!error) toast("Đã lưu cài đặt");
     if (!error) onSaved();
   }
 
   async function remove() {
-    if (!confirm(`Xoá vĩnh viễn đề "${quiz.title}" và toàn bộ kết quả?\n\nNếu chưa sao lưu, hãy bấm Huỷ rồi vào Tài khoản & sao lưu → Tải file sao lưu trước. Có file sao lưu thì khôi phục lại được.`)) return;
+    if (!(await confirmDialog({ title: "Xoá đề vĩnh viễn", message: `Xoá vĩnh viễn đề "${quiz.title}" và toàn bộ kết quả?\n\nNếu chưa sao lưu, hãy bấm Huỷ rồi vào Tài khoản & sao lưu → Tải file sao lưu trước. Có file sao lưu thì khôi phục lại được.`, confirmText: "Xoá đề", danger: true }))) return;
     const { error } = await supabaseBrowser().from("quizzes").delete().eq("id", quiz.id);
-    if (error) return alert(error.message);
+    if (error) return toast(error.message, "error");
+    toast("Đã xoá đề");
     onDeleted();
   }
 
@@ -208,12 +213,12 @@ function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSav
     <div className="max-w-xl space-y-5">
       <div className="card space-y-4 p-5">
         <div>
-          <label className="label">Tên đề</label>
-          <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <label htmlFor="f96186" className="label">Tên đề</label>
+          <input id="f96186" className="input" value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div>
-          <label className="label">Giới hạn thời gian (phút)</label>
-          <input className="input" type="number" min={1} placeholder="Để trống = không giới hạn" value={limit} onChange={(e) => setLimit(e.target.value)} />
+          <label htmlFor="f63470" className="label">Giới hạn thời gian (phút)</label>
+          <input id="f63470" className="input" type="number" min={1} placeholder="Để trống = không giới hạn" value={limit} onChange={(e) => setLimit(e.target.value)} />
         </div>
         <Toggle checked={shuffle} onChange={setShuffle} label="Xáo trộn thứ tự câu hỏi" hint="Mỗi học viên thấy một thứ tự khác nhau (câu đọc hiểu vẫn đi cùng đoạn văn)." />
         <Toggle
@@ -237,7 +242,7 @@ function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSav
 function Toggle({ checked, onChange, label, hint }: { checked: boolean; onChange: (v: boolean) => void; label: string; hint?: string }) {
   return (
     <label className="flex cursor-pointer items-start gap-3">
-      <input type="checkbox" className="mt-1 h-5 w-5 accent-[#16a34a]" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <input type="checkbox" className="mt-1 h-5 w-5 accent-[#15803d]" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       <span>
         <span className="font-medium">{label}</span>
         {hint && <span className="block text-sm text-muted">{hint}</span>}

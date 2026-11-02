@@ -5,6 +5,7 @@ import { callAi, DailyQuotaError, solveMissing, TimeoutError } from "@/lib/ai-cl
 import { mergeChunks, type ChunkResult } from "@/lib/merge";
 import { parseAnswerKey, parseQuizText } from "@/lib/parse";
 import { createQuiz } from "@/lib/quiz-db";
+import { confirmDialog } from "@/components/ui/feedback";
 
 const MAX_PAYLOAD = 3_800_000; // dưới giới hạn request body ~4.5 MB của Vercel
 const CHUNK_PAGES = 3;
@@ -42,10 +43,17 @@ export function PdfFlow({ onDone, onRunningChange }: { onDone: (id: string) => v
     const onClick = (e: MouseEvent) => {
       const a = (e.target as HTMLElement | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
       if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
-      if (!confirm("Đang xử lý đề. Rời trang sẽ dừng lại (phần đã xong vẫn được lưu). Vẫn rời?")) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
+      e.preventDefault();
+      e.stopPropagation();
+      confirmDialog({
+        title: "Đang xử lý đề",
+        message: "Rời trang sẽ dừng việc đọc đề (phần đã xong vẫn được lưu, chọn lại đúng file là làm tiếp). Vẫn rời trang?",
+        confirmText: "Rời trang",
+        cancelText: "Ở lại",
+        danger: true,
+      }).then((ok) => {
+        if (ok) window.location.href = a.href;
+      });
     };
     window.addEventListener("beforeunload", h);
     document.addEventListener("click", onClick, true);
@@ -289,12 +297,13 @@ export function TextFlow({ onDone }: { onDone: (id: string) => void }) {
   return (
     <div className="card space-y-4 p-5">
       <div>
-        <label className="label">Tên đề</label>
-        <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="VD: Unit 5 - Test 1" />
+        <label htmlFor="f80652" className="label">Tên đề</label>
+        <input id="f80652" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="VD: Unit 5 - Test 1" />
       </div>
       <div>
-        <label className="label">Nội dung câu hỏi</label>
+        <label htmlFor="quiz-text" className="label">Nội dung câu hỏi</label>
         <textarea
+          id="quiz-text"
           className="input min-h-56 font-mono text-sm"
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -303,8 +312,8 @@ export function TextFlow({ onDone }: { onDone: (id: string) => void }) {
         <p className="mt-1 text-sm text-muted">Nhận diện được <b>{preview.length}</b> câu. Mỗi câu bắt đầu bằng số thứ tự, phương án bắt đầu bằng A. B. C. D.</p>
       </div>
       <div>
-        <label className="label">Bảng đáp án (tuỳ chọn)</label>
-        <textarea className="input min-h-20 font-mono text-sm" value={key} onChange={(e) => setKey(e.target.value)} placeholder="1A 2C 3B 4D …" />
+        <label htmlFor="f9323" className="label">Bảng đáp án (tuỳ chọn)</label>
+        <textarea id="f9323" className="input min-h-20 font-mono text-sm" value={key} onChange={(e) => setKey(e.target.value)} placeholder="1A 2C 3B 4D …" />
         <p className="mt-1 text-sm text-muted">Đọc được <b>{Object.keys(keyMap).length}</b> đáp án. Câu thiếu đáp án có thể bổ sung ở bước duyệt.</p>
       </div>
       {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-danger">⚠️ {error}</p>}

@@ -6,6 +6,7 @@ import { fileToImageDataUrl, loadPdfLocal } from "@/lib/pdf-client";
 import { regradeQuiz } from "@/lib/quiz-db";
 import { Html } from "@/components/QuestionText";
 import type { DraftQuestion, Quiz, QuestionRow, Section } from "@/lib/types";
+import { confirmDialog, toast } from "@/components/ui/feedback";
 
 type EditQ = DraftQuestion & { key: string };
 
@@ -134,10 +135,11 @@ export function QuestionsEditor({
       if (e3) throw e3;
 
       setDirty(false);
-      if (answerChanged && submittedCount > 0 && confirm(`Đáp án đã thay đổi. Chấm lại ${submittedCount} bài đã nộp theo đáp án mới?`)) {
+      if (answerChanged && submittedCount > 0 && (await confirmDialog({ title: "Chấm lại bài đã nộp?", message: `Đáp án đã thay đổi. Chấm lại ${submittedCount} bài đã nộp theo đáp án mới?`, confirmText: "Chấm lại", cancelText: "Để sau" }))) {
         const n = await regradeQuiz(quiz.id);
         setMsg(`Đã lưu và chấm lại ${n} bài.`);
       } else setMsg("Đã lưu thay đổi.");
+      toast("Đã lưu thay đổi");
       onSaved();
     } catch (e) {
       setMsg("Lỗi khi lưu: " + (e instanceof Error ? e.message : String(e)));
@@ -278,7 +280,7 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
         {!q.correct_label && <span className="badge bg-red-50 text-danger">Thiếu đáp án</span>}
         <div className="ml-auto flex gap-1">
           <button className="btn-ghost px-2 py-1 text-xs" onClick={() => setEditing(!editing)}>{editing ? "Xong" : "Sửa"}</button>
-          <button className="btn-ghost px-2 py-1 text-xs text-danger" onClick={() => confirm(`Xoá câu ${q.number}?`) && onDelete()}>Xoá</button>
+          <button className="btn-ghost px-2 py-1 text-xs text-danger" onClick={async () => (await confirmDialog({ title: "Xoá câu hỏi", message: `Xoá câu ${q.number}? (Bấm “Lưu thay đổi” sau đó mới xoá hẳn.)`, confirmText: "Xoá", danger: true })) && onDelete()}>Xoá</button>
         </div>
       </div>
 
@@ -345,7 +347,7 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
                 try {
                   onChange({ image: await fileToImageDataUrl(f) });
                 } catch {
-                  alert("Không đọc được file ảnh này.");
+                  toast("Không đọc được file ảnh này.", "error");
                 }
               }}
             />

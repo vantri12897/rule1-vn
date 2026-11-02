@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { activeAttempt, buildResult, deadlineOf, loadQuizBySlug, toPublicQuestions, UUID_RE } from "@/lib/public-quiz";
+import { buildResult, deadlineOf, loadQuizAndAttempt, toPublicQuestions } from "@/lib/public-quiz";
 
 export const dynamic = "force-dynamic";
 
@@ -7,11 +7,9 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request, ctx: { params: Promise<{ slug: string }> }) {
   const { slug } = await ctx.params;
   const token = new URL(req.url).searchParams.get("token");
-  const data = await loadQuizBySlug(slug);
+  const data = await loadQuizAndAttempt(slug, token);
   if (!data) return NextResponse.json({ error: "Không tìm thấy đề hoặc đề chưa được xuất bản" }, { status: 404 });
-  const { quiz, questions } = data;
-
-  const attempt = token && UUID_RE.test(token) ? await activeAttempt(quiz.id, token) : null;
+  const { quiz, questions, attempt } = data;
 
   const base = {
     quiz: {

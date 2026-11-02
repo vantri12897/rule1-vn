@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { grade } from "@/lib/grading";
-import { activeAttempt, answersToOriginal, buildResult, clientIp, GRACE_SEC, loadQuizBySlug, rateLimited } from "@/lib/public-quiz";
+import { activeAttempt, answersToOriginal, buildResult, clientIp, GRACE_SEC, loadQuizAndAttempt, rateLimited } from "@/lib/public-quiz";
 import type { Attempt } from "@/lib/types";
 
 const Body = z.object({
   token: z.string().uuid(),
-  answers: z.record(z.string().uuid(), z.string().regex(/^[A-Fa-f]$/)),
+  answers: z.record(z.string().regex(/^[0-9a-f-]{36}$/i), z.string().regex(/^[A-Fa-f]$/)),
 });
 
 export async function POST(req: Request, ctx: { params: Promise<{ slug: string }> }) {
@@ -16,11 +16,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Dữ liệu bài làm không hợp lệ" }, { status: 400 });
 
-  const data = await loadQuizBySlug(slug);
+  const data = await loadQuizAndAttempt(slug, parsed.data.token);
   if (!data) return NextResponse.json({ error: "Không tìm thấy đề" }, { status: 404 });
-  const { quiz, questions } = data;
-
-  const attempt = await activeAttempt(quiz.id, parsed.data.token);
+  const { quiz, questions, attempt } = data;
   if (!attempt) return NextResponse.json({ error: "Không tìm thấy bài làm. Hãy tải lại trang." }, { status: 404 });
   if (attempt.status === "submitted") {
     return NextResponse.json({ result: buildResult(quiz, questions, attempt) });

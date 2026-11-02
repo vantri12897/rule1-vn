@@ -4,6 +4,8 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 import { regradeQuiz } from "@/lib/quiz-db";
 import { fmtDate, fmtDuration } from "@/lib/ui";
 import type { Attempt, Quiz, QuestionRow } from "@/lib/types";
+import { confirmDialog, toast } from "@/components/ui/feedback";
+import { Skel } from "@/components/ui/Skeleton";
 
 export function ResultsPanel({
   quiz,
@@ -64,21 +66,23 @@ export function ResultsPanel({
   }, [questions, submitted]);
 
   async function resetOne(a: Attempt) {
-    if (!confirm(`Reset bài của "${a.student_name}"? Học viên sẽ làm lại được qua cùng link. Bài cũ được lưu vào lịch sử.`)) return;
+    if (!(await confirmDialog({ title: "Reset bài làm", message: `Reset bài của "${a.student_name}"? Học viên sẽ làm lại được qua cùng link. Bài cũ được lưu vào lịch sử.`, confirmText: "Reset", danger: true }))) return;
     const sb = supabaseBrowser();
     const { data: u } = await sb.auth.getUser();
     await sb.from("attempts").update({ status: "archived" }).eq("id", a.id);
     await sb.from("reset_logs").insert({ quiz_id: quiz.id, attempt_id: a.id, scope: "single", reset_by: u.user?.id });
+    toast(`Đã reset bài của ${a.student_name}`);
     load();
   }
 
   async function resetAll() {
     if (!active.length) return;
-    if (!confirm(`Reset TOÀN BỘ ${active.length} bài làm của đề này? Mọi học viên sẽ làm lại từ đầu.`)) return;
+    if (!(await confirmDialog({ title: "Reset toàn bộ", message: `Reset TOÀN BỘ ${active.length} bài làm của đề này? Mọi học viên sẽ làm lại từ đầu.`, confirmText: "Reset toàn bộ", danger: true }))) return;
     const sb = supabaseBrowser();
     const { data: u } = await sb.auth.getUser();
     await sb.from("attempts").update({ status: "archived" }).eq("quiz_id", quiz.id).neq("status", "archived");
     await sb.from("reset_logs").insert({ quiz_id: quiz.id, scope: "all", reset_by: u.user?.id });
+    toast("Đã reset toàn bộ bài làm");
     load();
   }
 
@@ -115,7 +119,17 @@ export function ResultsPanel({
     a.click();
   }
 
-  if (attempts === null) return <p className="text-muted">Đang tải kết quả…</p>;
+  if (attempts === null)
+    return (
+      <div className="space-y-3" aria-busy="true">
+        <div className="grid grid-cols-3 gap-3">
+          <Skel className="h-20" />
+          <Skel className="h-20" />
+          <Skel className="h-20" />
+        </div>
+        <Skel className="h-48" />
+      </div>
+    );
 
   const avg = submitted.length ? submitted.reduce((s, a) => s + (a.total ? (a.score ?? 0) / a.total : 0), 0) / submitted.length : null;
 

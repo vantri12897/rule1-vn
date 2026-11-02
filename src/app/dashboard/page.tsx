@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { fmtDate, quizLink, STATUS_LABEL } from "@/lib/ui";
 import type { Quiz } from "@/lib/types";
+import { CardsSkeleton } from "@/components/ui/Skeleton";
 
 type Card = Quiz & { qcount: number; submitted: number; avgPct: number | null };
 
@@ -65,7 +66,7 @@ export default function Dashboard() {
       )}
 
       {cards === null ? (
-        <p className="text-muted">Đang tải…</p>
+        <CardsSkeleton />
       ) : cards.length === 0 ? (
         <div className="card p-10 text-center">
           <p className="text-lg font-semibold">Chưa có đề nào</p>

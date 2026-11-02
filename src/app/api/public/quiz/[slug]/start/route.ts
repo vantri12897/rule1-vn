@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { activeAttempt, clientIp, deadlineOf, loadQuizBySlug, rateLimited, toPublicQuestions } from "@/lib/public-quiz";
+import { activeAttempt, buildResult, clientIp, deadlineOf, loadQuizAndAttempt, rateLimited, toPublicQuestions } from "@/lib/public-quiz";
 import type { Attempt } from "@/lib/types";
 
 const Body = z.object({
@@ -16,11 +16,11 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Vui lòng nhập họ tên" }, { status: 400 });
 
-  const data = await loadQuizBySlug(slug);
+  const data = await loadQuizAndAttempt(slug, parsed.data.token);
   if (!data) return NextResponse.json({ error: "Không tìm thấy đề" }, { status: 404 });
   const { quiz, questions } = data;
 
-  let attempt = await activeAttempt(quiz.id, parsed.data.token);
+  let attempt = data.attempt;
   if (!attempt) {
     if (quiz.status !== "open") return NextResponse.json({ error: "Đề này đã đóng, không nhận bài mới" }, { status: 403 });
     const { data: created, error } = await supabaseAdmin()
@@ -38,6 +38,14 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
       attempt = await activeAttempt(quiz.id, parsed.data.token); // trường hợp bấm 2 lần
       if (!attempt) return NextResponse.json({ error: "Không tạo được bài làm" }, { status: 500 });
     } else attempt = created;
+  }
+
+  if (attempt.status === "submitted") {
+    return NextResponse.json({
+      attempt: { status: "submitted", student_name: attempt.student_name },
+      questions: toPublicQuestions(quiz, questions, parsed.data.token),
+      result: buildResult(quiz, questions, attempt),
+    });
   }
 
   return NextResponse.json({
