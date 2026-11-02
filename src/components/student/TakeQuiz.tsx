@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Html } from "@/components/QuestionText";
+import { safeHtml } from "@/lib/sanitize";
 import type { PublicQuestion, Section } from "@/lib/types";
 import { confirmDialog } from "@/components/ui/feedback";
 import { StudentSkeleton } from "@/components/ui/Skeleton";
@@ -142,7 +143,7 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
 
   return (
     <main className="min-h-screen bg-primary-soft">
-      <header className="sticky top-0 z-30 border-b border-primary-line bg-white">
+      <header className="sticky top-0 z-30 border-b border-primary-line bg-white/95 backdrop-blur">
         <div className={`mx-auto flex items-center gap-3 px-4 py-3 ${view === "taking" ? "max-w-7xl" : "max-w-2xl"}`}>
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-xs font-extrabold text-white">YD</span>
           <div className="min-w-0 flex-1">
@@ -247,11 +248,35 @@ function Countdown({ deadline, offset, onEnd }: { deadline: number; offset: numb
     return () => clearInterval(t);
   }, [deadline, offset, onEnd]);
   const s = Math.max(0, Math.floor(left / 1000));
+  const h = Math.floor(s / 3600);
+  const mm = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  const tone = s < 60 ? "bg-red-600 text-white animate-pulse" : s < 300 ? "bg-orange-100 text-warn border border-orange-300" : "bg-primary-soft text-primary-dark border border-primary-line";
   return (
-    <span className={`rounded-lg px-2.5 py-1 font-mono text-sm font-bold ${s < 60 ? "bg-red-50 text-danger" : "bg-primary-soft text-primary-dark"}`}>
-      ⏱ {String(Math.floor(s / 60)).padStart(2, "0")}:{String(s % 60).padStart(2, "0")}
-    </span>
+    <div className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 ${tone}`} role="timer" aria-live="off" aria-label={`Còn ${Math.floor(s / 60)} phút ${s % 60} giây`}>
+      <span className="text-lg sm:text-xl" aria-hidden>⏱</span>
+      <span className="font-mono text-xl font-extrabold tabular-nums sm:text-2xl">
+        {h > 0 ? `${h}:` : ""}
+        {mm}:{ss}
+      </span>
+    </div>
   );
+}
+
+/** "Question 1:" / "Câu 1." chỉ là số câu → không lặp lại sau "Câu 1." */
+function cleanStem(stem: string) {
+  return /^\s*(question|câu|cau)\s*\d+\s*[:.)]?\s*$/i.test(stem) ? "" : stem;
+}
+
+/** Đoạn văn có chỗ trống (1), (2)…: tô sáng chỗ trống của câu đang làm, đánh dấu chỗ đã làm */
+function PassageHtml({ text, current, numbers, answered }: { text: string; current: number | null; numbers: Set<number>; answered: Set<number> }) {
+  const html = safeHtml(text).replace(/\((\d{1,3})\)/g, (m, d: string) => {
+    const n = Number(d);
+    if (!numbers.has(n)) return m;
+    if (n === current) return `<mark data-cur="1" class="rounded bg-yellow-200 px-1 font-bold text-ink ring-2 ring-yellow-400">(${n})</mark>`;
+    return `<span class="rounded px-0.5 font-semibold ${answered.has(n) ? "bg-primary-soft text-primary-dark" : "text-primary-dark"}">(${n})</span>`;
+  });
+  return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 function TakingView({
@@ -272,12 +297,21 @@ function TakingView({
   onSubmit: () => void;
 }) {
   const [showNav, setShowNav] = useState(false);
+  const [showPassage, setShowPassage] = useState(false);
   const [current, setCurrent] = useState<string | null>(questions[0]?.id ?? null);
-  const sheetRef = useRef<HTMLDivElement>(null);
+  const passageRef = useRef<HTMLDivElement>(null);
   const done = questions.filter((q) => answers[q.id]).length;
   const pick = (qid: string, label: string) => setAnswers((a) => ({ ...a, [qid]: label }));
 
-  // Theo dõi câu đang xem ở cột trái để tô sáng dòng tương ứng trên phiếu trả lời
+  const hasPassage = quiz.sections.some((s) => s?.passage && s.passage.trim().length > 0);
+  const curQ = questions.find((q) => q.id === current) ?? questions[0];
+  const curSec = curQ?.section_index != null ? quiz.sections[curQ.section_index] : null;
+  const secQs = curQ?.section_index != null ? questions.filter((q) => q.section_index === curQ.section_index) : [];
+  const secNumbers = new Set(secQs.map((q) => q.number));
+  const answeredNumbers = new Set(secQs.filter((q) => answers[q.id]).map((q) => q.number));
+  const displayIndex = (qid: string) => questions.findIndex((q) => q.id === qid) + 1;
+
+  // Theo dõi câu đang xem để đổi đoạn văn bên trái
   useEffect(() => {
     const els = questions.map((q) => document.getElementById(`q-${q.id}`)).filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
@@ -285,51 +319,87 @@ function TakingView({
         const vis = entries.filter((e) => e.isIntersecting).sort((x, y) => x.boundingClientRect.top - y.boundingClientRect.top)[0];
         if (vis) setCurrent(vis.target.id.slice(2));
       },
-      { rootMargin: "-90px 0px -55% 0px" }
+      { rootMargin: "-100px 0px -55% 0px" }
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, [questions]);
 
-  // Giữ dòng đang xem luôn nằm trong khung phiếu trả lời
+  // Cuộn đoạn văn bên trái tới chỗ trống của câu đang làm
   useEffect(() => {
-    const row = current ? sheetRef.current?.querySelector<HTMLElement>(`[data-row="${current}"]`) : null;
-    const box = sheetRef.current;
-    if (row && box) {
-      const top = row.offsetTop - box.offsetTop;
-      if (top < box.scrollTop || top > box.scrollTop + box.clientHeight - row.offsetHeight) {
-        box.scrollTo({ top: top - box.clientHeight / 2, behavior: "smooth" });
-      }
+    const box = passageRef.current;
+    const mark = box?.querySelector<HTMLElement>("mark[data-cur]");
+    if (box && mark) {
+      const top = mark.offsetTop - box.offsetTop;
+      if (top < box.scrollTop + 40 || top > box.scrollTop + box.clientHeight - 60) box.scrollTo({ top: top - box.clientHeight / 3, behavior: "smooth" });
     }
   }, [current]);
 
   const goTo = (qid: string) => document.getElementById(`q-${qid}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
+  const passagePanel = curSec && (curSec.instruction || curSec.passage) ? (
+    <>
+      {secQs.length > 0 && (
+        <div className="mb-2 text-xs font-bold uppercase tracking-wide text-muted">
+          Dùng cho câu {displayIndex(secQs[0].id)}
+          {secQs.length > 1 ? `–${displayIndex(secQs[secQs.length - 1].id)}` : ""}
+        </div>
+      )}
+      {curSec.instruction && (
+        <p className="font-semibold italic leading-relaxed">
+          <Html text={curSec.instruction} />
+        </p>
+      )}
+      {curSec.passage && (
+        <p className="mt-3 whitespace-pre-line text-[17px] leading-8">
+          <PassageHtml text={curSec.passage} current={curQ?.number ?? null} numbers={secNumbers} answered={answeredNumbers} />
+        </p>
+      )}
+    </>
+  ) : null;
+
   let lastSection: number | null = null;
 
   return (
-    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
-      {/* ===== CỘT TRÁI: ĐỀ (QUESTIONS) ===== */}
+    <div className={hasPassage ? "lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start lg:gap-6" : "mx-auto max-w-3xl"}>
+      {/* ===== CỘT TRÁI: ĐOẠN VĂN (đứng yên, đổi theo câu đang làm) ===== */}
+      {hasPassage && (
+        <aside className="hidden lg:sticky lg:top-24 lg:block">
+          <div className="mb-2 text-sm font-bold uppercase tracking-wide text-muted">📖 Đề bài (Question)</div>
+          <div ref={passageRef} className="card max-h-[calc(100vh-11.5rem)] overflow-y-auto p-5">
+            {passagePanel ?? <p className="text-muted">Câu đang làm không có đoạn văn đi kèm. Đọc câu hỏi ở cột bên phải.</p>}
+          </div>
+        </aside>
+      )}
+
+      {/* ===== CỘT PHẢI: CÂU HỎI & CHỌN ĐÁP ÁN ===== */}
       <div>
-        <h2 className="mb-3 hidden text-sm font-bold uppercase tracking-wide text-muted lg:block">Đề bài (Questions)</h2>
+        {hasPassage && <div className="mb-2 hidden text-sm font-bold uppercase tracking-wide text-muted lg:block">✏️ Chọn đáp án (Answers)</div>}
         <div className="space-y-4">
           {questions.map((q, i) => {
             const sec = q.section_index != null ? quiz.sections[q.section_index] : null;
             const showSec = sec && q.section_index !== lastSection;
             lastSection = q.section_index;
             const isCur = current === q.id;
+            const stem = cleanStem(q.stem);
             return (
               <div key={q.id}>
+                {/* Trên điện thoại (hoặc đề không có đoạn văn): hướng dẫn/đoạn văn hiện ngay trước nhóm câu */}
                 {showSec && (sec!.instruction || sec!.passage) && (
-                  <div className="card mb-4 border-primary-line p-4">
+                  <div className={`card mb-4 border-primary-line p-4 ${hasPassage ? "lg:hidden" : ""}`}>
                     {sec!.instruction && <p className="font-semibold italic"><Html text={sec!.instruction} /></p>}
                     {sec!.passage && <p className="mt-2 whitespace-pre-line leading-relaxed"><Html text={sec!.passage} /></p>}
                   </div>
                 )}
-                <fieldset id={`q-${q.id}`} className={`card scroll-mt-24 p-4 transition ${isCur ? "lg:ring-2 lg:ring-primary/40" : ""}`}>
+                {hasPassage && showSec && sec?.instruction && !sec.passage && (
+                  <p className="mb-3 hidden text-sm font-semibold italic text-muted lg:block">
+                    <Html text={sec.instruction} />
+                  </p>
+                )}
+                <fieldset id={`q-${q.id}`} className={`card scroll-mt-28 p-4 transition ${isCur ? "ring-2 ring-primary/40" : ""}`}>
                   <legend className="sr-only">Câu {i + 1}</legend>
                   <p className="mb-3 leading-relaxed">
-                    <b className="text-primary-dark">Câu {i + 1}.</b> <Html text={q.stem} />
+                    <b className="text-primary-dark">Câu {i + 1}.</b> {stem && <Html text={stem} />}
                   </p>
                   {q.image && (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -341,7 +411,7 @@ function TakingView({
                       return (
                         <label
                           key={o.label}
-                          className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 px-3 py-3 transition lg:py-2 ${on ? "border-primary bg-primary-soft" : "border-gray-200 bg-white active:bg-gray-50"}`}
+                          className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 px-3 py-3 transition lg:py-2.5 ${on ? "border-primary bg-primary-soft" : "border-gray-200 bg-white hover:border-primary-line active:bg-gray-50"}`}
                         >
                           <input
                             type="radio"
@@ -362,115 +432,76 @@ function TakingView({
             );
           })}
         </div>
-
-        {/* Điện thoại: thanh tiến độ + Nộp bài luôn dính đáy màn hình */}
-        <div className="h-24 lg:hidden" />
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-primary-line bg-white/95 backdrop-blur lg:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-          {showNav && (
-            <div className="max-h-[45vh] overflow-y-auto border-b border-gray-100 p-3">
-              <div className="mb-2 flex items-center justify-between text-xs text-muted">
-                <span>Bấm số câu để nhảy tới</span>
-                <span>
-                  <span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-primary align-middle" />đã làm
-                </span>
-              </div>
-              <div className="grid grid-cols-8 gap-1.5 sm:grid-cols-12">
-                {questions.map((q, i) => (
-                  <button
-                    key={q.id}
-                    onClick={() => {
-                      setShowNav(false);
-                      goTo(q.id);
-                    }}
-                    className={`grid h-9 place-items-center rounded-lg text-sm font-semibold ${answers[q.id] ? "bg-primary text-white" : "border border-gray-300 bg-white text-ink"} ${current === q.id ? "ring-2 ring-primary/50" : ""}`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          {error && <p className="bg-red-50 px-4 py-2 text-sm text-danger">{error}</p>}
-          <div className="mx-auto flex max-w-2xl items-center gap-2 px-3 py-2.5">
-            <button
-              onClick={() => setShowNav(!showNav)}
-              aria-expanded={showNav}
-              className="flex min-w-0 flex-1 flex-col items-start rounded-xl px-2 py-1 text-left active:bg-gray-50"
-            >
-              <span className="text-sm font-semibold">
-                <b className="text-primary-dark">{done}</b>/{questions.length} câu {showNav ? "▾" : "▴"}
-              </span>
-              <span className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                <span className="block h-full bg-primary transition-all" style={{ width: `${questions.length ? (done / questions.length) * 100 : 0}%` }} />
-              </span>
-            </button>
-            <button className="btn-primary shrink-0 px-6 py-3 text-base" disabled={busy} onClick={onSubmit}>
-              {busy ? "Đang nộp…" : "Nộp bài"}
-            </button>
-          </div>
-        </div>
+        <div className="h-28" />
       </div>
 
-      {/* ===== CỘT PHẢI: PHIẾU TRẢ LỜI (ANSWERS) — đứng yên khi cuộn đề ===== */}
-      <aside className="hidden lg:sticky lg:top-24 lg:block">
-        <div className="card flex max-h-[calc(100vh-7.5rem)] flex-col overflow-hidden">
-          <div className="border-b border-gray-100 px-4 py-3">
-            <div className="flex items-center justify-between">
-              <h2 className="font-bold">Phiếu trả lời (Answers)</h2>
-              <span className="text-sm text-muted">
-                <b className="text-primary-dark">{done}</b>/{questions.length}
+      {/* ===== THANH DƯỚI CÙNG: tiến độ, danh sách câu, nộp bài ===== */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-primary-line bg-white/95 shadow-[0_-4px_16px_rgba(0,0,0,0.05)] backdrop-blur" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        {showNav && (
+          <div className="mx-auto max-h-[45vh] max-w-7xl overflow-y-auto border-b border-gray-100 p-3">
+            <div className="mb-2 flex items-center justify-between text-xs text-muted">
+              <span>Bấm số câu để nhảy tới</span>
+              <span>
+                <span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-primary align-middle" />đã làm
               </span>
             </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">
-              <div className="h-full bg-primary transition-all" style={{ width: `${questions.length ? (done / questions.length) * 100 : 0}%` }} />
+            <div className="grid grid-cols-8 gap-1.5 sm:grid-cols-12 lg:grid-cols-20">
+              {questions.map((q, i) => (
+                <button
+                  key={q.id}
+                  onClick={() => {
+                    setShowNav(false);
+                    goTo(q.id);
+                  }}
+                  className={`grid h-9 place-items-center rounded-lg text-sm font-semibold ${answers[q.id] ? "bg-primary text-white" : "border border-gray-300 bg-white text-ink"} ${current === q.id ? "ring-2 ring-primary/50" : ""}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
             </div>
           </div>
-          <div ref={sheetRef} className="flex-1 overflow-y-auto px-2 py-2">
-            {questions.map((q, i) => {
-              const isCur = current === q.id;
-              return (
-                <div
-                  key={q.id}
-                  data-row={q.id}
-                  className={`flex items-center gap-2 rounded-lg px-2 py-1.5 ${isCur ? "bg-primary-soft" : ""}`}
-                >
-                  <button
-                    onClick={() => goTo(q.id)}
-                    title="Xem câu này bên trái"
-                    className={`w-14 shrink-0 text-left text-sm font-semibold hover:underline ${answers[q.id] ? "text-primary-dark" : "text-ink"}`}
-                  >
-                    Câu {i + 1}
-                  </button>
-                  <div className="flex gap-1.5">
-                    {q.options.map((o) => {
-                      const on = answers[q.id] === o.label;
-                      return (
-                        <button
-                          key={o.label}
-                          onClick={() => pick(q.id, o.label)}
-                          aria-label={`Câu ${i + 1} chọn ${o.label}`}
-                          aria-pressed={on}
-                          className={`grid h-8 w-8 place-items-center rounded-full border-2 text-sm font-bold transition ${
-                            on ? "border-primary bg-primary text-white" : "border-gray-300 bg-white text-ink hover:border-primary"
-                          }`}
-                        >
-                          {o.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="border-t border-gray-100 p-3">
-            {error && <p className="mb-2 rounded-xl bg-red-50 p-2 text-sm text-danger">{error}</p>}
-            <button className="btn-primary w-full py-3 text-base" disabled={busy} onClick={onSubmit}>
-              {busy ? "Đang nộp…" : `Nộp bài (${done}/${questions.length})`}
+        )}
+        {showPassage && passagePanel && (
+          <div className="max-h-[50vh] overflow-y-auto border-b border-gray-100 p-4 lg:hidden">{passagePanel}</div>
+        )}
+        {error && <p className="bg-red-50 px-4 py-2 text-sm text-danger">{error}</p>}
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 lg:px-4">
+          <button
+            onClick={() => {
+              setShowNav(!showNav);
+              setShowPassage(false);
+            }}
+            aria-expanded={showNav}
+            className="flex min-w-0 flex-1 flex-col items-start rounded-xl px-2 py-1 text-left hover:bg-gray-50 active:bg-gray-50 lg:max-w-md"
+          >
+            <span className="text-sm font-semibold">
+              <span className="hidden sm:inline">Đã làm </span>
+              <b className="text-primary-dark">{done}</b>/{questions.length} câu<span className="hidden sm:inline"> · Danh sách câu</span> {showNav ? "▾" : "▴"}
+            </span>
+            <span className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+              <span className="block h-full bg-primary transition-all" style={{ width: `${questions.length ? (done / questions.length) * 100 : 0}%` }} />
+            </span>
+          </button>
+          {passagePanel && curSec?.passage && (
+            <button
+              className="btn-outline shrink-0 px-3 lg:hidden"
+              onClick={() => {
+                setShowPassage(!showPassage);
+                setShowNav(false);
+              }}
+            >
+              📖 {showPassage ? "Ẩn" : "Đoạn văn"}
             </button>
-          </div>
+          )}
+          <button className="btn-primary ml-auto shrink-0 px-6 py-3 text-base" disabled={busy} onClick={onSubmit}>
+            {busy ? "Đang nộp…" : (
+              <>
+                Nộp bài<span className="hidden sm:inline">&nbsp;({done}/{questions.length})</span>
+              </>
+            )}
+          </button>
         </div>
-      </aside>
+      </div>
     </div>
   );
 }
@@ -511,7 +542,7 @@ function ResultView({ result, questions, sections }: { result: Result; questions
                 </span>
                 <span className="text-sm font-semibold">Câu {d.idx}</span>
               </div>
-              {q && <p className="mb-2 text-sm leading-relaxed"><Html text={q.stem} /></p>}
+              {q && cleanStem(q.stem) && <p className="mb-2 text-sm leading-relaxed"><Html text={q.stem} /></p>}
               {q?.image && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={q.image} alt={`Hình câu ${d.idx}`} className="mb-2 max-h-64 max-w-full rounded-xl border border-gray-200 object-contain" />
