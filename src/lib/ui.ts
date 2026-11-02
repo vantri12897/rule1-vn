@@ -1,3 +1,5 @@
+import { tc } from "./i18n/client";
+
 export function fmtDate(iso: string | null | undefined) {
   if (!iso) return "—";
   const d = new Date(iso);
@@ -9,7 +11,7 @@ export function fmtDuration(fromIso: string, toIso: string | null) {
   if (!toIso) return "—";
   const s = Math.max(0, Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / 1000));
   const m = Math.floor(s / 60);
-  return m > 0 ? `${m} phút ${s % 60}s` : `${s}s`;
+  return m > 0 ? tc("{m} phút {s}s", { m, s: s % 60 }) : `${s}s`;
 }
 
 export function quizLink(slug: string) {

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { tc, useT } from "@/lib/i18n/client";
 
 /* Hộp thoại & thông báo nhỏ theo màu YD-English, thay cho confirm()/alert() xám của trình duyệt. */
 
@@ -21,8 +22,8 @@ export function confirmDialog(opts: DialogOpts | string): Promise<boolean> {
   });
 }
 
-export async function alertDialog(message: string, title = "Thông báo") {
-  await confirmDialog({ title, message, alertOnly: true, confirmText: "Đã hiểu" });
+export async function alertDialog(message: string, title?: string) {
+  await confirmDialog({ title: title ?? tc("Thông báo"), message, alertOnly: true, confirmText: tc("Đã hiểu") });
 }
 
 let seq = 0;
@@ -37,6 +38,7 @@ export function toast(text: string, type: Toast["type"] = "success") {
 }
 
 export function FeedbackHost() {
+  const { t } = useT();
   const [, force] = useState(0);
   const okRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -77,17 +79,17 @@ export function FeedbackHost() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id="yd-dialog-title" className={`text-lg font-bold ${d.danger ? "text-danger" : "text-ink"}`}>
-              {d.title ?? (d.danger ? "Xác nhận thao tác" : "Xác nhận")}
+              {d.title ?? (d.danger ? t("Xác nhận thao tác") : t("Xác nhận"))}
             </h2>
             <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted">{d.message}</p>
             <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               {!d.alertOnly && (
                 <button className="btn-ghost border border-gray-200" onClick={() => close(false)}>
-                  {d.cancelText ?? "Huỷ"}
+                  {d.cancelText ?? t("Huỷ")}
                 </button>
               )}
               <button ref={okRef} className={d.danger ? "btn bg-danger text-white hover:bg-red-700" : "btn-primary"} onClick={() => close(true)}>
-                {d.confirmText ?? "Đồng ý"}
+                {d.confirmText ?? t("Đồng ý")}
               </button>
             </div>
           </div>

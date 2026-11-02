@@ -5,10 +5,12 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 import { fmtDate, quizLink, STATUS_LABEL } from "@/lib/ui";
 import type { Quiz } from "@/lib/types";
 import { CardsSkeleton } from "@/components/ui/Skeleton";
+import { useT } from "@/lib/i18n/client";
 
 type Card = Quiz & { qcount: number; submitted: number; avgPct: number | null };
 
 export default function Dashboard() {
+  const { t } = useT();
   const [cards, setCards] = useState<Card[] | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [reminder, setReminder] = useState<string | null>(null);
@@ -17,9 +19,9 @@ export default function Dashboard() {
     fetch("/api/account/recovery-code", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
-        if (!d.exists) return setReminder("Bạn chưa tạo mã khôi phục mật khẩu — nếu quên mật khẩu sẽ không vào lại được website.");
+        if (!d.exists) return setReminder(t("Bạn chưa tạo mã khôi phục mật khẩu — nếu quên mật khẩu sẽ không vào lại được website."));
         const last = localStorage.getItem("yd-last-backup");
-        if (!last || Date.now() - new Date(last).getTime() > 7 * 86400_000) setReminder("Đã hơn 7 ngày chưa sao lưu dữ liệu (hoặc chưa sao lưu lần nào trên máy này).");
+        if (!last || Date.now() - new Date(last).getTime() > 7 * 86400_000) setReminder(t("Đã hơn 7 ngày chưa sao lưu dữ liệu (hoặc chưa sao lưu lần nào trên máy này)."));
       })
       .catch(() => {});
   }, []);
@@ -54,14 +56,14 @@ export default function Dashboard() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">📚 Đề của tôi</h1>
-        <Link href="/dashboard/new" className="btn-primary">+ Tạo đề mới</Link>
+        <h1 className="text-2xl font-bold">{t("📚 Đề của tôi")}</h1>
+        <Link href="/dashboard/new" className="btn-primary">{t("+ Tạo đề mới")}</Link>
       </div>
 
       {reminder && (
         <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-warn">
           <span className="flex-1">⚠️ {reminder}</span>
-          <Link href="/dashboard/account" className="btn-outline border-orange-300 text-warn">Mở Tài khoản & sao lưu</Link>
+          <Link href="/dashboard/account" className="btn-outline border-orange-300 text-warn">{t("Mở Tài khoản & sao lưu")}</Link>
         </div>
       )}
 
@@ -69,9 +71,9 @@ export default function Dashboard() {
         <CardsSkeleton />
       ) : cards.length === 0 ? (
         <div className="card p-10 text-center">
-          <p className="text-lg font-semibold">Chưa có đề nào</p>
-          <p className="mt-1 text-sm text-muted">Upload file PDF đầu tiên để bắt đầu.</p>
-          <Link href="/dashboard/new" className="btn-primary mt-4">+ Tạo đề mới</Link>
+          <p className="text-lg font-semibold">{t("Chưa có đề nào")}</p>
+          <p className="mt-1 text-sm text-muted">{t("Upload file PDF đầu tiên để bắt đầu.")}</p>
+          <Link href="/dashboard/new" className="btn-primary mt-4">{t("+ Tạo đề mới")}</Link>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -83,17 +85,17 @@ export default function Dashboard() {
                 <Link href={`/dashboard/quiz/${c.id}`} className="group flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <h2 className="line-clamp-2 font-bold group-hover:text-primary-dark">{c.title}</h2>
-                    <span className={`badge shrink-0 ${st.cls}`}>{st.text}</span>
+                    <span className={`badge shrink-0 ${st.cls}`}>{t(st.text)}</span>
                   </div>
-                  <p className="mt-1 text-xs text-muted">{c.qcount} câu · tạo {fmtDate(c.created_at)}</p>
+                  <p className="mt-1 text-xs text-muted">{t("{n} câu · tạo {d}", { n: c.qcount, d: fmtDate(c.created_at) })}</p>
                   <div className="mt-4 grid grid-cols-2 gap-2">
                     <div className="rounded-xl bg-sky-soft p-3">
                       <div className="text-2xl font-extrabold text-sky-ink">{c.submitted}</div>
-                      <div className="text-xs text-muted">bài đã nộp</div>
+                      <div className="text-xs text-muted">{t("bài đã nộp")}</div>
                     </div>
                     <div className="rounded-xl bg-sun-soft p-3">
                       <div className="text-2xl font-extrabold text-sun-ink">{c.avgPct == null ? "—" : `${c.avgPct.toFixed(0)}%`}</div>
-                      <div className="text-xs text-muted">điểm trung bình</div>
+                      <div className="text-xs text-muted">{t("điểm trung bình")}</div>
                     </div>
                   </div>
                 </Link>
@@ -106,7 +108,7 @@ export default function Dashboard() {
                       setTimeout(() => setCopied(null), 1500);
                     }}
                   >
-                    {copied === c.id ? "✓ Đã copy link" : "Copy link cho học viên"}
+                    {copied === c.id ? t("✓ Đã copy link") : t("Copy link cho học viên")}
                   </button>
                 )}
               </div>

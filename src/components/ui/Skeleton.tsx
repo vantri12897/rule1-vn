@@ -1,11 +1,15 @@
+"use client";
+import { useT } from "@/lib/i18n/client";
+
 /** Khung xương hiển thị trong lúc tải dữ liệu — tránh nháy trang và cảm giác chờ lâu */
 export function Skel({ className = "" }: { className?: string }) {
   return <div className={`animate-pulse rounded-lg bg-gray-200/80 ${className}`} />;
 }
 
 export function CardsSkeleton({ n = 3 }: { n?: number }) {
+  const { t } = useT();
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Đang tải">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label={t("Đang tải")}>
       {Array.from({ length: n }, (_, i) => (
         <div key={i} className="card p-5">
           <Skel className="h-5 w-3/4" />
@@ -22,8 +26,9 @@ export function CardsSkeleton({ n = 3 }: { n?: number }) {
 }
 
 export function PageSkeleton() {
+  const { t } = useT();
   return (
-    <div aria-busy="true" aria-label="Đang tải">
+    <div aria-busy="true" aria-label={t("Đang tải")}>
       <Skel className="h-4 w-32" />
       <Skel className="mt-3 h-8 w-2/3" />
       <Skel className="mt-2 h-4 w-40" />
@@ -51,8 +56,9 @@ export function PageSkeleton() {
 }
 
 export function StudentSkeleton() {
+  const { t } = useT();
   return (
-    <div className="card mt-4 space-y-4 p-6" aria-busy="true" aria-label="Đang tải đề">
+    <div className="card mt-4 space-y-4 p-6" aria-busy="true" aria-label={t("Đang tải đề")}>
       <Skel className="mx-auto h-6 w-2/3" />
       <Skel className="mx-auto h-4 w-1/3" />
       <Skel className="h-11" />

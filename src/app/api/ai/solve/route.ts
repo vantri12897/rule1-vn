@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { geminiJson } from "@/lib/gemini";
 import { aiErrorResponse, bumpUsage, requireTeacher } from "@/lib/api-auth";
+import { langOf, translate, type Vars } from "@/lib/i18n/core";
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // Vercel Hobby (Fluid compute) cho phép tối đa 300 giây
@@ -44,13 +45,14 @@ const SCHEMA = {
 const SYSTEM = `You are an expert English teacher solving a Vietnamese-school-style English multiple-choice test.
 For each question choose exactly one option label. Think carefully about grammar, vocabulary, collocation, reading comprehension, pronunciation (<u>underlined</u> letters) and stress patterns.
 "confidence" is your probability (0..1) that the answer is correct — be honest; use < 0.8 when the item is ambiguous or more than one option seems acceptable.
-"explanation": 1–2 short sentences in Vietnamese explaining why.`;
+"explanation": 1–2 short sentences in {LANG} explaining why.`;
 
 export async function POST(req: Request) {
+  const T = (k: string, v?: Vars) => translate(langOf(req), k, v);
   const user = await requireTeacher();
-  if (!user) return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: T("Chưa đăng nhập") }, { status: 401 });
   const parsed = Body.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Dữ liệu không hợp lệ" }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: T("Dữ liệu không hợp lệ") }, { status: 400 });
 
   // Gom theo passage để model đọc ngữ cảnh một lần
   const lines: string[] = [];
@@ -69,7 +71,7 @@ export async function POST(req: Request) {
     const out = await geminiJson<{ answers: { number: number; label: string; confidence: number; explanation: string }[] }>(
       [{ text: lines.join("\n\n") }],
       SCHEMA,
-      SYSTEM,
+      SYSTEM.replace("{LANG}", langOf(req) === "en" ? "English" : "Vietnamese"),
       2048 // giải đề cần suy nghĩ nhiều hơn tách câu
     );
     return NextResponse.json({

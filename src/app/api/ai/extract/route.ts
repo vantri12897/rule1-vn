@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { geminiJson } from "@/lib/gemini";
 import { aiErrorResponse, bumpUsage, requireTeacher } from "@/lib/api-auth";
+import { langOf, translate, type Vars } from "@/lib/i18n/core";
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // Vercel Hobby (Fluid compute) cho phép tối đa 300 giây
@@ -106,11 +107,12 @@ function figureOf(q: { figure_page?: number; figure_box?: number[] }) {
 }
 
 export async function POST(req: Request) {
+  const T = (k: string, v?: Vars) => translate(langOf(req), k, v);
   const user = await requireTeacher();
-  if (!user) return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: T("Chưa đăng nhập") }, { status: 401 });
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Dữ liệu không hợp lệ" }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: T("Dữ liệu không hợp lệ") }, { status: 400 });
 
   const parts: ({ text: string } | { inlineData: { mimeType: string; data: string } })[] = [];
   for (const p of parsed.data.pages) {

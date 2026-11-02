@@ -1,6 +1,7 @@
 "use client";
 import { customAlphabet } from "nanoid";
 import { supabaseBrowser } from "./supabase/client";
+import { tc } from "./i18n/client";
 
 const slugId = customAlphabet("23456789abcdefghijkmnpqrstuvwxyz", 10);
 
@@ -19,7 +20,7 @@ async function fetchAll(table: string): Promise<Row[]> {
   const out: Row[] = [];
   for (let from = 0; ; from += 1000) {
     const { data, error } = await sb.from(table).select("*").range(from, from + 999);
-    if (error) throw new Error(`Không đọc được ${table}: ${error.message}`);
+    if (error) throw new Error(tc("Không đọc được {t}: {e}", { t: table, e: error.message }));
     out.push(...(data ?? []));
     if (!data || data.length < 1000) break;
   }
@@ -46,7 +47,7 @@ async function upsertBatches(table: string, rows: Row[]) {
   const sb = supabaseBrowser();
   for (let i = 0; i < rows.length; i += 300) {
     const { error } = await sb.from(table).upsert(rows.slice(i, i + 300), { onConflict: "id", ignoreDuplicates: true });
-    if (error) throw new Error(`Lỗi khôi phục ${table}: ${error.message}`);
+    if (error) throw new Error(tc("Lỗi khôi phục {t}: {e}", { t: table, e: error.message }));
   }
 }
 
@@ -59,13 +60,13 @@ export async function restoreBackup(file: File): Promise<{ restored: number; ski
   try {
     data = JSON.parse(await file.text());
   } catch {
-    throw new Error("File không đúng định dạng sao lưu.");
+    throw new Error(tc("File không đúng định dạng sao lưu."));
   }
-  if (data?.app !== "YD-English" || !Array.isArray(data.quizzes)) throw new Error("Đây không phải file sao lưu của YD-English.");
+  if (data?.app !== "YD-English" || !Array.isArray(data.quizzes)) throw new Error(tc("Đây không phải file sao lưu của YD-English."));
 
   const sb = supabaseBrowser();
   const { data: u } = await sb.auth.getUser();
-  if (!u.user) throw new Error("Chưa đăng nhập");
+  if (!u.user) throw new Error(tc("Chưa đăng nhập"));
   const { data: existing } = await sb.from("quizzes").select("id");
   const have = new Set((existing ?? []).map((r) => r.id as string));
 
@@ -77,7 +78,7 @@ export async function restoreBackup(file: File): Promise<{ restored: number; ski
     if (error && /slug/i.test(error.message)) {
       ({ error } = await sb.from("quizzes").insert({ ...row, slug: slugId() })); // link cũ đã bị dùng → tạo link mới
     }
-    if (error) throw new Error(`Không khôi phục được đề "${q.title}": ${error.message}`);
+    if (error) throw new Error(tc("Không khôi phục được đề “{title}”: {e}", { title: String(q.title), e: error.message }));
   }
   await upsertBatches("questions", (data.questions ?? []).filter((r) => ids.has(r.quiz_id as string)));
   await upsertBatches("attempts", (data.attempts ?? []).filter((r) => ids.has(r.quiz_id as string)));

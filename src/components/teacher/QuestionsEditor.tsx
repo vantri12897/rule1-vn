@@ -7,6 +7,7 @@ import { regradeQuiz } from "@/lib/quiz-db";
 import { Html } from "@/components/QuestionText";
 import type { DraftQuestion, Quiz, QuestionRow, Section } from "@/lib/types";
 import { confirmDialog, toast } from "@/components/ui/feedback";
+import { useT } from "@/lib/i18n/client";
 
 type EditQ = DraftQuestion & { key: string };
 
@@ -26,6 +27,7 @@ export function QuestionsEditor({
   onSaved: () => void;
   onDirtyChange: (dirty: boolean) => void;
 }) {
+  const { t } = useT();
   const [items, setItems] = useState<EditQ[]>([]);
   const [sections, setSections] = useState<Section[]>(quiz.sections ?? []);
   const [dirty, setDirty] = useState(false);
@@ -84,7 +86,7 @@ export function QuestionsEditor({
       })
     );
     setDirty(true);
-    setMsg(`Đã áp ${Object.keys(map).length} đáp án từ bảng.`);
+    setMsg(t("Đã áp {n} đáp án từ bảng.", { n: Object.keys(map).length }));
     setShowBulk(false);
     setBulk("");
     void n;
@@ -135,14 +137,14 @@ export function QuestionsEditor({
       if (e3) throw e3;
 
       setDirty(false);
-      if (answerChanged && submittedCount > 0 && (await confirmDialog({ title: "Chấm lại bài đã nộp?", message: `Đáp án đã thay đổi. Chấm lại ${submittedCount} bài đã nộp theo đáp án mới?`, confirmText: "Chấm lại", cancelText: "Để sau" }))) {
+      if (answerChanged && submittedCount > 0 && (await confirmDialog({ title: t("Chấm lại bài đã nộp?"), message: t("Đáp án đã thay đổi. Chấm lại {n} bài đã nộp theo đáp án mới?", { n: submittedCount }), confirmText: t("Chấm lại"), cancelText: t("Để sau") }))) {
         const n = await regradeQuiz(quiz.id);
-        setMsg(`Đã lưu và chấm lại ${n} bài.`);
-      } else setMsg("Đã lưu thay đổi.");
-      toast("Đã lưu thay đổi");
+        setMsg(t("Đã lưu và chấm lại {n} bài.", { n }));
+      } else setMsg(t("Đã lưu thay đổi."));
+      toast(t("Đã lưu thay đổi"));
       onSaved();
     } catch (e) {
-      setMsg("Lỗi khi lưu: " + (e instanceof Error ? e.message : String(e)));
+      setMsg(t("Lỗi khi lưu: ") + (e instanceof Error ? e.message : String(e)));
     } finally {
       setSaving(false);
     }
@@ -175,26 +177,26 @@ export function QuestionsEditor({
     <div className={pdfUrl ? "grid gap-4 lg:grid-cols-2" : ""}>
       {pdfUrl && (
         <div className="hidden lg:block">
-          <iframe src={pdfUrl} className="sticky top-20 h-[calc(100vh-6rem)] w-full rounded-2xl border border-gray-200" title="PDF gốc" />
+          <iframe src={pdfUrl} className="sticky top-20 h-[calc(100vh-6rem)] w-full rounded-2xl border border-gray-200" title={t("PDF gốc")} />
         </div>
       )}
       <div>
         <div className="mb-3 flex flex-wrap items-center gap-2">
-          <FilterBtn on={filter === "all"} onClick={() => setFilter("all")}>Tất cả ({items.length})</FilterBtn>
-          <FilterBtn on={filter === "review"} onClick={() => setFilter("review")}>⚠️ Cần kiểm tra ({stats.review})</FilterBtn>
-          <FilterBtn on={filter === "missing"} onClick={() => setFilter("missing")}>Thiếu đáp án ({stats.missing})</FilterBtn>
+          <FilterBtn on={filter === "all"} onClick={() => setFilter("all")}>{t("Tất cả ({n})", { n: items.length })}</FilterBtn>
+          <FilterBtn on={filter === "review"} onClick={() => setFilter("review")}>⚠️ {t("Cần kiểm tra ({n})", { n: stats.review })}</FilterBtn>
+          <FilterBtn on={filter === "missing"} onClick={() => setFilter("missing")}>{t("Thiếu đáp án ({n})", { n: stats.missing })}</FilterBtn>
           <div className="ml-auto flex gap-2">
-            {pdfAvailable && <button className="btn-ghost border border-gray-200" onClick={openPdf}>{pdfUrl ? "Ẩn PDF" : "Xem PDF gốc"}</button>}
-            <button className="btn-ghost border border-gray-200" onClick={() => setShowBulk(!showBulk)}>Dán bảng đáp án</button>
+            {pdfAvailable && <button className="btn-ghost border border-gray-200" onClick={openPdf}>{pdfUrl ? t("Ẩn PDF") : t("Xem PDF gốc")}</button>}
+            <button className="btn-ghost border border-gray-200" onClick={() => setShowBulk(!showBulk)}>{t("Dán bảng đáp án")}</button>
           </div>
         </div>
 
         {showBulk && (
           <div className="card mb-3 p-4">
-            <textarea className="input min-h-24 font-mono text-sm" placeholder="1A 2C 3B 4D … hoặc 1-A, 2-C …" value={bulk} onChange={(e) => setBulk(e.target.value)} />
+            <textarea className="input min-h-24 font-mono text-sm" placeholder={t("1A 2C 3B 4D … hoặc 1-A, 2-C …")} value={bulk} onChange={(e) => setBulk(e.target.value)} />
             <div className="mt-2 flex items-center justify-between text-sm text-muted">
-              <span>Đọc được {Object.keys(parseAnswerKey(bulk)).length} đáp án</span>
-              <button className="btn-primary" onClick={applyBulk} disabled={!bulk.trim()}>Áp dụng</button>
+              <span>{t("Đọc được {n} đáp án", { n: Object.keys(parseAnswerKey(bulk)).length })}</span>
+              <button className="btn-primary" onClick={applyBulk} disabled={!bulk.trim()}>{t("Áp dụng")}</button>
             </div>
           </div>
         )}
@@ -211,7 +213,7 @@ export function QuestionsEditor({
                     <input
                       className="input mb-2 bg-white text-sm font-semibold"
                       value={sec!.instruction ?? ""}
-                      placeholder="Hướng dẫn phần"
+                      placeholder={t("Hướng dẫn phần")}
                       onChange={(e) => {
                         const s = [...sections];
                         s[q.section_index!] = { ...sec!, instruction: e.target.value };
@@ -237,15 +239,15 @@ export function QuestionsEditor({
               </div>
             );
           })}
-          {visible.length === 0 && <p className="card p-6 text-center text-muted">Không có câu nào trong bộ lọc này.</p>}
+          {visible.length === 0 && <p className="card p-6 text-center text-muted">{t("Không có câu nào trong bộ lọc này.")}</p>}
         </div>
 
-        <button className="btn-outline mt-4 w-full" onClick={addQuestion}>+ Thêm câu hỏi</button>
+        <button className="btn-outline mt-4 w-full" onClick={addQuestion}>{t("+ Thêm câu hỏi")}</button>
 
         <div className="sticky bottom-0 z-20 -mx-4 mt-4 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur">
           <div className="flex items-center gap-3">
-            <span className="flex-1 text-sm text-muted">{msg ?? (dirty ? "Có thay đổi chưa lưu" : "Đã lưu")}</span>
-            <button className="btn-primary" disabled={!dirty || saving} onClick={save}>{saving ? "Đang lưu…" : "Lưu thay đổi"}</button>
+            <span className="flex-1 text-sm text-muted">{msg ?? (dirty ? t("Có thay đổi chưa lưu") : t("Đã lưu"))}</span>
+            <button className="btn-primary" disabled={!dirty || saving} onClick={save}>{saving ? t("Đang lưu…") : t("Lưu thay đổi")}</button>
           </div>
         </div>
       </div>
@@ -262,25 +264,26 @@ function FilterBtn({ on, onClick, children }: { on: boolean; onClick: () => void
 }
 
 function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Partial<EditQ>) => void; onDelete: () => void }) {
+  const { t } = useT();
   const [editing, setEditing] = useState(false);
   return (
     <div className={`card p-4 ${q.needs_review ? "border-orange-300 ring-1 ring-orange-200" : !q.correct_label ? "border-red-300" : ""}`}>
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="font-bold">Câu {q.number}</span>
-        {q.answer_source === "from_pdf" && <span className="badge bg-primary-soft text-primary-dark">Từ PDF</span>}
+        <span className="font-bold">{t("Câu {n}", { n: q.number })}</span>
+        {q.answer_source === "from_pdf" && <span className="badge bg-primary-soft text-primary-dark">{t("Từ PDF")}</span>}
         {q.answer_source === "ai_solved" && (
-          <span className="badge bg-blue-50 text-blue-700">AI giải{q.confidence != null ? ` · ${Math.round(q.confidence * 100)}%` : ""}</span>
+          <span className="badge bg-blue-50 text-blue-700">{t("AI giải")}{q.confidence != null ? ` · ${Math.round(q.confidence * 100)}%` : ""}</span>
         )}
-        {q.answer_source === "manual" && q.correct_label && <span className="badge bg-gray-100 text-gray-700">Nhập tay</span>}
+        {q.answer_source === "manual" && q.correct_label && <span className="badge bg-gray-100 text-gray-700">{t("Nhập tay")}</span>}
         {q.needs_review && (
-          <button className="badge bg-orange-100 text-warn" onClick={() => onChange({ needs_review: false })} title="Bấm để xác nhận đã kiểm tra">
-            ⚠️ Cần kiểm tra · bấm để xác nhận
+          <button className="badge bg-orange-100 text-warn" onClick={() => onChange({ needs_review: false })} title={t("Bấm để xác nhận đã kiểm tra")}>
+            {t("⚠️ Cần kiểm tra · bấm để xác nhận")}
           </button>
         )}
-        {!q.correct_label && <span className="badge bg-red-50 text-danger">Thiếu đáp án</span>}
+        {!q.correct_label && <span className="badge bg-red-50 text-danger">{t("Thiếu đáp án")}</span>}
         <div className="ml-auto flex gap-1">
-          <button className="btn-ghost px-2 py-1 text-xs" onClick={() => setEditing(!editing)}>{editing ? "Xong" : "Sửa"}</button>
-          <button className="btn-ghost px-2 py-1 text-xs text-danger" onClick={async () => (await confirmDialog({ title: "Xoá câu hỏi", message: `Xoá câu ${q.number}? (Bấm “Lưu thay đổi” sau đó mới xoá hẳn.)`, confirmText: "Xoá", danger: true })) && onDelete()}>Xoá</button>
+          <button className="btn-ghost px-2 py-1 text-xs" onClick={() => setEditing(!editing)}>{editing ? "Xong" : t("Sửa")}</button>
+          <button className="btn-ghost px-2 py-1 text-xs text-danger" onClick={async () => (await confirmDialog({ title: t("Xoá câu hỏi"), message: t("Xoá câu {n}? (Bấm “Lưu thay đổi” sau đó mới xoá hẳn.)", { n: q.number }), confirmText: t("Xoá"), danger: true })) && onDelete()}>{t("Xoá")}</button>
         </div>
       </div>
 
@@ -288,7 +291,7 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
         <div className="space-y-2">
           <div className="flex gap-2">
             <input type="number" className="input w-24" value={q.number} onChange={(e) => onChange({ number: Number(e.target.value) || q.number })} />
-            <textarea className="input min-h-16 flex-1" value={q.stem} onChange={(e) => onChange({ stem: e.target.value })} placeholder="Nội dung câu hỏi (dùng <u>…</u> để gạch chân)" />
+            <textarea className="input min-h-16 flex-1" value={q.stem} onChange={(e) => onChange({ stem: e.target.value })} placeholder={t("Nội dung câu hỏi (dùng <u>…</u> để gạch chân)")} />
           </div>
           {q.options.map((o, i) => (
             <div key={i} className="flex items-center gap-2">
@@ -306,7 +309,7 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
                 className="btn-ghost border border-gray-200 text-xs"
                 onClick={() => onChange({ options: [...q.options, { label: String.fromCharCode(65 + q.options.length), text: "" }] })}
               >
-                + Phương án
+                {t("+ Phương án")}
               </button>
             )}
             {q.options.length > 2 && (
@@ -317,7 +320,7 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
                   onChange({ options: q.options.slice(0, -1), correct_label: q.correct_label === last ? null : q.correct_label });
                 }}
               >
-                − Bớt phương án
+                {t("− Bớt phương án")}
               </button>
             )}
           </div>
@@ -329,13 +332,13 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
       {q.image && (
         <div className="mb-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={q.image} alt={`Hình câu ${q.number}`} className="max-h-72 max-w-full rounded-xl border border-gray-200 object-contain" />
+          <img src={q.image} alt={t("Hình câu {n}", { n: q.number })} className="max-h-72 max-w-full rounded-xl border border-gray-200 object-contain" />
         </div>
       )}
       {editing && (
         <div className="mb-2 flex flex-wrap gap-2">
           <label className="btn-ghost cursor-pointer border border-gray-200 text-xs">
-            {q.image ? "🖼️ Thay hình" : "🖼️ Thêm hình"}
+            {q.image ? t("🖼️ Thay hình") : t("🖼️ Thêm hình")}
             <input
               type="file"
               accept="image/*"
@@ -347,14 +350,14 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
                 try {
                   onChange({ image: await fileToImageDataUrl(f) });
                 } catch {
-                  toast("Không đọc được file ảnh này.", "error");
+                  toast(t("Không đọc được file ảnh này."), "error");
                 }
               }}
             />
           </label>
           {q.image && (
             <button className="btn-ghost border border-gray-200 text-xs text-danger" onClick={() => onChange({ image: null })}>
-              Xoá hình
+              {t("Xoá hình")}
             </button>
           )}
         </div>

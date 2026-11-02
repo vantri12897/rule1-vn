@@ -1,4 +1,5 @@
 "use client";
+import { tc } from "./i18n/client";
 /* Xử lý PDF ngay trong trình duyệt: không upload nguyên file lên cloud. */
 
 type PdfDoc = {
@@ -27,8 +28,8 @@ export async function openPdf(file: File): Promise<PdfDoc> {
     };
   } catch (e) {
     const m = e instanceof Error ? e.message : String(e);
-    if (/password/i.test(m)) throw new Error("File PDF có mật khẩu. Hãy gỡ mật khẩu rồi upload lại.");
-    throw new Error("Không đọc được file PDF (file hỏng hoặc không phải PDF).");
+    if (/password/i.test(m)) throw new Error(tc("File PDF có mật khẩu. Hãy gỡ mật khẩu rồi upload lại."));
+    throw new Error(tc("Không đọc được file PDF (file hỏng hoặc không phải PDF)."));
   }
 }
 

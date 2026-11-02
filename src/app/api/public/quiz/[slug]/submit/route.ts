@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { grade } from "@/lib/grading";
 import { activeAttempt, answersToOriginal, buildResult, clientIp, GRACE_SEC, loadQuizAndAttempt, rateLimited } from "@/lib/public-quiz";
 import type { Attempt } from "@/lib/types";
+import { langOf, translate, type Vars } from "@/lib/i18n/core";
 
 const Body = z.object({
   token: z.string().uuid(),
@@ -11,15 +12,16 @@ const Body = z.object({
 });
 
 export async function POST(req: Request, ctx: { params: Promise<{ slug: string }> }) {
-  if (rateLimited(clientIp(req), 20)) return NextResponse.json({ error: "Thao tác quá nhanh, thử lại sau 1 phút" }, { status: 429 });
+  const T = (k: string, v?: Vars) => translate(langOf(req), k, v);
+  if (rateLimited(clientIp(req), 20)) return NextResponse.json({ error: T("Thao tác quá nhanh, thử lại sau 1 phút") }, { status: 429 });
   const { slug } = await ctx.params;
   const parsed = Body.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Dữ liệu bài làm không hợp lệ" }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: T("Dữ liệu bài làm không hợp lệ") }, { status: 400 });
 
   const data = await loadQuizAndAttempt(slug, parsed.data.token);
-  if (!data) return NextResponse.json({ error: "Không tìm thấy đề" }, { status: 404 });
+  if (!data) return NextResponse.json({ error: T("Không tìm thấy đề") }, { status: 404 });
   const { quiz, questions, attempt } = data;
-  if (!attempt) return NextResponse.json({ error: "Không tìm thấy bài làm. Hãy tải lại trang." }, { status: 404 });
+  if (!attempt) return NextResponse.json({ error: T("Không tìm thấy bài làm. Hãy tải lại trang.") }, { status: 404 });
   if (attempt.status === "submitted") {
     return NextResponse.json({ result: buildResult(quiz, questions, attempt) });
   }
@@ -50,7 +52,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
     .eq("status", "in_progress")
     .select("*")
     .maybeSingle<Attempt>();
-  if (error) return NextResponse.json({ error: "Không lưu được bài làm, thử lại" }, { status: 500 });
+  if (error) return NextResponse.json({ error: T("Không lưu được bài làm, thử lại") }, { status: 500 });
   const final = updated ?? (await activeAttempt(quiz.id, parsed.data.token))!;
   return NextResponse.json({ result: buildResult(quiz, questions, final), late });
 }

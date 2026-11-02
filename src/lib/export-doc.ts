@@ -1,6 +1,7 @@
 "use client";
 import { supabaseBrowser } from "./supabase/client";
 import type { Quiz, QuestionRow } from "./types";
+import { clientLang, tc } from "./i18n/client";
 
 export type ExportData = { quiz: Quiz; questions: QuestionRow[] };
 
@@ -10,7 +11,7 @@ export async function loadExportData(quizId: string): Promise<ExportData> {
     sb.from("quizzes").select("*").eq("id", quizId).single(),
     sb.from("questions").select("*").eq("quiz_id", quizId).order("position"),
   ]);
-  if (!quiz) throw new Error("Không tìm thấy đề");
+  if (!quiz) throw new Error(tc("Không tìm thấy đề"));
   return { quiz: quiz as Quiz, questions: (questions ?? []) as QuestionRow[] };
 }
 
@@ -82,7 +83,7 @@ export async function downloadDocx({ quiz, questions }: ExportData, withAnswers:
     })
   );
   if (withAnswers) {
-    children.push(new d.Paragraph({ alignment: d.AlignmentType.CENTER, children: [new d.TextRun({ text: "(BẢN CÓ ĐÁP ÁN – DÀNH CHO GIÁO VIÊN)", italics: true, size: 22, font: FONT, color: "15803D" })] }));
+    children.push(new d.Paragraph({ alignment: d.AlignmentType.CENTER, children: [new d.TextRun({ text: tc("(BẢN CÓ ĐÁP ÁN – DÀNH CHO GIÁO VIÊN)"), italics: true, size: 22, font: FONT, color: "15803D" })] }));
   }
   children.push(
     new d.Paragraph({
@@ -90,7 +91,7 @@ export async function downloadDocx({ quiz, questions }: ExportData, withAnswers:
       spacing: { after: 240 },
       children: [
         new d.TextRun({
-          text: `Số câu: ${questions.length}${quiz.time_limit_min ? `   ·   Thời gian: ${quiz.time_limit_min} phút` : ""}`,
+          text: tc("Số câu: {n}", { n: questions.length }) + (quiz.time_limit_min ? `   ·   ${tc("Thời gian: {n} phút", { n: quiz.time_limit_min })}` : ""),
           size: 22,
           font: FONT,
         }),
@@ -98,7 +99,7 @@ export async function downloadDocx({ quiz, questions }: ExportData, withAnswers:
     }),
     new d.Paragraph({
       spacing: { after: 240 },
-      children: [new d.TextRun({ text: "Họ và tên: ..............................................................   Lớp: ....................", size: 24, font: FONT })],
+      children: [new d.TextRun({ text: tc("Họ và tên: ..............................................................   Lớp: ...................."), size: 24, font: FONT })],
     })
   );
 
@@ -119,7 +120,7 @@ export async function downloadDocx({ quiz, questions }: ExportData, withAnswers:
       new d.Paragraph({
         spacing: { before: 160, after: 60 },
         keepNext: true,
-        children: [new d.TextRun({ text: `Câu ${q.number}. `, bold: true, size: 24, font: FONT }), ...runs(parseInline(q.stem))],
+        children: [new d.TextRun({ text: tc("Câu {n}.", { n: q.number }) + " ", bold: true, size: 24, font: FONT }), ...runs(parseInline(q.stem))],
       })
     );
     if (q.image) {
@@ -163,12 +164,12 @@ export async function downloadDocx({ quiz, questions }: ExportData, withAnswers:
       );
     }
     if (withAnswers && q.explanation) {
-      children.push(new d.Paragraph({ indent: { left: 360 }, children: [new d.TextRun({ text: `Giải thích: ${q.explanation}`, italics: true, size: 20, font: FONT, color: "6B7280" })] }));
+      children.push(new d.Paragraph({ indent: { left: 360 }, children: [new d.TextRun({ text: `${tc("Giải thích:")} ${q.explanation}`, italics: true, size: 20, font: FONT, color: "6B7280" })] }));
     }
   }
 
   if (withAnswers) {
-    children.push(new d.Paragraph({ pageBreakBefore: true, alignment: d.AlignmentType.CENTER, spacing: { after: 200 }, children: [new d.TextRun({ text: "BẢNG ĐÁP ÁN", bold: true, size: 28, font: FONT })] }));
+    children.push(new d.Paragraph({ pageBreakBefore: true, alignment: d.AlignmentType.CENTER, spacing: { after: 200 }, children: [new d.TextRun({ text: tc("BẢNG ĐÁP ÁN"), bold: true, size: 28, font: FONT })] }));
     const perRow = 10;
     const rows: InstanceType<typeof d.TableRow>[] = [];
     for (let i = 0; i < questions.length; i += perRow) {
@@ -202,7 +203,7 @@ export async function downloadDocx({ quiz, questions }: ExportData, withAnswers:
   const blob = await d.Packer.toBlob(doc);
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `${safeName(quiz.title)}${withAnswers ? "_co_dap_an" : ""}.docx`;
+  a.download = `${safeName(quiz.title)}${withAnswers ? (clientLang() === "en" ? "_answer_key" : "_co_dap_an") : ""}.docx`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 }

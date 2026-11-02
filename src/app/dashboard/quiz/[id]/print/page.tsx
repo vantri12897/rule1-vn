@@ -3,8 +3,10 @@ import { Suspense, use, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { loadExportData, optionLayout, type ExportData } from "@/lib/export-doc";
 import { Html } from "@/components/QuestionText";
+import { useT } from "@/lib/i18n/client";
 
 function PrintView({ id }: { id: string }) {
+  const { t } = useT();
   const withAnswers = useSearchParams().get("key") === "1";
   const [data, setData] = useState<ExportData | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -16,13 +18,13 @@ function PrintView({ id }: { id: string }) {
   // Tự mở hộp thoại in khi đã tải xong hình
   useEffect(() => {
     if (!data) return;
-    document.title = `${data.quiz.title}${withAnswers ? " (có đáp án)" : ""}`;
+    document.title = `${data.quiz.title}${withAnswers ? t(" (có đáp án)") : ""}`;
     const imgs = [...document.images];
     Promise.all(imgs.map((i) => (i.complete ? Promise.resolve() : i.decode().catch(() => {})))).then(() => setTimeout(() => window.print(), 400));
   }, [data, withAnswers]);
 
   if (err) return <p className="text-danger">{err}</p>;
-  if (!data) return <p className="text-muted">Đang chuẩn bị bản in…</p>;
+  if (!data) return <p className="text-muted">{t("Đang chuẩn bị bản in…")}</p>;
   const { quiz, questions } = data;
   let lastSec: number | null = null;
 
@@ -35,17 +37,17 @@ function PrintView({ id }: { id: string }) {
         @media print { body { background: #fff !important; } }
       `}</style>
       <div className="mb-4 rounded-xl bg-primary-soft p-3 text-sm text-primary-dark print:hidden" style={{ fontFamily: "inherit" }}>
-        Hộp thoại in sẽ tự mở. Muốn lưu PDF: chọn máy in <b>“Lưu dưới dạng PDF” / “Save as PDF”</b>.{" "}
-        <button className="btn-primary ml-2 px-3 py-1" onClick={() => window.print()}>In / Lưu PDF</button>
+        {t("Hộp thoại in sẽ tự mở. Muốn lưu PDF: chọn máy in")} <b>{t("“Lưu dưới dạng PDF” / “Save as PDF”")}</b>.{" "}
+        <button className="btn-primary ml-2 px-3 py-1" onClick={() => window.print()}>{t("In / Lưu PDF")}</button>
       </div>
 
       <h1 className="text-center text-[16pt] font-bold uppercase">{quiz.title}</h1>
-      {withAnswers && <p className="text-center italic text-green-700">(Bản có đáp án – dành cho giáo viên)</p>}
+      {withAnswers && <p className="text-center italic text-green-700">{t("(Bản có đáp án – dành cho giáo viên)")}</p>}
       <p className="text-center">
-        Số câu: {questions.length}
-        {quiz.time_limit_min ? ` · Thời gian: ${quiz.time_limit_min} phút` : ""}
+        {t("Số câu: {n}", { n: questions.length })}
+        {quiz.time_limit_min ? ` · ${t("Thời gian: {n} phút", { n: quiz.time_limit_min })}` : ""}
       </p>
-      <p className="mb-4 mt-3">Họ và tên: ......................................................................... Lớp: ....................</p>
+      <p className="mb-4 mt-3">{t("Họ và tên: ......................................................................... Lớp: ....................")}</p>
 
       {questions.map((q) => {
         const sec = q.section_index != null ? quiz.sections?.[q.section_index] : null;
@@ -62,7 +64,7 @@ function PrintView({ id }: { id: string }) {
             )}
             <div className="q mt-3">
               <p>
-                <b>Câu {q.number}.</b> <Html text={q.stem} />
+                <b>{t("Câu {n}.", { n: q.number })}</b> <Html text={q.stem} />
               </p>
               {q.image && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -78,7 +80,7 @@ function PrintView({ id }: { id: string }) {
                   );
                 })}
               </div>
-              {withAnswers && q.explanation && <p className="ml-5 text-[10pt] italic text-gray-600">Giải thích: {q.explanation}</p>}
+              {withAnswers && q.explanation && <p className="ml-5 text-[10pt] italic text-gray-600">{t("Giải thích:")} {q.explanation}</p>}
             </div>
           </div>
         );
@@ -86,7 +88,7 @@ function PrintView({ id }: { id: string }) {
 
       {withAnswers && (
         <div style={{ breakBefore: "page" }} className="mt-8">
-          <h2 className="mb-3 text-center text-[14pt] font-bold">BẢNG ĐÁP ÁN</h2>
+          <h2 className="mb-3 text-center text-[14pt] font-bold">{t("BẢNG ĐÁP ÁN")}</h2>
           <div className="grid grid-cols-10 border-l border-t border-black">
             {questions.map((q) => (
               <div key={q.id} className="border-b border-r border-black py-1 text-center font-bold">

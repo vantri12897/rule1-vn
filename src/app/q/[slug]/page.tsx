@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import { loadQuizBySlug } from "@/lib/public-quiz";
 import { TakeQuiz, type QuizInfo } from "@/components/student/TakeQuiz";
+import { getT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -26,11 +27,12 @@ const info = cache(async (slug: string): Promise<QuizInfo | null> => {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const q = await info(slug);
-  if (!q) return { title: "Bài kiểm tra – YD-English" };
+  const { t } = await getT();
+  if (!q) return { title: t("Bài kiểm tra – YD-English") };
   return {
     title: `${q.title} – YD-English`,
-    description: `Bài kiểm tra trắc nghiệm tiếng Anh · ${q.question_count} câu${q.time_limit_min ? ` · ${q.time_limit_min} phút` : ""}`,
-    openGraph: { title: q.title, description: `Làm bài trắc nghiệm ${q.question_count} câu trên YD-English`, siteName: "YD-English" },
+    description: t("Bài kiểm tra trắc nghiệm tiếng Anh · {n} câu", { n: q.question_count }) + (q.time_limit_min ? ` · ${t("{n} phút", { n: q.time_limit_min })}` : ""),
+    openGraph: { title: q.title, description: t("Làm bài trắc nghiệm {n} câu trên YD-English", { n: q.question_count }), siteName: "YD-English" },
   };
 }
 

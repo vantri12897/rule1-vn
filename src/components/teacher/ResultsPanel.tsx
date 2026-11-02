@@ -6,6 +6,7 @@ import { fmtDate, fmtDuration } from "@/lib/ui";
 import type { Attempt, Quiz, QuestionRow } from "@/lib/types";
 import { confirmDialog, toast } from "@/components/ui/feedback";
 import { Skel } from "@/components/ui/Skeleton";
+import { useT } from "@/lib/i18n/client";
 
 export function ResultsPanel({
   quiz,
@@ -16,6 +17,7 @@ export function ResultsPanel({
   questions: QuestionRow[];
   onCountChange: (n: number) => void;
 }) {
+  const { t } = useT();
   const [attempts, setAttempts] = useState<Attempt[] | null>(null);
   const [open, setOpen] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -66,52 +68,52 @@ export function ResultsPanel({
   }, [questions, submitted]);
 
   async function resetOne(a: Attempt) {
-    if (!(await confirmDialog({ title: "Reset bài làm", message: `Reset bài của "${a.student_name}"? Học viên sẽ làm lại được qua cùng link. Bài cũ được lưu vào lịch sử.`, confirmText: "Reset", danger: true }))) return;
+    if (!(await confirmDialog({ title: t("Reset bài làm"), message: t("Reset bài của “{name}”? Học viên sẽ làm lại được qua cùng link. Bài cũ được lưu vào lịch sử.", { name: a.student_name }), confirmText: "Reset", danger: true }))) return;
     const sb = supabaseBrowser();
     const { data: u } = await sb.auth.getUser();
     await sb.from("attempts").update({ status: "archived" }).eq("id", a.id);
     await sb.from("reset_logs").insert({ quiz_id: quiz.id, attempt_id: a.id, scope: "single", reset_by: u.user?.id });
-    toast(`Đã reset bài của ${a.student_name}`);
+    toast(t("Đã reset bài của {name}", { name: a.student_name }));
     load();
   }
 
   async function deleteHistory(one?: Attempt) {
     const ok = await confirmDialog(
       one
-        ? { title: "Xoá bài trong lịch sử", message: `Xoá vĩnh viễn bài đã reset của "${one.student_name}"? Không thể hoàn tác.`, confirmText: "Xoá", danger: true }
-        : { title: "Xoá toàn bộ lịch sử", message: `Xoá vĩnh viễn ${archived.length} bài đã reset của đề này? Không thể hoàn tác.\n\nBài đang làm và bài đã nộp hiện tại không bị ảnh hưởng.`, confirmText: "Xoá lịch sử", danger: true }
+        ? { title: t("Xoá bài trong lịch sử"), message: t("Xoá vĩnh viễn bài đã reset của “{name}”? Không thể hoàn tác.", { name: one.student_name }), confirmText: t("Xoá"), danger: true }
+        : { title: t("Xoá toàn bộ lịch sử"), message: t("Xoá vĩnh viễn {n} bài đã reset của đề này? Không thể hoàn tác.\n\nBài đang làm và bài đã nộp hiện tại không bị ảnh hưởng.", { n: archived.length }), confirmText: t("Xoá lịch sử"), danger: true }
     );
     if (!ok) return;
     const sb = supabaseBrowser();
     const q = sb.from("attempts").delete().eq("quiz_id", quiz.id).eq("status", "archived");
     const { error } = one ? await q.eq("id", one.id) : await q;
-    if (error) return toast("Không xoá được: " + error.message, "error");
+    if (error) return toast(t("Không xoá được: ") + error.message, "error");
     if (!one) await sb.from("reset_logs").delete().eq("quiz_id", quiz.id);
-    toast(one ? `Đã xoá bài của ${one.student_name} khỏi lịch sử` : "Đã xoá toàn bộ lịch sử");
+    toast(one ? t("Đã xoá bài của {name} khỏi lịch sử", { name: one.student_name }) : t("Đã xoá toàn bộ lịch sử"));
     load();
   }
 
   async function resetAll() {
     if (!active.length) return;
-    if (!(await confirmDialog({ title: "Reset toàn bộ", message: `Reset TOÀN BỘ ${active.length} bài làm của đề này? Mọi học viên sẽ làm lại từ đầu.`, confirmText: "Reset toàn bộ", danger: true }))) return;
+    if (!(await confirmDialog({ title: t("Reset toàn bộ"), message: t("Reset TOÀN BỘ {n} bài làm của đề này? Mọi học viên sẽ làm lại từ đầu.", { n: active.length }), confirmText: t("Reset toàn bộ"), danger: true }))) return;
     const sb = supabaseBrowser();
     const { data: u } = await sb.auth.getUser();
     await sb.from("attempts").update({ status: "archived" }).eq("quiz_id", quiz.id).neq("status", "archived");
     await sb.from("reset_logs").insert({ quiz_id: quiz.id, scope: "all", reset_by: u.user?.id });
-    toast("Đã reset toàn bộ bài làm");
+    toast(t("Đã reset toàn bộ bài làm"));
     load();
   }
 
   async function regrade() {
     setBusy(true);
     const n = await regradeQuiz(quiz.id);
-    setMsg(`Đã chấm lại ${n} bài theo đáp án hiện tại.`);
+    setMsg(t("Đã chấm lại {n} bài theo đáp án hiện tại.", { n }));
     setBusy(false);
     load();
   }
 
   function exportCsv() {
-    const header = ["STT", "Họ tên", "Lớp/Mã", "Điểm", "Tổng", "%", "Bắt đầu", "Nộp lúc", "Thời gian làm", ...questions.map((q) => `Câu ${q.number}`)];
+    const header = [t("STT"), t("Họ tên"), t("Lớp/Mã"), t("Điểm"), t("Tổng"), "%", t("Bắt đầu"), t("Nộp lúc"), t("Thời gian làm"), ...questions.map((q) => t("Câu {n}", { n: q.number }))];
     const rows = submitted.map((a, i) => [
       i + 1,
       a.student_name,
@@ -152,37 +154,37 @@ export function ResultsPanel({
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-3 gap-3">
-        <Stat value={submitted.length} label="đã nộp" tone="green" />
-        <Stat value={active.length - submitted.length} label="đang làm" tone="sky" />
-        <Stat value={avg == null ? "—" : `${Math.round(avg * 100)}%`} label="điểm TB" tone="sun" />
+        <Stat value={submitted.length} label={t("đã nộp")} tone="green" />
+        <Stat value={active.length - submitted.length} label={t("đang làm")} tone="sky" />
+        <Stat value={avg == null ? "—" : `${Math.round(avg * 100)}%`} label={t("điểm TB")} tone="sun" />
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <button className="btn-outline" onClick={exportCsv} disabled={!submitted.length}>⬇️ Xuất Excel (CSV)</button>
-        <button className="btn-outline" onClick={regrade} disabled={busy || !submitted.length}>↻ Chấm lại toàn bộ</button>
-        <button className="btn-danger ml-auto" onClick={resetAll} disabled={!active.length}>Reset toàn bộ</button>
+        <button className="btn-outline" onClick={exportCsv} disabled={!submitted.length}>{t("⬇️ Xuất Excel (CSV)")}</button>
+        <button className="btn-outline" onClick={regrade} disabled={busy || !submitted.length}>{t("↻ Chấm lại toàn bộ")}</button>
+        <button className="btn-danger ml-auto" onClick={resetAll} disabled={!active.length}>{t("Reset toàn bộ")}</button>
       </div>
       {msg && <p className="rounded-xl bg-primary-soft p-3 text-sm text-primary-dark">{msg}</p>}
       {dupNames.size > 0 && (
-        <p className="rounded-xl bg-orange-50 p-3 text-sm text-warn">⚠️ Có nhiều bài trùng họ tên (tô cam bên dưới) — có thể một học viên làm trên nhiều thiết bị.</p>
+        <p className="rounded-xl bg-orange-50 p-3 text-sm text-warn">{t("⚠️ Có nhiều bài trùng họ tên (tô cam bên dưới) — có thể một học viên làm trên nhiều thiết bị.")}</p>
       )}
 
       <div className="card overflow-hidden">
         <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-          <h3 className="font-bold">Bảng kết quả</h3>
-          <span className="text-xs text-muted">Tự cập nhật mỗi 5 giây</span>
+          <h3 className="font-bold">{t("Bảng kết quả")}</h3>
+          <span className="text-xs text-muted">{t("Tự cập nhật mỗi 5 giây")}</span>
         </div>
         {active.length === 0 ? (
-          <p className="p-6 text-center text-sm text-muted">Chưa có học viên nào làm bài.</p>
+          <p className="p-6 text-center text-sm text-muted">{t("Chưa có học viên nào làm bài.")}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-left text-xs uppercase text-muted">
                 <tr>
-                  <th className="px-4 py-2">Họ tên</th>
-                  <th className="px-4 py-2">Điểm</th>
-                  <th className="hidden px-4 py-2 sm:table-cell">Thời gian</th>
-                  <th className="hidden px-4 py-2 sm:table-cell">Nộp lúc</th>
+                  <th className="px-4 py-2">{t("Họ tên")}</th>
+                  <th className="px-4 py-2">{t("Điểm")}</th>
+                  <th className="hidden px-4 py-2 sm:table-cell">{t("Thời gian")}</th>
+                  <th className="hidden px-4 py-2 sm:table-cell">{t("Nộp lúc")}</th>
                   <th className="px-4 py-2"></th>
                 </tr>
               </thead>
@@ -204,7 +206,7 @@ export function ResultsPanel({
                             <span className="text-xs font-normal text-muted">({a.total ? Math.round((100 * (a.score ?? 0)) / a.total) : 0}%)</span>
                           </span>
                         ) : (
-                          <span className="badge bg-blue-50 text-blue-700">Đang làm</span>
+                          <span className="badge bg-blue-50 text-blue-700">{t("Đang làm")}</span>
                         )}
                       </td>
                       <td className="hidden px-4 py-3 sm:table-cell">{fmtDuration(a.started_at, a.submitted_at)}</td>
@@ -231,7 +233,7 @@ export function ResultsPanel({
                               return (
                                 <span
                                   key={q.id}
-                                  title={`Câu ${q.number}: chọn ${s ?? "—"}, đúng ${q.correct_label}`}
+                                  title={t("Câu {n}: chọn {s}, đúng {c}", { n: q.number, s: s ?? "—", c: q.correct_label })}
                                   className={`rounded-lg px-2 py-1 text-xs font-semibold ${ok ? "bg-primary-soft text-primary-dark" : "bg-red-50 text-danger"}`}
                                 >
                                   {q.number}: {s ?? "—"} {ok ? "✓" : `✗(${q.correct_label ?? "—"})`}
@@ -252,17 +254,17 @@ export function ResultsPanel({
 
       {submitted.length > 0 && (
         <div className="card p-4">
-          <h3 className="mb-3 font-bold">Thống kê từng câu</h3>
-          <p className="mb-3 text-xs text-muted">Câu có tỉ lệ đúng rất thấp nên xem lại — có thể câu khó, hoặc đáp án đang bị đặt sai.</p>
+          <h3 className="mb-3 font-bold">{t("Thống kê từng câu")}</h3>
+          <p className="mb-3 text-xs text-muted">{t("Câu có tỉ lệ đúng rất thấp nên xem lại — có thể câu khó, hoặc đáp án đang bị đặt sai.")}</p>
           <div className="space-y-2">
             {qStats.map(({ q, pct, wrong }) => (
               <div key={q.id} className="flex items-center gap-3 text-sm">
-                <span className="w-14 shrink-0 font-semibold">Câu {q.number}</span>
+                <span className="w-20 shrink-0 font-semibold">{t("Câu {n}", { n: q.number })}</span>
                 <div className="h-3 flex-1 overflow-hidden rounded-full bg-gray-100">
                   <div className={`h-full ${pct < 30 ? "bg-danger" : pct < 60 ? "bg-warn" : "bg-primary"}`} style={{ width: `${pct}%` }} />
                 </div>
                 <span className="w-12 text-right">{Math.round(pct)}%</span>
-                <span className="hidden w-40 text-xs text-muted sm:inline">{wrong ? `Sai nhiều: ${wrong[0]} (${wrong[1]})` : ""}</span>
+                <span className="hidden w-40 text-xs text-muted sm:inline">{wrong ? t("Sai nhiều: {l} ({n})", { l: wrong[0], n: wrong[1] }) : ""}</span>
               </div>
             ))}
           </div>
@@ -272,14 +274,14 @@ export function ResultsPanel({
       {archived.length > 0 && (
         <div>
           <button className="text-sm text-primary-dark hover:underline" onClick={() => setShowHistory(!showHistory)}>
-            {showHistory ? "Ẩn" : "Xem"} lịch sử bài đã reset ({archived.length})
+            {showHistory ? t("Ẩn lịch sử bài đã reset ({n})", { n: archived.length }) : t("Xem lịch sử bài đã reset ({n})", { n: archived.length })}
           </button>
           {showHistory && (
             <div className="card mt-2 overflow-hidden">
               <div className="flex items-center justify-between gap-2 border-b border-gray-100 bg-gray-50 px-4 py-2">
-                <span className="text-xs text-muted">Bài cũ của học viên trước khi bị reset</span>
+                <span className="text-xs text-muted">{t("Bài cũ của học viên trước khi bị reset")}</span>
                 <button className="btn-danger px-3 py-1.5 text-xs" onClick={() => deleteHistory()}>
-                  🗑️ Xoá toàn bộ lịch sử
+                  {t("🗑️ Xoá toàn bộ lịch sử")}
                 </button>
               </div>
               <div className="divide-y divide-gray-100">
@@ -287,14 +289,14 @@ export function ResultsPanel({
                   <div key={a.id} className="flex items-center gap-3 px-4 py-2 text-sm">
                     <span className="min-w-0 flex-1 truncate">{a.student_name}</span>
                     <span className="shrink-0 text-muted">
-                      {a.score != null ? `${a.score}/${a.total}` : "chưa nộp"} · {fmtDate(a.submitted_at ?? a.started_at)}
+                      {a.score != null ? `${a.score}/${a.total}` : t("chưa nộp")} · {fmtDate(a.submitted_at ?? a.started_at)}
                     </span>
                     <button
                       className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-danger hover:bg-red-50"
-                      aria-label={`Xoá bài của ${a.student_name} khỏi lịch sử`}
+                      aria-label={t("Xoá bài của {name} khỏi lịch sử", { name: a.student_name })}
                       onClick={() => deleteHistory(a)}
                     >
-                      Xoá
+                      {t("Xoá")}
                     </button>
                   </div>
                 ))}

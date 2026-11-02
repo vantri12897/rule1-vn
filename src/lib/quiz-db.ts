@@ -2,6 +2,7 @@
 import { customAlphabet } from "nanoid";
 import { supabaseBrowser } from "./supabase/client";
 import type { DraftQuestion, Section } from "./types";
+import { tc } from "./i18n/client";
 
 const slugId = customAlphabet("23456789abcdefghijkmnpqrstuvwxyz", 10);
 
@@ -13,19 +14,19 @@ export async function createQuiz(input: {
 }): Promise<string> {
   const sb = supabaseBrowser();
   const { data: u } = await sb.auth.getUser();
-  if (!u.user) throw new Error("Chưa đăng nhập");
+  if (!u.user) throw new Error(tc("Chưa đăng nhập"));
   const { data: quiz, error } = await sb
     .from("quizzes")
     .insert({
       owner_id: u.user.id,
-      title: input.title.trim() || "Đề trắc nghiệm",
+      title: input.title.trim() || tc("Đề trắc nghiệm"),
       slug: slugId(),
       sections: input.sections,
       source_file_hash: input.source_file_hash ?? null,
     })
     .select("id")
     .single();
-  if (error || !quiz) throw new Error("Không lưu được đề: " + (error?.message ?? ""));
+  if (error || !quiz) throw new Error(tc("Không lưu được đề: ") + (error?.message ?? ""));
   if (input.questions.length) {
     const rows = input.questions.map((q, i) => ({
       quiz_id: quiz.id,
@@ -42,7 +43,7 @@ export async function createQuiz(input: {
       image: q.image ?? null,
     }));
     const { error: e2 } = await sb.from("questions").insert(rows);
-    if (e2) throw new Error("Không lưu được câu hỏi: " + e2.message);
+    if (e2) throw new Error(tc("Không lưu được câu hỏi: ") + e2.message);
   }
   return quiz.id;
 }
@@ -68,9 +69,9 @@ export async function duplicateQuiz(quizId: string): Promise<string> {
   const sb = supabaseBrowser();
   const { data: q } = await sb.from("quizzes").select("*").eq("id", quizId).single();
   const { data: qs } = await sb.from("questions").select("*").eq("quiz_id", quizId).order("position");
-  if (!q) throw new Error("Không tìm thấy đề");
+  if (!q) throw new Error(tc("Không tìm thấy đề"));
   return createQuiz({
-    title: `${q.title} (bản sao)`,
+    title: `${q.title} ${tc("(bản sao)")}`,
     sections: q.sections,
     source_file_hash: q.source_file_hash,
     questions: (qs ?? []).map((x) => ({

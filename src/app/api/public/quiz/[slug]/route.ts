@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { buildResult, deadlineOf, loadQuizAndAttempt, toPublicQuestions } from "@/lib/public-quiz";
+import { langOf, translate, type Vars } from "@/lib/i18n/core";
 
 export const dynamic = "force-dynamic";
 
 /** Lấy đề cho học viên — tuyệt đối không trả correct_label trước khi nộp */
 export async function GET(req: Request, ctx: { params: Promise<{ slug: string }> }) {
+  const T = (k: string, v?: Vars) => translate(langOf(req), k, v);
   const { slug } = await ctx.params;
   const token = new URL(req.url).searchParams.get("token");
   const data = await loadQuizAndAttempt(slug, token);
-  if (!data) return NextResponse.json({ error: "Không tìm thấy đề hoặc đề chưa được xuất bản" }, { status: 404 });
+  if (!data) return NextResponse.json({ error: T("Không tìm thấy đề hoặc đề chưa được xuất bản") }, { status: 404 });
   const { quiz, questions, attempt } = data;
 
   const base = {

@@ -2,9 +2,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Html } from "@/components/QuestionText";
 import { safeHtml } from "@/lib/sanitize";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import type { PublicQuestion, Section } from "@/lib/types";
 import { confirmDialog } from "@/components/ui/feedback";
 import { StudentSkeleton } from "@/components/ui/Skeleton";
+import { useT } from "@/lib/i18n/client";
 
 export type QuizInfo = { title: string; status: "open" | "closed"; sections: Section[]; time_limit_min: number | null; question_count: number };
 type Result = {
@@ -26,6 +28,7 @@ function getToken(): string {
 }
 
 export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: QuizInfo | null }) {
+  const { t } = useT();
   // Đề đang mở → hiện ngay form nhập tên từ máy chủ (không phải chờ tải); học viên quay lại sẽ được chuyển sang bài đang làm/kết quả
   const [view, setView] = useState<View>(initialQuiz ? (initialQuiz.status === "open" ? "name" : "loading") : "notfound");
   // Thông tin đề được máy chủ gửi sẵn → tên đề hiện ngay, không phải chờ tải
@@ -92,7 +95,7 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
     });
     const data = await r.json().catch(() => ({}));
     setBusy(false);
-    if (!r.ok) return setError(data.error || "Không bắt đầu được, thử lại.");
+    if (!r.ok) return setError(data.error || t("Không bắt đầu được, thử lại."));
     localStorage.setItem(startedKey, "1");
     if (data.result) {
       // Thiết bị này đã nộp bài đề này từ trước → hiện lại kết quả
@@ -109,8 +112,8 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
     async (auto = false) => {
       if (busy) return;
       const unanswered = questions.length - Object.keys(answers).filter((k) => questions.some((q) => q.id === k)).length;
-      if (!auto && unanswered > 0 && !(await confirmDialog({ title: "Còn câu chưa làm", message: `Bạn còn ${unanswered} câu chưa làm. Vẫn nộp bài?`, confirmText: "Vẫn nộp", cancelText: "Làm tiếp" }))) return;
-      if (!auto && unanswered === 0 && !(await confirmDialog({ title: "Nộp bài", message: "Nộp bài? Sau khi nộp sẽ không sửa được.", confirmText: "Nộp bài", cancelText: "Xem lại" }))) return;
+      if (!auto && unanswered > 0 && !(await confirmDialog({ title: t("Còn câu chưa làm"), message: t("Bạn còn {n} câu chưa làm. Vẫn nộp bài?", { n: unanswered }), confirmText: t("Vẫn nộp"), cancelText: t("Làm tiếp") }))) return;
+      if (!auto && unanswered === 0 && !(await confirmDialog({ title: t("Nộp bài"), message: t("Nộp bài? Sau khi nộp sẽ không sửa được."), confirmText: t("Nộp bài"), cancelText: t("Xem lại") }))) return;
       setBusy(true);
       setError(null);
       for (let i = 0; i < 3; i++) {
@@ -129,13 +132,13 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
             setBusy(false);
             return;
           }
-          setError(data.error || "Nộp bài thất bại");
+          setError(data.error || t("Nộp bài thất bại"));
           break;
         } catch {
           await new Promise((res) => setTimeout(res, 2000));
         }
       }
-      setError((e) => e ?? "Mất kết nối. Bài làm vẫn được giữ trên máy — kiểm tra mạng rồi bấm Nộp bài lại.");
+      setError((e) => e ?? t("Mất kết nối. Bài làm vẫn được giữ trên máy — kiểm tra mạng rồi bấm Nộp bài lại."));
       setBusy(false);
     },
     [answers, busy, questions, slug, ansKey]
@@ -152,6 +155,7 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
             {studentName && <div className="truncate text-xs text-muted">{studentName}</div>}
           </div>
           {view === "taking" && deadline && <Countdown deadline={deadline} offset={clockOffset} onEnd={() => submit(true)} />}
+          <LanguageSwitcher compact />
         </div>
         {view === "taking" && <Progress done={questions.filter((q) => answers[q.id]).length} total={questions.length} />}
       </header>
@@ -162,7 +166,7 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
             <div className="card mt-4 p-6 text-center">
               <h1 className="text-xl font-bold">{quiz.title}</h1>
               <p className="mt-1 text-sm text-muted">
-                {quiz.question_count} câu{quiz.time_limit_min ? ` · ${quiz.time_limit_min} phút` : ""}
+                {t("{n} câu", { n: quiz.question_count })}{quiz.time_limit_min ? ` · ${t("{n} phút", { n: quiz.time_limit_min })}` : ""}
               </p>
               <div className="mx-auto mt-5 h-1.5 w-24 overflow-hidden rounded-full bg-primary-line">
                 <div className="h-full w-1/2 animate-pulse bg-primary" />
@@ -171,8 +175,8 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
           ) : (
             <StudentSkeleton />
           ))}
-        {view === "notfound" && <Message title="Không tìm thấy bài kiểm tra" text="Link không đúng hoặc đề chưa được giáo viên xuất bản." />}
-        {view === "closed" && <Message title="Đề đã đóng" text="Giáo viên đã ngừng nhận bài cho đề này." />}
+        {view === "notfound" && <Message title={t("Không tìm thấy bài kiểm tra")} text={t("Link không đúng hoặc đề chưa được giáo viên xuất bản.")} />}
+        {view === "closed" && <Message title={t("Đề đã đóng")} text={t("Giáo viên đã ngừng nhận bài cho đề này.")} />}
         {view === "name" && quiz && <NameForm quiz={quiz} busy={busy} error={error} onStart={start} />}
         {view === "taking" && quiz && (
           <TakingView quiz={quiz} questions={questions} answers={answers} setAnswers={setAnswers} busy={busy} error={error} onSubmit={() => submit(false)} />
@@ -195,6 +199,7 @@ function Message({ title, text }: { title: string; text: string }) {
 }
 
 function NameForm({ quiz, busy, error, onStart }: { quiz: QuizInfo; busy: boolean; error: string | null; onStart: (n: string, c: string) => void }) {
+  const { t } = useT();
   const [name, setName] = useState("");
   const [cls, setCls] = useState("");
   return (
@@ -209,23 +214,23 @@ function NameForm({ quiz, busy, error, onStart }: { quiz: QuizInfo; busy: boolea
         <div className="mx-auto mb-2 grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl shadow-sm" aria-hidden>📝</div>
         <h1 className="text-xl font-bold">{quiz.title}</h1>
         <div className="mt-3 flex flex-wrap justify-center gap-2 text-sm">
-          <span className="rounded-full bg-white px-3 py-1 font-semibold text-primary-dark shadow-sm">📋 {quiz.question_count} câu</span>
+          <span className="rounded-full bg-white px-3 py-1 font-semibold text-primary-dark shadow-sm">📋 {t("{n} câu", { n: quiz.question_count })}</span>
           <span className="rounded-full bg-white px-3 py-1 font-semibold text-sun-ink shadow-sm">
-            ⏱ {quiz.time_limit_min ? `${quiz.time_limit_min} phút` : "Không giới hạn"}
+            ⏱ {quiz.time_limit_min ? t("{n} phút", { n: quiz.time_limit_min }) : t("Không giới hạn")}
           </span>
         </div>
       </div>
       <div>
-        <label htmlFor="f41519" className="label">Họ và tên *</label>
-        <input id="f41519" className="input" required maxLength={80} value={name} onChange={(e) => setName(e.target.value)} placeholder="Nguyễn Văn A" autoFocus />
+        <label htmlFor="f41519" className="label">{t("Họ và tên *")}</label>
+        <input id="f41519" className="input" required maxLength={80} value={name} onChange={(e) => setName(e.target.value)} placeholder={t("Nguyễn Văn A")} autoFocus />
       </div>
       <div>
-        <label htmlFor="f24574" className="label">Lớp / Mã học viên</label>
-        <input id="f24574" className="input" maxLength={60} value={cls} onChange={(e) => setCls(e.target.value)} placeholder="Không bắt buộc" />
+        <label htmlFor="f24574" className="label">{t("Lớp / Mã học viên")}</label>
+        <input id="f24574" className="input" maxLength={60} value={cls} onChange={(e) => setCls(e.target.value)} placeholder={t("Không bắt buộc")} />
       </div>
       {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-danger">{error}</p>}
-      <button className="btn-primary w-full py-3 text-base" disabled={busy || !name.trim()}>{busy ? "Đang vào…" : "Bắt đầu làm bài"}</button>
-      {quiz.time_limit_min && <p className="text-center text-xs text-muted">Đồng hồ bắt đầu chạy ngay khi bạn bấm nút. Hết giờ bài tự nộp.</p>}
+      <button className="btn-primary w-full py-3 text-base" disabled={busy || !name.trim()}>{busy ? t("Đang vào…") : t("Bắt đầu làm bài")}</button>
+      {quiz.time_limit_min && <p className="text-center text-xs text-muted">{t("Đồng hồ bắt đầu chạy ngay khi bạn bấm nút. Hết giờ bài tự nộp.")}</p>}
     </form>
   );
 }
@@ -239,6 +244,7 @@ function Progress({ done, total }: { done: number; total: number }) {
 }
 
 function Countdown({ deadline, offset, onEnd }: { deadline: number; offset: number; onEnd: () => void }) {
+  const { t } = useT();
   const [left, setLeft] = useState(() => deadline - (Date.now() + offset));
   const fired = useRef(false);
   useEffect(() => {
@@ -258,7 +264,7 @@ function Countdown({ deadline, offset, onEnd }: { deadline: number; offset: numb
   const ss = String(s % 60).padStart(2, "0");
   const tone = s < 60 ? "bg-red-600 text-white animate-pulse" : s < 300 ? "bg-orange-100 text-warn border border-orange-300" : "bg-primary-soft text-primary-dark border border-primary-line";
   return (
-    <div className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 ${tone}`} role="timer" aria-live="off" aria-label={`Còn ${Math.floor(s / 60)} phút ${s % 60} giây`}>
+    <div className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 ${tone}`} role="timer" aria-live="off" aria-label={t("Còn {m} phút {s} giây", { m: Math.floor(s / 60), s: s % 60 })}>
       <span className="text-lg sm:text-xl" aria-hidden>⏱</span>
       <span className="font-mono text-xl font-extrabold tabular-nums sm:text-2xl">
         {h > 0 ? `${h}:` : ""}
@@ -301,6 +307,7 @@ function TakingView({
   error: string | null;
   onSubmit: () => void;
 }) {
+  const { t } = useT();
   const [showNav, setShowNav] = useState(false);
   const [showPassage, setShowPassage] = useState(false);
   const [current, setCurrent] = useState<string | null>(questions[0]?.id ?? null);
@@ -370,7 +377,7 @@ function TakingView({
     <>
       {secQs.length > 0 && (
         <div className="mb-2 text-xs font-bold uppercase tracking-wide text-muted">
-          Dùng cho câu {displayIndex(secQs[0].id)}
+          {t("Dùng cho câu")} {displayIndex(secQs[0].id)}
           {secQs.length > 1 ? `–${displayIndex(secQs[secQs.length - 1].id)}` : ""}
         </div>
       )}
@@ -406,9 +413,9 @@ function TakingView({
           type="button"
           onClick={() => goTo(g.qs[0].id)}
           className={`mb-2 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${isCur ? "bg-primary text-white" : "bg-gray-100 text-muted hover:bg-primary-soft hover:text-primary-dark"}`}
-          title="Bấm để tới câu hỏi của đoạn này"
+          title={t("Bấm để tới câu hỏi của đoạn này")}
         >
-          Câu {first}
+          {t("Câu")} {first}
           {last !== first ? `–${last}` : ""}
         </button>
         {sec.instruction && (
@@ -433,8 +440,8 @@ function TakingView({
       {hasPassage && (
         <aside className="hidden lg:sticky lg:top-24 lg:block">
           <div className="mb-2 flex items-baseline justify-between text-sm font-bold uppercase tracking-wide text-muted">
-            <span>📖 Đề bài (Question)</span>
-            <span className="text-xs font-semibold normal-case tracking-normal">Cuộn để xem toàn bộ đề</span>
+            <span>{t("📖 Đề bài (Question)")}</span>
+            <span className="text-xs font-semibold normal-case tracking-normal">{t("Cuộn để xem toàn bộ đề")}</span>
           </div>
           <div ref={passageRef} className="card max-h-[calc(100vh-11.5rem)] space-y-2 overflow-y-auto overscroll-contain p-3">
             {fullPanel}
@@ -444,7 +451,7 @@ function TakingView({
 
       {/* ===== CỘT PHẢI: CÂU HỎI & CHỌN ĐÁP ÁN ===== */}
       <div>
-        {hasPassage && <div className="mb-2 hidden text-sm font-bold uppercase tracking-wide text-muted lg:block">✏️ Chọn đáp án (Answers)</div>}
+        {hasPassage && <div className="mb-2 hidden text-sm font-bold uppercase tracking-wide text-muted lg:block">{t("✏️ Chọn đáp án (Answers)")}</div>}
         <div className="space-y-4">
           {questions.map((q, i) => {
             const sec = q.section_index != null ? quiz.sections[q.section_index] : null;
@@ -467,13 +474,13 @@ function TakingView({
                   </p>
                 )}
                 <fieldset id={`q-${q.id}`} className={`card scroll-mt-28 p-4 transition ${isCur ? "ring-2 ring-primary/40" : ""}`}>
-                  <legend className="sr-only">Câu {i + 1}</legend>
+                  <legend className="sr-only">{t("Câu {n}", { n: i + 1 })}</legend>
                   <p className="mb-3 leading-relaxed">
-                    <b className="text-primary-dark">Câu {i + 1}.</b> {stem && <Html text={stem} />}
+                    <b className="text-primary-dark">{t("Câu {n}.", { n: i + 1 })}</b> {stem && <Html text={stem} />}
                   </p>
                   {q.image && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={q.image} alt={`Hình câu ${i + 1}`} className="mb-3 max-h-96 max-w-full rounded-xl border border-gray-200 bg-white object-contain" />
+                    <img src={q.image} alt={t("Hình câu {n}", { n: i + 1 })} className="mb-3 max-h-96 max-w-full rounded-xl border border-gray-200 bg-white object-contain" />
                   )}
                   <div className="space-y-2">
                     {q.options.map((o) => {
@@ -510,9 +517,9 @@ function TakingView({
         {showNav && (
           <div className="mx-auto max-h-[45vh] max-w-7xl overflow-y-auto border-b border-gray-100 p-3">
             <div className="mb-2 flex items-center justify-between text-xs text-muted">
-              <span>Bấm số câu để nhảy tới</span>
+              <span>{t("Bấm số câu để nhảy tới")}</span>
               <span>
-                <span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-primary align-middle" />đã làm
+                <span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-primary align-middle" />{t("đã làm")}
               </span>
             </div>
             <div className="grid grid-cols-8 gap-1.5 sm:grid-cols-12 lg:grid-cols-20">
@@ -545,8 +552,8 @@ function TakingView({
             className="flex min-w-0 flex-1 flex-col items-start rounded-xl px-2 py-1 text-left hover:bg-gray-50 active:bg-gray-50 lg:max-w-md"
           >
             <span className="text-sm font-semibold">
-              <span className="hidden sm:inline">Đã làm </span>
-              <b className="text-primary-dark">{done}</b>/{questions.length} câu<span className="hidden sm:inline"> · Danh sách câu</span> {showNav ? "▾" : "▴"}
+              <span className="hidden sm:inline">{t("Đã làm")} </span>
+              <b className="text-primary-dark">{done}</b>/{t("{n} câu", { n: questions.length })}<span className="hidden sm:inline"> {t("· Danh sách câu")}</span> {showNav ? "▾" : "▴"}
             </span>
             <span className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
               <span className="block h-full bg-primary transition-all" style={{ width: `${questions.length ? (done / questions.length) * 100 : 0}%` }} />
@@ -560,13 +567,13 @@ function TakingView({
                 setShowNav(false);
               }}
             >
-              📖 {showPassage ? "Ẩn" : "Đoạn văn"}
+              📖 {showPassage ? t("Ẩn") : t("Đoạn văn")}
             </button>
           )}
           <button className="btn-primary ml-auto shrink-0 px-6 py-3 text-base" disabled={busy} onClick={onSubmit}>
-            {busy ? "Đang nộp…" : (
+            {busy ? t("Đang nộp…") : (
               <>
-                Nộp bài<span className="hidden sm:inline">&nbsp;({done}/{questions.length})</span>
+                {t("Nộp bài")}<span className="hidden sm:inline">&nbsp;({done}/{questions.length})</span>
               </>
             )}
           </button>
@@ -577,6 +584,7 @@ function TakingView({
 }
 
 function ResultView({ result, questions, sections }: { result: Result; questions: PublicQuestion[]; sections: Section[] }) {
+  const { t } = useT();
   const pct = result.total ? Math.round((result.score / result.total) * 100) : 0;
   const byId = useMemo(() => new Map(questions.map((q) => [q.id, q])), [questions]);
   void sections;
@@ -588,29 +596,29 @@ function ResultView({ result, questions, sections }: { result: Result; questions
   // Màu và lời nhắn theo mức điểm
   const mood =
     pct >= 80
-      ? { icon: "🎉", text: "Xuất sắc!", ink: "text-primary-dark", bar: "bg-gradient-to-r from-primary to-teal" }
+      ? { icon: "🎉", text: t("Xuất sắc!"), ink: "text-primary-dark", bar: "bg-gradient-to-r from-primary to-teal" }
       : pct >= 50
-        ? { icon: "👍", text: "Khá tốt, cố thêm chút nữa!", ink: "text-sun-ink", bar: "bg-gradient-to-r from-sun to-orange-400" }
-        : { icon: "💪", text: "Đừng nản, ôn lại và thử lần sau nhé!", ink: "text-rose-ink", bar: "bg-gradient-to-r from-rose-400 to-sun" };
+        ? { icon: "👍", text: t("Khá tốt, cố thêm chút nữa!"), ink: "text-sun-ink", bar: "bg-gradient-to-r from-sun to-orange-400" }
+        : { icon: "💪", text: t("Đừng nản, ôn lại và thử lần sau nhé!"), ink: "text-rose-ink", bar: "bg-gradient-to-r from-rose-400 to-sun" };
   return (
     <div>
       <div className={`card overflow-hidden p-6 pt-0 text-center shadow-md`}>
         <div className={`-mx-6 mb-4 h-2 ${mood.bar}`} />
         <div className="text-4xl" aria-hidden>{mood.icon}</div>
         <div className={`mt-1 text-lg font-bold ${mood.ink}`}>{mood.text}</div>
-        <div className="mt-2 text-sm font-semibold uppercase tracking-wide text-muted">Kết quả của bạn</div>
+        <div className="mt-2 text-sm font-semibold uppercase tracking-wide text-muted">{t("Kết quả của bạn")}</div>
         <div className={`mt-1 text-5xl font-extrabold ${mood.ink}`}>
           {result.score}
           <span className="text-2xl text-muted">/{result.total}</span>
         </div>
-        <div className="mt-1 text-lg font-semibold">Đúng {result.score} / {result.total} câu · {pct}%</div>
+        <div className="mt-1 text-lg font-semibold">{t("Đúng {a} / {b} câu · {p}%", { a: result.score, b: result.total, p: pct })}</div>
         <div className="mx-auto mt-4 h-3 max-w-xs overflow-hidden rounded-full bg-gray-100">
           <div className={`h-full ${mood.bar}`} style={{ width: `${pct}%` }} />
         </div>
-        <p className="mt-3 text-sm text-muted">Kết quả đã được gửi tới giáo viên.</p>
+        <p className="mt-3 text-sm text-muted">{t("Kết quả đã được gửi tới giáo viên.")}</p>
       </div>
 
-      <h2 className="mb-3 mt-6 font-bold">Chi tiết từng câu</h2>
+      <h2 className="mb-3 mt-6 font-bold">{t("Chi tiết từng câu")}</h2>
       <div className="space-y-3">
         {ordered.map((d) => {
           const q = byId.get(d.question_id);
@@ -618,14 +626,14 @@ function ResultView({ result, questions, sections }: { result: Result; questions
             <div key={d.question_id} className={`card border-l-4 p-4 ${d.is_correct ? "border-l-primary" : "border-l-danger"}`}>
               <div className="mb-2 flex items-center gap-2">
                 <span className={`badge ${d.is_correct ? "bg-primary-soft text-primary-dark" : "bg-red-50 text-danger"}`}>
-                  {d.is_correct ? "✓ Đúng" : "✗ Sai"}
+                  {d.is_correct ? t("✓ Đúng") : t("✗ Sai")}
                 </span>
-                <span className="text-sm font-semibold">Câu {d.idx}</span>
+                <span className="text-sm font-semibold">{t("Câu {n}", { n: d.idx })}</span>
               </div>
               {q && cleanStem(q.stem) && <p className="mb-2 text-sm leading-relaxed"><Html text={q.stem} /></p>}
               {q?.image && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={q.image} alt={`Hình câu ${d.idx}`} className="mb-2 max-h-64 max-w-full rounded-xl border border-gray-200 object-contain" />
+                <img src={q.image} alt={t("Hình câu {n}", { n: d.idx })} className="mb-2 max-h-64 max-w-full rounded-xl border border-gray-200 object-contain" />
               )}
               {q && (
                 <div className="space-y-1">
@@ -638,18 +646,18 @@ function ResultView({ result, questions, sections }: { result: Result; questions
                         className={`flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm ${right ? "bg-primary-soft font-semibold text-primary-dark" : mine ? "bg-red-50 text-danger" : ""}`}
                       >
                         <span className="w-4 shrink-0">{right ? "✓" : mine ? "✗" : ""}</span>
-                        <span><b>{o.label}.</b> <Html text={o.text} />{mine && <i className="ml-1 text-xs">(bạn chọn)</i>}</span>
+                        <span><b>{o.label}.</b> <Html text={o.text} />{mine && <i className="ml-1 text-xs">{t("(bạn chọn)")}</i>}</span>
                       </div>
                     );
                   })}
                 </div>
               )}
-              {!d.selected && <p className="mt-1 text-xs text-danger">Bạn bỏ trống câu này.</p>}
+              {!d.selected && <p className="mt-1 text-xs text-danger">{t("Bạn bỏ trống câu này.")}</p>}
             </div>
           );
         })}
       </div>
-      {!result.show_answers && <p className="mt-4 text-center text-sm text-muted">Giáo viên không cho hiển thị đáp án đúng của đề này.</p>}
+      {!result.show_answers && <p className="mt-4 text-center text-sm text-muted">{t("Giáo viên không cho hiển thị đáp án đúng của đề này.")}</p>}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 import type { DraftQuestion, Section } from "./types";
+import { tc } from "./i18n/client";
 
 export class DailyQuotaError extends Error {}
 /** Máy chủ hết thời gian (504): nên chia nhỏ yêu cầu thay vì thử lại y nguyên */
@@ -14,20 +15,20 @@ export async function callAi<T>(
 ): Promise<T> {
   let fails = 0;
   for (;;) {
-    if (signal?.aborted) throw new Error("Đã dừng");
+    if (signal?.aborted) throw new Error(tc("Đã dừng"));
     let res: Response;
     try {
       res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal });
     } catch {
-      if (signal?.aborted) throw new Error("Đã dừng");
-      if (++fails > 3) throw new Error("Mất kết nối mạng. Kiểm tra internet rồi bấm Thử tiếp.");
+      if (signal?.aborted) throw new Error(tc("Đã dừng"));
+      if (++fails > 3) throw new Error(tc("Mất kết nối mạng. Kiểm tra internet rồi bấm Thử tiếp."));
       await sleep(3000 * fails);
       continue;
     }
     if (res.ok) return (await res.json()) as T;
     const data = await res.json().catch(() => ({}));
     if (res.status === 429) {
-      if (data.daily) throw new DailyQuotaError("Đã dùng hết lượt AI miễn phí trong ngày của Gemini.");
+      if (data.daily) throw new DailyQuotaError(tc("Đã dùng hết lượt AI miễn phí trong ngày của Gemini."));
       // Tính theo giờ thực: tab bị ẩn làm chậm bộ đếm thì vẫn hết chờ đúng lúc
       const until = Date.now() + Math.min(Number(data.retryAfter) || 30, 300) * 1000;
       for (;;) {
@@ -35,15 +36,15 @@ export async function callAi<T>(
         if (left <= 0) break;
         onWait?.(left);
         await sleep(Math.min(1000, left * 1000));
-        if (signal?.aborted) throw new Error("Đã dừng");
+        if (signal?.aborted) throw new Error(tc("Đã dừng"));
       }
       onWait?.(0);
       continue;
     }
-    if (res.status === 401) throw new Error("Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.");
-    if (res.status === 413) throw new Error("Cụm trang quá lớn để gửi.");
-    if (res.status === 504) throw new TimeoutError("AI xử lý quá lâu (504).");
-    if (++fails > 3) throw new Error(data.error || `Lỗi máy chủ (${res.status})`);
+    if (res.status === 401) throw new Error(tc("Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại."));
+    if (res.status === 413) throw new Error(tc("Cụm trang quá lớn để gửi."));
+    if (res.status === 504) throw new TimeoutError(tc("AI xử lý quá lâu (504)."));
+    if (++fails > 3) throw new Error(data.error || tc("Lỗi máy chủ ({n})", { n: res.status }));
     await sleep(2000 * fails);
   }
 }

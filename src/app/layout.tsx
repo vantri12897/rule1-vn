@@ -8,20 +8,28 @@ import "@fontsource/be-vietnam-pro/700.css";
 import "@fontsource/be-vietnam-pro/800.css";
 import "./globals.css";
 import { FeedbackHost } from "@/components/ui/feedback";
+import { LangProvider } from "@/lib/i18n/client";
+import { getLang, getT } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "YD-English — Tạo & chấm đề trắc nghiệm tiếng Anh",
-  description: "Upload đề PDF, tự tạo đáp án, chia sẻ link cho học viên làm bài online và chấm điểm tự động.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT();
+  return {
+    title: t("YD-English — Tạo & chấm đề trắc nghiệm tiếng Anh"),
+    description: t("Upload đề PDF, tự tạo đáp án, chia sẻ link cho học viên làm bài online và chấm điểm tự động."),
+  };
+}
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#15803d" };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const lang = await getLang();
   return (
-    <html lang="vi">
+    <html lang={lang}>
       <body className="min-h-screen antialiased">
-        {children}
-        <FeedbackHost />
+        <LangProvider lang={lang}>
+          {children}
+          <FeedbackHost />
+        </LangProvider>
       </body>
     </html>
   );

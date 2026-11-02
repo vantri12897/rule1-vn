@@ -1,8 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { useT } from "@/lib/i18n/client";
 
 export function LogoutButton() {
+  const { t } = useT();
   const router = useRouter();
   return (
     <button
@@ -13,7 +15,7 @@ export function LogoutButton() {
         router.refresh();
       }}
     >
-      Đăng xuất
+      {t("Đăng xuất")}
     </button>
   );
 }
