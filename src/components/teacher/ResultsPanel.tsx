@@ -259,12 +259,12 @@ export function ResultsPanel({
           <div className="space-y-2">
             {qStats.map(({ q, pct, wrong }) => (
               <div key={q.id} className="flex items-center gap-3 text-sm">
-                <span className="w-20 shrink-0 font-semibold">{t("Câu {n}", { n: q.number })}</span>
+                <span className="w-28 shrink-0 whitespace-nowrap font-semibold">{t("Câu {n}", { n: q.number })}</span>
                 <div className="h-3 flex-1 overflow-hidden rounded-full bg-gray-100">
                   <div className={`h-full ${pct < 30 ? "bg-danger" : pct < 60 ? "bg-warn" : "bg-primary"}`} style={{ width: `${pct}%` }} />
                 </div>
                 <span className="w-12 text-right">{Math.round(pct)}%</span>
-                <span className="hidden w-40 text-xs text-muted sm:inline">{wrong ? t("Sai nhiều: {l} ({n})", { l: wrong[0], n: wrong[1] }) : ""}</span>
+                <span className="hidden w-40 whitespace-nowrap text-xs text-muted sm:inline">{wrong ? t("Sai nhiều: {l} ({n})", { l: wrong[0], n: wrong[1] }) : ""}</span>
               </div>
             ))}
           </div>
