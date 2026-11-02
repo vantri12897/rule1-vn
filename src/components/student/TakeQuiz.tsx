@@ -330,15 +330,39 @@ function TakingView({
     return () => io.disconnect();
   }, [questions]);
 
-  // Cuộn đoạn văn bên trái tới chỗ trống của câu đang làm
+  // Các nhóm câu theo đoạn văn / hướng dẫn (theo đúng thứ tự trong đề)
+  const groups = useMemo(() => {
+    const g: { sec: number; qs: PublicQuestion[] }[] = [];
+    for (const q of questions) {
+      if (q.section_index == null) continue;
+      const last = g[g.length - 1];
+      if (last && last.sec === q.section_index) last.qs.push(q);
+      else g.push({ sec: q.section_index, qs: [q] });
+    }
+    return g;
+  }, [questions]);
+  const curGroup = groups.findIndex((g) => g.qs.some((q) => q.id === current));
+  const prevGroup = useRef<number>(-1);
+
+  // Cột trái hiện toàn bộ đề; khi sang nhóm câu khác thì tự cuộn tới đoạn đó,
+  // còn trong cùng đoạn thì chỉ cuộn khi chỗ trống của câu đang làm bị khuất
   useEffect(() => {
     const box = passageRef.current;
-    const mark = box?.querySelector<HTMLElement>("mark[data-cur]");
-    if (box && mark) {
-      const top = mark.offsetTop - box.offsetTop;
+    if (!box) return;
+    const mark = box.querySelector<HTMLElement>("mark[data-cur]");
+    const block = box.querySelector<HTMLElement>(`[data-group="${curGroup}"]`);
+    const rel = (el: HTMLElement) => el.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop;
+    if (curGroup !== prevGroup.current) {
+      prevGroup.current = curGroup;
+      if (mark) box.scrollTo({ top: rel(mark) - box.clientHeight / 3, behavior: "smooth" });
+      else if (block) box.scrollTo({ top: rel(block) - 8, behavior: "smooth" });
+      return;
+    }
+    if (mark) {
+      const top = rel(mark);
       if (top < box.scrollTop + 40 || top > box.scrollTop + box.clientHeight - 60) box.scrollTo({ top: top - box.clientHeight / 3, behavior: "smooth" });
     }
-  }, [current]);
+  }, [current, curGroup]);
 
   const goTo = (qid: string) => document.getElementById(`q-${qid}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -363,6 +387,44 @@ function TakingView({
     </>
   ) : null;
 
+  // Toàn bộ đề bài cho cột trái (máy tính)
+  const fullPanel = groups.map((g, k) => {
+    const sec = quiz.sections[g.sec];
+    if (!sec || (!sec.instruction && !sec.passage)) return null;
+    const isCur = k === curGroup;
+    const nums = new Set(g.qs.map((q) => q.number));
+    const ans = new Set(g.qs.filter((q) => answers[q.id]).map((q) => q.number));
+    const first = displayIndex(g.qs[0].id);
+    const last = displayIndex(g.qs[g.qs.length - 1].id);
+    return (
+      <section
+        key={k}
+        data-group={k}
+        className={`rounded-xl border-2 p-4 transition ${isCur ? "border-primary/50 bg-primary-soft/50" : "border-transparent"}`}
+      >
+        <button
+          type="button"
+          onClick={() => goTo(g.qs[0].id)}
+          className={`mb-2 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide ${isCur ? "bg-primary text-white" : "bg-gray-100 text-muted hover:bg-primary-soft hover:text-primary-dark"}`}
+          title="Bấm để tới câu hỏi của đoạn này"
+        >
+          Câu {first}
+          {last !== first ? `–${last}` : ""}
+        </button>
+        {sec.instruction && (
+          <p className="font-semibold italic leading-relaxed">
+            <Html text={sec.instruction} />
+          </p>
+        )}
+        {sec.passage && (
+          <p className="mt-3 whitespace-pre-line text-[17px] leading-8">
+            <PassageHtml text={sec.passage} current={isCur ? curQ?.number ?? null : null} numbers={nums} answered={ans} />
+          </p>
+        )}
+      </section>
+    );
+  });
+
   let lastSection: number | null = null;
 
   return (
@@ -370,9 +432,12 @@ function TakingView({
       {/* ===== CỘT TRÁI: ĐOẠN VĂN (đứng yên, đổi theo câu đang làm) ===== */}
       {hasPassage && (
         <aside className="hidden lg:sticky lg:top-24 lg:block">
-          <div className="mb-2 text-sm font-bold uppercase tracking-wide text-muted">📖 Đề bài (Question)</div>
-          <div ref={passageRef} className="card max-h-[calc(100vh-11.5rem)] overflow-y-auto p-5">
-            {passagePanel ?? <p className="text-muted">Câu đang làm không có đoạn văn đi kèm. Đọc câu hỏi ở cột bên phải.</p>}
+          <div className="mb-2 flex items-baseline justify-between text-sm font-bold uppercase tracking-wide text-muted">
+            <span>📖 Đề bài (Question)</span>
+            <span className="text-xs font-semibold normal-case tracking-normal">Cuộn để xem toàn bộ đề</span>
+          </div>
+          <div ref={passageRef} className="card max-h-[calc(100vh-11.5rem)] space-y-2 overflow-y-auto overscroll-contain p-3">
+            {fullPanel}
           </div>
         </aside>
       )}
