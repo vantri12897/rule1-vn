@@ -30,9 +30,11 @@ function RecoveryCard({ email }: { email: string }) {
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const [mailOn, setMailOn] = useState<boolean | null>(null);
   const load = () => fetch("/api/account/recovery-code", { cache: "no-store" }).then((r) => r.json()).then(setStatus).catch(() => {});
   useEffect(() => {
     load();
+    fetch("/api/auth/mail-status", { cache: "no-store" }).then((r) => r.json()).then((d) => setMailOn(!!d.enabled)).catch(() => {});
   }, []);
 
   async function create() {
@@ -61,6 +63,13 @@ function RecoveryCard({ email }: { email: string }) {
       <p className="mt-1 text-sm text-muted">
         Nếu quên mật khẩu, bạn dùng mã này ở trang <b>Quên mật khẩu</b> để đặt mật khẩu mới — không cần email. Mã chỉ hiện <b>một lần</b> và dùng được <b>một lần</b>.
       </p>
+      {mailOn !== null && (
+        <p className={`mt-3 rounded-xl p-3 text-sm ${mailOn ? "bg-primary-soft text-primary-dark" : "bg-gray-50 text-muted"}`}>
+          {mailOn
+            ? "✓ Đã bật đặt lại mật khẩu qua email — quên mật khẩu thì nhận mã 6 số qua Gmail. Mã khôi phục bên dưới dùng làm dự phòng."
+            : "Chưa bật đặt lại mật khẩu qua email (cần cài GMAIL_USER và GMAIL_APP_PASSWORD trên Vercel). Hiện chỉ dùng được mã khôi phục."}
+        </p>
+      )}
       {status && (
         <p className={`mt-3 rounded-xl p-3 text-sm ${status.exists ? "bg-primary-soft text-primary-dark" : "bg-orange-50 text-warn"}`}>
           {status.exists ? `✓ Đã có mã khôi phục (tạo ${fmtDate(status.created_at)}).` : "⚠️ Bạn chưa có mã khôi phục. Hãy tạo ngay để không bị mất quyền vào website."}

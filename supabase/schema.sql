@@ -146,3 +146,21 @@ alter table public.recovery_codes enable row level security;
 
 -- Bổ sung (02/11/2026): xáo thứ tự đáp án A/B/C/D theo từng học viên
 alter table public.quizzes add column if not exists shuffle_options boolean not null default false;
+
+-- Bổ sung (02/11/2026): mã đặt lại mật khẩu gửi qua email (6 số, hết hạn 15 phút, tối đa 5 lần thử)
+create table if not exists public.password_reset_codes (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  code_hash text not null,
+  expires_at timestamptz not null,
+  attempts int not null default 0,
+  sent_at timestamptz not null default now()
+);
+alter table public.password_reset_codes enable row level security;
+
+-- Tra id tài khoản theo email (chỉ server dùng được)
+create or replace function public.user_id_by_email(p_email text)
+returns uuid language sql security definer set search_path = public, auth stable as $$
+  select id from auth.users where lower(email) = lower(trim(p_email)) limit 1;
+$$;
+revoke all on function public.user_id_by_email(text) from public, anon, authenticated;
+grant execute on function public.user_id_by_email(text) to service_role;

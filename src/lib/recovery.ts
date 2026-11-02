@@ -23,3 +23,8 @@ export function sameHash(a: string, b: string) {
   const y = Buffer.from(b, "hex");
   return x.length === y.length && timingSafeEqual(x, y);
 }
+
+/** Mã 6 chữ số gửi qua email */
+export function newEmailCode(): string {
+  return String(randomBytes(4).readUInt32BE(0) % 1_000_000).padStart(6, "0");
+}
