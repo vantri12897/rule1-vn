@@ -4,8 +4,8 @@ import { useT } from "@/lib/i18n/client";
 import type { Lang } from "@/lib/i18n/core";
 
 const OPTIONS: { code: Lang; flag: string; label: string; short: string }[] = [
-  { code: "vi", flag: "🇻🇳", label: "Tiếng Việt", short: "VI" },
   { code: "en", flag: "🇬🇧", label: "English", short: "EN" },
+  { code: "vi", flag: "🇻🇳", label: "Tiếng Việt", short: "VI" },
 ];
 
 /** Nút "🌐 Tiếng Việt ▾" ở góc phải: chọn English / Tiếng Việt, ghi nhớ bằng cookie 1 năm */

@@ -22,7 +22,7 @@ function transport() {
   });
 }
 
-export async function sendResetCodeMail(to: string, code: string, siteUrl: string, lang: "vi" | "en" = "vi") {
+export async function sendResetCodeMail(to: string, code: string, siteUrl: string, lang: "vi" | "en" = "en") {
   const from = process.env.GMAIL_USER || process.env.SMTP_FROM || "no-reply@yd-english.local";
   const spaced = code.split("").join(" ");
   const L =

@@ -2,10 +2,10 @@
 import { createContext, useContext, useMemo } from "react";
 import { translate, type Lang, type Vars } from "./core";
 
-const Ctx = createContext<Lang>("vi");
+const Ctx = createContext<Lang>("en");
 
 // Ngôn ngữ hiện tại cho các hàm tiện ích chạy trong trình duyệt (bấm nút, xử lý file…)
-let currentLang: Lang = "vi";
+let currentLang: Lang = "en";
 
 export function LangProvider({ lang, children }: { lang: Lang; children: React.ReactNode }) {
   if (typeof window !== "undefined") currentLang = lang;

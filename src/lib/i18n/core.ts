@@ -13,7 +13,7 @@ export function translate(lang: Lang, key: string, vars?: Vars): string {
 }
 
 export function normalizeLang(v: string | null | undefined): Lang {
-  return v === "en" ? "en" : "vi";
+  return v === "vi" ? "vi" : "en"; // mặc định English
 }
 
 /** Đọc ngôn ngữ từ header Cookie của một request (dùng trong API) */
