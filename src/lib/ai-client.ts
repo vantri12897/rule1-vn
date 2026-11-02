@@ -28,11 +28,13 @@ export async function callAi<T>(
     const data = await res.json().catch(() => ({}));
     if (res.status === 429) {
       if (data.daily) throw new DailyQuotaError("Đã dùng hết lượt AI miễn phí trong ngày của Gemini.");
-      let left = Math.min(Number(data.retryAfter) || 30, 300);
-      while (left > 0) {
+      // Tính theo giờ thực: tab bị ẩn làm chậm bộ đếm thì vẫn hết chờ đúng lúc
+      const until = Date.now() + Math.min(Number(data.retryAfter) || 30, 300) * 1000;
+      for (;;) {
+        const left = Math.ceil((until - Date.now()) / 1000);
+        if (left <= 0) break;
         onWait?.(left);
-        await sleep(1000);
-        left--;
+        await sleep(Math.min(1000, left * 1000));
         if (signal?.aborted) throw new Error("Đã dừng");
       }
       onWait?.(0);

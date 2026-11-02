@@ -7,6 +7,7 @@ import { QuestionsEditor } from "@/components/teacher/QuestionsEditor";
 import { ResultsPanel } from "@/components/teacher/ResultsPanel";
 import { SharePanel } from "@/components/teacher/SharePanel";
 import { duplicateQuiz } from "@/lib/quiz-db";
+import { downloadDocx, loadExportData } from "@/lib/export-doc";
 import { STATUS_LABEL } from "@/lib/ui";
 import type { Quiz, QuestionRow } from "@/lib/types";
 
@@ -85,6 +86,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
           </p>
         </div>
         <div className="flex gap-2">
+          <ExportMenu quizId={quiz.id} dirty={dirty} />
           {quiz.status === "draft" && <button className="btn-primary" onClick={() => setStatus("open")}>🚀 Xuất bản</button>}
           {quiz.status === "open" && <button className="btn-outline" onClick={() => setStatus("closed")}>Đóng đề</button>}
           {quiz.status === "closed" && <button className="btn-primary" onClick={() => setStatus("open")}>Mở lại</button>}
@@ -137,10 +139,51 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   );
 }
 
+function ExportMenu({ quizId, dirty }: { quizId: string; dirty: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const word = async (withAnswers: boolean) => {
+    setOpen(false);
+    if (dirty && !confirm("Có thay đổi chưa lưu — file xuất sẽ dùng bản đã lưu. Tiếp tục?")) return;
+    setBusy(true);
+    try {
+      await downloadDocx(await loadExportData(quizId), withAnswers);
+    } catch (e) {
+      alert("Không xuất được file Word: " + (e instanceof Error ? e.message : String(e)));
+    }
+    setBusy(false);
+  };
+  const pdf = (withAnswers: boolean) => {
+    setOpen(false);
+    window.open(`/dashboard/quiz/${quizId}/print${withAnswers ? "?key=1" : ""}`, "_blank");
+  };
+  return (
+    <div className="relative">
+      <button className="btn-outline" disabled={busy} onClick={() => setOpen(!open)}>
+        {busy ? "Đang tạo file…" : "🖨️ Xuất đề ▾"}
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-40 mt-1 w-64 overflow-hidden rounded-xl border border-gray-200 bg-white text-sm shadow-lg">
+            <div className="bg-gray-50 px-3 py-1.5 text-xs font-semibold uppercase text-muted">Word (.docx)</div>
+            <button className="block w-full px-3 py-2 text-left hover:bg-primary-soft" onClick={() => word(false)}>📄 Đề cho học viên</button>
+            <button className="block w-full px-3 py-2 text-left hover:bg-primary-soft" onClick={() => word(true)}>📄 Đề có đáp án (giáo viên)</button>
+            <div className="bg-gray-50 px-3 py-1.5 text-xs font-semibold uppercase text-muted">PDF / In</div>
+            <button className="block w-full px-3 py-2 text-left hover:bg-primary-soft" onClick={() => pdf(false)}>🖨️ Đề cho học viên</button>
+            <button className="block w-full px-3 py-2 text-left hover:bg-primary-soft" onClick={() => pdf(true)}>🖨️ Đề có đáp án (giáo viên)</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSaved: () => void; onDuplicate: () => void; onDeleted: () => void }) {
   const [title, setTitle] = useState(quiz.title);
   const [limit, setLimit] = useState(quiz.time_limit_min ? String(quiz.time_limit_min) : "");
   const [shuffle, setShuffle] = useState(quiz.shuffle_questions);
+  const [shuffleOpts, setShuffleOpts] = useState(!!quiz.shuffle_options);
   const [showAns, setShowAns] = useState(quiz.show_answers);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -148,7 +191,7 @@ function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSav
     const n = parseInt(limit, 10);
     const { error } = await supabaseBrowser()
       .from("quizzes")
-      .update({ title: title.trim() || quiz.title, time_limit_min: n > 0 ? n : null, shuffle_questions: shuffle, show_answers: showAns })
+      .update({ title: title.trim() || quiz.title, time_limit_min: n > 0 ? n : null, shuffle_questions: shuffle, shuffle_options: shuffleOpts, show_answers: showAns })
       .eq("id", quiz.id);
     setMsg(error ? "Lỗi: " + error.message : "Đã lưu cài đặt.");
     if (!error) onSaved();
@@ -173,6 +216,12 @@ function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSav
           <input className="input" type="number" min={1} placeholder="Để trống = không giới hạn" value={limit} onChange={(e) => setLimit(e.target.value)} />
         </div>
         <Toggle checked={shuffle} onChange={setShuffle} label="Xáo trộn thứ tự câu hỏi" hint="Mỗi học viên thấy một thứ tự khác nhau (câu đọc hiểu vẫn đi cùng đoạn văn)." />
+        <Toggle
+          checked={shuffleOpts}
+          onChange={setShuffleOpts}
+          label="Xáo thứ tự đáp án A/B/C/D"
+          hint="Mỗi học viên thấy đáp án theo thứ tự khác nhau. Câu kiểu “All of the above / Both A and B” được giữ nguyên. Kết quả giáo viên xem vẫn theo chữ cái của đề gốc. Nên bật/tắt khi chưa có học viên đang làm bài."
+        />
         <Toggle checked={showAns} onChange={setShowAns} label="Cho học viên xem đáp án đúng sau khi nộp" hint="Tắt nếu muốn dùng lại đề cho lớp khác." />
         {msg && <p className="text-sm text-primary-dark">{msg}</p>}
         <button className="btn-primary w-full" onClick={save}>Lưu cài đặt</button>

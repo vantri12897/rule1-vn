@@ -6,6 +6,7 @@ import { PdfFlow, TextFlow } from "@/components/teacher/NewQuizFlows";
 export default function NewQuizPage() {
   const router = useRouter();
   const [tab, setTab] = useState<"pdf" | "text">("pdf");
+  const [running, setRunning] = useState(false);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -18,12 +19,12 @@ export default function NewQuizPage() {
             ["text", "Dán nội dung (không cần AI)"],
           ] as const
         ).map(([k, l]) => (
-          <button key={k} onClick={() => setTab(k)} className={`rounded-lg px-4 py-2 text-sm font-semibold ${tab === k ? "bg-primary text-white" : "text-ink"}`}>
+          <button key={k} disabled={running} onClick={() => setTab(k)} className={`rounded-lg px-4 py-2 text-sm font-semibold ${tab === k ? "bg-primary text-white" : "text-ink"}`}>
             {l}
           </button>
         ))}
       </div>
-      {tab === "pdf" ? <PdfFlow onDone={(id) => router.push(`/dashboard/quiz/${id}`)} /> : <TextFlow onDone={(id) => router.push(`/dashboard/quiz/${id}`)} />}
+      {tab === "pdf" ? <PdfFlow onDone={(id) => router.push(`/dashboard/quiz/${id}`)} onRunningChange={setRunning} /> : <TextFlow onDone={(id) => router.push(`/dashboard/quiz/${id}`)} />}
     </div>
   );
 }

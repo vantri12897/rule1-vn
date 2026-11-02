@@ -2,6 +2,25 @@ import "server-only";
 import { supabaseAdmin } from "./supabase/admin";
 import { grade, seededShuffle } from "./grading";
 import type { Attempt, PublicQuestion, Quiz, QuestionRow } from "./types";
+import { canShuffle, displayOptions, identityPerm, optionPerm, toDisplay, toOriginal } from "./option-shuffle";
+
+/** Hoán vị đáp án cho học viên này (không xáo nếu đề tắt tuỳ chọn hoặc câu dạng "All of the above") */
+export function permFor(quiz: Quiz, q: Pick<QuestionRow, "id" | "options">, token: string | null) {
+  if (!quiz.shuffle_options || !token || !canShuffle(q.options)) return identityPerm(q.options.length);
+  return optionPerm(token, q.id, q.options.length);
+}
+
+/** Đổi đáp án học viên chọn (theo chữ cái hiển thị) về chữ cái gốc để chấm và lưu */
+export function answersToOriginal(quiz: Quiz, questions: QuestionRow[], token: string, answers: Record<string, string>) {
+  const out: Record<string, string> = {};
+  for (const q of questions) {
+    const a = answers[q.id];
+    if (!a) continue;
+    const o = toOriginal(a, q.options, permFor(quiz, q, token));
+    if (o) out[q.id] = o;
+  }
+  return out;
+}
 
 const hits = new Map<string, { n: number; t: number }>();
 /** Rate limit đơn giản theo IP (best-effort, theo từng instance serverless). */
@@ -48,7 +67,7 @@ export function toPublicQuestions(quiz: Quiz, questions: QuestionRow[], token: s
     number: q.number,
     section_index: q.section_index,
     stem: q.stem,
-    options: q.options,
+    options: displayOptions(q.options, permFor(quiz, q, token)),
     image: q.image ?? null,
   }));
   if (!quiz.shuffle_questions || !token) return pub;
@@ -69,13 +88,18 @@ export function buildResult(quiz: Quiz, questions: QuestionRow[], attempt: Attem
     total: attempt.total ?? g.total,
     submitted_at: attempt.submitted_at,
     show_answers: quiz.show_answers,
-    details: g.details.map((d) => ({
-      question_id: d.question_id,
-      number: d.number,
-      selected: d.selected,
-      is_correct: d.is_correct,
-      correct: quiz.show_answers ? d.correct : null,
-    })),
+    // Trả về theo chữ cái học viên đã thấy (nếu đề có xáo đáp án)
+    details: g.details.map((d) => {
+      const q = questions.find((x) => x.id === d.question_id)!;
+      const perm = permFor(quiz, q, attempt.student_token);
+      return {
+        question_id: d.question_id,
+        number: d.number,
+        selected: toDisplay(d.selected, q.options, perm),
+        is_correct: d.is_correct,
+        correct: quiz.show_answers ? toDisplay(d.correct, q.options, perm) : null,
+      };
+    }),
   };
 }
 

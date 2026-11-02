@@ -85,3 +85,23 @@ test("mergeChunks giữ hình của câu khi bản trùng ở cụm sau không c
   assert.equal(r.questions[0].options.length, 5);
   assert.equal(r.questions[0].image, "data:image/jpeg;base64,AAA");
 });
+
+import { canShuffle, displayOptions, optionPerm, toDisplay, toOriginal } from "../src/lib/option-shuffle.ts";
+
+test("xáo đáp án: quy đổi qua lại đúng, ổn định theo token, không xáo câu 'All of the above'", () => {
+  const opts = ["go", "goes", "going", "gone"].map((t, i) => ({ label: "ABCD"[i], text: t }));
+  const perm = optionPerm("tok-1", "q-1", 4);
+  assert.deepEqual(perm, optionPerm("tok-1", "q-1", 4));
+  assert.deepEqual([...perm].sort(), [0, 1, 2, 3]);
+  const shown = displayOptions(opts, perm);
+  // học viên chọn phương án có chữ "goes" ở vị trí hiển thị nào đó → server đổi về B gốc
+  const shownLetter = shown.find((o) => o.text === "goes")!.label;
+  assert.equal(toOriginal(shownLetter, opts, perm), "B");
+  assert.equal(toDisplay("B", opts, perm), shownLetter);
+  // nhiều học viên → không phải ai cũng cùng thứ tự
+  const perms = new Set(Array.from({ length: 20 }, (_, i) => optionPerm(`tok-${i}`, "q-1", 4).join("")));
+  assert.ok(perms.size > 5);
+  assert.equal(canShuffle(opts), true);
+  assert.equal(canShuffle([...opts.slice(0, 3), { label: "D", text: "All of the above" }]), false);
+  assert.equal(canShuffle([...opts.slice(0, 3), { label: "D", text: "Both A and B" }]), false);
+});

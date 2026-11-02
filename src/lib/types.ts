@@ -29,6 +29,7 @@ export type Quiz = {
   sections: Section[];
   time_limit_min: number | null;
   shuffle_questions: boolean;
+  shuffle_options?: boolean;
   show_answers: boolean;
   source_file_hash: string | null;
   created_at: string;

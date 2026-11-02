@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { grade } from "@/lib/grading";
-import { activeAttempt, buildResult, clientIp, GRACE_SEC, loadQuizBySlug, rateLimited } from "@/lib/public-quiz";
+import { activeAttempt, answersToOriginal, buildResult, clientIp, GRACE_SEC, loadQuizBySlug, rateLimited } from "@/lib/public-quiz";
 import type { Attempt } from "@/lib/types";
 
 const Body = z.object({
@@ -27,9 +27,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   }
 
   // Chỉ giữ câu trả lời cho câu hỏi thuộc đề này
-  const valid = new Set(questions.map((q) => q.id));
-  const answers: Record<string, string> = {};
-  for (const [qid, l] of Object.entries(parsed.data.answers)) if (valid.has(qid)) answers[qid] = l.toUpperCase();
+  // Chỉ giữ câu thuộc đề này; đổi chữ cái hiển thị (nếu xáo đáp án) về chữ cái gốc
+  const answers = answersToOriginal(quiz, questions, parsed.data.token, parsed.data.answers);
 
   // Kiểm tra giờ theo đồng hồ server
   let late = false;

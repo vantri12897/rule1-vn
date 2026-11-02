@@ -143,3 +143,6 @@ create table if not exists public.recovery_codes (
   created_at timestamptz not null default now()
 );
 alter table public.recovery_codes enable row level security;
+
+-- Bổ sung (02/11/2026): xáo thứ tự đáp án A/B/C/D theo từng học viên
+alter table public.quizzes add column if not exists shuffle_options boolean not null default false;

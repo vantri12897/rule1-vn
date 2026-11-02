@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cropFigure, makeChunks, openPdf, renderPage, savePdfLocal, sha256, type PagePayload } from "@/lib/pdf-client";
 import { callAi, DailyQuotaError, solveMissing, TimeoutError } from "@/lib/ai-client";
 import { mergeChunks, type ChunkResult } from "@/lib/merge";
@@ -16,7 +16,12 @@ const RENDER_LEVELS: [number, number][] = [
 
 type Step = { key: string; label: string; state: "todo" | "doing" | "done" | "error"; detail?: string };
 
-export function PdfFlow({ onDone }: { onDone: (id: string) => void }) {
+const BASE_TITLE = "YD-English";
+function setTabTitle(prefix: string | null) {
+  if (typeof document !== "undefined") document.title = prefix ? `${prefix} – ${BASE_TITLE}` : BASE_TITLE;
+}
+
+export function PdfFlow({ onDone, onRunningChange }: { onDone: (id: string) => void; onRunningChange?: (running: boolean) => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [info, setInfo] = useState<{ pages: number; chunks: number } | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
@@ -24,6 +29,32 @@ export function PdfFlow({ onDone }: { onDone: (id: string) => void }) {
   const [error, setError] = useState<string | null>(null);
   const [waitSec, setWaitSec] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Cảnh báo khi lỡ đóng tab / tải lại trang trong lúc đang xử lý
+  useEffect(() => {
+    onRunningChange?.(running);
+    if (!running) return;
+    const h = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    // Bấm link nội bộ (logo, "Về danh sách đề", tài khoản…) cũng hỏi lại
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
+      if (!confirm("Đang xử lý đề. Rời trang sẽ dừng lại (phần đã xong vẫn được lưu). Vẫn rời?")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener("beforeunload", h);
+    document.addEventListener("click", onClick, true);
+    return () => {
+      window.removeEventListener("beforeunload", h);
+      document.removeEventListener("click", onClick, true);
+    };
+  }, [running, onRunningChange]);
+  useEffect(() => () => setTabTitle(null), []);
 
   const setStep = (key: string, patch: Partial<Step>) => setSteps((s) => s.map((x) => (x.key === key ? { ...x, ...patch } : x)));
 
@@ -70,6 +101,7 @@ export function PdfFlow({ onDone }: { onDone: (id: string) => void }) {
         if (saved[i]) continue;
         const pages = chunks[i];
         setStep("read", { detail: `Trang ${pages[0]}–${pages[pages.length - 1]} / ${doc.numPages} (cụm ${i + 1}/${chunks.length})` });
+        setTabTitle(`⏳ Đọc đề ${i + 1}/${chunks.length}`);
 
         // Render với chất lượng giảm dần cho tới khi vừa giới hạn dung lượng
         let groups: PagePayload[][] = [];
@@ -135,6 +167,7 @@ export function PdfFlow({ onDone }: { onDone: (id: string) => void }) {
           result.questions,
           (d, t, w) => {
             setWaitSec(w);
+            setTabTitle(`⏳ Giải đề ${Math.min(d + 1, t)}/${t}`);
             setStep("solve", { detail: `AI đang giải ${missing} câu (lượt ${Math.min(d + 1, t)}/${t})` });
           },
           ac.signal
@@ -144,6 +177,7 @@ export function PdfFlow({ onDone }: { onDone: (id: string) => void }) {
       setStep("solve", { state: "done", detail: `${questions.length - missing} câu lấy từ PDF, ${missing} câu AI giải${review ? `, ${review} câu cần kiểm tra` : ""}` });
 
       setStep("save", { state: "doing" });
+      setTabTitle("⏳ Đang lưu");
       await savePdfLocal(hash, file);
       const id = await createQuiz({
         title: result.title || file.name.replace(/\.pdf$/i, ""),
@@ -153,9 +187,11 @@ export function PdfFlow({ onDone }: { onDone: (id: string) => void }) {
       });
       localStorage.removeItem(progressKey);
       setStep("save", { state: "done" });
+      setTabTitle("✅ Xong");
       onDone(id);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
+      setTabTitle("⚠️ Lỗi");
       setSteps((s) => s.map((x) => (x.state === "doing" ? { ...x, state: "error" } : x)));
       setError(
         e instanceof DailyQuotaError
