@@ -75,6 +75,22 @@ export function ResultsPanel({
     load();
   }
 
+  async function deleteHistory(one?: Attempt) {
+    const ok = await confirmDialog(
+      one
+        ? { title: "Xoá bài trong lịch sử", message: `Xoá vĩnh viễn bài đã reset của "${one.student_name}"? Không thể hoàn tác.`, confirmText: "Xoá", danger: true }
+        : { title: "Xoá toàn bộ lịch sử", message: `Xoá vĩnh viễn ${archived.length} bài đã reset của đề này? Không thể hoàn tác.\n\nBài đang làm và bài đã nộp hiện tại không bị ảnh hưởng.`, confirmText: "Xoá lịch sử", danger: true }
+    );
+    if (!ok) return;
+    const sb = supabaseBrowser();
+    const q = sb.from("attempts").delete().eq("quiz_id", quiz.id).eq("status", "archived");
+    const { error } = one ? await q.eq("id", one.id) : await q;
+    if (error) return toast("Không xoá được: " + error.message, "error");
+    if (!one) await sb.from("reset_logs").delete().eq("quiz_id", quiz.id);
+    toast(one ? `Đã xoá bài của ${one.student_name} khỏi lịch sử` : "Đã xoá toàn bộ lịch sử");
+    load();
+  }
+
   async function resetAll() {
     if (!active.length) return;
     if (!(await confirmDialog({ title: "Reset toàn bộ", message: `Reset TOÀN BỘ ${active.length} bài làm của đề này? Mọi học viên sẽ làm lại từ đầu.`, confirmText: "Reset toàn bộ", danger: true }))) return;
@@ -259,13 +275,30 @@ export function ResultsPanel({
             {showHistory ? "Ẩn" : "Xem"} lịch sử bài đã reset ({archived.length})
           </button>
           {showHistory && (
-            <div className="card mt-2 divide-y divide-gray-100">
-              {archived.map((a) => (
-                <div key={a.id} className="flex justify-between px-4 py-2 text-sm">
-                  <span>{a.student_name}</span>
-                  <span className="text-muted">{a.score != null ? `${a.score}/${a.total}` : "chưa nộp"} · {fmtDate(a.submitted_at ?? a.started_at)}</span>
-                </div>
-              ))}
+            <div className="card mt-2 overflow-hidden">
+              <div className="flex items-center justify-between gap-2 border-b border-gray-100 bg-gray-50 px-4 py-2">
+                <span className="text-xs text-muted">Bài cũ của học viên trước khi bị reset</span>
+                <button className="btn-danger px-3 py-1.5 text-xs" onClick={() => deleteHistory()}>
+                  🗑️ Xoá toàn bộ lịch sử
+                </button>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {archived.map((a) => (
+                  <div key={a.id} className="flex items-center gap-3 px-4 py-2 text-sm">
+                    <span className="min-w-0 flex-1 truncate">{a.student_name}</span>
+                    <span className="shrink-0 text-muted">
+                      {a.score != null ? `${a.score}/${a.total}` : "chưa nộp"} · {fmtDate(a.submitted_at ?? a.started_at)}
+                    </span>
+                    <button
+                      className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-danger hover:bg-red-50"
+                      aria-label={`Xoá bài của ${a.student_name} khỏi lịch sử`}
+                      onClick={() => deleteHistory(a)}
+                    >
+                      Xoá
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
