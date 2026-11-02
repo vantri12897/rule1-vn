@@ -9,19 +9,15 @@ type Card = Quiz & { qcount: number; submitted: number; avgPct: number | null };
 
 export default function Dashboard() {
   const [cards, setCards] = useState<Card[] | null>(null);
-  const [usage, setUsage] = useState<number>(0);
   const [copied, setCopied] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const sb = supabaseBrowser();
-    const [{ data: quizzes }, { data: qs }, { data: atts }, { data: use }] = await Promise.all([
+    const [{ data: quizzes }, { data: qs }, { data: atts }] = await Promise.all([
       sb.from("quizzes").select("*").order("created_at", { ascending: false }),
       sb.from("questions").select("quiz_id"),
       sb.from("attempts").select("quiz_id, score, total, status").eq("status", "submitted"),
-      sb.from("ai_usage").select("calls, day").order("day", { ascending: false }).limit(1),
     ]);
-    const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Ho_Chi_Minh" });
-    setUsage(use?.[0]?.day === today ? use[0].calls : 0);
     setCards(
       (quizzes ?? []).map((q: Quiz) => {
         const mine = (atts ?? []).filter((a) => a.quiz_id === q.id);
@@ -45,10 +41,7 @@ export default function Dashboard() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Đề của tôi</h1>
-          <p className="text-sm text-muted">Lượt gọi AI hôm nay: <b>{usage}</b> (gói miễn phí của Gemini có giới hạn theo ngày)</p>
-        </div>
+        <h1 className="text-2xl font-bold">Đề của tôi</h1>
         <Link href="/dashboard/new" className="btn-primary">+ Tạo đề mới</Link>
       </div>
 
