@@ -29,7 +29,11 @@ jobs:
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
           from datetime import datetime, timezone, timedelta
-          today = datetime.now(timezone(timedelta(hours=7))).strftime("%Y-%m-%d")
+          now = datetime.now(timezone(timedelta(hours=7)))
+          t = now if (now.weekday() < 5 and now.hour >= 15) else now - timedelta(days=1)
+          while t.weekday() >= 5:
+              t -= timedelta(days=1)
+          today = t.strftime("%Y-%m-%d")
           skip = False
           if os.environ.get("EV") == "schedule":
               try:

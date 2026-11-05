@@ -34,7 +34,13 @@ jobs:
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
           from datetime import datetime, timezone, timedelta
-          today = datetime.now(timezone(timedelta(hours=7))).strftime("%Y-%m-%d")
+          now = datetime.now(timezone(timedelta(hours=7)))
+          # Phiên cần có: hôm nay nếu đã qua 15:00 ngày giao dịch, ngược lại là ngày giao dịch trước đó
+          # (lịch GitHub trễ sang sau nửa đêm vẫn nhận ra phiên hôm qua đã xong, không chạy lại).
+          t = now if (now.weekday() < 5 and now.hour >= 15) else now - timedelta(days=1)
+          while t.weekday() >= 5:
+              t -= timedelta(days=1)
+          today = t.strftime("%Y-%m-%d")
           skip = False
           # Lịch GitHub (schedule) có thể trễ nhiều giờ: bỏ qua nếu lượt đầy đủ của phiên hôm nay đã xong
           # (thường do tác vụ hẹn giờ bên ngoài gọi workflow_dispatch đúng giờ).
@@ -117,8 +123,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A && git commit -qm "Dữ liệu nến $(cat _updated.txt) ($n mã)"
-          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" charts-data
-          echo "Đã lưu dữ liệu nến cho $n mã"
+          for i in 1 2 3; do
+            if git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" charts-data; then
+              echo "Đã lưu dữ liệu nến cho $n mã"; exit 0
+            fi
+            echo "Đẩy dữ liệu nến lỗi, thử lại sau 20s ($i/3)"; sleep 20
+          done
+          exit 1
 
       - name: Báo lỗi nếu lấy giá thất bại
         if: (steps.run.outcome == 'failure') && steps.chk.outputs.skip != 'true'
