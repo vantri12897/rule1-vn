@@ -6,19 +6,29 @@ import { fmtDate, quizLink, STATUS_LABEL } from "@/lib/ui";
 import type { Quiz } from "@/lib/types";
 import { CardsSkeleton } from "@/components/ui/Skeleton";
 import { useT } from "@/lib/i18n/client";
+import { cacheGet, cacheSet } from "@/lib/cache";
+import { prefetchQuizDetail } from "@/lib/quiz-load";
 
 type Card = Quiz & { qcount: number; submitted: number; avgPct: number | null };
 
 export default function Dashboard() {
   const { t } = useT();
-  const [cards, setCards] = useState<Card[] | null>(null);
+  // Hiện ngay danh sách đã xem lần trước (nếu có), rồi tải mới ở phía sau
+  const [cards, setCards] = useState<Card[] | null>(() => cacheGet<Card[]>("list") ?? null);
   const [copied, setCopied] = useState<string | null>(null);
   const [reminder, setReminder] = useState<string | null>(null);
 
   useEffect(() => {
+    const backupCheck = () => {
+      const last = localStorage.getItem("yd-last-backup");
+      if (!last || Date.now() - new Date(last).getTime() > 7 * 86400_000) setReminder(t("Đã hơn 7 ngày chưa sao lưu dữ liệu (hoặc chưa sao lưu lần nào trên máy này)."));
+    };
+    // Đã biết có mã khôi phục trong phiên này → khỏi hỏi máy chủ mỗi lần về trang danh sách
+    if (sessionStorage.getItem("yd-rc-ok") === "1") return backupCheck();
     fetch("/api/account/recovery-code", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
+        if (d.exists) sessionStorage.setItem("yd-rc-ok", "1");
         if (!d.exists) return setReminder(t("Bạn chưa tạo mã khôi phục mật khẩu — nếu quên mật khẩu sẽ không vào lại được website."));
         const last = localStorage.getItem("yd-last-backup");
         if (!last || Date.now() - new Date(last).getTime() > 7 * 86400_000) setReminder(t("Đã hơn 7 ngày chưa sao lưu dữ liệu (hoặc chưa sao lưu lần nào trên máy này)."));
@@ -28,28 +38,29 @@ export default function Dashboard() {
 
   const load = useCallback(async () => {
     const sb = supabaseBrowser();
-    const [{ data: quizzes }, { data: qs }, { data: atts }] = await Promise.all([
-      sb.from("quizzes").select("*").order("created_at", { ascending: false }),
-      sb.from("questions").select("quiz_id"),
-      sb.from("attempts").select("quiz_id, score, total, status").eq("status", "submitted"),
+    // Đếm số câu ngay trong truy vấn đề (questions(count)) thay vì tải mọi dòng câu hỏi về máy
+    const [{ data: quizzes }, { data: atts }] = await Promise.all([
+      sb.from("quizzes").select("*, questions(count)").order("created_at", { ascending: false }),
+      sb.from("attempts").select("quiz_id, score, total").eq("status", "submitted"),
     ]);
-    setCards(
-      (quizzes ?? []).map((q: Quiz) => {
+    if (!quizzes) return setCards((c) => c ?? []);
+    const next = (quizzes as (Quiz & { questions: { count: number }[] })[]).map(({ questions, ...q }) => {
         const mine = (atts ?? []).filter((a) => a.quiz_id === q.id);
         const pcts = mine.filter((a) => a.total).map((a) => (a.score / a.total) * 100);
         return {
           ...q,
-          qcount: (qs ?? []).filter((x) => x.quiz_id === q.id).length,
+          qcount: questions?.[0]?.count ?? 0,
           submitted: mine.length,
           avgPct: pcts.length ? pcts.reduce((a, b) => a + b, 0) / pcts.length : null,
-        };
-      })
-    );
+        } as Card;
+      });
+    cacheSet("list", next);
+    setCards((old) => (old && JSON.stringify(old) === JSON.stringify(next) ? old : next));
   }, []);
 
   useEffect(() => {
     load();
-    const t = setInterval(load, 15000);
+    const t = setInterval(() => document.visibilityState === "visible" && load(), 15000);
     return () => clearInterval(t);
   }, [load]);
 
@@ -82,7 +93,14 @@ export default function Dashboard() {
             const accent = ["border-t-primary", "border-t-sky", "border-t-sun", "border-t-teal"][idx % 4];
             return (
               <div key={c.id} className={`card flex flex-col border-t-4 p-5 transition hover:-translate-y-0.5 hover:shadow-md ${accent}`}>
-                <Link href={`/dashboard/quiz/${c.id}`} className="group flex-1">
+                <Link
+                  href={`/dashboard/quiz/${c.id}`}
+                  prefetch
+                  className="group flex-1"
+                  onMouseEnter={() => prefetchQuizDetail(c.id)}
+                  onTouchStart={() => prefetchQuizDetail(c.id)}
+                  onFocus={() => prefetchQuizDetail(c.id)}
+                >
                   <div className="flex items-start justify-between gap-2">
                     <h2 className="line-clamp-2 font-bold group-hover:text-primary-dark">{c.title}</h2>
                     <span className={`badge shrink-0 ${st.cls}`}>{t(st.text)}</span>

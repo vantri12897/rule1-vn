@@ -1,5 +1,6 @@
 "use client";
 import { Suspense, useState } from "react";
+import { cacheClear } from "@/lib/cache";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { Logo } from "@/components/Logo";
@@ -27,6 +28,7 @@ function LoginForm() {
       if (mode === "login") {
         const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        cacheClear();
         router.replace("/dashboard");
         router.refresh();
       } else {
@@ -42,6 +44,7 @@ function LoginForm() {
         }
         const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        cacheClear();
         router.replace("/dashboard");
         router.refresh();
       }

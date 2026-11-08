@@ -16,7 +16,7 @@ export default function AccountPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <Link href="/dashboard" className="text-sm text-primary-dark hover:underline">{t("← Về danh sách đề")}</Link>
+      <Link href="/dashboard" prefetch className="text-sm text-primary-dark hover:underline">{t("← Về danh sách đề")}</Link>
       <h1 className="text-2xl font-bold">{t("Tài khoản & sao lưu")}</h1>
       <p className="text-sm text-muted">{t("Đăng nhập:")} <b className="text-ink">{email}</b></p>
       <RecoveryCard email={email} />

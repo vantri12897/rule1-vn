@@ -12,7 +12,7 @@ export default function NewQuizPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/dashboard" className="text-sm text-primary-dark hover:underline">{t("← Về danh sách đề")}</Link>
+      <Link href="/dashboard" prefetch className="text-sm text-primary-dark hover:underline">{t("← Về danh sách đề")}</Link>
       <h1 className="mb-4 mt-2 text-2xl font-bold">{t("Tạo đề mới")}</h1>
       <div className="mb-4 inline-flex rounded-xl border border-gray-200 bg-white p-1">
         {(

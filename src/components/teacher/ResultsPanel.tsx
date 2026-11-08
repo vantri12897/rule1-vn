@@ -1,5 +1,5 @@
 "use client";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, memo, useCallback, useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { regradeQuiz } from "@/lib/quiz-db";
 import { fmtDate, fmtDuration } from "@/lib/ui";
@@ -8,14 +8,16 @@ import { confirmDialog, toast } from "@/components/ui/feedback";
 import { Skel } from "@/components/ui/Skeleton";
 import { useT } from "@/lib/i18n/client";
 
-export function ResultsPanel({
+export const ResultsPanel = memo(function ResultsPanel({
   quiz,
   questions,
   onCountChange,
+  active: isActive = true,
 }: {
   quiz: Quiz;
   questions: QuestionRow[];
   onCountChange: (n: number) => void;
+  active?: boolean;
 }) {
   const { t } = useT();
   const [attempts, setAttempts] = useState<Attempt[] | null>(null);
@@ -33,14 +35,15 @@ export function ResultsPanel({
     setAttempts((data as Attempt[]) ?? []);
   }, [quiz.id]);
 
-  // Cập nhật gần thời gian thực: hỏi lại mỗi 5 giây khi tab đang mở
+  // Cập nhật gần thời gian thực: hỏi lại mỗi 5 giây khi tab Kết quả đang hiện (ẩn thì nghỉ)
   useEffect(() => {
+    if (!isActive) return;
     load();
     const t = setInterval(() => {
       if (document.visibilityState === "visible") load();
     }, 5000);
     return () => clearInterval(t);
-  }, [load]);
+  }, [load, isActive]);
 
   const active = useMemo(() => (attempts ?? []).filter((a) => a.status !== "archived"), [attempts]);
   const submitted = useMemo(() => active.filter((a) => a.status === "submitted"), [active]);
@@ -307,7 +310,7 @@ export function ResultsPanel({
       )}
     </div>
   );
-}
+});
 
 function Stat({ value, label, tone }: { value: React.ReactNode; label: string; tone: "green" | "sky" | "sun" }) {
   const c = { green: "border-t-primary text-primary-dark", sky: "border-t-sky text-sky-ink", sun: "border-t-sun text-sun-ink" }[tone];

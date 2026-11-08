@@ -26,7 +26,9 @@ export const HL_COLORS = [
 ];
 
 const uid = () => Math.random().toString(36).slice(2, 9);
-let focusNote: string | null = null; // ghi chú vừa tạo → đặt con trỏ vào ô viết
+let focusNote: string | null = null;
+/** Vùng chữ đã áp vết tô gì (để bỏ qua khi không đổi) */
+const applied = new WeakMap<HTMLElement, { sig: string; html: string }>(); // ghi chú vừa tạo → đặt con trỏ vào ô viết
 
 /** Vị trí ký tự (node, offset) tính từ đầu vùng */
 function offsetIn(zone: HTMLElement, node: Node, offset: number): number {
@@ -133,11 +135,15 @@ export function useAnnotations(storeKey: string) {
       if (!root) return;
       root.querySelectorAll<HTMLElement>("[data-zone]").forEach((z) => {
         const id = z.dataset.zone!;
-        applyZone(
-          z,
-          hls.filter((h) => h.z === id),
-          notes.filter((n) => n.z === id)
-        );
+        const zh = hls.filter((h) => h.z === id);
+        const zn = notes.filter((n) => n.z === id);
+        // Bỏ qua nếu vùng này không đổi gì từ lần áp trước (đỡ phải dựng lại DOM mỗi lần bấm đáp án)
+        const sig = JSON.stringify([zh, zn.map((n) => [n.id, n.o])]);
+        const prev = applied.get(z);
+        if (prev && prev.sig === sig && prev.html === z.innerHTML) return;
+        if (!prev && !zh.length && !zn.length) return;
+        applyZone(z, zh, zn);
+        applied.set(z, { sig, html: z.innerHTML });
       });
     },
     [hls, notes]

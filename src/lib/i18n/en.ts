@@ -1,6 +1,7 @@
 // English UI strings. Key = Vietnamese source text.
 export const EN: Record<string, string> = {
   "STT": "No.",
+  "Xong": "Done",
   "Bôi đen chữ trong đề để tô màu. Bấm vào chỗ đã tô để đổi màu hoặc xoá. Nhấn Esc để thoát.": "Select text in the test to highlight it. Click a highlight to change its color or remove it. Press Esc to exit.",
   "Bấm vào vị trí trong đề để thêm ghi chú. Nhấn Esc để thoát.": "Click a spot in the test to add a note. Press Esc to exit.",
   "Kéo để di chuyển ghi chú. Bấm đúp để đưa về cạnh chữ.": "Drag to move the note. Double-click to put it back next to the text.",

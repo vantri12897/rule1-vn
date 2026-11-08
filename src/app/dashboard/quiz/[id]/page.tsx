@@ -13,6 +13,8 @@ import type { Quiz, QuestionRow } from "@/lib/types";
 import { alertDialog, confirmDialog, toast } from "@/components/ui/feedback";
 import { PageSkeleton } from "@/components/ui/Skeleton";
 import { useT } from "@/lib/i18n/client";
+import { cacheDelete, cacheGet, cacheSet } from "@/lib/cache";
+import { fetchQuizDetail, type QuizDetail } from "@/lib/quiz-load";
 
 type Tab = "questions" | "results" | "settings";
 const TABS: Tab[] = ["questions", "results", "settings"];
@@ -21,29 +23,32 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   const { t } = useT();
   const { id } = use(params);
   const router = useRouter();
-  const [quiz, setQuiz] = useState<Quiz | null>(null);
-  const [questions, setQuestions] = useState<QuestionRow[]>([]);
+  // Đã xem / đã tải trước (rê chuột ở danh sách) → hiện ngay, rồi tải mới ở phía sau
+  const cached = cacheGet<QuizDetail>(`quiz:${id}`);
+  const [quiz, setQuiz] = useState<Quiz | null>(cached?.quiz ?? null);
+  const [questions, setQuestions] = useState<QuestionRow[]>(cached?.questions ?? []);
   const [notFound, setNotFound] = useState(false);
-  const [tab, setTab] = useState<Tab | null>(null);
+  const [tab, setTab] = useState<Tab | null>(cached?.quiz ? (cached.quiz.status === "draft" ? "questions" : "results") : null);
+  // Tab đã mở thì giữ lại (chỉ ẩn đi) → chuyển qua lại tức thì, không tải lại, không mất chỗ đang sửa
+  const [seen, setSeen] = useState<Set<Tab>>(() => new Set(tab ? [tab] : []));
   const [dirty, setDirty] = useState(false);
-  const [submittedCount, setSubmittedCount] = useState(0);
+  const [submittedCount, setSubmittedCount] = useState(cached?.submitted ?? 0);
   const [msg, setMsg] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const sb = supabaseBrowser();
-    const [{ data: q }, { data: qs }, { count }] = await Promise.all([
-      sb.from("quizzes").select("*").eq("id", id).maybeSingle(),
-      sb.from("questions").select("*").eq("quiz_id", id).order("position"),
-      sb.from("attempts").select("id", { count: "exact", head: true }).eq("quiz_id", id).eq("status", "submitted"),
-    ]);
-    if (!q) {
+    const d = await fetchQuizDetail(id);
+    if (!d.quiz) {
       setNotFound(true);
       return;
     }
-    setQuiz(q as Quiz);
-    setQuestions((qs as QuestionRow[]) ?? []);
-    setSubmittedCount(count ?? 0);
-    setTab((t) => t ?? ((q as Quiz).status === "draft" ? "questions" : "results"));
+    cacheSet(`quiz:${id}`, d);
+    // Chỉ cập nhật khi dữ liệu thật sự khác → không vẽ lại cả trang vô ích
+    setQuiz((old) => (old && JSON.stringify(old) === JSON.stringify(d.quiz) ? old : d.quiz));
+    setQuestions((old) => (old.length === d.questions.length && JSON.stringify(old) === JSON.stringify(d.questions) ? old : d.questions));
+    setSubmittedCount(d.submitted);
+    const first: Tab = d.quiz.status === "draft" ? "questions" : "results";
+    setTab((t) => t ?? first);
+    setSeen((s) => (s.size ? s : new Set([first])));
   }, [id]);
 
   useEffect(() => {
@@ -75,6 +80,13 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
     load();
   }
 
+  const onDuplicate = useCallback(async () => router.push(`/dashboard/quiz/${await duplicateQuiz(id)}`), [id, router]);
+  const onDeleted = useCallback(() => {
+    cacheDelete("list");
+    cacheDelete(`quiz:${id}`);
+    router.replace("/dashboard");
+  }, [id, router]);
+
   if (notFound) return <p className="card p-6 text-center">{t("Không tìm thấy đề.")} <Link className="text-primary-dark underline" href="/dashboard">{t("Về danh sách")}</Link></p>;
   if (!quiz || !tab) return <PageSkeleton />;
 
@@ -82,7 +94,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div>
-      <Link href="/dashboard" className="text-sm text-primary-dark hover:underline">{t("← Về danh sách đề")}</Link>
+      <Link href="/dashboard" prefetch className="text-sm text-primary-dark hover:underline">{t("← Về danh sách đề")}</Link>
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">{quiz.title}</h1>
@@ -123,9 +135,9 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
             key={k}
             role="tab"
             aria-selected={tab === k}
-            onClick={async () => {
-              if (dirty && k !== "questions" && !(await confirmDialog({ title: t("Chưa lưu thay đổi"), message: t("Có thay đổi chưa lưu ở tab Đề & đáp án. Rời tab này?"), confirmText: t("Rời tab"), cancelText: t("Ở lại") }))) return;
+            onClick={() => {
               setTab(k);
+              setSeen((s) => (s.has(k) ? s : new Set(s).add(k)));
             }}
             className={`relative z-10 flex min-h-12 items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1 py-2.5 sm:gap-1.5 sm:px-2 text-sm font-bold transition-[color,background-color,transform] duration-200 sm:text-base ${
               tab === k ? "text-white" : "text-primary-dark hover:bg-white/70"
@@ -141,18 +153,22 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         ))}
       </div>
 
-      <div key={tab} className="yd-fade-up mt-5">
-        {tab === "questions" && (
-          <QuestionsEditor quiz={quiz} questions={questions} submittedCount={submittedCount} onSaved={load} onDirtyChange={setDirty} />
+      {/* Mỗi tab chỉ dựng 1 lần; đổi tab = ẩn/hiện (hiệu ứng hiện dần chạy lại mỗi lần hiện) */}
+      <div className="mt-5">
+        {seen.has("questions") && (
+          <div className={tab === "questions" ? "yd-fade-up" : "hidden"}>
+            <QuestionsEditor quiz={quiz} questions={questions} submittedCount={submittedCount} onSaved={load} onDirtyChange={setDirty} />
+          </div>
         )}
-        {tab === "results" && <ResultsPanel quiz={quiz} questions={questions} onCountChange={setSubmittedCount} />}
-        {tab === "settings" && (
-          <Settings
-            quiz={quiz}
-            onSaved={load}
-            onDuplicate={async () => router.push(`/dashboard/quiz/${await duplicateQuiz(quiz.id)}`)}
-            onDeleted={() => router.replace("/dashboard")}
-          />
+        {seen.has("results") && (
+          <div className={tab === "results" ? "yd-fade-up" : "hidden"}>
+            <ResultsPanel quiz={quiz} questions={questions} onCountChange={setSubmittedCount} active={tab === "results"} />
+          </div>
+        )}
+        {seen.has("settings") && (
+          <div className={tab === "settings" ? "yd-fade-up" : "hidden"}>
+            <Settings quiz={quiz} onSaved={load} onDuplicate={onDuplicate} onDeleted={onDeleted} />
+          </div>
         )}
       </div>
     </div>

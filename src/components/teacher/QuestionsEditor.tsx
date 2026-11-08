@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RichText } from "./RichText";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { parseAnswerKey } from "@/lib/parse";
@@ -15,7 +15,7 @@ type EditQ = DraftQuestion & { key: string };
 let keySeq = 0;
 const newKey = () => `k${++keySeq}`;
 
-export function QuestionsEditor({
+export const QuestionsEditor = memo(function QuestionsEditor({
   quiz,
   questions,
   submittedCount,
@@ -40,7 +40,11 @@ export function QuestionsEditor({
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfAvailable, setPdfAvailable] = useState(false);
 
+  // Đang có thay đổi chưa lưu thì không ghi đè bằng dữ liệu tải lại (tab giờ được giữ nguyên khi chuyển qua lại)
+  const dirtyRef = useRef(false);
+  dirtyRef.current = dirty;
   useEffect(() => {
+    if (dirtyRef.current) return;
     setItems(questions.map((q) => ({ ...q, key: newKey() })));
     setSections(quiz.sections ?? []);
     setDirty(false);
@@ -61,10 +65,15 @@ export function QuestionsEditor({
     [items]
   );
 
-  function update(key: string, patch: Partial<EditQ>) {
+  // Hàm cố định (useCallback) để thẻ câu hỏi không bị vẽ lại khi sửa câu khác
+  const update = useCallback((key: string, patch: Partial<EditQ>) => {
     setItems((arr) => arr.map((q) => (q.key === key ? { ...q, ...patch } : q)));
     setDirty(true);
-  }
+  }, []);
+  const remove = useCallback((key: string) => {
+    setItems((a) => a.filter((x) => x.key !== key));
+    setDirty(true);
+  }, []);
 
   async function openPdf() {
     if (!quiz.source_file_hash) return;
@@ -238,7 +247,7 @@ export function QuestionsEditor({
                     )}
                   </div>
                 )}
-                <QuestionCard q={q} onChange={(p) => update(q.key, p)} onDelete={() => { setItems((a) => a.filter((x) => x.key !== q.key)); setDirty(true); }} />
+                <QuestionCard q={q} onUpdate={update} onRemove={remove} />
               </div>
             );
           })}
@@ -256,7 +265,7 @@ export function QuestionsEditor({
       </div>
     </div>
   );
-}
+});
 
 function FilterBtn({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
@@ -266,8 +275,10 @@ function FilterBtn({ on, onClick, children }: { on: boolean; onClick: () => void
   );
 }
 
-function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Partial<EditQ>) => void; onDelete: () => void }) {
+const QuestionCard = memo(function QuestionCard({ q, onUpdate, onRemove }: { q: EditQ; onUpdate: (key: string, p: Partial<EditQ>) => void; onRemove: (key: string) => void }) {
   const { t } = useT();
+  const onChange = (p: Partial<EditQ>) => onUpdate(q.key, p);
+  const onDelete = () => onRemove(q.key);
   const [editing, setEditing] = useState(false);
   return (
     <div className={`card p-4 ${q.needs_review ? "border-orange-300 ring-1 ring-orange-200" : !q.correct_label ? "border-red-300" : ""}`}>
@@ -285,7 +296,7 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
         )}
         {!q.correct_label && <span className="badge bg-red-50 text-danger">{t("Thiếu đáp án")}</span>}
         <div className="ml-auto flex gap-1">
-          <button className="btn-ghost px-2 py-1 text-xs" onClick={() => setEditing(!editing)}>{editing ? "Xong" : t("Sửa")}</button>
+          <button className="btn-ghost px-2 py-1 text-xs" onClick={() => setEditing(!editing)}>{editing ? t("Xong") : t("Sửa")}</button>
           <button className="btn-ghost px-2 py-1 text-xs text-danger" onClick={async () => (await confirmDialog({ title: t("Xoá câu hỏi"), message: t("Xoá câu {n}? (Bấm “Lưu thay đổi” sau đó mới xoá hẳn.)", { n: q.number }), confirmText: t("Xoá"), danger: true })) && onDelete()}>{t("Xoá")}</button>
         </div>
       </div>
@@ -388,4 +399,4 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
       {q.explanation && <p className="mt-2 text-xs text-muted">💡 {q.explanation}</p>}
     </div>
   );
-}
+});
