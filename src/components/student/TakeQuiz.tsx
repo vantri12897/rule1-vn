@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Html } from "@/components/QuestionText";
 import { safeHtml } from "@/lib/sanitize";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -7,6 +7,7 @@ import type { PublicQuestion, Section } from "@/lib/types";
 import { confirmDialog } from "@/components/ui/feedback";
 import { StudentSkeleton } from "@/components/ui/Skeleton";
 import { useT } from "@/lib/i18n/client";
+import { AnnotationPopup, AnnotationToolbar, NoteClouds, Splitter, useAnnotationEvents, useAnnotations } from "./Annotate";
 
 export type QuizInfo = { title: string; status: "open" | "closed"; sections: Section[]; time_limit_min: number | null; question_count: number };
 type Result = {
@@ -126,6 +127,7 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
           const data = await r.json();
           if (r.ok) {
             localStorage.removeItem(ansKey);
+            localStorage.removeItem(`yd-marks-${slug}`);
             setResult(data.result);
             setView("result");
             window.scrollTo({ top: 0 });
@@ -179,11 +181,11 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
         {view === "closed" && <Message title={t("Đề đã đóng")} text={t("Giáo viên đã ngừng nhận bài cho đề này.")} />}
         {view === "name" && quiz && <NameForm quiz={quiz} busy={busy} error={error} onStart={start} />}
         {view === "taking" && quiz && (
-          <TakingView quiz={quiz} questions={questions} answers={answers} setAnswers={setAnswers} busy={busy} error={error} onSubmit={() => submit(false)} />
+          <TakingView storeKey={slug} quiz={quiz} questions={questions} answers={answers} setAnswers={setAnswers} busy={busy} error={error} onSubmit={() => submit(false)} />
         )}
         {view === "result" && result && <ResultView result={result} questions={questions} sections={quiz?.sections ?? []} />}
       </div>
-      <footer className="pb-8 text-center text-xs text-muted">YD-English</footer>
+      {view !== "taking" && <footer className="pb-8 text-center text-xs text-muted">YD-English</footer>}
     </main>
   );
 }
@@ -280,17 +282,35 @@ function cleanStem(stem: string) {
 }
 
 /** Đoạn văn có chỗ trống (1), (2)…: tô sáng chỗ trống của câu đang làm, đánh dấu chỗ đã làm */
-function PassageHtml({ text, current, numbers, answered }: { text: string; current: number | null; numbers: Set<number>; answered: Set<number> }) {
+/** Vùng chữ học viên tô màu / ghi chú được (xem Annotate.tsx) */
+function Zone({ id, text }: { id: string; text: string | null | undefined }) {
+  return <span data-zone={id} dangerouslySetInnerHTML={{ __html: safeHtml(text) }} />;
+}
+
+function useWide() {
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia("(min-width: 1024px)");
+    const on = () => setWide(m.matches);
+    on();
+    m.addEventListener("change", on);
+    return () => m.removeEventListener("change", on);
+  }, []);
+  return wide;
+}
+
+function PassageHtml({ zone, text, current, numbers, answered }: { zone: string; text: string; current: number | null; numbers: Set<number>; answered: Set<number> }) {
   const html = safeHtml(text).replace(/\((\d{1,3})\)/g, (m, d: string) => {
     const n = Number(d);
     if (!numbers.has(n)) return m;
     if (n === current) return `<mark data-cur="1" class="rounded bg-yellow-200 px-1 font-bold text-ink ring-2 ring-yellow-400">(${n})</mark>`;
     return `<span class="rounded px-0.5 font-semibold ${answered.has(n) ? "bg-primary-soft text-primary-dark" : "text-primary-dark"}">(${n})</span>`;
   });
-  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+  return <span data-zone={zone} dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 function TakingView({
+  storeKey,
   quiz,
   questions,
   answers,
@@ -299,6 +319,7 @@ function TakingView({
   error,
   onSubmit,
 }: {
+  storeKey: string;
   quiz: QuizInfo;
   questions: PublicQuestion[];
   answers: Record<string, string>;
@@ -312,10 +333,52 @@ function TakingView({
   const [showPassage, setShowPassage] = useState(false);
   const [current, setCurrent] = useState<string | null>(questions[0]?.id ?? null);
   const passageRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const splitRef = useRef<HTMLDivElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const [leftLayer, setLeftLayer] = useState<HTMLDivElement | null>(null);
+  const [rightLayer, setRightLayer] = useState<HTMLDivElement | null>(null);
+  const wide = useWide();
+  const ann = useAnnotations(`yd-marks-${storeKey}`);
+  useAnnotationEvents(rootRef, ann);
+  // Áp lại vết tô/ghi chú sau mỗi lần vẽ (React có thể vẽ lại đoạn văn khi đổi câu đang làm)
+  useLayoutEffect(() => {
+    ann.applyAll(rootRef.current);
+    window.dispatchEvent(new Event("yd-ann-applied")); // báo cho đám mây ghi chú đặt lại vị trí
+  });
   const done = questions.filter((q) => answers[q.id]).length;
   const pick = (qid: string, label: string) => setAnswers((a) => ({ ...a, [qid]: label }));
 
   const hasPassage = quiz.sections.some((s) => s?.passage && s.passage.trim().length > 0);
+  const split = hasPassage && wide; // máy tính: 2 cột cuộn độc lập + thanh kéo
+
+  // Độ rộng cột trái (%), nhớ trên máy
+  const [leftPct, setLeftPct] = useState(52);
+  useEffect(() => {
+    const v = Number(localStorage.getItem("yd-split"));
+    if (v >= 28 && v <= 72) setLeftPct(v);
+  }, []);
+  const setSplit = (v: number) => {
+    setLeftPct(v);
+    try {
+      localStorage.setItem("yd-split", String(Math.round(v)));
+    } catch {}
+  };
+
+  // Chiều cao 2 cột = phần màn hình còn lại giữa đầu trang và thanh dưới cùng
+  const [paneH, setPaneH] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    if (!split) return;
+    const fit = () => {
+      const top = (splitRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY;
+      const bar = barRef.current?.offsetHeight ?? 72;
+      setPaneH(Math.max(320, window.innerHeight - top - bar - 12));
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, [split]);
   const curQ = questions.find((q) => q.id === current) ?? questions[0];
   const curSec = curQ?.section_index != null ? quiz.sections[curQ.section_index] : null;
   const secQs = curQ?.section_index != null ? questions.filter((q) => q.section_index === curQ.section_index) : [];
@@ -331,11 +394,11 @@ function TakingView({
         const vis = entries.filter((e) => e.isIntersecting).sort((x, y) => x.boundingClientRect.top - y.boundingClientRect.top)[0];
         if (vis) setCurrent(vis.target.id.slice(2));
       },
-      { rootMargin: "-100px 0px -55% 0px" }
+      split ? { root: rightRef.current, rootMargin: "-8px 0px -55% 0px" } : { rootMargin: "-100px 0px -55% 0px" }
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [questions]);
+  }, [questions, split]);
 
   // Các nhóm câu theo đoạn văn / hướng dẫn (theo đúng thứ tự trong đề)
   const groups = useMemo(() => {
@@ -351,25 +414,16 @@ function TakingView({
   const curGroup = groups.findIndex((g) => g.qs.some((q) => q.id === current));
   const prevGroup = useRef<number>(-1);
 
-  // Cột trái hiện toàn bộ đề; khi sang nhóm câu khác thì tự cuộn tới đoạn đó,
-  // còn trong cùng đoạn thì chỉ cuộn khi chỗ trống của câu đang làm bị khuất
-  useEffect(() => {
+  // Hai cột độc lập: cột trái KHÔNG tự cuộn theo cột phải. Có nút để tự nhảy tới đoạn của câu đang làm.
+  const jumpLeft = () => {
     const box = passageRef.current;
     if (!box) return;
-    const mark = box.querySelector<HTMLElement>("mark[data-cur]");
-    const block = box.querySelector<HTMLElement>(`[data-group="${curGroup}"]`);
-    const rel = (el: HTMLElement) => el.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop;
-    if (curGroup !== prevGroup.current) {
-      prevGroup.current = curGroup;
-      if (mark) box.scrollTo({ top: rel(mark) - box.clientHeight / 3, behavior: "smooth" });
-      else if (block) box.scrollTo({ top: rel(block) - 8, behavior: "smooth" });
-      return;
-    }
-    if (mark) {
-      const top = rel(mark);
-      if (top < box.scrollTop + 40 || top > box.scrollTop + box.clientHeight - 60) box.scrollTo({ top: top - box.clientHeight / 3, behavior: "smooth" });
-    }
-  }, [current, curGroup]);
+    const target = box.querySelector<HTMLElement>("mark[data-cur]") ?? box.querySelector<HTMLElement>(`[data-group="${curGroup}"]`);
+    if (!target) return;
+    const top = target.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop;
+    box.scrollTo({ top: top - (target.tagName === "MARK" ? box.clientHeight / 3 : 8), behavior: "smooth" });
+  };
+  void prevGroup;
 
   const goTo = (qid: string) => document.getElementById(`q-${qid}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -383,12 +437,12 @@ function TakingView({
       )}
       {curSec.instruction && (
         <p className="font-semibold italic leading-relaxed">
-          <Html text={curSec.instruction} />
+          <Zone id={`i${curQ.section_index}`} text={curSec.instruction} />
         </p>
       )}
       {curSec.passage && (
         <p className="mt-3 whitespace-pre-line text-[17px] leading-8">
-          <PassageHtml text={curSec.passage} current={curQ?.number ?? null} numbers={secNumbers} answered={answeredNumbers} />
+          <PassageHtml zone={`p${curQ.section_index}`} text={curSec.passage} current={curQ?.number ?? null} numbers={secNumbers} answered={answeredNumbers} />
         </p>
       )}
     </>
@@ -420,12 +474,12 @@ function TakingView({
         </button>
         {sec.instruction && (
           <p className="font-semibold italic leading-relaxed">
-            <Html text={sec.instruction} />
+            <Zone id={`i${g.sec}`} text={sec.instruction} />
           </p>
         )}
         {sec.passage && (
           <p className="mt-3 whitespace-pre-line text-[17px] leading-8">
-            <PassageHtml text={sec.passage} current={isCur ? curQ?.number ?? null : null} numbers={nums} answered={ans} />
+            <PassageHtml zone={`p${g.sec}`} text={sec.passage} current={isCur ? curQ?.number ?? null : null} numbers={nums} answered={ans} />
           </p>
         )}
       </section>
@@ -435,81 +489,96 @@ function TakingView({
   let lastSection: number | null = null;
 
   return (
-    <div className={hasPassage ? "lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start lg:gap-6" : "mx-auto max-w-3xl"}>
-      {/* ===== CỘT TRÁI: ĐOẠN VĂN (đứng yên, đổi theo câu đang làm) ===== */}
-      {hasPassage && (
-        <aside className="hidden lg:sticky lg:top-24 lg:block">
-          <div className="mb-2 flex items-baseline justify-between text-sm font-bold uppercase tracking-wide text-muted">
-            <span>{t("📖 Đề bài (Question)")}</span>
-            <span className="text-xs font-semibold normal-case tracking-normal">{t("Cuộn để xem toàn bộ đề")}</span>
-          </div>
-          <div ref={passageRef} className="card max-h-[calc(100vh-11.5rem)] space-y-2 overflow-y-auto overscroll-contain p-3">
-            {fullPanel}
-          </div>
-        </aside>
-      )}
-
-      {/* ===== CỘT PHẢI: CÂU HỎI & CHỌN ĐÁP ÁN ===== */}
-      <div>
-        {hasPassage && <div className="mb-2 hidden text-sm font-bold uppercase tracking-wide text-muted lg:block">{t("✏️ Chọn đáp án (Answers)")}</div>}
-        <div className="space-y-4">
-          {questions.map((q, i) => {
-            const sec = q.section_index != null ? quiz.sections[q.section_index] : null;
-            const showSec = sec && q.section_index !== lastSection;
-            lastSection = q.section_index;
-            const isCur = current === q.id;
-            const stem = cleanStem(q.stem);
-            return (
-              <div key={q.id}>
-                {/* Trên điện thoại (hoặc đề không có đoạn văn): hướng dẫn/đoạn văn hiện ngay trước nhóm câu */}
-                {showSec && (sec!.instruction || sec!.passage) && (
-                  <div className={`card mb-4 border-primary-line p-4 ${hasPassage ? "lg:hidden" : ""}`}>
-                    {sec!.instruction && <p className="font-semibold italic"><Html text={sec!.instruction} /></p>}
-                    {sec!.passage && <p className="mt-2 whitespace-pre-line leading-relaxed"><Html text={sec!.passage} /></p>}
-                  </div>
-                )}
-                {hasPassage && showSec && sec?.instruction && !sec.passage && (
-                  <p className="mb-3 hidden text-sm font-semibold italic text-muted lg:block">
-                    <Html text={sec.instruction} />
-                  </p>
-                )}
-                <fieldset id={`q-${q.id}`} className={`card scroll-mt-28 p-4 transition ${isCur ? "ring-2 ring-primary/40" : ""}`}>
-                  <legend className="sr-only">{t("Câu {n}", { n: i + 1 })}</legend>
-                  <p className="mb-3 leading-relaxed">
-                    <b className="text-primary-dark">{t("Câu {n}.", { n: i + 1 })}</b> {stem && <Html text={stem} />}
-                  </p>
-                  {q.image && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={q.image} alt={t("Hình câu {n}", { n: i + 1 })} className="mb-3 max-h-96 max-w-full rounded-xl border border-gray-200 bg-white object-contain" />
-                  )}
-                  <div className="space-y-2">
-                    {q.options.map((o) => {
-                      const on = answers[q.id] === o.label;
-                      return (
-                        <label
-                          key={o.label}
-                          className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 px-3 py-3 transition duration-150 active:scale-[.99] lg:py-2.5 ${on ? "border-primary bg-primary-soft" : "border-gray-200 bg-white hover:border-primary-line active:bg-gray-50"}`}
-                        >
-                          <input
-                            type="radio"
-                            name={q.id}
-                            className={`mt-0.5 h-5 w-5 shrink-0 accent-[#15803d] ${on ? "yd-tick" : ""}`}
-                            checked={on}
-                            onChange={() => pick(q.id, o.label)}
-                          />
-                          <span>
-                            <b>{o.label}.</b> <Html text={o.text} />
-                          </span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </fieldset>
+    <div ref={rootRef} data-notemode={ann.noteMode ? "1" : "0"}>
+      <AnnotationPopup ann={ann} />
+      {!split && <AnnotationToolbar ann={ann} className={`mb-4 ${hasPassage ? "" : "mx-auto max-w-3xl"}`} />}
+      <div ref={splitRef} className={split ? "flex items-stretch" : hasPassage ? "" : "mx-auto max-w-3xl"} style={split && paneH ? { height: paneH } : undefined}>
+        {/* ===== CỘT TRÁI: ĐỀ BÀI (cuộn riêng) ===== */}
+        {split && (
+          <aside className="flex min-w-0 flex-col" style={{ width: `${leftPct}%` }}>
+            <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+              <span className="text-sm font-bold uppercase tracking-wide text-muted">{t("📖 Đề bài (Question)")}</span>
+              <button type="button" onClick={jumpLeft} className="rounded-lg px-1.5 py-0.5 text-xs font-semibold text-primary-dark hover:bg-primary-soft" title={t("Tới đoạn văn của câu đang làm")}>
+                📍 {t("Tới câu đang làm")}
+              </button>
+              <AnnotationToolbar ann={ann} className="ml-auto" />
+            </div>
+            <div ref={passageRef} className="card min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+              <div ref={setLeftLayer} className="relative space-y-2 pb-24">
+                {fullPanel}
               </div>
-            );
-          })}
+            </div>
+            <NoteClouds ann={ann} layer={leftLayer} />
+          </aside>
+        )}
+
+        {split && <Splitter value={leftPct} onChange={setSplit} containerRef={splitRef} />}
+
+        {/* ===== CỘT PHẢI: CÂU HỎI & CHỌN ĐÁP ÁN (cuộn riêng) ===== */}
+        <div className={split ? "flex min-w-0 flex-1 flex-col" : ""}>
+          {split && <div className="mb-2 text-sm font-bold uppercase tracking-wide text-muted">{t("✏️ Chọn đáp án (Answers)")}</div>}
+          <div ref={rightRef} className={split ? "min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 pb-2 pt-0.5" : ""}>
+            <div ref={setRightLayer} className="relative space-y-4">
+              {questions.map((q, i) => {
+                const sec = q.section_index != null ? quiz.sections[q.section_index] : null;
+                const showSec = sec && q.section_index !== lastSection;
+                lastSection = q.section_index;
+                const isCur = current === q.id;
+                const stem = cleanStem(q.stem);
+                return (
+                  <div key={q.id}>
+                    {/* Điện thoại (hoặc đề không có đoạn văn): hướng dẫn/đoạn văn hiện ngay trước nhóm câu */}
+                    {showSec && (sec!.instruction || sec!.passage) && (
+                      <div className={`card mb-4 border-primary-line p-4 ${split ? "hidden" : ""}`}>
+                        {sec!.instruction && <p className="font-semibold italic"><Zone id={`i${q.section_index}`} text={sec!.instruction} /></p>}
+                        {sec!.passage && <p className="mt-2 whitespace-pre-line leading-relaxed"><Zone id={`p${q.section_index}`} text={sec!.passage} /></p>}
+                      </div>
+                    )}
+                    {split && showSec && sec?.instruction && !sec.passage && (
+                      <p className="mb-3 text-sm font-semibold italic text-muted">
+                        <Html text={sec.instruction} />
+                      </p>
+                    )}
+                    <fieldset id={`q-${q.id}`} className={`card p-4 transition ${split ? "scroll-mt-2" : "scroll-mt-28"} ${isCur ? "ring-2 ring-primary/40" : ""}`}>
+                      <legend className="sr-only">{t("Câu {n}", { n: i + 1 })}</legend>
+                      <p className="mb-3 leading-relaxed">
+                        <b className="text-primary-dark">{t("Câu {n}.", { n: i + 1 })}</b> {stem && <Zone id={`s${q.id}`} text={stem} />}
+                      </p>
+                      {q.image && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={q.image} alt={t("Hình câu {n}", { n: i + 1 })} className="mb-3 max-h-96 max-w-full rounded-xl border border-gray-200 bg-white object-contain" />
+                      )}
+                      <div className="space-y-2">
+                        {q.options.map((o) => {
+                          const on = answers[q.id] === o.label;
+                          return (
+                            <label
+                              key={o.label}
+                              className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 px-3 py-3 transition duration-150 active:scale-[.99] lg:py-2.5 ${on ? "border-primary bg-primary-soft" : "border-gray-200 bg-white hover:border-primary-line active:bg-gray-50"}`}
+                            >
+                              <input
+                                type="radio"
+                                name={q.id}
+                                className={`mt-0.5 h-5 w-5 shrink-0 accent-[#15803d] ${on ? "yd-tick" : ""}`}
+                                checked={on}
+                                onChange={() => pick(q.id, o.label)}
+                              />
+                              <span>
+                                <b>{o.label}.</b> <Html text={o.text} />
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </fieldset>
+                  </div>
+                );
+              })}
+            </div>
+            <div className={split ? "h-6" : "h-28"} />
+          </div>
+          <NoteClouds ann={ann} layer={rightLayer} />
         </div>
-        <div className="h-28" />
       </div>
 
       {/* ===== THANH DƯỚI CÙNG: tiến độ, danh sách câu, nộp bài ===== */}
@@ -542,7 +611,7 @@ function TakingView({
           <div className="max-h-[50vh] overflow-y-auto border-b border-gray-100 p-4 lg:hidden">{passagePanel}</div>
         )}
         {error && <p className="bg-red-50 px-4 py-2 text-sm text-danger">{error}</p>}
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 lg:px-4">
+        <div ref={barRef} className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 lg:px-4">
           <button
             onClick={() => {
               setShowNav(!showNav);
