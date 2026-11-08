@@ -1,2 +1,3 @@
 ﻿ticker,error
 DMX,ValueError: Không có số cổ phiếu lưu hành
+DVV,ValueError: Không có số cổ phiếu lưu hành
