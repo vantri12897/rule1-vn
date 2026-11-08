@@ -354,7 +354,7 @@ function TakingView({
   const split = hasPassage && wide; // máy tính: 2 cột cuộn độc lập + thanh kéo
 
   // Độ rộng cột trái (%), nhớ trên máy
-  const [leftPct, setLeftPct] = useState(52);
+  const [leftPct, setLeftPct] = useState(72); // mặc định: cột đề bài rộng tối đa
   useEffect(() => {
     const v = Number(localStorage.getItem("yd-split"));
     if (v >= 28 && v <= 72) setLeftPct(v);

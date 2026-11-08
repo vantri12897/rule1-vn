@@ -538,7 +538,7 @@ export function Splitter({ value, onChange, containerRef }: { value: number; onC
       }}
       onPointerUp={() => setDrag(false)}
       onPointerCancel={() => setDrag(false)}
-      onDoubleClick={() => onChange(52)}
+      onDoubleClick={() => onChange(72)}
       onKeyDown={(e) => {
         if (e.key === "ArrowLeft") onChange(clamp(value - 3));
         if (e.key === "ArrowRight") onChange(clamp(value + 3));
