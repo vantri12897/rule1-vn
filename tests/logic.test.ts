@@ -105,3 +105,10 @@ test("xáo đáp án: quy đổi qua lại đúng, ổn định theo token, khô
   assert.equal(canShuffle([...opts.slice(0, 3), { label: "D", text: "All of the above" }]), false);
   assert.equal(canShuffle([...opts.slice(0, 3), { label: "D", text: "Both A and B" }]), false);
 });
+
+test("safeHtml cho phép màu tô của giáo viên, chặn thuộc tính lạ", async () => {
+  const { safeHtml } = await import("../src/lib/sanitize.ts");
+  assert.equal(safeHtml('<mark data-c="y"><b>x</b></mark>'), '<mark data-c="y"><b>x</b></mark>');
+  assert.equal(safeHtml('<mark data-c="z" onclick="a()">x</mark>'), '&lt;mark data-c=&quot;z&quot; onclick=&quot;a()&quot;&gt;x</mark>');
+  assert.equal(safeHtml('<mark style="x">y</mark>'), "&lt;mark style=&quot;x&quot;&gt;y</mark>");
+});

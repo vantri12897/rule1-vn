@@ -101,3 +101,14 @@ mark.yd-hl { color: inherit; border-radius: 3px; padding: 0 1px; -webkit-box-dec
 .yd-cloud::before, .yd-cloud::after { content: ""; position: absolute; border-radius: 9999px; background: #f0f9ff; border: 1.5px solid #7dd3fc; }
 .yd-cloud::after { width: 11px; height: 11px; top: -9px; left: var(--tail, 16px); }
 .yd-cloud::before { width: 6px; height: 6px; top: -17px; left: calc(var(--tail, 16px) - 3px); }
+
+/* Màu tô giáo viên đặt trong đề (lưu dạng <mark data-c="…">) */
+mark[data-c] { color: inherit; border-radius: 3px; padding: 0 1px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+mark[data-c="y"] { background: #fde047; }
+mark[data-c="g"] { background: #86efac; }
+mark[data-c="b"] { background: #7dd3fc; }
+mark[data-c="p"] { background: #f9a8d4; }
+mark[data-c="o"] { background: #fdba74; }
+.rt-editor:empty::before { content: attr(data-placeholder); color: #9ca3af; pointer-events: none; }
+.yd-cloud-free::before, .yd-cloud-free::after { display: none; }
+.yd-cloud-drag { box-shadow: 0 14px 32px -8px rgba(3, 105, 161, .5); opacity: .95; }

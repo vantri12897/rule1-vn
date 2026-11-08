@@ -16,12 +16,24 @@ export async function loadExportData(quizId: string): Promise<ExportData> {
 }
 
 /** Tách nội dung có <u>, <b>, <i>, <br> thành các đoạn chữ có định dạng */
-export type Seg = { text: string; u?: boolean; b?: boolean; i?: boolean; br?: boolean };
+export type Seg = { text: string; u?: boolean; b?: boolean; i?: boolean; br?: boolean; hl?: WordHl };
+type WordHl = "yellow" | "green" | "cyan" | "magenta";
+/** Màu tô của giáo viên → màu highlight trong Word */
+const WORD_HL: Record<string, WordHl> = { y: "yellow", g: "green", b: "cyan", p: "magenta", o: "yellow" };
 export function parseInline(src: string | null | undefined): Seg[] {
   const out: Seg[] = [];
-  const st = { u: false, b: false, i: false };
-  for (const part of (src ?? "").split(/(<\/?(?:u|b|i)>|<br\s*\/?>|\n)/i)) {
+  const st: { u: boolean; b: boolean; i: boolean; hl?: WordHl } = { u: false, b: false, i: false };
+  for (const part of (src ?? "").split(/(<\/?(?:u|b|i)>|<mark data-c="[a-z]">|<\/mark>|<br\s*\/?>|\n)/i)) {
     if (!part) continue;
+    const mk = /^<mark data-c="([a-z])">$/.exec(part);
+    if (mk) {
+      st.hl = WORD_HL[mk[1]];
+      continue;
+    }
+    if (part === "</mark>") {
+      st.hl = undefined;
+      continue;
+    }
     const tag = /^<(\/?)(u|b|i)>$/i.exec(part);
     if (tag) {
       st[tag[2].toLowerCase() as "u" | "b" | "i"] = tag[1] !== "/";
@@ -71,7 +83,7 @@ export async function downloadDocx({ quiz, questions }: ExportData, withAnswers:
     segs.map((s) =>
       s.br
         ? new d.TextRun({ text: "", break: 1, font: FONT })
-        : new d.TextRun({ text: s.text, font: FONT, size: 24, bold: s.b || extra.bold, italics: s.i, underline: s.u ? {} : undefined, color: extra.color })
+        : new d.TextRun({ text: s.text, font: FONT, size: 24, bold: s.b || extra.bold, italics: s.i, underline: s.u ? {} : undefined, color: extra.color, highlight: s.hl })
     );
 
   const children: InstanceType<typeof d.Paragraph | typeof d.Table>[] = [];

@@ -14,7 +14,7 @@ import { createPortal } from "react-dom";
 import { useT } from "@/lib/i18n/client";
 
 export type Hl = { id: string; z: string; s: number; e: number; c: string };
-export type Note = { id: string; z: string; o: number; text: string; open: boolean };
+export type Note = { id: string; z: string; o: number; text: string; open: boolean; dx?: number; dy?: number };
 type Popup = { kind: "sel"; x: number; y: number; parts: { z: string; s: number; e: number }[]; at: { z: string; o: number } } | { kind: "hl"; x: number; y: number; id: string };
 
 export const HL_COLORS = [
@@ -240,6 +240,22 @@ export function useAnnotationEvents(rootRef: React.RefObject<HTMLElement | null>
       }
     };
     const close = () => annRef.current.setPopup(null);
+    // Esc: thoát bút tô / chế độ ghi chú, đóng bảng màu, bỏ vùng bôi đen
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key !== "Escape") return;
+      const a = annRef.current;
+      const active = document.activeElement as HTMLElement | null;
+      if (active?.closest(".yd-cloud")) {
+        active.blur();
+        return;
+      }
+      if (a.pen || a.noteMode || a.popup) ev.preventDefault();
+      a.setPen(false);
+      a.setNoteMode(false);
+      a.setPopup(null);
+      window.getSelection()?.removeAllRanges();
+    };
+    window.addEventListener("keydown", onKey);
     root.addEventListener("mouseup", onUp);
     root.addEventListener("touchend", onUp);
     root.addEventListener("click", onClick);
@@ -250,6 +266,7 @@ export function useAnnotationEvents(rootRef: React.RefObject<HTMLElement | null>
       root.removeEventListener("touchend", onUp);
       root.removeEventListener("click", onClick);
       window.removeEventListener("resize", close);
+      window.removeEventListener("keydown", onKey);
       root.removeEventListener("scroll", close, true);
     };
   }, [rootRef]);
@@ -305,7 +322,7 @@ export function AnnotationToolbar({ ann, className = "" }: { ann: Ann; className
       )}
       {(ann.pen || ann.noteMode) && (
         <span className="w-full text-[11px] font-medium text-muted">
-          {ann.pen ? t("Bôi đen chữ trong đề để tô màu. Bấm vào chỗ đã tô để đổi màu hoặc xoá.") : t("Bấm vào vị trí trong đề để thêm ghi chú.")}
+          {ann.pen ? t("Bôi đen chữ trong đề để tô màu. Bấm vào chỗ đã tô để đổi màu hoặc xoá. Nhấn Esc để thoát.") : t("Bấm vào vị trí trong đề để thêm ghi chú. Nhấn Esc để thoát.")}
         </span>
       )}
     </div>
@@ -378,6 +395,7 @@ export function AnnotationPopup({ ann }: { ann: Ann }) {
 export function NoteClouds({ ann, layer }: { ann: Ann; layer: HTMLElement | null }) {
   const { t } = useT();
   const boxRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ id: string; x: number; y: number; dx: number; dy: number; el: HTMLElement } | null>(null);
 
   const place = useCallback(() => {
     const box = boxRef.current;
@@ -393,9 +411,14 @@ export function NoteClouds({ ann, layer }: { ann: Ann; layer: HTMLElement | null
       c.style.display = "block";
       const w = Math.min(240, lr.width - 8);
       c.style.width = `${w}px`;
-      const left = Math.min(Math.max(r.left - lr.left - 22, 4), lr.width - w - 4);
+      const dx = Number(c.dataset.dx || 0);
+      const dy = Number(c.dataset.dy || 0);
+      const baseLeft = Math.min(Math.max(r.left - lr.left - 22, 4), lr.width - w - 4);
+      const left = Math.min(Math.max(baseLeft + dx, 0), lr.width - w);
+      const top = Math.max(r.bottom - lr.top + 8 + dy, 0);
       c.style.left = `${left}px`;
-      c.style.top = `${r.bottom - lr.top + 8}px`;
+      c.style.top = `${top}px`;
+      c.classList.toggle("yd-cloud-free", dx !== 0 || dy !== 0); // đã kéo đi chỗ khác → ẩn bong bóng nối
       if (focusNote === c.dataset.cloud) {
         focusNote = null;
         c.querySelector("textarea")?.focus({ preventScroll: true });
@@ -417,9 +440,38 @@ export function NoteClouds({ ann, layer }: { ann: Ann; layer: HTMLElement | null
   return createPortal(
     <div ref={boxRef} className="yd-ann-ui">
       {ann.notes.map((n) => (
-        <div key={n.id} data-cloud={n.id} data-open={n.open ? "1" : "0"} className="yd-cloud yd-pop absolute z-20" style={{ display: "none" }}>
-          <div className="mb-1 flex items-center justify-between gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wide text-sky-ink">💭 {t("Ghi chú")}</span>
+        <div key={n.id} data-cloud={n.id} data-open={n.open ? "1" : "0"} data-dx={n.dx ?? 0} data-dy={n.dy ?? 0} className="yd-cloud yd-pop absolute z-20" style={{ display: "none" }}>
+          <div
+            className="mb-1 flex cursor-move touch-none select-none items-center justify-between gap-2"
+            title={t("Kéo để di chuyển ghi chú. Bấm đúp để đưa về cạnh chữ.")}
+            onPointerDown={(e) => {
+              if ((e.target as HTMLElement).closest("button")) return;
+              e.preventDefault();
+              const cloud = (e.currentTarget as HTMLElement).parentElement!;
+              (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+              drag.current = { id: n.id, x: e.clientX, y: e.clientY, dx: n.dx ?? 0, dy: n.dy ?? 0, el: cloud };
+              cloud.classList.add("yd-cloud-drag");
+            }}
+            onPointerMove={(e) => {
+              const d = drag.current;
+              if (!d || d.id !== n.id) return;
+              d.el.dataset.dx = String(d.dx + e.clientX - d.x);
+              d.el.dataset.dy = String(d.dy + e.clientY - d.y);
+              place();
+            }}
+            onPointerUp={(e) => {
+              const d = drag.current;
+              if (!d || d.id !== n.id) return;
+              drag.current = null;
+              d.el.classList.remove("yd-cloud-drag");
+              // lưu vị trí đã kẹp trong khung (tính lại từ chỗ hiện tại)
+              const ndx = d.dx + e.clientX - d.x;
+              const ndy = d.dy + e.clientY - d.y;
+              ann.setNotes((ns) => ns.map((x) => (x.id === n.id ? { ...x, dx: Math.round(ndx), dy: Math.round(ndy) } : x)));
+            }}
+            onDoubleClick={() => ann.setNotes((ns) => ns.map((x) => (x.id === n.id ? { ...x, dx: 0, dy: 0 } : x)))}
+          >
+            <span className="text-[11px] font-bold uppercase tracking-wide text-sky-ink">⠿ 💭 {t("Ghi chú")}</span>
             <span className="flex gap-0.5">
               <button
                 type="button"

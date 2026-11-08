@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { RichText } from "./RichText";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { parseAnswerKey } from "@/lib/parse";
 import { fileToImageDataUrl, loadPdfLocal } from "@/lib/pdf-client";
@@ -210,24 +211,26 @@ export function QuestionsEditor({
               <div key={q.key}>
                 {showSec && (
                   <div className="card mb-3 border-primary-line bg-primary-soft p-4">
-                    <input
-                      className="input mb-2 bg-white text-sm font-semibold"
+                    <RichText
+                      singleLine
+                      className="mb-2 bg-white text-sm font-semibold"
                       value={sec!.instruction ?? ""}
                       placeholder={t("Hướng dẫn phần")}
-                      onChange={(e) => {
+                      onChange={(v) => {
                         const s = [...sections];
-                        s[q.section_index!] = { ...sec!, instruction: e.target.value };
+                        s[q.section_index!] = { ...sec!, instruction: v };
                         setSections(s);
                         setDirty(true);
                       }}
                     />
                     {sec!.passage != null && (
-                      <textarea
-                        className="input min-h-28 bg-white text-sm"
+                      <RichText
+                        className="max-h-96 min-h-28 overflow-y-auto bg-white text-sm leading-relaxed"
                         value={sec!.passage ?? ""}
-                        onChange={(e) => {
+                        placeholder={t("Đoạn văn")}
+                        onChange={(v) => {
                           const s = [...sections];
-                          s[q.section_index!] = { ...sec!, passage: e.target.value };
+                          s[q.section_index!] = { ...sec!, passage: v };
                           setSections(s);
                           setDirty(true);
                         }}
@@ -291,7 +294,9 @@ function QuestionCard({ q, onChange, onDelete }: { q: EditQ; onChange: (p: Parti
         <div className="space-y-2">
           <div className="flex gap-2">
             <input type="number" className="input w-24" value={q.number} onChange={(e) => onChange({ number: Number(e.target.value) || q.number })} />
-            <textarea className="input min-h-16 flex-1" value={q.stem} onChange={(e) => onChange({ stem: e.target.value })} placeholder={t("Nội dung câu hỏi (dùng <u>…</u> để gạch chân)")} />
+            <div className="min-w-0 flex-1">
+              <RichText className="min-h-16" value={q.stem} onChange={(v) => onChange({ stem: v })} placeholder={t("Nội dung câu hỏi")} />
+            </div>
           </div>
           {q.options.map((o, i) => (
             <div key={i} className="flex items-center gap-2">
