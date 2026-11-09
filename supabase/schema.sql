@@ -164,3 +164,47 @@ returns uuid language sql security definer set search_path = public, auth stable
 $$;
 revoke all on function public.user_id_by_email(text) from public, anon, authenticated;
 grant execute on function public.user_id_by_email(text) to service_role;
+
+-- =====================================================================
+-- Bổ sung (09/11/2026): sao lưu tự động qua email + nhật ký lỗi
+-- Các bảng dưới đây KHÔNG có policy → chỉ máy chủ (service role) đọc/ghi được.
+-- =====================================================================
+create table if not exists public.teacher_backups (
+  owner_id uuid primary key references auth.users(id) on delete cascade,
+  enabled boolean not null default true,
+  last_sent_at timestamptz,
+  last_info text
+);
+alter table public.teacher_backups add column if not exists lang text not null default 'vi';
+alter table public.teacher_backups enable row level security;
+
+create table if not exists public.error_logs (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  source text not null check (source in ('client', 'server')),
+  kind text not null default 'error',
+  message text not null,
+  detail text,
+  path text,
+  quiz_slug text,
+  user_agent text,
+  client_hash text
+);
+create index if not exists error_logs_created_idx on public.error_logs (created_at desc);
+alter table public.error_logs enable row level security;
+
+-- Trạng thái chung nhỏ (vd. lần gửi email tóm tắt lỗi gần nhất)
+create table if not exists public.app_state (
+  key text primary key,
+  value jsonb,
+  updated_at timestamptz not null default now()
+);
+alter table public.app_state enable row level security;
+
+-- Danh sách tài khoản giáo viên + email (chỉ server dùng được)
+create or replace function public.teacher_list()
+returns table (id uuid, email text) language sql security definer set search_path = public, auth stable as $$
+  select u.id, u.email::text from auth.users u where u.email is not null;
+$$;
+revoke all on function public.teacher_list() from public, anon, authenticated;
+grant execute on function public.teacher_list() to service_role;

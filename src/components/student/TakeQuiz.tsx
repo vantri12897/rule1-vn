@@ -7,6 +7,7 @@ import type { PublicQuestion, Section } from "@/lib/types";
 import { confirmDialog } from "@/components/ui/feedback";
 import { StudentSkeleton } from "@/components/ui/Skeleton";
 import { useT } from "@/lib/i18n/client";
+import { reportError } from "@/lib/report";
 import { AnnotationPopup, AnnotationToolbar, NoteClouds, Splitter, useAnnotationEvents, useAnnotations } from "./Annotate";
 
 export type QuizInfo = { title: string; status: "open" | "closed"; sections: Section[]; time_limit_min: number | null; question_count: number };
@@ -78,7 +79,10 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
         } else if (data.attempt) applyTaking(data);
         else setView(data.quiz.status === "open" ? "name" : "closed");
       })
-      .catch(() => setView("notfound"));
+      .catch((e) => {
+        reportError("load-failed", String(e?.message ?? e), { slug });
+        setView("notfound");
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, applyTaking]);
 
@@ -96,8 +100,14 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
     }, 3);
     const data = r ? await r.json().catch(() => ({})) : {};
     setBusy(false);
-    if (!r) return setError(t("Không bắt đầu được, thử lại."));
-    if (!r.ok) return setError(data.error || t("Không bắt đầu được, thử lại."));
+    if (!r) {
+      reportError("start-failed", "network: no response after 3 tries", { slug });
+      return setError(t("Không bắt đầu được, thử lại."));
+    }
+    if (!r.ok) {
+      if (r.status === 429 || r.status >= 500) reportError("start-failed", `HTTP ${r.status}: ${data.error ?? ""}`, { slug });
+      return setError(data.error || t("Không bắt đầu được, thử lại."));
+    }
     localStorage.setItem(startedKey, "1");
     if (data.result) {
       // Thiết bị này đã nộp bài đề này từ trước → hiện lại kết quả
@@ -134,6 +144,9 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
         setBusy(false);
         return;
       }
+      // Học viên không nộp được bài là lỗi nghiêm trọng nhất → báo ngay cho giáo viên
+      if (!r) reportError("submit-failed", `network: no response after 6 tries${auto ? " (auto-submit)" : ""}`, { slug });
+      else if (r.status === 429 || r.status >= 500) reportError("submit-failed", `HTTP ${r.status}: ${data.error ?? ""}${auto ? " (auto-submit)" : ""}`, { slug });
       setError(r ? data.error || t("Nộp bài thất bại") : t("Mất kết nối. Bài làm vẫn được giữ trên máy — kiểm tra mạng rồi bấm Nộp bài lại."));
       setBusy(false);
     },

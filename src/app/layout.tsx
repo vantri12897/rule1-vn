@@ -8,6 +8,7 @@ import "@fontsource/be-vietnam-pro/700.css";
 import "@fontsource/be-vietnam-pro/800.css";
 import "./globals.css";
 import { FeedbackHost } from "@/components/ui/feedback";
+import { ErrorReporter } from "@/components/ErrorReporter";
 import { LangProvider } from "@/lib/i18n/client";
 import { getLang, getT } from "@/lib/i18n/server";
 
@@ -29,6 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <LangProvider lang={lang}>
           {children}
           <FeedbackHost />
+          <ErrorReporter />
         </LangProvider>
       </body>
     </html>

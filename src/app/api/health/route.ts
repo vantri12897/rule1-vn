@@ -28,6 +28,8 @@ export async function GET() {
     server_region: process.env.VERCEL_REGION ?? "local",
     database_region: dbRegion,
     database_ms: times,
+    version: process.env.NEXT_PUBLIC_APP_VERSION ?? "dev",
+    built_at: process.env.NEXT_PUBLIC_BUILD_TIME ?? null,
     hint: "database_ms nên dưới ~30ms nếu máy chủ và database cùng vùng",
   });
 }

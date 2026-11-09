@@ -19,19 +19,28 @@ export default function Dashboard() {
   const [reminder, setReminder] = useState<string | null>(null);
 
   useEffect(() => {
-    const backupCheck = () => {
+    const backupCheck = async () => {
+      // Đã có bản sao lưu tự động gửi qua email trong 8 ngày qua → không cần nhắc
+      if (sessionStorage.getItem("yd-ab-ok") === "1") return;
+      const ab = await fetch("/api/account/auto-backup", { cache: "no-store" }).then((r) => r.json()).catch(() => null);
+      if (ab?.mail && ab.enabled && ab.last_sent_at && Date.now() - new Date(ab.last_sent_at).getTime() < 8 * 86400_000) {
+        sessionStorage.setItem("yd-ab-ok", "1");
+        return;
+      }
       const last = localStorage.getItem("yd-last-backup");
       if (!last || Date.now() - new Date(last).getTime() > 7 * 86400_000) setReminder(t("Đã hơn 7 ngày chưa sao lưu dữ liệu (hoặc chưa sao lưu lần nào trên máy này)."));
     };
     // Đã biết có mã khôi phục trong phiên này → khỏi hỏi máy chủ mỗi lần về trang danh sách
-    if (sessionStorage.getItem("yd-rc-ok") === "1") return backupCheck();
+    if (sessionStorage.getItem("yd-rc-ok") === "1") {
+      backupCheck();
+      return;
+    }
     fetch("/api/account/recovery-code", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
         if (d.exists) sessionStorage.setItem("yd-rc-ok", "1");
         if (!d.exists) return setReminder(t("Bạn chưa tạo mã khôi phục mật khẩu — nếu quên mật khẩu sẽ không vào lại được website."));
-        const last = localStorage.getItem("yd-last-backup");
-        if (!last || Date.now() - new Date(last).getTime() > 7 * 86400_000) setReminder(t("Đã hơn 7 ngày chưa sao lưu dữ liệu (hoặc chưa sao lưu lần nào trên máy này)."));
+        backupCheck();
       })
       .catch(() => {});
   }, []);

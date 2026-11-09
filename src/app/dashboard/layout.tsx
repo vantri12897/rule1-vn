@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { VersionTag } from "@/components/VersionTag";
 import { supabaseServer } from "@/lib/supabase/server";
 import { Logo } from "@/components/Logo";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -31,6 +32,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </header>
       <div className="mx-auto max-w-6xl px-4 py-6 print:max-w-none print:p-0">{children}</div>
+      <footer className="pb-6 text-center text-[11px] text-muted/80 print:hidden">
+        YD-English · <VersionTag />
+      </footer>
     </div>
   );
 }

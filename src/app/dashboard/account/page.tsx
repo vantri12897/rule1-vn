@@ -6,6 +6,7 @@ import { downloadBackup, restoreBackup } from "@/lib/backup";
 import { fmtDate } from "@/lib/ui";
 import { confirmDialog, toast } from "@/components/ui/feedback";
 import { useT } from "@/lib/i18n/client";
+import { VersionTag } from "@/components/VersionTag";
 
 export default function AccountPage() {
   const { t } = useT();
@@ -21,7 +22,12 @@ export default function AccountPage() {
       <p className="text-sm text-muted">{t("Đăng nhập:")} <b className="text-ink">{email}</b></p>
       <RecoveryCard email={email} />
       <BackupCard />
+      <AutoBackupCard />
+      <ErrorsCard />
       <PasswordCard />
+      <p className="text-center text-xs text-muted">
+        <VersionTag />
+      </p>
     </div>
   );
 }
@@ -199,6 +205,125 @@ function PasswordCard() {
         {msg && <p className={`rounded-xl p-3 text-sm ${msg.ok ? "bg-primary-soft text-primary-dark" : "bg-red-50 text-danger"}`}>{msg.text}</p>}
         <button className="btn-outline" disabled={busy}>{busy ? t("Đang lưu…") : t("Đổi mật khẩu")}</button>
       </form>
+    </section>
+  );
+}
+
+type AutoStatus = { mail: boolean; enabled: boolean; last_sent_at: string | null; last_info: string | null; email?: string };
+
+/** Sao lưu tự động: mỗi Chủ nhật gửi file sao lưu vào email của giáo viên */
+function AutoBackupCard() {
+  const { t } = useT();
+  const [st, setSt] = useState<AutoStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    fetch("/api/account/auto-backup", { cache: "no-store" }).then((r) => r.json()).then(setSt).catch(() => {});
+  }, []);
+  if (!st) return null;
+  const failed = st.last_info?.startsWith("ERROR");
+  return (
+    <section className="card p-5">
+      <h2 className="text-lg font-bold">{t("📧 Sao lưu tự động qua email")}</h2>
+      {!st.mail ? (
+        <p className="mt-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{t("Cần cài GMAIL_USER và GMAIL_APP_PASSWORD trên Vercel thì mới gửi được email.")}</p>
+      ) : (
+        <>
+          <label className="mt-3 flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-5 w-5 accent-[#15803d]"
+              checked={st.enabled}
+              onChange={async (e) => {
+                const enabled = e.target.checked;
+                setSt({ ...st, enabled });
+                const r = await fetch("/api/account/auto-backup", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled }) });
+                if (r.ok) toast(enabled ? t("Đã bật sao lưu tự động") : t("Đã tắt sao lưu tự động"));
+              }}
+            />
+            <span className="text-sm">
+              <b>{t("Tự gửi bản sao lưu vào email mỗi Chủ nhật")}</b>
+              <span className="block text-muted">{t("Gửi tới {email} khoảng 8 giờ sáng. Tệp đính kèm dùng được ngay với nút Khôi phục từ file.", { email: st.email ?? "" })}</span>
+            </span>
+          </label>
+          <p className={`mt-3 text-sm ${failed ? "text-danger" : ""}`}>
+            {t("Lần gửi gần nhất:")} <b>{st.last_sent_at ? fmtDate(st.last_sent_at) : t("chưa có")}</b>
+            {st.last_info && <span className="text-muted"> · {failed ? st.last_info : t("{n} (đề/câu hỏi/bài làm)", { n: st.last_info })}</span>}
+          </p>
+          <button
+            className="btn-outline mt-3"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              const r = await fetch("/api/account/auto-backup", { method: "POST" });
+              const d = await r.json().catch(() => ({}));
+              setBusy(false);
+              if (!r.ok) return toast(d.error || t("Không gửi được email"), "error");
+              setSt({ ...st, last_sent_at: d.last_sent_at, last_info: d.last_info });
+              toast(t("Đã gửi bản sao lưu tới {email}", { email: d.email }));
+            }}
+          >
+            {busy ? t("Đang gửi…") : t("📨 Gửi thử ngay")}
+          </button>
+        </>
+      )}
+    </section>
+  );
+}
+
+type ErrItem = { created_at: string; source: string; kind: string; message: string; path: string | null; quiz_slug: string | null };
+const KIND_LABEL: Record<string, string> = {
+  "submit-failed": "Học viên không nộp được bài",
+  "start-failed": "Học viên không bắt đầu được",
+  "server-error": "Lỗi máy chủ",
+  "js-error": "Lỗi trên trình duyệt",
+  "render-error": "Trang lỗi khi hiển thị",
+  "load-failed": "Không tải được đề",
+  "backup-failed": "Sao lưu tự động lỗi",
+};
+
+/** Nhật ký lỗi 7 ngày gần nhất */
+function ErrorsCard() {
+  const { t } = useT();
+  const [d, setD] = useState<{ count: number; items: ErrItem[]; alerts_to: string | null } | null>(null);
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    fetch("/api/account/errors", { cache: "no-store" }).then((r) => r.json()).then(setD).catch(() => {});
+  }, []);
+  if (!d) return null;
+  return (
+    <section className="card p-5">
+      <h2 className="text-lg font-bold">{t("🚨 Nhật ký lỗi")}</h2>
+      <p className="mt-1 text-sm text-muted">
+        {d.alerts_to
+          ? t("Lỗi nghiêm trọng (học viên không bắt đầu / không nộp được bài) được báo ngay qua email tới {to}. Các lỗi khác được tóm tắt mỗi sáng.", { to: d.alerts_to })
+          : t("Cần cài Gmail trên Vercel để nhận email báo lỗi. Nhật ký vẫn được ghi ở đây.")}
+      </p>
+      {d.count === 0 ? (
+        <p className="mt-3 rounded-lg bg-primary-soft p-3 text-sm font-semibold text-primary-dark">{t("✓ Không có lỗi nào trong 7 ngày qua.")}</p>
+      ) : (
+        <>
+          <p className="mt-3 text-sm">
+            {t("{n} lỗi trong 7 ngày qua.", { n: d.count })}{" "}
+            <button className="font-semibold text-primary-dark underline" onClick={() => setOpen(!open)}>
+              {open ? t("Ẩn") : t("Xem chi tiết")}
+            </button>
+          </p>
+          {open && (
+            <ul className="mt-2 max-h-80 space-y-2 overflow-y-auto text-sm">
+              {d.items.map((e, i) => (
+                <li key={i} className="rounded-lg border border-gray-200 p-2.5">
+                  <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted">
+                    <span>{fmtDate(e.created_at)}</span>
+                    <b className={e.kind.endsWith("-failed") || e.kind === "server-error" ? "text-danger" : "text-ink"}>{t(KIND_LABEL[e.kind] ?? e.kind)}</b>
+                    {e.quiz_slug && <span>· {e.quiz_slug}</span>}
+                  </div>
+                  <div className="mt-0.5 break-words">{e.message}</div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
     </section>
   );
 }

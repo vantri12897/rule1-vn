@@ -58,3 +58,26 @@ export async function sendResetCodeMail(to: string, code: string, siteUrl: strin
 </table></td></tr></table></body></html>`,
   });
 }
+
+/** Khung email chung (logo + nội dung) */
+function shell(inner: string) {
+  return `<!doctype html><html><body style="margin:0;background:#f0fdf4;font-family:Arial,Helvetica,sans-serif;color:#1f2937">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:28px 12px">
+<table role="presentation" width="100%" style="max-width:620px;background:#ffffff;border-radius:16px;border:1px solid #bbf7d0" cellpadding="0" cellspacing="0">
+<tr><td style="padding:22px 26px 6px"><span style="display:inline-block;background:#15803d;color:#fff;font-weight:800;border-radius:10px;padding:6px 9px">YD</span>
+<span style="font-weight:800;font-size:18px;margin-left:6px">YD-<span style="color:#15803d">English</span></span></td></tr>
+<tr><td style="padding:6px 26px 24px;font-size:14px;line-height:1.6">${inner}</td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+export const esc = (s: unknown) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+
+export async function sendMail(opts: { to: string; subject: string; html: string; text: string; attachments?: { filename: string; content: string | Buffer; contentType?: string }[] }) {
+  const from = process.env.GMAIL_USER || process.env.SMTP_FROM || "no-reply@yd-english.local";
+  await transport().sendMail({ from: `"YD-English" <${from}>`, ...opts, html: shell(opts.html) });
+}
+
+/** Người nhận email cảnh báo lỗi: ALERT_EMAIL (nếu có) hoặc chính Gmail dùng để gửi */
+export function alertRecipient() {
+  return process.env.ALERT_EMAIL || process.env.GMAIL_USER || "";
+}
