@@ -1,6 +1,17 @@
 // English UI strings. Key = Vietnamese source text.
 export const EN: Record<string, string> = {
   "STT": "No.",
+  "Hình ảnh trong đề ({n} hình)": "Images in tests ({n})",
+  "Câu hỏi (gồm hình)": "Questions (incl. images)",
+  "Bài làm của học viên": "Student attempts",
+  "Nhật ký lỗi": "Error log",
+  "📊 Dung lượng đã dùng": "📊 Storage used",
+  "⚠️ Sắp đầy. Nên chuyển hình ảnh sang kho file riêng hoặc nâng gói Supabase.": "⚠️ Almost full. Move images to separate file storage or upgrade the Supabase plan.",
+  "Gói Supabase miễn phí cho tối đa 500 MB. Khi dùng tới 80% website sẽ báo qua email.": "The free Supabase plan allows up to 500 MB. You'll get an email when usage reaches 80%.",
+  "AI hết lượt miễn phí trong ngày": "AI ran out of free quota for today",
+  "AI gặp lỗi": "AI error",
+  "Google đã đổi/ngừng một model AI": "Google renamed/retired an AI model",
+  "Cơ sở dữ liệu sắp đầy": "Database almost full",
   "Vừa gửi xong, đợi 5 phút rồi thử lại.": "Just sent — wait 5 minutes and try again.",
   "📧 Sao lưu tự động qua email": "📧 Automatic email backup",
   "Cần cài GMAIL_USER và GMAIL_APP_PASSWORD trên Vercel thì mới gửi được email.": "Set GMAIL_USER and GMAIL_APP_PASSWORD on Vercel to enable sending email.",

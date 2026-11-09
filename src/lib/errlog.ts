@@ -59,6 +59,10 @@ const KINDS: Record<"vi" | "en", Record<string, string>> = {
     "render-error": "Trang bị lỗi khi hiển thị",
     "load-failed": "Không tải được đề",
     "backup-failed": "Sao lưu tự động lỗi",
+    "ai-quota": "AI hết lượt miễn phí trong ngày",
+    "ai-error": "AI gặp lỗi",
+    "ai-model-gone": "Google đã đổi/ngừng một model AI",
+    "db-near-full": "Cơ sở dữ liệu sắp đầy",
   },
   en: {
     "submit-failed": "A student could NOT submit",
@@ -68,6 +72,10 @@ const KINDS: Record<"vi" | "en", Record<string, string>> = {
     "render-error": "Page failed to render",
     "load-failed": "Test failed to load",
     "backup-failed": "Automatic backup failed",
+    "ai-quota": "AI ran out of free quota for today",
+    "ai-error": "AI error",
+    "ai-model-gone": "Google renamed/retired an AI model",
+    "db-near-full": "Database almost full",
   },
 };
 const M = {

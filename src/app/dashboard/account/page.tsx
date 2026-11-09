@@ -22,6 +22,7 @@ export default function AccountPage() {
       <RecoveryCard email={email} />
       <BackupCard />
       <AutoBackupCard />
+      <UsageCard />
       <ErrorsCard />
       <PasswordCard />
     </div>
@@ -275,6 +276,10 @@ const KIND_LABEL: Record<string, string> = {
   "render-error": "Trang lỗi khi hiển thị",
   "load-failed": "Không tải được đề",
   "backup-failed": "Sao lưu tự động lỗi",
+  "ai-quota": "AI hết lượt miễn phí trong ngày",
+  "ai-error": "AI gặp lỗi",
+  "ai-model-gone": "Google đã đổi/ngừng một model AI",
+  "db-near-full": "Cơ sở dữ liệu sắp đầy",
 };
 
 /** Nhật ký lỗi 7 ngày gần nhất */
@@ -320,6 +325,54 @@ function ErrorsCard() {
           )}
         </>
       )}
+    </section>
+  );
+}
+
+type Usage = { total: number; questions: number; images: number; image_count: number; attempts: number; quizzes: number; logs: number; limit: number };
+const mb = (n: number) => (n / 1048576 >= 10 ? (n / 1048576).toFixed(0) : (n / 1048576).toFixed(1));
+
+/** Dung lượng cơ sở dữ liệu đã dùng (gói Free: 500 MB) */
+function UsageCard() {
+  const { t } = useT();
+  const [u, setU] = useState<Usage | null>(null);
+  useEffect(() => {
+    fetch("/api/account/usage", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then(setU).catch(() => {});
+  }, []);
+  if (!u) return null;
+  const pct = Math.min(100, (u.total / u.limit) * 100);
+  const color = pct >= 85 ? "bg-danger" : pct >= 60 ? "bg-amber-500" : "bg-primary";
+  const rows: [string, number][] = [
+    [t("Hình ảnh trong đề ({n} hình)", { n: u.image_count }), u.images],
+    [t("Câu hỏi (gồm hình)"), u.questions],
+    [t("Bài làm của học viên"), u.attempts],
+    [t("Nhật ký lỗi"), u.logs],
+  ];
+  return (
+    <section className="card p-5">
+      <h2 className="text-lg font-bold">{t("📊 Dung lượng đã dùng")}</h2>
+      <div className="mt-3 flex items-baseline justify-between text-sm">
+        <span>
+          <b className="text-lg">{mb(u.total)} MB</b> / {mb(u.limit)} MB
+        </span>
+        <b className={pct >= 85 ? "text-danger" : pct >= 60 ? "text-amber-600" : "text-primary-dark"}>{pct.toFixed(pct < 10 ? 1 : 0)}%</b>
+      </div>
+      <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-gray-100" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+        <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${Math.max(pct, 1)}%` }} />
+      </div>
+      <ul className="mt-3 space-y-1 text-sm text-muted">
+        {rows.map(([k, v]) => (
+          <li key={k} className="flex justify-between gap-3">
+            <span>{k}</span>
+            <span className="tabular-nums">{mb(v)} MB</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-xs text-muted">
+        {pct >= 80
+          ? t("⚠️ Sắp đầy. Nên chuyển hình ảnh sang kho file riêng hoặc nâng gói Supabase.")
+          : t("Gói Supabase miễn phí cho tối đa 500 MB. Khi dùng tới 80% website sẽ báo qua email.")}
+      </p>
     </section>
   );
 }

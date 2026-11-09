@@ -208,3 +208,19 @@ returns table (id uuid, email text) language sql security definer set search_pat
 $$;
 revoke all on function public.teacher_list() from public, anon, authenticated;
 grant execute on function public.teacher_list() to service_role;
+
+-- Bổ sung (09/11/2026): dung lượng cơ sở dữ liệu (gói Free giới hạn 500 MB) — chỉ server dùng được
+create or replace function public.db_usage()
+returns json language sql security definer set search_path = public stable as $$
+  select json_build_object(
+    'total', pg_database_size(current_database()),
+    'questions', pg_total_relation_size('public.questions'),
+    'images', (select coalesce(sum(length(image)), 0) from public.questions where image is not null),
+    'image_count', (select count(*) from public.questions where image is not null),
+    'attempts', pg_total_relation_size('public.attempts'),
+    'quizzes', pg_total_relation_size('public.quizzes'),
+    'logs', pg_total_relation_size('public.error_logs')
+  );
+$$;
+revoke all on function public.db_usage() from public, anon, authenticated;
+grant execute on function public.db_usage() to service_role;

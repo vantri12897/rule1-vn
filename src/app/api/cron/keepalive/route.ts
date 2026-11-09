@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { mailEnabled } from "@/lib/mailer";
 import { emailBackup } from "@/lib/server-backup";
 import { logError, pruneErrorLogs, sendErrorDigest } from "@/lib/errlog";
+import { dbUsage } from "@/lib/db-usage";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -29,7 +30,17 @@ export async function GET(req: Request) {
   if (mailEnabled() && (vnDay === 0 || (force === "backup" && secret))) {
     out.backups = await weeklyBackups();
   }
-  // 3. Tóm tắt lỗi + dọn dẹp
+  // 3. Dung lượng cơ sở dữ liệu: gần đầy (≥ 80%) thì ghi nhật ký → có trong email tóm tắt ngay bên dưới
+  try {
+    const u = await dbUsage();
+    if (u) {
+      out.db_pct = Math.round((u.total / u.limit) * 100);
+      if (u.total >= u.limit * 0.8) {
+        await logError({ source: "server", kind: "db-near-full", message: `Database ${(u.total / 1048576).toFixed(0)} / ${(u.limit / 1048576).toFixed(0)} MB (${out.db_pct}%) — hình ảnh chiếm ${(u.images / 1048576).toFixed(0)} MB` });
+      }
+    }
+  } catch {}
+  // 4. Tóm tắt lỗi + dọn dẹp
   try {
     out.errors_digested = await sendErrorDigest(site);
     await pruneErrorLogs();
