@@ -6,7 +6,6 @@ import { downloadBackup, restoreBackup } from "@/lib/backup";
 import { fmtDate } from "@/lib/ui";
 import { confirmDialog, toast } from "@/components/ui/feedback";
 import { useT } from "@/lib/i18n/client";
-import { VersionTag } from "@/components/VersionTag";
 
 export default function AccountPage() {
   const { t } = useT();
@@ -25,9 +24,6 @@ export default function AccountPage() {
       <AutoBackupCard />
       <ErrorsCard />
       <PasswordCard />
-      <p className="text-center text-xs text-muted">
-        <VersionTag />
-      </p>
     </div>
   );
 }
