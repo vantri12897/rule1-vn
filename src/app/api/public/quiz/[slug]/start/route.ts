@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { activeAttempt, buildResult, clientIp, deadlineOf, loadQuizAndAttempt, rateLimited, toPublicQuestions } from "@/lib/public-quiz";
+import { activeAttempt, buildResult, clientIp, deadlineOf, loadQuizAndAttempt, studentLimited, toPublicQuestions } from "@/lib/public-quiz";
 import type { Attempt } from "@/lib/types";
 import { langOf, translate, type Vars } from "@/lib/i18n/core";
 
@@ -13,10 +13,12 @@ const Body = z.object({
 
 export async function POST(req: Request, ctx: { params: Promise<{ slug: string }> }) {
   const T = (k: string, v?: Vars) => translate(langOf(req), k, v);
-  if (rateLimited(clientIp(req), 20)) return NextResponse.json({ error: T("Thao tác quá nhanh, thử lại sau 1 phút") }, { status: 429 });
   const { slug } = await ctx.params;
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: T("Vui lòng nhập họ tên") }, { status: 400 });
+  if (studentLimited("start", clientIp(req), parsed.data.token)) {
+    return NextResponse.json({ error: T("Thao tác quá nhanh, thử lại sau 1 phút") }, { status: 429, headers: { "Retry-After": "5" } });
+  }
 
   const data = await loadQuizAndAttempt(slug, parsed.data.token);
   if (!data) return NextResponse.json({ error: T("Không tìm thấy đề") }, { status: 404 });

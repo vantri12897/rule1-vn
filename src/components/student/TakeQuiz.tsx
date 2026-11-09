@@ -89,13 +89,14 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
   async function start(name: string, cls: string) {
     setBusy(true);
     setError(null);
-    const r = await fetch(`/api/public/quiz/${slug}/start`, {
+    const r = await fetchRetry(`/api/public/quiz/${slug}/start`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: tokenRef.current, name, student_class: cls || null }),
-    });
-    const data = await r.json().catch(() => ({}));
+    }, 3);
+    const data = r ? await r.json().catch(() => ({})) : {};
     setBusy(false);
+    if (!r) return setError(t("Không bắt đầu được, thử lại."));
     if (!r.ok) return setError(data.error || t("Không bắt đầu được, thử lại."));
     localStorage.setItem(startedKey, "1");
     if (data.result) {
@@ -117,30 +118,23 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
       if (!auto && unanswered === 0 && !(await confirmDialog({ title: t("Nộp bài"), message: t("Nộp bài? Sau khi nộp sẽ không sửa được."), confirmText: t("Nộp bài"), cancelText: t("Xem lại") }))) return;
       setBusy(true);
       setError(null);
-      for (let i = 0; i < 3; i++) {
-        try {
-          const r = await fetch(`/api/public/quiz/${slug}/submit`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: tokenRef.current, answers }),
-          });
-          const data = await r.json();
-          if (r.ok) {
-            localStorage.removeItem(ansKey);
-            localStorage.removeItem(`yd-marks-${slug}`);
-            setResult(data.result);
-            setView("result");
-            window.scrollTo({ top: 0 });
-            setBusy(false);
-            return;
-          }
-          setError(data.error || t("Nộp bài thất bại"));
-          break;
-        } catch {
-          await new Promise((res) => setTimeout(res, 2000));
-        }
+      // Cả lớp nộp cùng lúc (hết giờ) → máy chủ có thể bận trong chốc lát: tự thử lại vài lần, mỗi máy chờ lệch nhau
+      const r = await fetchRetry(`/api/public/quiz/${slug}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: tokenRef.current, answers }),
+      }, 6);
+      const data = r ? await r.json().catch(() => ({})) : {};
+      if (r?.ok) {
+        localStorage.removeItem(ansKey);
+        localStorage.removeItem(`yd-marks-${slug}`);
+        setResult(data.result);
+        setView("result");
+        window.scrollTo({ top: 0 });
+        setBusy(false);
+        return;
       }
-      setError((e) => e ?? t("Mất kết nối. Bài làm vẫn được giữ trên máy — kiểm tra mạng rồi bấm Nộp bài lại."));
+      setError(r ? data.error || t("Nộp bài thất bại") : t("Mất kết nối. Bài làm vẫn được giữ trên máy — kiểm tra mạng rồi bấm Nộp bài lại."));
       setBusy(false);
     },
     [answers, busy, questions, slug, ansKey]
@@ -282,6 +276,25 @@ function cleanStem(stem: string) {
 }
 
 /** Đoạn văn có chỗ trống (1), (2)…: tô sáng chỗ trống của câu đang làm, đánh dấu chỗ đã làm */
+/**
+ * Gửi yêu cầu, tự thử lại khi mạng chập chờn hoặc máy chủ đang bận (429 / 5xx).
+ * Thời gian chờ tăng dần + ngẫu nhiên để cả lớp không cùng thử lại một lúc.
+ * Trả về null nếu vẫn mất mạng sau mọi lần thử.
+ */
+async function fetchRetry(url: string, init: RequestInit, tries: number): Promise<Response | null> {
+  let last: Response | null = null;
+  for (let i = 0; i < tries; i++) {
+    if (i > 0) await new Promise((res) => setTimeout(res, Math.min(8000, 800 * 2 ** (i - 1)) + Math.random() * 1200));
+    try {
+      last = await fetch(url, init);
+      if (last.ok || (last.status !== 429 && last.status < 500)) return last;
+    } catch {
+      last = null;
+    }
+  }
+  return last;
+}
+
 /** Vùng chữ học viên tô màu / ghi chú được (xem Annotate.tsx) */
 function Zone({ id, text }: { id: string; text: string | null | undefined }) {
   return <span data-zone={id} dangerouslySetInnerHTML={{ __html: safeHtml(text) }} />;

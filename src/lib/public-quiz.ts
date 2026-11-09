@@ -23,16 +23,29 @@ export function answersToOriginal(quiz: Quiz, questions: QuestionRow[], token: s
 }
 
 const hits = new Map<string, { n: number; t: number }>();
-/** Rate limit đơn giản theo IP (best-effort, theo từng instance serverless). */
-export function rateLimited(ip: string, max = 30, windowMs = 60_000) {
+/** Đếm số lượt theo khoá trong 1 cửa sổ thời gian (best-effort, theo từng instance serverless). */
+export function rateLimited(key: string, max = 30, windowMs = 60_000) {
   const now = Date.now();
-  const h = hits.get(ip);
+  // Dọn bớt khoá đã hết hạn để bộ nhớ không phình ra
+  if (hits.size > 5000) for (const [k, v] of hits) if (now - v.t > windowMs) hits.delete(k);
+  const h = hits.get(key);
   if (!h || now - h.t > windowMs) {
-    hits.set(ip, { n: 1, t: now });
+    hits.set(key, { n: 1, t: now });
     return false;
   }
   h.n++;
   return h.n > max;
+}
+
+/**
+ * Giới hạn cho học viên làm bài.
+ * Cả lớp dùng chung Wi-Fi trường thường ra Internet bằng CÙNG 1 địa chỉ IP, nên:
+ *  - mỗi thiết bị (token) tối đa 12 lượt/phút cho từng thao tác → chặn bấm liên tục / phá
+ *  - mỗi IP tối đa 600 lượt/phút cho từng thao tác → đủ cho vài lớp cùng lúc, vẫn chặn tấn công dồn dập
+ * Thao tác "start" và "submit" đếm riêng, không ăn chung hạn mức.
+ */
+export function studentLimited(action: "start" | "submit", ip: string, token: string) {
+  return rateLimited(`${action}:ip:${ip}`, 600) || rateLimited(`${action}:t:${token}`, 12);
 }
 
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
