@@ -2,7 +2,12 @@ export type Option = { label: string; text: string };
 
 export type AnswerSource = "from_pdf" | "ai_solved" | "manual";
 
-export type Section = { instruction: string | null; passage: string | null };
+export type Section = {
+  instruction: string | null;
+  passage: string | null;
+  /** Dạng bài giáo viên chọn cho cả nhóm câu (xem lib/parts.ts); không có = tự nhận */
+  kind?: string | null;
+};
 
 /** Câu hỏi khi đang soạn (chưa có id trong DB) */
 export type DraftQuestion = {
@@ -18,6 +23,8 @@ export type DraftQuestion = {
   explanation: string | null;
   /** Hình minh hoạ (biển báo, thông báo, biểu đồ…) dạng data URL JPEG/PNG */
   image?: string | null;
+  /** Dạng bài giáo viên chọn riêng cho câu này (null = tự nhận) */
+  kind?: string | null;
 };
 
 export type Quiz = {
@@ -31,6 +38,8 @@ export type Quiz = {
   shuffle_questions: boolean;
   shuffle_options?: boolean;
   show_answers: boolean;
+  /** Tên phần giáo viên đặt trên thanh điều hướng: { [dạng bài]: tên } */
+  part_titles?: Record<string, string> | null;
   source_file_hash: string | null;
   created_at: string;
   updated_at: string;
@@ -60,4 +69,5 @@ export type PublicQuestion = {
   stem: string;
   options: Option[];
   image?: string | null;
+  kind?: string | null;
 };

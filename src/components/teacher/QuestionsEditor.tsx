@@ -9,6 +9,7 @@ import { Html } from "@/components/QuestionText";
 import type { DraftQuestion, Quiz, QuestionRow, Section } from "@/lib/types";
 import { confirmDialog, toast } from "@/components/ui/feedback";
 import { useT } from "@/lib/i18n/client";
+import { PART_KINDS, PART_NAMES, autoKindOfSection, buildParts, kindOfQuestion, partTitle, rangeText, type PartKind } from "@/lib/parts";
 
 type EditQ = DraftQuestion & { key: string };
 
@@ -31,6 +32,8 @@ export const QuestionsEditor = memo(function QuestionsEditor({
   const { t } = useT();
   const [items, setItems] = useState<EditQ[]>([]);
   const [sections, setSections] = useState<Section[]>(quiz.sections ?? []);
+  const [partTitles, setPartTitles] = useState<Record<string, string>>(quiz.part_titles ?? {});
+  const [showParts, setShowParts] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -47,8 +50,21 @@ export const QuestionsEditor = memo(function QuestionsEditor({
     if (dirtyRef.current) return;
     setItems(questions.map((q) => ({ ...q, key: newKey() })));
     setSections(quiz.sections ?? []);
+    setPartTitles(quiz.part_titles ?? {});
     setDirty(false);
-  }, [questions, quiz.sections]);
+  }, [questions, quiz.sections, quiz.part_titles]);
+
+  // Các phần (gom theo dạng bài) đúng như học viên sẽ thấy trên thanh điều hướng
+  const parts = useMemo(() => buildParts(sections, items, partTitles), [sections, items, partTitles]);
+  const autoSecKind = useMemo(() => {
+    const m = new Map<number, PartKind>();
+    sections.forEach((sec, i) => m.set(i, autoKindOfSection(sec, items.filter((q) => q.section_index === i))));
+    return m;
+  }, [sections, items]);
+  const setSecKind = (i: number, kind: string | null) => {
+    setSections((arr) => arr.map((x, j) => (j === i ? { ...x, kind } : x)));
+    setDirty(true);
+  };
 
   useEffect(() => onDirtyChange(dirty), [dirty, onDirtyChange]);
 
@@ -132,6 +148,7 @@ export const QuestionsEditor = memo(function QuestionsEditor({
         needs_review: q.needs_review,
         explanation: q.explanation,
         image: q.image ?? null,
+        kind: q.kind ?? null,
       }));
       const existing = rows.filter((r) => "id" in r);
       const fresh = rows.filter((r) => !("id" in r));
@@ -143,7 +160,9 @@ export const QuestionsEditor = memo(function QuestionsEditor({
         const { error } = await sb.from("questions").insert(fresh);
         if (error) throw error;
       }
-      const { error: e3 } = await sb.from("quizzes").update({ sections }).eq("id", quiz.id);
+      // Chỉ lưu tên phần giáo viên đã đặt (bỏ ô để trống)
+      const titles = Object.fromEntries(Object.entries(partTitles).map(([k, v]) => [k, v.trim().slice(0, 120)]).filter(([, v]) => v));
+      const { error: e3 } = await sb.from("quizzes").update({ sections, part_titles: titles }).eq("id", quiz.id);
       if (e3) throw e3;
 
       setDirty(false);
@@ -211,6 +230,62 @@ export const QuestionsEditor = memo(function QuestionsEditor({
           </div>
         )}
 
+        {items.length > 0 && (
+          <div className="card mb-3 p-4">
+            <button type="button" onClick={() => setShowParts(!showParts)} className="flex w-full flex-wrap items-center gap-2 text-left" aria-expanded={showParts}>
+              <span className="font-bold">🧭 {t("Các phần trên thanh điều hướng của học viên")}</span>
+              <span className="badge bg-primary-soft text-primary-dark">{parts.length}</span>
+              <span className="ml-auto text-sm font-semibold text-primary-dark">{showParts ? t("Thu gọn") : t("✏️ Đổi tên phần")}</span>
+            </button>
+            {!showParts ? (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {parts.map((p, k) => (
+                  <span key={p.kind} className="rounded-lg border border-primary-line bg-white px-2 py-1 text-xs font-semibold text-primary-dark">
+                    {partTitle(p, k, parts.length, t)} <span className="font-normal text-muted">· {p.items.length}</span>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs leading-relaxed text-muted">
+                  {t("Website tự gom các câu cùng dạng thành 1 phần. Đặt tên tuỳ ý, để trống thì dùng tên tự động. Nếu website nhận sai dạng, đổi ở ô “Dạng câu” trên khung hướng dẫn của nhóm câu đó.")}
+                </p>
+                {parts.map((p, k) => (
+                  <div key={p.kind} className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                    <span className="w-full shrink-0 text-xs font-semibold text-muted sm:w-48">
+                      {t(PART_NAMES[p.kind])} · {t("câu {r}", { r: rangeText(p.items.map((i) => items[i].number)) })}
+                    </span>
+                    <input
+                      className="input min-w-0 flex-1 py-2"
+                      maxLength={120}
+                      value={partTitles[p.kind] ?? ""}
+                      placeholder={partTitle({ ...p, custom: null }, k, parts.length, t)}
+                      aria-label={t("Tên phần")}
+                      onChange={(e) => {
+                        setPartTitles((x) => ({ ...x, [p.kind]: e.target.value }));
+                        setDirty(true);
+                      }}
+                    />
+                    {partTitles[p.kind]?.trim() && (
+                      <button
+                        type="button"
+                        className="btn-ghost shrink-0 px-2 py-1 text-xs"
+                        title={t("Dùng tên tự động")}
+                        onClick={() => {
+                          setPartTitles((x) => ({ ...x, [p.kind]: "" }));
+                          setDirty(true);
+                        }}
+                      >
+                        ↺ {t("Tên tự động")}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="space-y-3">
           {visible.map((q) => {
             const sec = q.section_index != null ? sections[q.section_index] : null;
@@ -220,6 +295,9 @@ export const QuestionsEditor = memo(function QuestionsEditor({
               <div key={q.key}>
                 {showSec && (
                   <div className="card mb-3 border-primary-line bg-primary-soft p-4">
+                    <div className="mb-2 flex justify-end">
+                      <KindSelect value={sec!.kind ?? null} auto={autoSecKind.get(q.section_index!) ?? "other"} onChange={(k) => setSecKind(q.section_index!, k)} />
+                    </div>
                     <RichText
                       singleLine
                       className="mb-2 bg-white text-sm font-semibold"
@@ -309,6 +387,11 @@ const QuestionCard = memo(function QuestionCard({ q, onUpdate, onRemove }: { q: 
               <RichText className="min-h-16" value={q.stem} onChange={(v) => onChange({ stem: v })} placeholder={t("Nội dung câu hỏi")} />
             </div>
           </div>
+          {q.section_index == null && (
+            <div className="flex justify-end">
+              <KindSelect value={q.kind ?? null} auto={kindOfQuestion(q) ?? "other"} onChange={(k) => onChange({ kind: k })} />
+            </div>
+          )}
           {q.options.map((o, i) => (
             <div key={i} className="flex items-center gap-2">
               <span className="w-6 font-bold">{o.label}.</span>
@@ -400,3 +483,25 @@ const QuestionCard = memo(function QuestionCard({ q, onUpdate, onRemove }: { q: 
     </div>
   );
 });
+
+/** Chọn dạng bài (để gom vào đúng phần trên thanh điều hướng của học viên) */
+function KindSelect({ value, auto, onChange }: { value: string | null; auto: PartKind; onChange: (k: string | null) => void }) {
+  const { t } = useT();
+  return (
+    <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted">
+      🧭 {t("Dạng câu")}
+      <select
+        className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs font-semibold text-ink"
+        value={value && (PART_KINDS as readonly string[]).includes(value) ? value : ""}
+        onChange={(e) => onChange(e.target.value || null)}
+      >
+        <option value="">{t("Tự nhận: {name}", { name: t(PART_NAMES[auto]) })}</option>
+        {PART_KINDS.map((k) => (
+          <option key={k} value={k}>
+            {t(PART_NAMES[k])}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}

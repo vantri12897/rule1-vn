@@ -9,8 +9,18 @@ import { StudentSkeleton } from "@/components/ui/Skeleton";
 import { useT } from "@/lib/i18n/client";
 import { reportError } from "@/lib/report";
 import { AnnotationPopup, AnnotationToolbar, NoteClouds, Splitter, useAnnotationEvents, useAnnotations } from "./Annotate";
+import { PartsNav, NavLegend } from "./PartsNav";
+import { buildParts } from "@/lib/parts";
 
-export type QuizInfo = { title: string; status: "open" | "closed"; sections: Section[]; time_limit_min: number | null; question_count: number };
+export type QuizInfo = {
+  title: string;
+  status: "open" | "closed";
+  sections: Section[];
+  /** Tên phần giáo viên đặt cho thanh điều hướng (theo dạng bài) */
+  part_titles?: Record<string, string> | null;
+  time_limit_min: number | null;
+  question_count: number;
+};
 type Result = {
   score: number;
   total: number;
@@ -45,6 +55,27 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
   const [busy, setBusy] = useState(false);
   const tokenRef = useRef<string>("");
   const ansKey = `yd-ans-${slug}`;
+  // Câu học viên đánh dấu "đang cân nhắc" để xem lại trước khi nộp (chỉ lưu trên máy)
+  const flagKey = `yd-flags-${slug}`;
+  const [flags, setFlags] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    try {
+      setFlags(new Set(JSON.parse(localStorage.getItem(flagKey) || "[]")));
+    } catch {}
+  }, [flagKey]);
+  const toggleFlag = useCallback(
+    (qid: string) =>
+      setFlags((f) => {
+        const n = new Set(f);
+        if (n.has(qid)) n.delete(qid);
+        else n.add(qid);
+        try {
+          localStorage.setItem(flagKey, JSON.stringify([...n]));
+        } catch {}
+        return n;
+      }),
+    [flagKey]
+  );
 
   const applyTaking = useCallback(
     (data: { attempt: { student_name: string; deadline: string | null; answers?: Record<string, string> }; questions: PublicQuestion[]; server_time?: string }) => {
@@ -125,7 +156,9 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
       if (busy) return;
       const unanswered = questions.length - Object.keys(answers).filter((k) => questions.some((q) => q.id === k)).length;
       if (!auto && unanswered > 0 && !(await confirmDialog({ title: t("Còn câu chưa làm"), message: t("Bạn còn {n} câu chưa làm. Vẫn nộp bài?", { n: unanswered }), confirmText: t("Vẫn nộp"), cancelText: t("Làm tiếp") }))) return;
-      if (!auto && unanswered === 0 && !(await confirmDialog({ title: t("Nộp bài"), message: t("Nộp bài? Sau khi nộp sẽ không sửa được."), confirmText: t("Nộp bài"), cancelText: t("Xem lại") }))) return;
+      const flagged = questions.filter((q) => flags.has(q.id)).length;
+      if (!auto && unanswered === 0 && flagged > 0 && !(await confirmDialog({ title: t("Còn câu đang cân nhắc"), message: t("Bạn còn {n} câu đánh dấu cân nhắc. Vẫn nộp bài?", { n: flagged }), confirmText: t("Vẫn nộp"), cancelText: t("Xem lại") }))) return;
+      if (!auto && unanswered === 0 && flagged === 0 && !(await confirmDialog({ title: t("Nộp bài"), message: t("Nộp bài? Sau khi nộp sẽ không sửa được."), confirmText: t("Nộp bài"), cancelText: t("Xem lại") }))) return;
       setBusy(true);
       setError(null);
       // Cả lớp nộp cùng lúc (hết giờ) → máy chủ có thể bận trong chốc lát: tự thử lại vài lần, mỗi máy chờ lệch nhau
@@ -138,6 +171,8 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
       if (r?.ok) {
         localStorage.removeItem(ansKey);
         localStorage.removeItem(`yd-marks-${slug}`);
+        localStorage.removeItem(flagKey);
+        setFlags(new Set());
         setResult(data.result);
         setView("result");
         window.scrollTo({ top: 0 });
@@ -150,7 +185,7 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
       setError(r ? data.error || t("Nộp bài thất bại") : t("Mất kết nối. Bài làm vẫn được giữ trên máy — kiểm tra mạng rồi bấm Nộp bài lại."));
       setBusy(false);
     },
-    [answers, busy, questions, slug, ansKey]
+    [answers, busy, questions, slug, ansKey, flags, flagKey]
   );
 
   return (
@@ -188,7 +223,7 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
         {view === "closed" && <Message title={t("Đề đã đóng")} text={t("Giáo viên đã ngừng nhận bài cho đề này.")} />}
         {view === "name" && quiz && <NameForm quiz={quiz} busy={busy} error={error} onStart={start} />}
         {view === "taking" && quiz && (
-          <TakingView storeKey={slug} quiz={quiz} questions={questions} answers={answers} setAnswers={setAnswers} busy={busy} error={error} onSubmit={() => submit(false)} />
+          <TakingView storeKey={slug} quiz={quiz} questions={questions} answers={answers} setAnswers={setAnswers} flags={flags} toggleFlag={toggleFlag} busy={busy} error={error} onSubmit={() => submit(false)} />
         )}
         {view === "result" && result && <ResultView result={result} questions={questions} sections={quiz?.sections ?? []} />}
       </div>
@@ -341,6 +376,8 @@ function TakingView({
   questions,
   answers,
   setAnswers,
+  flags,
+  toggleFlag,
   busy,
   error,
   onSubmit,
@@ -350,6 +387,8 @@ function TakingView({
   questions: PublicQuestion[];
   answers: Record<string, string>;
   setAnswers: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  flags: Set<string>;
+  toggleFlag: (qid: string) => void;
   busy: boolean;
   error: string | null;
   onSubmit: () => void;
@@ -392,19 +431,43 @@ function TakingView({
     } catch {}
   };
 
+  // Thanh điều hướng theo phần ở cuối màn hình (máy tính): mở sẵn, học viên thu gọn được, nhớ trên máy
+  const [navOpen, setNavOpenState] = useState(true);
+  useEffect(() => {
+    if (localStorage.getItem("yd-nav") === "0") setNavOpenState(false);
+  }, []);
+  const setNavOpen = (v: boolean) => {
+    setNavOpenState(v);
+    try {
+      localStorage.setItem("yd-nav", v ? "1" : "0");
+    } catch {}
+  };
+  const parts = useMemo(() => buildParts(quiz.sections, questions, quiz.part_titles), [quiz.sections, quiz.part_titles, questions]);
+
+  // Chiều cao thanh dưới cùng (đổi khi mở/thu gọn danh sách câu) → để chừa chỗ cho nội dung
+  const [barH, setBarH] = useState(72);
+  useLayoutEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const on = () => setBarH(el.offsetHeight);
+    on();
+    const ro = new ResizeObserver(on);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   // Chiều cao 2 cột = phần màn hình còn lại giữa đầu trang và thanh dưới cùng
   const [paneH, setPaneH] = useState<number | null>(null);
   useLayoutEffect(() => {
     if (!split) return;
     const fit = () => {
       const top = (splitRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY;
-      const bar = barRef.current?.offsetHeight ?? 72;
-      setPaneH(Math.max(320, window.innerHeight - top - bar - 12));
+      setPaneH(Math.max(300, window.innerHeight - top - barH - 12));
     };
     fit();
     window.addEventListener("resize", fit);
     return () => window.removeEventListener("resize", fit);
-  }, [split]);
+  }, [split, barH]);
   const curQ = questions.find((q) => q.id === current) ?? questions[0];
   const curSec = curQ?.section_index != null ? quiz.sections[curQ.section_index] : null;
   const secQs = curQ?.section_index != null ? questions.filter((q) => q.section_index === curQ.section_index) : [];
@@ -412,11 +475,14 @@ function TakingView({
   const answeredNumbers = new Set(secQs.filter((q) => answers[q.id]).map((q) => q.number));
   const displayIndex = (qid: string) => questions.findIndex((q) => q.id === qid) + 1;
 
+  // Khi học viên bấm số câu: tạm không đổi "câu đang làm" theo cuộn (tránh nhảy qua các câu ở giữa)
+  const lockUntil = useRef(0);
   // Theo dõi câu đang xem để đổi đoạn văn bên trái
   useEffect(() => {
     const els = questions.map((q) => document.getElementById(`q-${q.id}`)).filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
       (entries) => {
+        if (Date.now() < lockUntil.current) return;
         const vis = entries.filter((e) => e.isIntersecting).sort((x, y) => x.boundingClientRect.top - y.boundingClientRect.top)[0];
         if (vis) setCurrent(vis.target.id.slice(2));
       },
@@ -451,7 +517,31 @@ function TakingView({
   };
   void prevGroup;
 
-  const goTo = (qid: string) => document.getElementById(`q-${qid}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  /** Nhảy tới 1 câu: cột phải cuộn tới câu hỏi, cột trái cuộn tới đoạn văn/hướng dẫn (chỗ trống) của câu đó */
+  const pendingLeft = useRef(false);
+  const goTo = (qid: string) => {
+    const el = document.getElementById(`q-${qid}`);
+    if (!el) return;
+    lockUntil.current = Date.now() + 1000;
+    if (qid === current) {
+      if (split) jumpLeft();
+    } else {
+      pendingLeft.current = true;
+      setCurrent(qid);
+    }
+    const box = rightRef.current;
+    if (split && box) {
+      const top = el.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - 4;
+      box.scrollTo({ top, behavior: "smooth" });
+    } else el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  // Sau khi đổi câu đang làm (đoạn văn đã tô chỗ trống mới) mới cuộn cột trái
+  useEffect(() => {
+    if (!pendingLeft.current) return;
+    pendingLeft.current = false;
+    if (split) jumpLeft();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current]);
 
   const passagePanel = curSec && (curSec.instruction || curSec.passage) ? (
     <>
@@ -567,6 +657,15 @@ function TakingView({
                     )}
                     <fieldset id={`q-${q.id}`} className={`card p-4 transition ${split ? "scroll-mt-2" : "scroll-mt-28"} ${isCur ? "ring-2 ring-primary/40" : ""}`}>
                       <legend className="sr-only">{t("Câu {n}", { n: i + 1 })}</legend>
+                      <button
+                        type="button"
+                        onClick={() => toggleFlag(q.id)}
+                        aria-pressed={flags.has(q.id)}
+                        title={t("Đánh dấu câu này để xem lại trước khi nộp")}
+                        className={`float-right -mr-1 -mt-1 ml-2 rounded-lg px-2 py-1 text-xs font-semibold transition ${flags.has(q.id) ? "bg-orange-100 text-warn ring-1 ring-orange-300" : "text-muted hover:bg-gray-100"}`}
+                      >
+                        {flags.has(q.id) ? `🚩 ${t("Đang cân nhắc")}` : `⚑ ${t("Xem lại sau")}`}
+                      </button>
                       <p className="mb-3 leading-relaxed">
                         <b className="text-primary-dark">{t("Câu {n}.", { n: i + 1 })}</b> {stem && <Zone id={`s${q.id}`} text={stem} />}
                       </p>
@@ -601,59 +700,86 @@ function TakingView({
                 );
               })}
             </div>
-            <div className={split ? "h-6" : "h-28"} />
+            <div style={{ height: split ? 24 : barH + 24 }} />
           </div>
           <NoteClouds ann={ann} layer={rightLayer} />
         </div>
       </div>
 
-      {/* ===== THANH DƯỚI CÙNG: tiến độ, danh sách câu, nộp bài ===== */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-primary-line bg-white/95 shadow-[0_-4px_16px_rgba(0,0,0,0.05)] backdrop-blur" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-        {showNav && (
-          <div className="mx-auto max-h-[45vh] max-w-7xl overflow-y-auto border-b border-gray-100 p-3">
-            <div className="mb-2 flex items-center justify-between text-xs text-muted">
+      {/* ===== THANH DƯỚI CÙNG: tiến độ, các phần (gom theo dạng bài), nộp bài ===== */}
+      <div ref={barRef} className="fixed inset-x-0 bottom-0 z-30 border-t border-primary-line bg-white/95 shadow-[0_-4px_16px_rgba(0,0,0,0.05)] backdrop-blur" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        {/* Điện thoại / máy tính bảng: bảng danh sách câu bật lên, chia theo phần */}
+        {showNav && !wide && (
+          <div className="mx-auto max-h-[55vh] max-w-7xl overflow-y-auto overscroll-contain border-b border-gray-100 p-3">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
               <span>{t("Bấm số câu để nhảy tới")}</span>
-              <span>
-                <span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-primary align-middle" />{t("đã làm")}
-              </span>
+              <NavLegend />
             </div>
-            <div className="grid grid-cols-8 gap-1.5 sm:grid-cols-12 lg:grid-cols-20">
-              {questions.map((q, i) => (
-                <button
-                  key={q.id}
-                  onClick={() => {
-                    setShowNav(false);
-                    goTo(q.id);
-                  }}
-                  className={`grid h-9 place-items-center rounded-lg text-sm font-semibold ${answers[q.id] ? "bg-primary text-white" : "border border-gray-300 bg-white text-ink"} ${current === q.id ? "ring-2 ring-primary/50" : ""}`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
+            <PartsNav
+              layout="grid"
+              parts={parts}
+              questions={questions}
+              answers={answers}
+              flags={flags}
+              current={current}
+              onJump={(qid) => {
+                setShowNav(false);
+                goTo(qid);
+              }}
+            />
           </div>
         )}
         {showPassage && passagePanel && (
           <div className="max-h-[50vh] overflow-y-auto border-b border-gray-100 p-4 lg:hidden">{passagePanel}</div>
         )}
         {error && <p className="bg-red-50 px-4 py-2 text-sm text-danger">{error}</p>}
-        <div ref={barRef} className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 lg:px-4">
-          <button
-            onClick={() => {
-              setShowNav(!showNav);
-              setShowPassage(false);
-            }}
-            aria-expanded={showNav}
-            className="flex min-w-0 flex-1 flex-col items-start rounded-xl px-2 py-1 text-left hover:bg-gray-50 active:bg-gray-50 lg:max-w-md"
-          >
-            <span className="text-sm font-semibold">
-              <span className="hidden sm:inline">{t("Đã làm")} </span>
-              <b className="text-primary-dark">{done}</b>/{t("{n} câu", { n: questions.length })}<span className="hidden sm:inline"> {t("· Danh sách câu")}</span> {showNav ? "▾" : "▴"}
-            </span>
-            <span className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-              <span className="block h-full bg-primary transition-all" style={{ width: `${questions.length ? (done / questions.length) * 100 : 0}%` }} />
-            </span>
-          </button>
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 lg:gap-4 lg:px-4">
+          {wide && navOpen ? (
+            <>
+              {/* Máy tính: thanh điều hướng luôn hiện, mỗi phần 1 ô */}
+              <div className="flex w-40 shrink-0 flex-col justify-center self-stretch">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-sm font-bold leading-tight">{t("Điều hướng bài thi")}</span>
+                  <button type="button" onClick={() => setNavOpen(false)} className="rounded-md px-1.5 text-muted hover:bg-gray-100 hover:text-ink" title={t("Thu gọn")} aria-label={t("Thu gọn")}>
+                    ▾
+                  </button>
+                </div>
+                <div className="mt-1 flex justify-between text-xs text-muted">
+                  <span>{t("Tiến độ")}</span>
+                  <b className="text-ink">
+                    {done}/{questions.length}
+                  </b>
+                </div>
+                <span className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                  <span className="block h-full bg-primary transition-all" style={{ width: `${questions.length ? (done / questions.length) * 100 : 0}%` }} />
+                </span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <NavLegend className="mb-1 justify-end" />
+                <PartsNav layout="strip" parts={parts} questions={questions} answers={answers} flags={flags} current={current} onJump={goTo} />
+              </div>
+            </>
+          ) : (
+            <button
+              onClick={() => {
+                if (wide) return setNavOpen(true);
+                setShowNav(!showNav);
+                setShowPassage(false);
+              }}
+              aria-expanded={wide ? false : showNav}
+              className="flex min-w-0 flex-1 flex-col items-start rounded-xl px-2 py-1 text-left hover:bg-gray-50 active:bg-gray-50 lg:max-w-md"
+            >
+              <span className="text-sm font-semibold">
+                <span className="hidden sm:inline">{t("Đã làm")} </span>
+                <b className="text-primary-dark">{done}</b>/{t("{n} câu", { n: questions.length })}
+                <span className="hidden sm:inline"> {t("· Danh sách câu")}</span> {showNav && !wide ? "▾" : "▴"}
+                {flags.size > 0 && <span className="ml-1.5 text-xs font-semibold text-warn">🚩{questions.filter((q) => flags.has(q.id)).length}</span>}
+              </span>
+              <span className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                <span className="block h-full bg-primary transition-all" style={{ width: `${questions.length ? (done / questions.length) * 100 : 0}%` }} />
+              </span>
+            </button>
+          )}
           {passagePanel && curSec?.passage && (
             <button
               className="btn-outline shrink-0 px-3 lg:hidden"

@@ -147,6 +147,12 @@ alter table public.recovery_codes enable row level security;
 -- Bổ sung (02/11/2026): xáo thứ tự đáp án A/B/C/D theo từng học viên
 alter table public.quizzes add column if not exists shuffle_options boolean not null default false;
 
+-- ---------- Phần (gom câu theo dạng bài trên thanh điều hướng của học viên) ----------
+-- Tên phần giáo viên tự đặt: {"synonym": "Phần 2: Từ đồng nghĩa", ...}
+alter table public.quizzes add column if not exists part_titles jsonb not null default '{}'::jsonb;
+-- Dạng bài giáo viên chọn riêng cho 1 câu (null = tự nhận theo nhóm câu / nội dung)
+alter table public.questions add column if not exists kind text;
+
 -- Bổ sung (02/11/2026): mã đặt lại mật khẩu gửi qua email (6 số, hết hạn 15 phút, tối đa 5 lần thử)
 create table if not exists public.password_reset_codes (
   user_id uuid primary key references auth.users(id) on delete cascade,

@@ -51,7 +51,7 @@ export function studentLimited(action: "start" | "submit", ip: string, token: st
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const GRACE_SEC = 60;
 
-const QUESTION_COLS = "id, quiz_id, position, number, section_index, stem, options, correct_label, image";
+const QUESTION_COLS = "id, quiz_id, position, number, section_index, stem, options, correct_label, image, kind";
 
 /** Lấy đề + câu hỏi trong 1 lần gọi database */
 export async function loadQuizBySlug(slug: string) {
@@ -109,6 +109,7 @@ export function toPublicQuestions(quiz: Quiz, questions: QuestionRow[], token: s
     stem: q.stem,
     options: displayOptions(q.options, permFor(quiz, q, token)),
     image: q.image ?? null,
+    kind: q.kind ?? null,
   }));
   if (!quiz.shuffle_questions || !token) return pub;
   // Xáo theo nhóm section để câu đọc hiểu vẫn đi cùng đoạn văn

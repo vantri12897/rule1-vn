@@ -112,3 +112,42 @@ test("safeHtml cho phép màu tô của giáo viên, chặn thuộc tính lạ",
   assert.equal(safeHtml('<mark data-c="z" onclick="a()">x</mark>'), '&lt;mark data-c=&quot;z&quot; onclick=&quot;a()&quot;&gt;x</mark>');
   assert.equal(safeHtml('<mark style="x">y</mark>'), "&lt;mark style=&quot;x&quot;&gt;y</mark>");
 });
+
+test("parts: nhận dạng dạng bài từ hướng dẫn đề thi", async () => {
+  const { kindFromText, autoKindOfSection, buildParts, rangeText, kindOfQuestion } = await import("../src/lib/parts.ts");
+  const M = "Mark the letter A, B, C, or D on your answer sheet to indicate ";
+  assert.equal(kindFromText(M + "the word whose underlined part differs from the other three in pronunciation in each of the following questions."), "pronunciation");
+  assert.equal(kindFromText(M + "the word that differs from the other three in the position of primary stress in each of the following questions."), "stress");
+  assert.equal(kindFromText(M + "the word(s) <b>CLOSEST</b> in meaning to the underlined word(s) in each of the following questions."), "synonym");
+  assert.equal(kindFromText(M + "the word(s) OPPOSITE in meaning to the underlined word(s) in each of the following questions."), "antonym");
+  assert.equal(kindFromText(M + "the underlined part that needs correction in each of the following questions."), "error");
+  assert.equal(kindFromText(M + "the sentence that is closest in meaning to each of the following questions."), "rewrite");
+  assert.equal(kindFromText(M + "the sentence that best combines each pair of sentences in the following questions."), "combine");
+  assert.equal(kindFromText(M + "the most suitable response to complete each of the following exchanges."), "dialogue");
+  assert.equal(kindFromText(M + "the best arrangement of utterances or sentences to make a meaningful exchange or text in each of the following questions."), "ordering");
+  assert.equal(kindFromText("Read the following advertisement and mark the letter A, B, C or D to indicate the option that best fits each of the numbered blanks from 1 to 6."), "cloze");
+  assert.equal(kindFromText(M + "the correct answer to each of the following questions."), null);
+  // Nhóm câu không có từ khoá → xét từng câu (có chỗ trống → điền chỗ trống)
+  const qs = [1, 2].map((n) => ({ number: n, section_index: 0, stem: `She ____ to school every day (${n}).`, options: [{ label: "A", text: "go" }] }));
+  assert.equal(autoKindOfSection({ instruction: M + "the correct answer to each of the following questions.", passage: null }, qs), "fill");
+  // Đoạn văn có (13), (14) trùng số câu → điền từ vào đoạn văn; không có → đọc hiểu
+  const cq = [13, 14].map((n) => ({ number: n, section_index: 0, stem: "", options: [] }));
+  assert.equal(autoKindOfSection({ instruction: "Read the passage.", passage: "Many people (13) ___ the city and (14) ___ there." }, cq), "cloze");
+  assert.equal(autoKindOfSection({ instruction: "Read the following passage and answer the questions.", passage: "Long text about cities." }, cq), "reading");
+  // Câu lẻ: nội dung có chữ "stress"/"reading" không bị nhận nhầm
+  assert.equal(kindOfQuestion({ number: 1, section_index: null, stem: "Reading books reduces stress.", options: [{ label: "A", text: "x" }] }), null);
+  assert.equal(kindOfQuestion({ number: 1, section_index: null, stem: "x", options: ["a – c – b", "b – a – c", "c – b – a", "a – b – c"].map((t, i) => ({ label: "ABCD"[i], text: t })) }), "ordering");
+  // Gom theo dạng, giữ thứ tự xuất hiện, giáo viên đổi dạng/đổi tên
+  const sections = [
+    { instruction: M + "the word(s) CLOSEST in meaning to the underlined word(s).", passage: null },
+    { instruction: M + "the correct answer to each of the following questions.", passage: null },
+    { instruction: M + "the word(s) CLOSEST in meaning to the underlined word(s).", passage: null, kind: null },
+  ];
+  const q = (n: number, s: number) => ({ number: n, section_index: s, stem: s === 1 ? "I ___ it." : "word", options: [] });
+  const all = [q(1, 0), q(2, 0), q(3, 1), q(4, 1), q(5, 2)];
+  const parts = buildParts(sections, all, { synonym: "  Đồng nghĩa  " });
+  assert.deepEqual(parts.map((p) => [p.kind, p.items, p.custom]), [["synonym", [0, 1, 4], "Đồng nghĩa"], ["fill", [2, 3], null]]);
+  sections[2].kind = "antonym";
+  assert.deepEqual(buildParts(sections, all).map((p) => p.kind), ["synonym", "fill", "antonym"]);
+  assert.equal(rangeText([1, 2, 3, 5, 9, 10]), "1–3, 5, 9–10");
+});

@@ -18,6 +18,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ slug: string }>
       title: quiz.title,
       status: quiz.status,
       sections: quiz.sections,
+      part_titles: quiz.part_titles ?? {},
       time_limit_min: quiz.time_limit_min,
       question_count: questions.length,
     },

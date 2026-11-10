@@ -15,6 +15,7 @@ const info = cache(async (slug: string): Promise<QuizInfo | null> => {
       title: data.quiz.title,
       status: data.quiz.status === "open" ? "open" : "closed",
       sections: data.quiz.sections,
+      part_titles: data.quiz.part_titles ?? {},
       time_limit_min: data.quiz.time_limit_min,
       question_count: data.questions.length,
     };

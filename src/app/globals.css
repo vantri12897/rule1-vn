@@ -112,3 +112,8 @@ mark[data-c="o"] { background: #fdba74; }
 .rt-editor:empty::before { content: attr(data-placeholder); color: #9ca3af; pointer-events: none; }
 .yd-cloud-free::before, .yd-cloud-free::after { display: none; }
 .yd-cloud-drag { box-shadow: 0 14px 32px -8px rgba(3, 105, 161, .5); opacity: .95; }
+
+/* Thanh điều hướng theo phần: thanh cuộn ngang mảnh */
+.yd-strip { scrollbar-width: thin; scrollbar-color: #bbf7d0 transparent; }
+.yd-strip::-webkit-scrollbar { height: 6px; }
+.yd-strip::-webkit-scrollbar-thumb { background: #bbf7d0; border-radius: 9999px; }

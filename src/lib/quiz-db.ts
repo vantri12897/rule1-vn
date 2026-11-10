@@ -11,6 +11,7 @@ export async function createQuiz(input: {
   sections: Section[];
   questions: DraftQuestion[];
   source_file_hash?: string | null;
+  part_titles?: Record<string, string> | null;
 }): Promise<string> {
   const sb = supabaseBrowser();
   const { data: u } = await sb.auth.getUser();
@@ -22,6 +23,7 @@ export async function createQuiz(input: {
       title: input.title.trim() || tc("Đề trắc nghiệm"),
       slug: slugId(),
       sections: input.sections,
+      part_titles: input.part_titles ?? {},
       source_file_hash: input.source_file_hash ?? null,
     })
     .select("id")
@@ -41,6 +43,7 @@ export async function createQuiz(input: {
       needs_review: q.needs_review,
       explanation: q.explanation,
       image: q.image ?? null,
+      kind: q.kind ?? null,
     }));
     const { error: e2 } = await sb.from("questions").insert(rows);
     if (e2) throw new Error(tc("Không lưu được câu hỏi: ") + e2.message);
@@ -73,6 +76,7 @@ export async function duplicateQuiz(quizId: string): Promise<string> {
   return createQuiz({
     title: `${q.title} ${tc("(bản sao)")}`,
     sections: q.sections,
+    part_titles: q.part_titles ?? {},
     source_file_hash: q.source_file_hash,
     questions: (qs ?? []).map((x) => ({
       number: x.number,
@@ -85,6 +89,7 @@ export async function duplicateQuiz(quizId: string): Promise<string> {
       needs_review: x.needs_review,
       explanation: x.explanation,
       image: x.image ?? null,
+      kind: x.kind ?? null,
     })),
   });
 }
