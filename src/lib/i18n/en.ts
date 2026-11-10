@@ -581,4 +581,5 @@ export const EN: Record<string, string> = {
   "(bằng lần trước)": "(same as last time)",
   "Tiến bộ rồi! ": "Nice progress! ",
   "Đây là lần làm thứ {n}.": "This is attempt #{n}.",
+  "📖 Đoạn văn": "📖 Passage",
 };

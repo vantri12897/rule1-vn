@@ -166,3 +166,10 @@ test("images: nhận dạng ảnh, link kho file, data URL", async () => {
   assert.ok(!isStoredUrl(url.replace("quiz-images", "other")));
   assert.ok(isDataUrl(png) && !isDataUrl(url));
 });
+
+test("fmtDate: luôn theo giờ Việt Nam, không phụ thuộc múi giờ máy", async () => {
+  const { fmtDate } = await import("../src/lib/vn-time.ts");
+  assert.equal(fmtDate("2026-11-10T15:28:45Z"), "10/11/2026 22:28");
+  assert.equal(fmtDate("2026-12-31T17:30:00Z"), "01/01/2027 00:30");
+  assert.equal(fmtDate(null), "—");
+});
