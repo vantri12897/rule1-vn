@@ -136,6 +136,11 @@ export async function cleanupImages(ownerId: string) {
   const files = (await listAll(ownerId)).filter((f) => f.id);
   if (!files.length) return 0;
   const used = new Set<string>();
+  // Ảnh đại diện của giáo viên cũng nằm trong kho → giữ lại. Không đọc được tài khoản thì bỏ qua lần dọn này cho an toàn.
+  const { data: acc, error: accErr } = await sb.auth.admin.getUserById(ownerId);
+  if (accErr) return 0;
+  const av = acc?.user?.user_metadata?.avatar_url as string | undefined;
+  if (isStoredUrl(av)) used.add(storedPath(av)!);
   for (let from = 0; ; from += 1000) {
     const { data, error } = await sb
       .from("questions")

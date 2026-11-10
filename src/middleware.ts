@@ -1,12 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/env";
+import { profileFromMeta } from "@/lib/profile";
 
 /** Tên header nội bộ: middleware đã xác thực xong thì chuyển email xuống layout, khỏi gọi Supabase lần 2 */
 const USER_HEADER = "x-yd-user-email";
+/** Tên hiển thị + ảnh đại diện (JSON) */
+const PROFILE_HEADER = "x-yd-user-profile";
 
 export async function middleware(req: NextRequest) {
   req.headers.delete(USER_HEADER); // không tin header do trình duyệt gửi lên
+  req.headers.delete(PROFILE_HEADER);
   let res = NextResponse.next({ request: req });
   const sb = createServerClient(
     SUPABASE_URL,
@@ -30,6 +34,7 @@ export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   if (user && path.startsWith("/dashboard")) {
     req.headers.set(USER_HEADER, encodeURIComponent(user.email));
+    req.headers.set(PROFILE_HEADER, encodeURIComponent(JSON.stringify(profileFromMeta(claims?.user_metadata))));
     const next = NextResponse.next({ request: req });
     res.cookies.getAll().forEach((c) => next.cookies.set(c));
     return next;
