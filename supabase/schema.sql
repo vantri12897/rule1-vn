@@ -245,3 +245,37 @@ alter table public.questions add constraint questions_image_check
 -- Bổ sung (10/11/2026): số lần học viên rời khỏi trang làm bài (chuyển tab / mở ứng dụng khác) và tổng thời gian rời
 alter table public.attempts add column if not exists away_count int;
 alter table public.attempts add column if not exists away_seconds int;
+
+-- =====================================================================
+-- Bổ sung (10/11/2026): DANH SÁCH LỚP — giáo viên nhập danh sách học viên 1 lần,
+-- học viên chọn tên trong danh sách thay vì tự gõ (không đặt tên khác được).
+-- students = [{"id": "k3x9a2", "name": "Nguyễn Văn An"}, ...] — id giữ nguyên khi sửa danh sách
+-- =====================================================================
+create table if not exists public.classes (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  name text not null check (length(name) between 1 and 80),
+  students jsonb not null default '[]'::jsonb check (jsonb_typeof(students) = 'array' and jsonb_array_length(students) <= 500),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists classes_owner_idx on public.classes(owner_id);
+alter table public.classes enable row level security;
+drop policy if exists classes_owner on public.classes;
+create policy classes_owner on public.classes
+  for all to authenticated
+  using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+
+-- Đề dùng danh sách lớp nào (null = học viên tự gõ tên như trước)
+alter table public.quizzes add column if not exists class_id uuid references public.classes(id) on delete set null;
+-- Giáo viên chỉ gắn được lớp của chính mình
+drop policy if exists quizzes_owner on public.quizzes;
+create policy quizzes_owner on public.quizzes
+  for all to authenticated
+  using (owner_id = auth.uid())
+  with check (owner_id = auth.uid() and (class_id is null or exists (select 1 from public.classes c where c.id = class_id and c.owner_id = auth.uid())));
+
+-- Học viên trong danh sách lớp (id trong classes.students); mỗi học viên chỉ có 1 bài đang hoạt động / đề
+alter table public.attempts add column if not exists roster_id text;
+create unique index if not exists attempts_one_active_roster
+  on public.attempts(quiz_id, roster_id) where status <> 'archived' and roster_id is not null;

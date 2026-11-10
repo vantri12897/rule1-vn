@@ -13,6 +13,7 @@ import type { Quiz, QuestionRow } from "@/lib/types";
 import { alertDialog, confirmDialog, toast } from "@/components/ui/feedback";
 import { PageSkeleton } from "@/components/ui/Skeleton";
 import { useT } from "@/lib/i18n/client";
+import { RosterCard } from "@/components/teacher/RosterCard";
 import { cacheDelete, cacheGet, cacheSet } from "@/lib/cache";
 import { fetchQuizDetail, type QuizDetail } from "@/lib/quiz-load";
 
@@ -266,6 +267,7 @@ function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSav
         {msg && <p className="text-sm text-primary-dark">{msg}</p>}
         <button className="btn-primary w-full" onClick={save}>{t("Lưu cài đặt")}</button>
       </div>
+      <RosterCard quiz={quiz} onSaved={onSaved} />
       <div className="card space-y-2 p-5">
         <button className="btn-outline w-full" onClick={onDuplicate}>{t("Nhân bản đề")}</button>
         <button className="btn-danger w-full" onClick={remove}>{t("Xoá đề")}</button>

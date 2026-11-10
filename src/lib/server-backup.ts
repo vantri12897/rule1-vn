@@ -27,7 +27,8 @@ export async function buildBackup(ownerId: string) {
   if (error) throw new Error(`quizzes: ${error.message}`);
   const ids = (quizzes ?? []).map((q) => q.id as string);
   const [questions, attempts] = ids.length ? await Promise.all([fetchAll("questions", "quiz_id", ids), fetchAll("attempts", "quiz_id", ids)]) : [[], []];
-  return { app: "YD-English" as const, version: 1 as const, exported_at: new Date().toISOString(), quizzes: (quizzes ?? []) as Row[], questions, attempts };
+  const { data: classes } = await supabaseAdmin().from("classes").select("*").eq("owner_id", ownerId);
+  return { app: "YD-English" as const, version: 1 as const, exported_at: new Date().toISOString(), quizzes: (quizzes ?? []) as Row[], questions, attempts, classes: (classes ?? []) as Row[] };
 }
 
 const L = {

@@ -1,7 +1,7 @@
 import "server-only";
 import { supabaseAdmin } from "./supabase/admin";
 import { grade, seededShuffle } from "./grading";
-import type { Attempt, PublicQuestion, Quiz, QuestionRow } from "./types";
+import type { Attempt, PublicQuestion, Quiz, QuestionRow, RosterStudent } from "./types";
 import { canShuffle, displayOptions, identityPerm, optionPerm, toDisplay, toOriginal } from "./option-shuffle";
 
 /** Hoán vị đáp án cho học viên này (không xáo nếu đề tắt tuỳ chọn hoặc câu dạng "All of the above") */
@@ -57,13 +57,15 @@ const QUESTION_COLS = "id, quiz_id, position, number, section_index, stem, optio
 export async function loadQuizBySlug(slug: string) {
   const { data } = await supabaseAdmin()
     .from("quizzes")
-    .select(`*, questions(${QUESTION_COLS})`)
+    .select(`*, questions(${QUESTION_COLS}), classes(name, students)`)
     .eq("slug", slug)
     .order("position", { referencedTable: "questions" })
-    .maybeSingle<Quiz & { questions: QuestionRow[] }>();
+    .maybeSingle<Quiz & { questions: QuestionRow[]; classes: { name: string; students: RosterStudent[] } | null }>();
   if (!data || data.status === "draft") return null;
-  const { questions, ...quiz } = data;
-  return { quiz: quiz as Quiz, questions: (questions ?? []) as QuestionRow[] };
+  const { questions, classes, ...quiz } = data;
+  // Danh sách lớp (nếu đề dùng): học viên chọn tên trong danh sách
+  const roster = quiz.class_id && classes ? { class_name: classes.name, students: (classes.students ?? []).map((s) => ({ id: s.id, name: s.name })) } : null;
+  return { quiz: quiz as Quiz, questions: (questions ?? []) as QuestionRow[], roster };
 }
 
 /** Bài làm đang hoạt động, tra theo slug đề — chạy song song với loadQuizBySlug */
@@ -170,4 +172,16 @@ export async function previousResults(quizId: string, token: string) {
 /** Kết quả bài làm + điểm các lần trước (để học viên thấy mình tiến bộ thế nào) */
 export async function resultFor(quiz: Quiz, questions: QuestionRow[], attempt: Attempt) {
   return { ...buildResult(quiz, questions, attempt), previous: await previousResults(quiz.id, attempt.student_token) };
+}
+
+/** Bài đang hoạt động (đang làm / đã nộp, chưa bị cho làm lại) của 1 học viên trong danh sách lớp */
+export async function activeRosterAttempt(quizId: string, rosterId: string) {
+  const { data } = await supabaseAdmin()
+    .from("attempts")
+    .select("id, student_token, status")
+    .eq("quiz_id", quizId)
+    .eq("roster_id", rosterId)
+    .neq("status", "archived")
+    .maybeSingle<{ id: string; student_token: string; status: string }>();
+  return data ?? null;
 }

@@ -40,6 +40,8 @@ export type Quiz = {
   show_answers: boolean;
   /** Tên phần giáo viên đặt trên thanh điều hướng: { [dạng bài]: tên } */
   part_titles?: Record<string, string> | null;
+  /** Danh sách lớp (học viên chọn tên trong danh sách); null = tự gõ tên */
+  class_id?: string | null;
   source_file_hash: string | null;
   created_at: string;
   updated_at: string;
@@ -59,6 +61,8 @@ export type Attempt = {
   status: "in_progress" | "submitted" | "archived";
   started_at: string;
   submitted_at: string | null;
+  /** Học viên trong danh sách lớp (id trong classes.students); null = tự gõ tên */
+  roster_id?: string | null;
   /** Số lần rời trang làm bài (null = bài nộp trước khi có tính năng này) */
   away_count?: number | null;
   away_seconds?: number | null;
@@ -74,3 +78,7 @@ export type PublicQuestion = {
   image?: string | null;
   kind?: string | null;
 };
+
+/** Danh sách lớp của giáo viên */
+export type RosterStudent = { id: string; name: string };
+export type ClassList = { id: string; owner_id: string; name: string; students: RosterStudent[]; created_at: string; updated_at: string };

@@ -3,11 +3,12 @@ import { Fragment, memo, useCallback, useEffect, useMemo, useState } from "react
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { regradeQuiz } from "@/lib/quiz-db";
 import { fmtDate, fmtDuration } from "@/lib/ui";
-import type { Attempt, Quiz, QuestionRow } from "@/lib/types";
+import type { Attempt, Quiz, QuestionRow, RosterStudent } from "@/lib/types";
 import { confirmDialog, toast } from "@/components/ui/feedback";
 import { Skel } from "@/components/ui/Skeleton";
 import { useT } from "@/lib/i18n/client";
 import { buildParts, partTitle } from "@/lib/parts";
+import { normName } from "@/lib/roster";
 
 export const ResultsPanel = memo(function ResultsPanel({
   quiz,
@@ -52,31 +53,60 @@ export const ResultsPanel = memo(function ResultsPanel({
   useEffect(() => onCountChange(submitted.length), [submitted.length, onCountChange]);
 
   /**
-   * Đánh số lần làm của từng học viên (Lần 1, Lần 2…): cùng máy (mã trình duyệt) hoặc cùng tên + lớp
-   * được coi là cùng 1 học viên. Bài cũ (đã cho làm lại) nằm trong "Các lần làm trước".
+   * Gom bài làm theo HỌC VIÊN: theo mã trong danh sách lớp (nếu đề dùng danh sách lớp),
+   * nếu không thì theo tên + lớp (không phân biệt hoa/thường, khoảng trắng).
+   * Không tự gộp 2 tên khác nhau làm trên cùng máy (phòng máy dùng chung) — chỉ ghi chú "🔗 cùng máy với…".
+   * Lần 1, Lần 2… chỉ đếm bài đã nộp và bài đang làm (bài bỏ dở rồi được cho làm lại không tính).
    */
-  const attemptInfo = useMemo(() => {
+  const grp = useMemo(() => {
     const all = attempts ?? [];
-    const parent = new Map<string, string>();
-    const find = (x: string): string => {
-      if (!parent.has(x)) parent.set(x, x);
-      while (parent.get(x) !== x) x = parent.get(x)!;
-      return x;
-    };
-    const norm = (v: string | null) => (v ?? "").normalize("NFC").trim().toLowerCase().replace(/\s+/g, " ");
-    for (const a of all) parent.set(find(`t:${a.student_token}`), find(`n:${norm(a.student_name)}|${norm(a.student_class)}`));
-    const groups = new Map<string, Attempt[]>();
-    for (const a of all) {
-      const g = find(`t:${a.student_token}`);
-      groups.set(g, [...(groups.get(g) ?? []), a]);
-    }
-    const info = new Map<string, { no: number; prev: Attempt[] }>();
-    for (const list of groups.values()) {
+    const keyOf = (a: Attempt) => (a.roster_id ? `r:${a.roster_id}` : `n:${normName(a.student_name)}|${normName(a.student_class)}`);
+    const byKey = new Map<string, Attempt[]>();
+    for (const a of all) byKey.set(keyOf(a), [...(byKey.get(keyOf(a)) ?? []), a]);
+    const info = new Map<string, { no: number | null; prev: Attempt[] }>();
+    for (const list of byKey.values()) {
       list.sort((x, y) => Date.parse(x.started_at) - Date.parse(y.started_at));
-      list.forEach((a, i) => info.set(a.id, { no: i + 1, prev: list.slice(0, i) }));
+      const counted: Attempt[] = [];
+      for (const a of list) {
+        if (a.status === "archived" && a.score == null) {
+          info.set(a.id, { no: null, prev: [] });
+          continue;
+        }
+        info.set(a.id, { no: counted.length + 1, prev: [...counted] });
+        counted.push(a);
+      }
     }
-    return info;
+    // Cùng máy (mã trình duyệt) nhưng khác học viên → ghi chú để giáo viên tự kiểm tra
+    const keysByToken = new Map<string, Set<string>>();
+    for (const a of all) keysByToken.set(a.student_token, new Set([...(keysByToken.get(a.student_token) ?? []), keyOf(a)]));
+    const nameOfKey = (k: string) => byKey.get(k)![byKey.get(k)!.length - 1].student_name;
+    const linked = new Map<string, string[]>();
+    for (const [k, list] of byKey) {
+      const others = new Set<string>();
+      for (const a of list) for (const k2 of keysByToken.get(a.student_token) ?? []) if (k2 !== k) others.add(nameOfKey(k2));
+      if (others.size) linked.set(k, [...others]);
+    }
+    return { byKey, info, keyOf, linked };
   }, [attempts]);
+
+  // Đề dùng danh sách lớp: tải danh sách để biết ai chưa làm bài
+  const [roster, setRoster] = useState<{ name: string; students: RosterStudent[] } | null>(null);
+  useEffect(() => {
+    if (!quiz.class_id) return setRoster(null);
+    supabaseBrowser()
+      .from("classes")
+      .select("name, students")
+      .eq("id", quiz.class_id)
+      .maybeSingle()
+      .then(({ data }) => setRoster((data as { name: string; students: RosterStudent[] } | null) ?? null));
+  }, [quiz.class_id]);
+  const notYet = useMemo(() => {
+    if (!roster) return [];
+    const has = new Set(active.map((a) => a.roster_id).filter(Boolean));
+    return roster.students.filter((s) => !has.has(s.id));
+  }, [roster, active]);
+  const [showAbandoned, setShowAbandoned] = useState(false);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
 
   const dupNames = useMemo(() => {
     const c = new Map<string, number>();
@@ -275,6 +305,31 @@ export const ResultsPanel = memo(function ResultsPanel({
         <p className="rounded-xl bg-orange-50 p-3 text-sm text-warn">{t("⚠️ Có nhiều bài trùng họ tên (tô cam bên dưới) — có thể một học viên làm trên nhiều thiết bị.")}</p>
       )}
 
+      {roster && (
+        <div className={`card p-4 ${notYet.length ? "border-amber-200" : "border-primary-line"}`}>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h3 className="font-bold">
+              👥 {t("Lớp {name}", { name: roster.name })}:{" "}
+              {notYet.length ? (
+                <span className="text-sun-ink">{t("{n}/{total} học viên chưa làm bài", { n: notYet.length, total: roster.students.length })}</span>
+              ) : (
+                <span className="text-primary-dark">{t("cả lớp đã làm bài 🎉")}</span>
+              )}
+            </h3>
+            <span className="text-xs text-muted">{t("Đang làm hoặc đã nộp: {n}", { n: roster.students.length - notYet.length })}</span>
+          </div>
+          {notYet.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {notYet.map((st) => (
+                <span key={st.id} className="rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-sun-ink">
+                  {st.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="card overflow-hidden">
         <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
           <h3 className="font-bold">{t("Bảng kết quả")}</h3>
@@ -305,7 +360,8 @@ export const ResultsPanel = memo(function ResultsPanel({
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap items-center gap-1.5 font-semibold">
                           {a.student_name}
-                          <AttemptBadge info={attemptInfo.get(a.id)} />
+                          <AttemptBadge info={grp.info.get(a.id)} />
+                          <LinkedHint names={grp.linked.get(grp.keyOf(a))} />
                         </div>
                         {a.student_class && <div className="text-xs text-muted">{a.student_class}</div>}
                       </td>
@@ -400,74 +456,113 @@ export const ResultsPanel = memo(function ResultsPanel({
         </div>
       )}
 
-      {archived.length > 0 && (
-        <div>
-          <button className="text-sm text-primary-dark hover:underline" onClick={() => setShowHistory(!showHistory)}>
-            {showHistory ? t("Ẩn các lần làm trước ({n})", { n: archived.length }) : t("🕘 Xem các lần làm trước ({n})", { n: archived.length })}
-          </button>
-          {showHistory && (
-            <div className="card mt-2 overflow-hidden">
-              <div className="flex items-center justify-between gap-2 border-b border-gray-100 bg-gray-50 px-4 py-2">
-                <span className="text-xs text-muted">{t("Bài cũ của học viên trước khi được cho làm lại — bấm vào để xem chi tiết")}</span>
-                <button className="btn-danger px-3 py-1.5 text-xs" onClick={() => deleteHistory()}>
-                  {t("🗑️ Xoá toàn bộ lịch sử")}
-                </button>
-              </div>
-              <div className="divide-y divide-gray-100">
-                {archived.map((a) => (
-                  <div key={a.id}>
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      aria-expanded={open === a.id}
-                      onClick={() => setOpen(open === a.id ? null : a.id)}
-                      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), setOpen(open === a.id ? null : a.id))}
-                      className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50"
-                    >
-                      <span className="min-w-0 flex-1 truncate">
-                        <span className="mr-1 text-muted">{open === a.id ? "▾" : "▸"}</span>
-                        {a.student_name}
-                        {a.student_class && <span className="text-xs text-muted"> · {a.student_class}</span>}{" "}
-                        <AttemptBadge info={attemptInfo.get(a.id)} always />
-                      </span>
-                      <span className="shrink-0 text-muted">
-                        {a.score != null ? <b className="text-ink">{a.score}/{a.total}</b> : t("chưa nộp")} · {fmtDate(a.submitted_at ?? a.started_at)}
-                      </span>
-                      <button
-                        className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-danger hover:bg-red-50"
-                        aria-label={t("Xoá bài của {name} khỏi lịch sử", { name: a.student_name })}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteHistory(a);
-                        }}
-                      >
-                        {t("Xoá")}
+      {archived.length > 0 &&
+        (() => {
+          const abandoned = archived.filter((a) => a.score == null).length;
+          // Các học viên có bài cũ (đã được cho làm lại); bài bỏ dở chỉ hiện khi giáo viên bật
+          const groups = [...grp.byKey.entries()]
+            .map(([key, list]) => ({ key, list: list.filter((a) => a.status !== "archived" || a.score != null || showAbandoned) }))
+            .filter((g) => g.list.some((a) => a.status === "archived"))
+            .sort((x, y) => x.list[x.list.length - 1].student_name.localeCompare(y.list[y.list.length - 1].student_name, "vi"));
+          const nOld = groups.reduce((n, g) => n + g.list.filter((a) => a.status === "archived").length, 0);
+          return (
+            <div>
+              <button className="text-sm font-semibold text-primary-dark hover:underline" onClick={() => setShowHistory(!showHistory)} aria-expanded={showHistory}>
+                {showHistory ? "▾" : "▸"} {t("🕘 Các lần làm trước — {g} học viên, {n} bài", { g: groups.length, n: nOld })}
+              </button>
+              {showHistory && (
+                <div className="card mt-2 overflow-hidden">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 bg-gray-50 px-4 py-2">
+                    <span className="text-xs text-muted">{t("Mỗi dòng là 1 học viên — bấm vào để xem các lần làm")}</span>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {abandoned > 0 && (
+                        <label className="flex cursor-pointer items-center gap-1.5 text-xs text-muted">
+                          <input type="checkbox" className="h-4 w-4 accent-primary" checked={showAbandoned} onChange={(e) => setShowAbandoned(e.target.checked)} />
+                          {t("Hiện cả bài bỏ dở ({n})", { n: abandoned })}
+                        </label>
+                      )}
+                      <button className="btn-danger px-3 py-1.5 text-xs" onClick={() => deleteHistory()}>
+                        {t("🗑️ Xoá toàn bộ lịch sử")}
                       </button>
                     </div>
-                    {open === a.id && (
-                      <div className="bg-gray-50 px-4 py-3">
-                        {a.score != null ? (
-                          <>
-                            <p className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
-                              <span>⏱️ {t("Thời gian làm")}: {fmtDuration(a.started_at, a.submitted_at)}</span>
-                              <span>
-                                🚪 {t("Số lần rời trang")}: <AwayCell a={a} />
-                              </span>
-                            </p>
-                            {detail(a)}
-                          </>
-                        ) : (
-                          <p className="text-xs text-muted">{t("Bài này chưa nộp khi được cho làm lại nên không có kết quả.")}</p>
-                        )}
-                      </div>
-                    )}
                   </div>
-                ))}
-              </div>
+                  {groups.length === 0 && <p className="px-4 py-4 text-sm text-muted">{t("Chỉ có bài bỏ dở — bật “Hiện cả bài bỏ dở” để xem.")}</p>}
+                  <div className="divide-y divide-gray-100">
+                    {groups.map(({ key, list }) => {
+                      const last = list[list.length - 1];
+                      const names = [...new Set(list.map((a) => a.student_name))];
+                      const isOpen = openGroup === key;
+                      return (
+                        <div key={key}>
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            aria-expanded={isOpen}
+                            onClick={() => setOpenGroup(isOpen ? null : key)}
+                            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), setOpenGroup(isOpen ? null : key))}
+                            className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5 text-sm hover:bg-gray-50"
+                          >
+                            <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                              <span className="text-muted">{isOpen ? "▾" : "▸"}</span>
+                              <b>{last.student_name}</b>
+                              {last.student_class && <span className="text-xs text-muted">· {last.student_class}</span>}
+                              {names.length > 1 && <span className="text-xs text-muted">({t("cũng ghi là: {names}", { names: names.filter((x) => x !== last.student_name).join(", ") })})</span>}
+                              <LinkedHint names={grp.linked.get(key)} />
+                            </span>
+                            <span className="flex flex-wrap justify-end gap-1">
+                              {list.map((a) => {
+                                const no = grp.info.get(a.id)?.no;
+                                const cur = a.status !== "archived";
+                                return (
+                                  <span key={a.id} className={`whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs font-semibold ${cur ? "bg-primary-soft text-primary-dark" : a.score == null ? "bg-gray-100 text-muted" : "bg-sky-soft text-sky-ink"}`}>
+                                    {no ? t("Lần {n}", { n: no }) : t("bỏ dở")}
+                                    {a.score != null ? `: ${a.score}/${a.total}` : cur ? `: ${t("đang làm")}` : ""}
+                                  </span>
+                                );
+                              })}
+                            </span>
+                          </div>
+                          {isOpen && (
+                            <div className="divide-y divide-gray-100 bg-gray-50/70">
+                              {list.map((a) => {
+                                const no = grp.info.get(a.id)?.no;
+                                const cur = a.status !== "archived";
+                                return (
+                                  <div key={a.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 pl-10 pr-4 text-sm">
+                                    <span className="w-24 shrink-0 font-semibold">{no ? t("Lần {n}", { n: no }) : t("Bỏ dở")}</span>
+                                    <span className="min-w-0 flex-1 text-muted">
+                                      {a.score != null ? <b className="text-ink">{a.score}/{a.total}</b> : cur ? t("Đang làm") : t("chưa nộp")} · {fmtDate(a.submitted_at ?? a.started_at)}
+                                      {cur && <span className="ml-1.5 rounded bg-primary-soft px-1.5 py-0.5 text-xs font-semibold text-primary-dark">{t("bài hiện tại")}</span>}
+                                      {names.length > 1 && <span className="ml-1.5 text-xs">“{a.student_name}”</span>}
+                                    </span>
+                                    {a.score != null && (
+                                      <a href={`/dashboard/quiz/${quiz.id}/attempt/${a.id}`} target="_blank" rel="noopener" className="rounded-lg px-2 py-1 text-xs font-semibold text-primary-dark hover:bg-primary-soft">
+                                        📄 {t("Xem bài")} ↗
+                                      </a>
+                                    )}
+                                    {!cur && (
+                                      <button
+                                        className="rounded-lg px-2 py-1 text-xs font-semibold text-danger hover:bg-red-50"
+                                        aria-label={t("Xoá bài của {name} khỏi lịch sử", { name: a.student_name })}
+                                        onClick={() => deleteHistory(a)}
+                                      >
+                                        {t("Xoá")}
+                                      </button>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      )}
+          );
+        })()}
     </div>
   );
 });
@@ -501,16 +596,25 @@ function AwayCell({ a }: { a: Attempt }) {
 }
 
 /** Nhãn "Lần 2", "Lần 3"… cạnh tên học viên; rê chuột xem điểm các lần trước */
-function AttemptBadge({ info, always }: { info?: { no: number; prev: Attempt[] }; always?: boolean }) {
+function AttemptBadge({ info }: { info?: { no: number | null; prev: Attempt[] } }) {
   const { t } = useT();
-  if (!info || (info.no === 1 && !always)) return null;
-  const hist = info.prev.map((p, i) => `${t("Lần {n}", { n: i + 1 })}: ${p.score != null ? `${p.score}/${p.total}` : t("chưa nộp")}`).join(" · ");
+  if (!info?.no || info.no === 1) return null;
+  const hist = info.prev.map((p, i) => `${t("Lần {n}", { n: i + 1 })}: ${p.score != null ? `${p.score}/${p.total}` : t("đang làm")}`).join(" · ");
   return (
-    <span
-      title={hist || undefined}
-      className={`whitespace-nowrap rounded-md px-1.5 py-0.5 text-[calc(0.6875rem*var(--fs,1))] font-bold ${info.no > 1 ? "bg-sky-soft text-sky-ink" : "bg-gray-100 text-muted"}`}
-    >
+    <span title={hist || undefined} className="whitespace-nowrap rounded-md bg-sky-soft px-1.5 py-0.5 text-[calc(0.6875rem*var(--fs,1))] font-bold text-sky-ink">
       {t("Lần {n}", { n: info.no })}
+    </span>
+  );
+}
+
+/** 🔗 Bài làm trên cùng máy với học viên tên khác → có thể đổi tên, làm hộ, hoặc phòng máy dùng chung */
+function LinkedHint({ names }: { names?: string[] }) {
+  const { t } = useT();
+  if (!names?.length) return null;
+  const msg = t("Cùng máy với: {names} — có thể học viên đã đổi tên, làm hộ, hoặc dùng chung máy (phòng máy).", { names: names.join(", ") });
+  return (
+    <span title={msg} aria-label={msg} className="cursor-help whitespace-nowrap rounded-md bg-orange-50 px-1.5 py-0.5 text-[calc(0.6875rem*var(--fs,1))] font-semibold text-warn">
+      🔗 {names.length === 1 ? names[0] : t("{n} tên khác", { n: names.length })}
     </span>
   );
 }

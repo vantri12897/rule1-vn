@@ -15,6 +15,8 @@ export type BackupFile = {
   quizzes: Row[];
   questions: Row[];
   attempts: Row[];
+  /** Danh sách lớp (có từ 10/11/2026; file cũ không có) */
+  classes?: Row[];
 };
 
 async function fetchAll(table: string): Promise<Row[]> {
@@ -31,12 +33,12 @@ async function fetchAll(table: string): Promise<Row[]> {
 
 /** Tải toàn bộ đề, câu hỏi, bài làm của giáo viên đang đăng nhập về 1 file JSON. */
 export async function downloadBackup(): Promise<{ quizzes: number; questions: number; attempts: number }> {
-  const [quizzes, rawQuestions, attempts] = await Promise.all([fetchAll("quizzes"), fetchAll("questions"), fetchAll("attempts")]);
+  const [quizzes, rawQuestions, attempts, classes] = await Promise.all([fetchAll("quizzes"), fetchAll("questions"), fetchAll("attempts"), fetchAll("classes")]);
   // Hình nằm ở kho file → tải về gộp vào file sao lưu, để file tự đủ (khôi phục được cả khi kho file mất)
   const questions = await Promise.all(
     rawQuestions.map(async (q) => (isStoredUrl(q.image as string) ? { ...q, image: (await urlToDataUrl(q.image as string)) ?? q.image } : q))
   );
-  const data: BackupFile = { app: "YD-English", version: 1, exported_at: new Date().toISOString(), quizzes, questions, attempts };
+  const data: BackupFile = { app: "YD-English", version: 1, exported_at: new Date().toISOString(), quizzes, questions, attempts, classes };
   const d = new Date();
   const p = (n: number) => String(n).padStart(2, "0");
   const name = `YD-English-saoluu-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}.json`;
@@ -75,11 +77,19 @@ export async function restoreBackup(file: File): Promise<{ restored: number; ski
   if (!u.user) throw new Error(tc("Chưa đăng nhập"));
   const { data: existing } = await sb.from("quizzes").select("id");
   const have = new Set((existing ?? []).map((r) => r.id as string));
+  // Danh sách lớp: thêm lại lớp đang thiếu; đề trỏ tới lớp không còn thì bỏ liên kết lớp
+  const { data: myClasses } = await sb.from("classes").select("id");
+  const classIds = new Set((myClasses ?? []).map((r) => r.id as string));
+  for (const c of data.classes ?? []) {
+    if (classIds.has(c.id as string)) continue;
+    const { error } = await sb.from("classes").insert({ ...c, owner_id: u.user.id });
+    if (!error) classIds.add(c.id as string);
+  }
 
   const missing = data.quizzes.filter((q) => !have.has(q.id as string));
   const ids = new Set(missing.map((q) => q.id as string));
   for (const q of missing) {
-    const row = { ...q, owner_id: u.user.id };
+    const row = { ...q, owner_id: u.user.id, class_id: q.class_id && classIds.has(q.class_id as string) ? q.class_id : null };
     let { error } = await sb.from("quizzes").insert(row);
     if (error && /slug/i.test(error.message)) {
       ({ error } = await sb.from("quizzes").insert({ ...row, slug: slugId() })); // link cũ đã bị dùng → tạo link mới

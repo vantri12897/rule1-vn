@@ -13,6 +13,7 @@ export async function createQuiz(input: {
   questions: DraftQuestion[];
   source_file_hash?: string | null;
   part_titles?: Record<string, string> | null;
+  class_id?: string | null;
 }): Promise<string> {
   const sb = supabaseBrowser();
   const { data: u } = await sb.auth.getUser();
@@ -25,6 +26,7 @@ export async function createQuiz(input: {
       slug: slugId(),
       sections: input.sections,
       part_titles: input.part_titles ?? {},
+      class_id: input.class_id ?? null,
       source_file_hash: input.source_file_hash ?? null,
     })
     .select("id")
@@ -80,6 +82,7 @@ export async function duplicateQuiz(quizId: string): Promise<string> {
     title: `${q.title} ${tc("(bản sao)")}`,
     sections: q.sections,
     part_titles: q.part_titles ?? {},
+    class_id: q.class_id ?? null,
     source_file_hash: q.source_file_hash,
     questions: (qs ?? []).map((x) => ({
       number: x.number,

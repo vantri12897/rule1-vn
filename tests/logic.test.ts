@@ -173,3 +173,18 @@ test("fmtDate: luôn theo giờ Việt Nam, không phụ thuộc múi giờ máy
   assert.equal(fmtDate("2026-12-31T17:30:00Z"), "01/01/2027 00:30");
   assert.equal(fmtDate(null), "—");
 });
+
+test("roster: dán danh sách từ Excel, giữ mã cũ, báo tên trùng", async () => {
+  const { parseRoster, lineToName, foldName } = await import("../src/lib/roster.ts");
+  assert.equal(lineToName("1\tNguyễn Văn\tAn\t12/05/2008"), "Nguyễn Văn An");
+  assert.equal(lineToName("02. Trần Thị Bình"), "Trần Thị Bình");
+  assert.equal(lineToName("  Lê   Chi  "), "Lê Chi");
+  assert.equal(foldName("Đặng  Văn Ấn"), "dang van an");
+  const first = parseRoster("STT\tHọ và tên\n1\tNguyễn Văn An\n2\tTrần Bình\n\n3\tNguyễn Văn An");
+  assert.equal(first.students.length, 3);
+  assert.deepEqual(first.duplicates, ["Nguyễn Văn An"]);
+  const again = parseRoster("Trần Bình\nLê Chi\nNguyễn Văn An", first.students);
+  assert.equal(again.students[0].id, first.students[1].id); // Trần Bình giữ mã cũ
+  assert.equal(again.students[2].id, first.students[0].id);
+  assert.ok(!first.students.some((s) => s.id === again.students[1].id)); // Lê Chi mới → mã mới
+});

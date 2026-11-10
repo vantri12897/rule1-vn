@@ -11,7 +11,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ slug: string }>
   const token = new URL(req.url).searchParams.get("token");
   const data = await loadQuizAndAttempt(slug, token);
   if (!data) return NextResponse.json({ error: T("Không tìm thấy đề hoặc đề chưa được xuất bản") }, { status: 404 });
-  const { quiz, questions, attempt } = data;
+  const { quiz, questions, attempt, roster } = data;
 
   const base = {
     quiz: {
@@ -19,6 +19,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ slug: string }>
       status: quiz.status,
       sections: quiz.sections,
       part_titles: quiz.part_titles ?? {},
+      roster: quiz.status === "open" ? roster : null,
       time_limit_min: quiz.time_limit_min,
       question_count: questions.length,
     },

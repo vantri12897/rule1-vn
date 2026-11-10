@@ -13,6 +13,7 @@ import { reportError } from "@/lib/report";
 import { AnnotationPopup, AnnotationToolbar, NoteClouds, Splitter, useAnnotationEvents, useAnnotations } from "./Annotate";
 import { PartsNav, NavLegend } from "./PartsNav";
 import { buildParts, partTitle } from "@/lib/parts";
+import { foldName } from "@/lib/roster";
 
 export type QuizInfo = {
   title: string;
@@ -20,6 +21,8 @@ export type QuizInfo = {
   sections: Section[];
   /** Tên phần giáo viên đặt cho thanh điều hướng (theo dạng bài) */
   part_titles?: Record<string, string> | null;
+  /** Danh sách lớp: học viên chọn tên trong danh sách thay vì tự gõ */
+  roster?: { class_name: string; students: { id: string; name: string }[] } | null;
   time_limit_min: number | null;
   question_count: number;
 };
@@ -161,13 +164,13 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
     if (view === "taking") localStorage.setItem(ansKey, JSON.stringify(answers));
   }, [answers, view, ansKey]);
 
-  async function start(name: string, cls: string) {
+  async function start(name: string, cls: string, rosterId: string | null) {
     setBusy(true);
     setError(null);
     const r = await fetchRetry(`/api/public/quiz/${slug}/start`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: tokenRef.current, name, student_class: cls || null }),
+      body: JSON.stringify({ token: tokenRef.current, name, student_class: cls || null, roster_id: rosterId }),
     }, 3);
     const data = r ? await r.json().catch(() => ({})) : {};
     setBusy(false);
@@ -180,6 +183,10 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
       return setError(data.error || t("Không bắt đầu được, thử lại."));
     }
     localStorage.setItem(startedKey, "1");
+    // Nhớ tên trên máy này: lần sau làm lại đề này thì điền sẵn
+    try {
+      localStorage.setItem(`yd-me-${slug}`, JSON.stringify({ name, cls, roster_id: rosterId }));
+    } catch {}
     if (data.result) {
       // Thiết bị này đã nộp bài đề này từ trước → hiện lại kết quả
       setQuestions(data.questions);
@@ -267,7 +274,7 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
           ))}
         {view === "notfound" && <Message title={t("Không tìm thấy bài kiểm tra")} text={t("Link không đúng hoặc đề chưa được giáo viên xuất bản.")} />}
         {view === "closed" && <Message title={t("Đề đã đóng")} text={t("Giáo viên đã ngừng nhận bài cho đề này.")} />}
-        {view === "name" && quiz && <NameForm quiz={quiz} busy={busy} error={error} onStart={start} />}
+        {view === "name" && quiz && <NameForm slug={slug} quiz={quiz} busy={busy} error={error} onStart={start} />}
         {view === "taking" && quiz && (
           <TakingView storeKey={slug} quiz={quiz} questions={questions} answers={answers} setAnswers={setAnswers} flags={flags} toggleFlag={toggleFlag} busy={busy} error={error} onSubmit={() => submit(false)} />
         )}
@@ -288,16 +295,39 @@ function Message({ title, text }: { title: string; text: string }) {
   );
 }
 
-function NameForm({ quiz, busy, error, onStart }: { quiz: QuizInfo; busy: boolean; error: string | null; onStart: (n: string, c: string) => void }) {
+function NameForm({ quiz, slug, busy, error, onStart }: { quiz: QuizInfo; slug: string; busy: boolean; error: string | null; onStart: (n: string, c: string, rosterId: string | null) => void }) {
   const { t } = useT();
   const [name, setName] = useState("");
   const [cls, setCls] = useState("");
+  const [pick, setPick] = useState<string | null>(null);
+  const [prefilled, setPrefilled] = useState(false);
+  const roster = quiz.roster?.students.length ? quiz.roster : null;
+  // Làm lại trên cùng máy: điền sẵn tên đã dùng lần trước (học viên vẫn sửa được)
+  useEffect(() => {
+    try {
+      const me = JSON.parse(localStorage.getItem(`yd-me-${slug}`) || "null") as { name?: string; cls?: string; roster_id?: string | null } | null;
+      if (!me) return;
+      if (roster) {
+        if (me.roster_id && roster.students.some((s) => s.id === me.roster_id)) {
+          setPick(me.roster_id);
+          setPrefilled(true);
+        }
+      } else if (me.name) {
+        setName(me.name);
+        setCls(me.cls ?? "");
+        setPrefilled(true);
+      }
+    } catch {}
+  }, [slug, roster]);
+  const picked = roster?.students.find((s) => s.id === pick) ?? null;
+  const ready = roster ? !!picked : !!name.trim();
   return (
     <form
       className="card mt-4 space-y-4 overflow-hidden p-6 pt-0 shadow-md"
       onSubmit={(e) => {
         e.preventDefault();
-        if (name.trim()) onStart(name.trim(), cls.trim());
+        if (roster && picked) onStart(picked.name, roster.class_name, picked.id);
+        else if (!roster && name.trim()) onStart(name.trim(), cls.trim(), null);
       }}
     >
       <div className="-mx-6 bg-gradient-to-br from-primary-soft via-teal-soft to-sky-soft px-6 pb-5 pt-6 text-center">
@@ -310,19 +340,66 @@ function NameForm({ quiz, busy, error, onStart }: { quiz: QuizInfo; busy: boolea
           </span>
         </div>
       </div>
-      <div>
-        <label htmlFor="f41519" className="label">{t("Họ và tên *")}</label>
-        <input id="f41519" className="input" required maxLength={80} value={name} onChange={(e) => setName(e.target.value)} placeholder={t("Nguyễn Văn A")} autoFocus />
-      </div>
-      <div>
-        <label htmlFor="f24574" className="label">{t("Lớp / Mã học viên")}</label>
-        <input id="f24574" className="input" maxLength={60} value={cls} onChange={(e) => setCls(e.target.value)} placeholder={t("Không bắt buộc")} />
-      </div>
+      {roster ? (
+        <RosterPicker roster={roster} value={pick} onChange={(v) => (setPick(v), setPrefilled(false))} />
+      ) : (
+        <>
+          <div>
+            <label htmlFor="f41519" className="label">{t("Họ và tên *")}</label>
+            <input id="f41519" className="input" required maxLength={80} value={name} onChange={(e) => (setName(e.target.value), setPrefilled(false))} placeholder={t("Nguyễn Văn A")} autoFocus={!prefilled} />
+          </div>
+          <div>
+            <label htmlFor="f24574" className="label">{t("Lớp / Mã học viên")}</label>
+            <input id="f24574" className="input" maxLength={60} value={cls} onChange={(e) => setCls(e.target.value)} placeholder={t("Không bắt buộc")} />
+          </div>
+        </>
+      )}
+      {prefilled && <p className="rounded-xl bg-sky-soft px-3 py-2 text-xs text-sky-ink">{t("✏️ Đã điền sẵn tên bạn dùng lần trước trên máy này. Nếu không phải bạn, hãy sửa lại.")}</p>}
       {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-danger">{error}</p>}
-      <button className="btn-primary w-full py-3 text-base" disabled={busy || !name.trim()}>{busy ? t("Đang vào…") : t("Bắt đầu làm bài")}</button>
+      <button className="btn-primary w-full py-3 text-base" disabled={busy || !ready}>
+        {busy ? t("Đang vào…") : picked ? t("Bắt đầu làm bài — {name}", { name: picked.name }) : t("Bắt đầu làm bài")}
+      </button>
       {quiz.time_limit_min && <p className="text-center text-xs text-muted">{t("Đồng hồ bắt đầu chạy ngay khi bạn bấm nút. Hết giờ bài tự nộp.")}</p>}
       <p className="text-center text-xs text-muted">{t("ℹ️ Website ghi lại số lần bạn rời khỏi trang làm bài (chuyển tab, mở ứng dụng khác) và báo cho giáo viên.")}</p>
     </form>
+  );
+}
+
+/** Chọn tên trong danh sách lớp: gõ vài chữ để lọc (không cần gõ dấu) */
+function RosterPicker({ roster, value, onChange }: { roster: { class_name: string; students: { id: string; name: string }[] }; value: string | null; onChange: (id: string) => void }) {
+  const { t } = useT();
+  const [q, setQ] = useState("");
+  const fq = foldName(q);
+  const list = fq ? roster.students.filter((s) => foldName(s.name).includes(fq)) : roster.students;
+  return (
+    <div>
+      <div className="label flex items-baseline justify-between gap-2">
+        <span>{t("Chọn tên của bạn *")}</span>
+        <span className="text-xs font-semibold text-primary-dark">👥 {t("Lớp {name}", { name: roster.class_name })}</span>
+      </div>
+      {roster.students.length > 8 && (
+        <input className="input mb-2" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("🔎 Gõ tên để tìm (không cần dấu)…")} aria-label={t("Tìm tên")} />
+      )}
+      <div role="radiogroup" aria-label={t("Chọn tên của bạn *")} className="max-h-64 overflow-y-auto rounded-xl border border-gray-200 p-1">
+        {list.map((s) => {
+          const on = s.id === value;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() => onChange(s.id)}
+              className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition ${on ? "bg-primary font-semibold text-white" : "hover:bg-primary-soft"}`}
+            >
+              <span className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border-2 ${on ? "border-white" : "border-gray-300"}`}>{on && <span className="h-1.5 w-1.5 rounded-full bg-white" />}</span>
+              {s.name}
+            </button>
+          );
+        })}
+        {list.length === 0 && <p className="px-3 py-3 text-sm text-muted">{t("Không thấy tên? Kiểm tra lại cách gõ, hoặc báo giáo viên thêm tên bạn vào danh sách lớp.")}</p>}
+      </div>
+    </div>
   );
 }
 
