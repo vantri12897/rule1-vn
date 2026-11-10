@@ -28,6 +28,8 @@ type Result = {
   submitted_at: string | null;
   show_answers: boolean;
   details: { question_id: string; number: number; selected: string | null; correct: string | null; is_correct: boolean }[];
+  /** Điểm các lần làm trước trên cùng máy (khi giáo viên cho làm lại) */
+  previous?: { score: number; total: number; submitted_at: string | null }[];
 };
 type View = "loading" | "notfound" | "closed" | "name" | "taking" | "result";
 
@@ -886,6 +888,23 @@ function ResultView({ result, questions, quiz }: { result: Result; questions: Pu
         <div className="mx-auto mt-4 h-3 max-w-xs overflow-hidden rounded-full bg-gray-100">
           <div className={`h-full ${mood.bar}`} style={{ width: `${pct}%` }} />
         </div>
+        {!!result.previous?.length &&
+          (() => {
+            const last = result.previous[result.previous.length - 1];
+            const diff = result.score - last.score;
+            return (
+              <div className={`mx-auto mt-4 max-w-sm rounded-xl px-4 py-2.5 text-sm ${diff > 0 ? "bg-primary-soft text-primary-dark" : diff < 0 ? "bg-rose-soft text-rose-ink" : "bg-gray-50 text-ink"}`}>
+                <div>
+                  📈 {t("Lần trước:")} <b>{last.score}/{last.total}</b> → {t("Lần này:")} <b>{result.score}/{result.total}</b>{" "}
+                  <b>{diff > 0 ? t("(+{n} câu)", { n: diff }) : diff < 0 ? t("(−{n} câu)", { n: -diff }) : t("(bằng lần trước)")}</b>
+                </div>
+                <div className="mt-0.5 text-xs opacity-80">
+                  {diff > 0 ? t("Tiến bộ rồi! ") : ""}
+                  {t("Đây là lần làm thứ {n}.", { n: result.previous.length + 1 })}
+                </div>
+              </div>
+            );
+          })()}
         <p className="mt-3 text-sm text-muted">{t("Kết quả đã được gửi tới giáo viên.")}</p>
       </div>
 

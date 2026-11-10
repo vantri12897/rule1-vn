@@ -51,6 +51,33 @@ export const ResultsPanel = memo(function ResultsPanel({
   const archived = useMemo(() => (attempts ?? []).filter((a) => a.status === "archived"), [attempts]);
   useEffect(() => onCountChange(submitted.length), [submitted.length, onCountChange]);
 
+  /**
+   * Đánh số lần làm của từng học viên (Lần 1, Lần 2…): cùng máy (mã trình duyệt) hoặc cùng tên + lớp
+   * được coi là cùng 1 học viên. Bài cũ (đã cho làm lại) nằm trong "Các lần làm trước".
+   */
+  const attemptInfo = useMemo(() => {
+    const all = attempts ?? [];
+    const parent = new Map<string, string>();
+    const find = (x: string): string => {
+      if (!parent.has(x)) parent.set(x, x);
+      while (parent.get(x) !== x) x = parent.get(x)!;
+      return x;
+    };
+    const norm = (v: string | null) => (v ?? "").normalize("NFC").trim().toLowerCase().replace(/\s+/g, " ");
+    for (const a of all) parent.set(find(`t:${a.student_token}`), find(`n:${norm(a.student_name)}|${norm(a.student_class)}`));
+    const groups = new Map<string, Attempt[]>();
+    for (const a of all) {
+      const g = find(`t:${a.student_token}`);
+      groups.set(g, [...(groups.get(g) ?? []), a]);
+    }
+    const info = new Map<string, { no: number; prev: Attempt[] }>();
+    for (const list of groups.values()) {
+      list.sort((x, y) => Date.parse(x.started_at) - Date.parse(y.started_at));
+      list.forEach((a, i) => info.set(a.id, { no: i + 1, prev: list.slice(0, i) }));
+    }
+    return info;
+  }, [attempts]);
+
   const dupNames = useMemo(() => {
     const c = new Map<string, number>();
     active.forEach((a) => c.set(a.student_name.trim().toLowerCase(), (c.get(a.student_name.trim().toLowerCase()) ?? 0) + 1));
@@ -95,13 +122,46 @@ export const ResultsPanel = memo(function ResultsPanel({
     return parts.map((p, k) => ({ title: partTitles[k], n: p.items.length, pct: (sums[k] / (p.items.length * submitted.length)) * 100 }));
   }, [parts, partTitles, partRight, submitted]);
 
+  /** Chi tiết 1 bài làm: điểm từng phần + từng câu (dùng cho bài hiện tại và các lần làm trước) */
+  const detail = (a: Attempt) => (
+    <>
+      {parts.length > 1 && (
+        <div className="mb-2 flex flex-wrap gap-1.5">
+          {partRight(a).map((n, k) => {
+            const v = n / parts[k].items.length;
+            return (
+              <span key={parts[k].kind} className={`rounded-lg border px-2 py-1 text-xs font-semibold ${v >= 0.8 ? "border-primary-line bg-white text-primary-dark" : v >= 0.5 ? "border-amber-200 bg-white text-sun-ink" : "border-red-200 bg-white text-danger"}`}>
+                {partTitles[k]}: {n}/{parts[k].items.length}
+              </span>
+            );
+          })}
+        </div>
+      )}
+      <div className="flex flex-wrap gap-1.5">
+        {questions.map((q) => {
+          const s = a.answers?.[q.id];
+          const ok = !!s && s === q.correct_label;
+          return (
+            <span
+              key={q.id}
+              title={t("Câu {n}: chọn {s}, đúng {c}", { n: q.number, s: s ?? "—", c: q.correct_label })}
+              className={`rounded-lg px-2 py-1 text-xs font-semibold ${ok ? "bg-primary-soft text-primary-dark" : "bg-red-50 text-danger"}`}
+            >
+              {q.number}: {s ?? "—"} {ok ? "✓" : `✗(${q.correct_label ?? "—"})`}
+            </span>
+          );
+        })}
+      </div>
+    </>
+  );
+
   async function resetOne(a: Attempt) {
-    if (!(await confirmDialog({ title: t("Reset bài làm"), message: t("Reset bài của “{name}”? Học viên sẽ làm lại được qua cùng link. Bài cũ được lưu vào lịch sử.", { name: a.student_name }), confirmText: "Reset", danger: true }))) return;
+    if (!(await confirmDialog({ title: t("Cho làm lại"), message: t("Cho “{name}” làm lại? Học viên mở lại cùng link để làm bài mới. Bài lần này vẫn được giữ trong “Các lần làm trước” (xem được chi tiết).", { name: a.student_name }), confirmText: t("Cho làm lại") }))) return;
     const sb = supabaseBrowser();
     const { data: u } = await sb.auth.getUser();
     await sb.from("attempts").update({ status: "archived" }).eq("id", a.id);
     await sb.from("reset_logs").insert({ quiz_id: quiz.id, attempt_id: a.id, scope: "single", reset_by: u.user?.id });
-    toast(t("Đã reset bài của {name}", { name: a.student_name }));
+    toast(t("Đã cho {name} làm lại — gửi lại link cho học viên", { name: a.student_name }));
     load();
   }
 
@@ -123,12 +183,12 @@ export const ResultsPanel = memo(function ResultsPanel({
 
   async function resetAll() {
     if (!active.length) return;
-    if (!(await confirmDialog({ title: t("Reset toàn bộ"), message: t("Reset TOÀN BỘ {n} bài làm của đề này? Mọi học viên sẽ làm lại từ đầu.", { n: active.length }), confirmText: t("Reset toàn bộ"), danger: true }))) return;
+    if (!(await confirmDialog({ title: t("Cho cả lớp làm lại"), message: t("Cho TẤT CẢ {n} học viên làm lại từ đầu? Bài hiện tại của mọi người được giữ trong “Các lần làm trước”.", { n: active.length }), confirmText: t("Cho cả lớp làm lại"), danger: true }))) return;
     const sb = supabaseBrowser();
     const { data: u } = await sb.auth.getUser();
     await sb.from("attempts").update({ status: "archived" }).eq("quiz_id", quiz.id).neq("status", "archived");
     await sb.from("reset_logs").insert({ quiz_id: quiz.id, scope: "all", reset_by: u.user?.id });
-    toast(t("Đã reset toàn bộ bài làm"));
+    toast(t("Đã cho cả lớp làm lại"));
     load();
   }
 
@@ -199,7 +259,7 @@ export const ResultsPanel = memo(function ResultsPanel({
       <div className="flex flex-wrap gap-2">
         <button className="btn-outline" onClick={exportCsv} disabled={!submitted.length}>{t("⬇️ Xuất Excel (CSV)")}</button>
         <button className="btn-outline" onClick={regrade} disabled={busy || !submitted.length}>{t("↻ Chấm lại toàn bộ")}</button>
-        <button className="btn-danger ml-auto" onClick={resetAll} disabled={!active.length}>{t("Reset toàn bộ")}</button>
+        <button className="btn-danger ml-auto" onClick={resetAll} disabled={!active.length}>{t("Cho cả lớp làm lại")}</button>
       </div>
       {msg && <p className="rounded-xl bg-primary-soft p-3 text-sm text-primary-dark">{msg}</p>}
       {dupNames.size > 0 && (
@@ -234,7 +294,10 @@ export const ResultsPanel = memo(function ResultsPanel({
                       onClick={() => setOpen(open === a.id ? null : a.id)}
                     >
                       <td className="px-4 py-3">
-                        <div className="font-semibold">{a.student_name}</div>
+                        <div className="flex flex-wrap items-center gap-1.5 font-semibold">
+                          {a.student_name}
+                          <AttemptBadge info={attemptInfo.get(a.id)} />
+                        </div>
                         {a.student_class && <div className="text-xs text-muted">{a.student_class}</div>}
                       </td>
                       <td className="px-4 py-3">
@@ -260,40 +323,14 @@ export const ResultsPanel = memo(function ResultsPanel({
                             resetOne(a);
                           }}
                         >
-                          Reset
+                          {t("Cho làm lại")}
                         </button>
                       </td>
                     </tr>
                     {open === a.id && a.status === "submitted" && (
                       <tr className="bg-gray-50">
                         <td colSpan={6} className="px-4 py-3">
-                          {parts.length > 1 && (
-                            <div className="mb-2 flex flex-wrap gap-1.5">
-                              {partRight(a).map((n, k) => {
-                                const v = n / parts[k].items.length;
-                                return (
-                                  <span key={parts[k].kind} className={`rounded-lg border px-2 py-1 text-xs font-semibold ${v >= 0.8 ? "border-primary-line bg-white text-primary-dark" : v >= 0.5 ? "border-amber-200 bg-white text-sun-ink" : "border-red-200 bg-white text-danger"}`}>
-                                    {partTitles[k]}: {n}/{parts[k].items.length}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          )}
-                          <div className="flex flex-wrap gap-1.5">
-                            {questions.map((q) => {
-                              const s = a.answers?.[q.id];
-                              const ok = !!s && s === q.correct_label;
-                              return (
-                                <span
-                                  key={q.id}
-                                  title={t("Câu {n}: chọn {s}, đúng {c}", { n: q.number, s: s ?? "—", c: q.correct_label })}
-                                  className={`rounded-lg px-2 py-1 text-xs font-semibold ${ok ? "bg-primary-soft text-primary-dark" : "bg-red-50 text-danger"}`}
-                                >
-                                  {q.number}: {s ?? "—"} {ok ? "✓" : `✗(${q.correct_label ?? "—"})`}
-                                </span>
-                              );
-                            })}
-                          </div>
+                          {detail(a)}
                         </td>
                       </tr>
                     )}
@@ -357,30 +394,64 @@ export const ResultsPanel = memo(function ResultsPanel({
       {archived.length > 0 && (
         <div>
           <button className="text-sm text-primary-dark hover:underline" onClick={() => setShowHistory(!showHistory)}>
-            {showHistory ? t("Ẩn lịch sử bài đã reset ({n})", { n: archived.length }) : t("Xem lịch sử bài đã reset ({n})", { n: archived.length })}
+            {showHistory ? t("Ẩn các lần làm trước ({n})", { n: archived.length }) : t("🕘 Xem các lần làm trước ({n})", { n: archived.length })}
           </button>
           {showHistory && (
             <div className="card mt-2 overflow-hidden">
               <div className="flex items-center justify-between gap-2 border-b border-gray-100 bg-gray-50 px-4 py-2">
-                <span className="text-xs text-muted">{t("Bài cũ của học viên trước khi bị reset")}</span>
+                <span className="text-xs text-muted">{t("Bài cũ của học viên trước khi được cho làm lại — bấm vào để xem chi tiết")}</span>
                 <button className="btn-danger px-3 py-1.5 text-xs" onClick={() => deleteHistory()}>
                   {t("🗑️ Xoá toàn bộ lịch sử")}
                 </button>
               </div>
               <div className="divide-y divide-gray-100">
                 {archived.map((a) => (
-                  <div key={a.id} className="flex items-center gap-3 px-4 py-2 text-sm">
-                    <span className="min-w-0 flex-1 truncate">{a.student_name}</span>
-                    <span className="shrink-0 text-muted">
-                      {a.score != null ? `${a.score}/${a.total}` : t("chưa nộp")} · {fmtDate(a.submitted_at ?? a.started_at)}
-                    </span>
-                    <button
-                      className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-danger hover:bg-red-50"
-                      aria-label={t("Xoá bài của {name} khỏi lịch sử", { name: a.student_name })}
-                      onClick={() => deleteHistory(a)}
+                  <div key={a.id}>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={open === a.id}
+                      onClick={() => setOpen(open === a.id ? null : a.id)}
+                      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), setOpen(open === a.id ? null : a.id))}
+                      className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50"
                     >
-                      {t("Xoá")}
-                    </button>
+                      <span className="min-w-0 flex-1 truncate">
+                        <span className="mr-1 text-muted">{open === a.id ? "▾" : "▸"}</span>
+                        {a.student_name}
+                        {a.student_class && <span className="text-xs text-muted"> · {a.student_class}</span>}{" "}
+                        <AttemptBadge info={attemptInfo.get(a.id)} always />
+                      </span>
+                      <span className="shrink-0 text-muted">
+                        {a.score != null ? <b className="text-ink">{a.score}/{a.total}</b> : t("chưa nộp")} · {fmtDate(a.submitted_at ?? a.started_at)}
+                      </span>
+                      <button
+                        className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-danger hover:bg-red-50"
+                        aria-label={t("Xoá bài của {name} khỏi lịch sử", { name: a.student_name })}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteHistory(a);
+                        }}
+                      >
+                        {t("Xoá")}
+                      </button>
+                    </div>
+                    {open === a.id && (
+                      <div className="bg-gray-50 px-4 py-3">
+                        {a.score != null ? (
+                          <>
+                            <p className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+                              <span>⏱️ {t("Thời gian làm")}: {fmtDuration(a.started_at, a.submitted_at)}</span>
+                              <span>
+                                🚪 {t("Số lần rời trang")}: <AwayCell a={a} />
+                              </span>
+                            </p>
+                            {detail(a)}
+                          </>
+                        ) : (
+                          <p className="text-xs text-muted">{t("Bài này chưa nộp khi được cho làm lại nên không có kết quả.")}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -405,7 +476,7 @@ function Stat({ value, label, tone }: { value: React.ReactNode; label: string; t
 /** Ô "Rời trang": số lần (tô cam từ 3 lần) + tổng thời gian rời */
 function AwayCell({ a }: { a: Attempt }) {
   const { t } = useT();
-  if (a.status !== "submitted" || a.away_count == null) return <span className="text-muted">—</span>;
+  if (a.score == null || a.away_count == null) return <span className="text-muted">—</span>;
   const n = a.away_count;
   const secs = a.away_seconds ?? 0;
   const dur = secs >= 60 ? t("{m} phút {s}s", { m: Math.floor(secs / 60), s: secs % 60 }) : `${secs}s`;
@@ -416,6 +487,21 @@ function AwayCell({ a }: { a: Attempt }) {
     >
       {n === 0 ? "0" : t("{n} lần", { n })}
       {n > 0 && <span className="font-normal opacity-80">· {dur}</span>}
+    </span>
+  );
+}
+
+/** Nhãn "Lần 2", "Lần 3"… cạnh tên học viên; rê chuột xem điểm các lần trước */
+function AttemptBadge({ info, always }: { info?: { no: number; prev: Attempt[] }; always?: boolean }) {
+  const { t } = useT();
+  if (!info || (info.no === 1 && !always)) return null;
+  const hist = info.prev.map((p, i) => `${t("Lần {n}", { n: i + 1 })}: ${p.score != null ? `${p.score}/${p.total}` : t("chưa nộp")}`).join(" · ");
+  return (
+    <span
+      title={hist || undefined}
+      className={`whitespace-nowrap rounded-md px-1.5 py-0.5 text-[calc(0.6875rem*var(--fs,1))] font-bold ${info.no > 1 ? "bg-sky-soft text-sky-ink" : "bg-gray-100 text-muted"}`}
+    >
+      {t("Lần {n}", { n: info.no })}
     </span>
   );
 }

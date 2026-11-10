@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { grade } from "@/lib/grading";
-import { activeAttempt, answersToOriginal, buildResult, clientIp, GRACE_SEC, loadQuizAndAttempt, studentLimited } from "@/lib/public-quiz";
+import { activeAttempt, answersToOriginal, resultFor, clientIp, GRACE_SEC, loadQuizAndAttempt, studentLimited } from "@/lib/public-quiz";
 import type { Attempt } from "@/lib/types";
 import { langOf, translate, type Vars } from "@/lib/i18n/core";
 
@@ -27,7 +27,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   const { quiz, questions, attempt } = data;
   if (!attempt) return NextResponse.json({ error: T("Không tìm thấy bài làm. Hãy tải lại trang.") }, { status: 404 });
   if (attempt.status === "submitted") {
-    return NextResponse.json({ result: buildResult(quiz, questions, attempt) });
+    return NextResponse.json({ result: await resultFor(quiz, questions, attempt) });
   }
 
   // Chỉ giữ câu trả lời cho câu hỏi thuộc đề này
@@ -59,5 +59,5 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
     .maybeSingle<Attempt>();
   if (error) return NextResponse.json({ error: T("Không lưu được bài làm, thử lại") }, { status: 500 });
   const final = updated ?? (await activeAttempt(quiz.id, parsed.data.token))!;
-  return NextResponse.json({ result: buildResult(quiz, questions, final), late });
+  return NextResponse.json({ result: await resultFor(quiz, questions, final), late });
 }

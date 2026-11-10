@@ -152,3 +152,22 @@ export function deadlineOf(quiz: Quiz, attempt: Attempt): string | null {
 export function clientIp(req: Request) {
   return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 }
+
+/** Điểm các lần làm trước (đã được giáo viên cho làm lại) của CÙNG máy/trình duyệt — chỉ theo mã máy để không lộ điểm người khác */
+export async function previousResults(quizId: string, token: string) {
+  const { data } = await supabaseAdmin()
+    .from("attempts")
+    .select("score, total, submitted_at")
+    .eq("quiz_id", quizId)
+    .eq("student_token", token)
+    .eq("status", "archived")
+    .not("score", "is", null)
+    .order("submitted_at", { ascending: true })
+    .limit(20);
+  return (data ?? []) as { score: number; total: number; submitted_at: string | null }[];
+}
+
+/** Kết quả bài làm + điểm các lần trước (để học viên thấy mình tiến bộ thế nào) */
+export async function resultFor(quiz: Quiz, questions: QuestionRow[], attempt: Attempt) {
+  return { ...buildResult(quiz, questions, attempt), previous: await previousResults(quiz.id, attempt.student_token) };
+}
