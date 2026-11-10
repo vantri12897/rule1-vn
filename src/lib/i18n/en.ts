@@ -582,4 +582,13 @@ export const EN: Record<string, string> = {
   "Tiến bộ rồi! ": "Nice progress! ",
   "Đây là lần làm thứ {n}.": "This is attempt #{n}.",
   "📖 Đoạn văn": "📖 Passage",
+  "Xem toàn bộ bài làm (câu hỏi + đáp án)": "View the full attempt (questions + answers)",
+  "Không tìm thấy bài làm này (có thể đã bị xoá).": "This attempt was not found (it may have been deleted).",
+  "Đang tải bài làm…": "Loading attempt…",
+  "Về đề": "Back to",
+  "Lần làm trước": "Previous attempt",
+  "Chỉ câu sai ({n})": "Wrong only ({n})",
+  "(học viên chọn)": "(student's choice)",
+  "Học viên bỏ trống câu này.": "The student left this question blank.",
+  "Không có câu sai nào 🎉": "No wrong answers 🎉",
 };

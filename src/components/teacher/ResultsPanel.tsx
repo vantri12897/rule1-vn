@@ -125,6 +125,15 @@ export const ResultsPanel = memo(function ResultsPanel({
   /** Chi tiết 1 bài làm: điểm từng phần + từng câu (dùng cho bài hiện tại và các lần làm trước) */
   const detail = (a: Attempt) => (
     <>
+      <a
+        href={`/dashboard/quiz/${quiz.id}/attempt/${a.id}`}
+        target="_blank"
+        rel="noopener"
+        onClick={(e) => e.stopPropagation()}
+        className="mb-2 inline-flex items-center gap-1.5 rounded-lg border border-primary-line bg-white px-3 py-1.5 text-sm font-semibold text-primary-dark hover:bg-primary-soft"
+      >
+        📄 {t("Xem toàn bộ bài làm (câu hỏi + đáp án)")} ↗
+      </a>
       {parts.length > 1 && (
         <div className="mb-2 flex flex-wrap gap-1.5">
           {partRight(a).map((n, k) => {
