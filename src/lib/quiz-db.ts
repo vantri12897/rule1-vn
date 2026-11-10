@@ -3,6 +3,7 @@ import { customAlphabet } from "nanoid";
 import { supabaseBrowser } from "./supabase/client";
 import type { DraftQuestion, Section } from "./types";
 import { tc } from "./i18n/client";
+import { uploadQuestionImages } from "./image-upload";
 
 const slugId = customAlphabet("23456789abcdefghijkmnpqrstuvwxyz", 10);
 
@@ -30,7 +31,9 @@ export async function createQuiz(input: {
     .single();
   if (error || !quiz) throw new Error(tc("Không lưu được đề: ") + (error?.message ?? ""));
   if (input.questions.length) {
-    const rows = input.questions.map((q, i) => ({
+    // Hình cắt từ PDF → tải lên kho file, câu hỏi chỉ lưu link
+    const { items: questions } = await uploadQuestionImages(input.questions);
+    const rows = questions.map((q, i) => ({
       quiz_id: quiz.id,
       position: i,
       number: q.number,

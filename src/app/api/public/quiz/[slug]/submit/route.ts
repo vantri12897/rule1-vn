@@ -9,6 +9,8 @@ import { langOf, translate, type Vars } from "@/lib/i18n/core";
 const Body = z.object({
   token: z.string().uuid(),
   answers: z.record(z.string().regex(/^[0-9a-f-]{36}$/i), z.string().regex(/^[A-Fa-f]$/)),
+  // Số lần rời trang làm bài (chuyển tab / mở ứng dụng khác) và tổng số giây rời
+  away: z.object({ count: z.number().int().min(0).max(100_000), seconds: z.number().int().min(0).max(10_000_000) }).optional(),
 });
 
 export async function POST(req: Request, ctx: { params: Promise<{ slug: string }> }) {
@@ -49,6 +51,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
       total: g.total,
       status: "submitted",
       submitted_at: new Date().toISOString(),
+      ...(parsed.data.away ? { away_count: parsed.data.away.count, away_seconds: parsed.data.away.seconds } : {}),
     })
     .eq("id", attempt.id)
     .eq("status", "in_progress")

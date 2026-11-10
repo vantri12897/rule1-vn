@@ -63,6 +63,7 @@ const KINDS: Record<"vi" | "en", Record<string, string>> = {
     "ai-error": "AI gặp lỗi",
     "ai-model-gone": "Google đã đổi/ngừng một model AI",
     "db-near-full": "Cơ sở dữ liệu sắp đầy",
+    "image-upload": "Lưu hình vào kho file bị lỗi",
   },
   en: {
     "submit-failed": "A student could NOT submit",
@@ -76,6 +77,7 @@ const KINDS: Record<"vi" | "en", Record<string, string>> = {
     "ai-error": "AI error",
     "ai-model-gone": "Google renamed/retired an AI model",
     "db-near-full": "Database almost full",
+    "image-upload": "Saving an image to file storage failed",
   },
 };
 const M = {

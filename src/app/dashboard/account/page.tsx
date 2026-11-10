@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { downloadBackup, restoreBackup } from "@/lib/backup";
 import { fmtDate } from "@/lib/ui";
@@ -329,38 +329,87 @@ function ErrorsCard() {
   );
 }
 
-type Usage = { total: number; questions: number; images: number; image_count: number; attempts: number; quizzes: number; logs: number; limit: number };
+type Usage = {
+  total: number;
+  questions: number;
+  images: number;
+  image_count: number;
+  attempts: number;
+  quizzes: number;
+  logs: number;
+  limit: number;
+  storage: { bytes: number; count: number; limit: number } | null;
+  my_db_images: number;
+};
 const mb = (n: number) => (n / 1048576 >= 10 ? (n / 1048576).toFixed(0) : (n / 1048576).toFixed(1));
 
-/** Dung lượng cơ sở dữ liệu đã dùng (gói Free: 500 MB) */
-function UsageCard() {
-  const { t } = useT();
-  const [u, setU] = useState<Usage | null>(null);
-  useEffect(() => {
-    fetch("/api/account/usage", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then(setU).catch(() => {});
-  }, []);
-  if (!u) return null;
-  const pct = Math.min(100, (u.total / u.limit) * 100);
+function Meter({ label, used, limit }: { label: React.ReactNode; used: number; limit: number }) {
+  const pct = Math.min(100, (used / limit) * 100);
   const color = pct >= 85 ? "bg-danger" : pct >= 60 ? "bg-amber-500" : "bg-primary";
-  const rows: [string, number][] = [
-    [t("Hình ảnh trong đề ({n} hình)", { n: u.image_count }), u.images],
-    [t("Câu hỏi (gồm hình)"), u.questions],
-    [t("Bài làm của học viên"), u.attempts],
-    [t("Nhật ký lỗi"), u.logs],
-  ];
   return (
-    <section className="card p-5">
-      <h2 className="text-lg font-bold">{t("📊 Dung lượng đã dùng")}</h2>
-      <div className="mt-3 flex items-baseline justify-between text-sm">
+    <div>
+      <div className="flex items-baseline justify-between gap-2 text-sm">
         <span>
-          <b className="text-lg">{mb(u.total)} MB</b> / {mb(u.limit)} MB
+          {label} <b className="text-lg">{mb(used)} MB</b> / {limit >= 1073741824 ? `${(limit / 1073741824).toFixed(0)} GB` : `${mb(limit)} MB`}
         </span>
         <b className={pct >= 85 ? "text-danger" : pct >= 60 ? "text-amber-600" : "text-primary-dark"}>{pct.toFixed(pct < 10 ? 1 : 0)}%</b>
       </div>
       <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-gray-100" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
         <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${Math.max(pct, 1)}%` }} />
       </div>
-      <ul className="mt-3 space-y-1 text-sm text-muted">
+    </div>
+  );
+}
+
+/** Dung lượng đã dùng: cơ sở dữ liệu (gói Free 500 MB) + kho hình ảnh (gói Free 1 GB) */
+function UsageCard() {
+  const { t } = useT();
+  const [u, setU] = useState<Usage | null>(null);
+  const [moving, setMoving] = useState<string | null>(null);
+  const load = useCallback(() => {
+    fetch("/api/account/usage", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then(setU).catch(() => {});
+  }, []);
+  useEffect(load, [load]);
+
+  /** Chuyển hình của đề cũ sang kho file: gọi lặp từng đợt ~40 giây tới khi xong */
+  async function moveImages() {
+    let left = u?.my_db_images ?? 0;
+    let movedAll = 0;
+    setMoving(t("Đang chuyển hình… còn {n}", { n: left }));
+    try {
+      for (let round = 0; round < 60 && left > 0; round++) {
+        const r = await fetch("/api/account/images", { method: "POST" });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+        movedAll += d.moved;
+        left = d.remaining;
+        setMoving(t("Đang chuyển hình… còn {n}", { n: left }));
+        if (d.moved === 0) break; // các hình còn lại đều lỗi → dừng, để máy chủ tự thử lại sáng mai
+      }
+      toast(left === 0 ? t("Đã chuyển {n} hình sang kho file", { n: movedAll }) : t("Đã chuyển {a} hình, còn {b} hình chưa chuyển được — website sẽ tự thử lại", { a: movedAll, b: left }), left === 0 ? "success" : "error");
+    } catch (e) {
+      toast(t("Chuyển hình bị lỗi: ") + (e instanceof Error ? e.message : String(e)), "error");
+    } finally {
+      setMoving(null);
+      load();
+    }
+  }
+
+  if (!u) return null;
+  const pct = (u.total / u.limit) * 100;
+  const rows: [string, number][] = [
+    [t("Câu hỏi & đoạn văn"), Math.max(0, u.questions - u.images)],
+    [t("Bài làm của học viên"), u.attempts],
+    [t("Nhật ký lỗi"), u.logs],
+  ];
+  if (u.image_count > 0) rows.unshift([t("Hình còn nằm trong cơ sở dữ liệu ({n} hình)", { n: u.image_count }), u.images]);
+  return (
+    <section className="card p-5">
+      <h2 className="text-lg font-bold">{t("📊 Dung lượng đã dùng")}</h2>
+      <div className="mt-3">
+        <Meter label={<span className="text-muted">🗄️ {t("Cơ sở dữ liệu:")}</span>} used={u.total} limit={u.limit} />
+      </div>
+      <ul className="mt-2 space-y-1 text-sm text-muted">
         {rows.map(([k, v]) => (
           <li key={k} className="flex justify-between gap-3">
             <span>{k}</span>
@@ -368,10 +417,24 @@ function UsageCard() {
           </li>
         ))}
       </ul>
+      {u.storage && (
+        <div className="mt-4 border-t border-gray-100 pt-4">
+          <Meter label={<span className="text-muted">🖼️ {t("Kho hình ảnh:")}</span>} used={u.storage.bytes} limit={u.storage.limit} />
+          <p className="mt-1 text-sm text-muted">{t("{n} hình (hình giống nhau chỉ lưu 1 lần)", { n: u.storage.count })}</p>
+        </div>
+      )}
+      {u.my_db_images > 0 && (
+        <div className="mt-4 rounded-xl bg-sky-soft p-3 text-sm">
+          <p>{t("Còn {n} hình của đề cũ nằm trong cơ sở dữ liệu. Chuyển sang kho hình để cơ sở dữ liệu nhẹ hơn (website cũng tự chuyển dần mỗi sáng).", { n: u.my_db_images })}</p>
+          <button className="btn-primary mt-2" onClick={moveImages} disabled={!!moving}>
+            {moving ?? t("📦 Chuyển hình sang kho file ngay")}
+          </button>
+        </div>
+      )}
       <p className="mt-3 text-xs text-muted">
         {pct >= 80
-          ? t("⚠️ Sắp đầy. Nên chuyển hình ảnh sang kho file riêng hoặc nâng gói Supabase.")
-          : t("Gói Supabase miễn phí cho tối đa 500 MB. Khi dùng tới 80% website sẽ báo qua email.")}
+          ? t("⚠️ Cơ sở dữ liệu sắp đầy. Nên xoá bớt đề/bài làm cũ (sao lưu trước) hoặc nâng gói Supabase.")
+          : t("Gói Supabase miễn phí: cơ sở dữ liệu 500 MB, kho hình 1 GB. Khi cơ sở dữ liệu dùng tới 80% website sẽ báo qua email.")}
       </p>
     </section>
   );

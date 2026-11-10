@@ -59,6 +59,9 @@ export type Attempt = {
   status: "in_progress" | "submitted" | "archived";
   started_at: string;
   submitted_at: string | null;
+  /** Số lần rời trang làm bài (null = bài nộp trước khi có tính năng này) */
+  away_count?: number | null;
+  away_seconds?: number | null;
 };
 
 /** Câu hỏi gửi cho học viên — KHÔNG có đáp án */

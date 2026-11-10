@@ -11,7 +11,7 @@ import { useT } from "@/lib/i18n/client";
 import { reportError } from "@/lib/report";
 import { AnnotationPopup, AnnotationToolbar, NoteClouds, Splitter, useAnnotationEvents, useAnnotations } from "./Annotate";
 import { PartsNav, NavLegend } from "./PartsNav";
-import { buildParts } from "@/lib/parts";
+import { buildParts, partTitle } from "@/lib/parts";
 
 export type QuizInfo = {
   title: string;
@@ -64,6 +64,42 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
       setFlags(new Set(JSON.parse(localStorage.getItem(flagKey) || "[]")));
     } catch {}
   }, [flagKey]);
+  // Đếm số lần rời khỏi trang làm bài (chuyển tab, mở ứng dụng khác…) từ 1 giây trở lên → gửi kèm khi nộp
+  const awayKey = `yd-away-${slug}`;
+  const away = useRef({ count: 0, ms: 0 });
+  useEffect(() => {
+    try {
+      const v = JSON.parse(localStorage.getItem(awayKey) || "null");
+      if (v) away.current = { count: Number(v.count) || 0, ms: Number(v.ms) || 0 };
+    } catch {}
+  }, [awayKey]);
+  useEffect(() => {
+    if (view !== "taking") return;
+    let since: number | null = null;
+    const leave = () => {
+      if (since == null) since = Date.now();
+    };
+    const back = () => {
+      if (since == null) return;
+      const ms = Date.now() - since;
+      since = null;
+      if (ms < 1000) return;
+      away.current = { count: away.current.count + 1, ms: away.current.ms + ms };
+      try {
+        localStorage.setItem(awayKey, JSON.stringify(away.current));
+      } catch {}
+    };
+    const vis = () => (document.hidden ? leave() : back());
+    window.addEventListener("blur", leave);
+    window.addEventListener("focus", back);
+    document.addEventListener("visibilitychange", vis);
+    return () => {
+      window.removeEventListener("blur", leave);
+      window.removeEventListener("focus", back);
+      document.removeEventListener("visibilitychange", vis);
+    };
+  }, [view, awayKey]);
+
   const toggleFlag = useCallback(
     (qid: string) =>
       setFlags((f) => {
@@ -166,13 +202,15 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
       const r = await fetchRetry(`/api/public/quiz/${slug}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: tokenRef.current, answers }),
+        body: JSON.stringify({ token: tokenRef.current, answers, away: { count: away.current.count, seconds: Math.round(away.current.ms / 1000) } }),
       }, 6);
       const data = r ? await r.json().catch(() => ({})) : {};
       if (r?.ok) {
         localStorage.removeItem(ansKey);
         localStorage.removeItem(`yd-marks-${slug}`);
         localStorage.removeItem(flagKey);
+        localStorage.removeItem(awayKey);
+        away.current = { count: 0, ms: 0 };
         setFlags(new Set());
         setResult(data.result);
         setView("result");
@@ -186,7 +224,7 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
       setError(r ? data.error || t("Nộp bài thất bại") : t("Mất kết nối. Bài làm vẫn được giữ trên máy — kiểm tra mạng rồi bấm Nộp bài lại."));
       setBusy(false);
     },
-    [answers, busy, questions, slug, ansKey, flags, flagKey]
+    [answers, busy, questions, slug, ansKey, flags, flagKey, awayKey]
   );
 
   return (
@@ -230,7 +268,7 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
         {view === "taking" && quiz && (
           <TakingView storeKey={slug} quiz={quiz} questions={questions} answers={answers} setAnswers={setAnswers} flags={flags} toggleFlag={toggleFlag} busy={busy} error={error} onSubmit={() => submit(false)} />
         )}
-        {view === "result" && result && <ResultView result={result} questions={questions} sections={quiz?.sections ?? []} />}
+        {view === "result" && result && <ResultView result={result} questions={questions} quiz={quiz} />}
       </div>
       {view !== "taking" && <footer className="pb-8 text-center text-xs text-muted">YD-English</footer>}
     </main>
@@ -280,6 +318,7 @@ function NameForm({ quiz, busy, error, onStart }: { quiz: QuizInfo; busy: boolea
       {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-danger">{error}</p>}
       <button className="btn-primary w-full py-3 text-base" disabled={busy || !name.trim()}>{busy ? t("Đang vào…") : t("Bắt đầu làm bài")}</button>
       {quiz.time_limit_min && <p className="text-center text-xs text-muted">{t("Đồng hồ bắt đầu chạy ngay khi bạn bấm nút. Hết giờ bài tự nộp.")}</p>}
+      <p className="text-center text-xs text-muted">{t("ℹ️ Website ghi lại số lần bạn rời khỏi trang làm bài (chuyển tab, mở ứng dụng khác) và báo cho giáo viên.")}</p>
     </form>
   );
 }
@@ -676,7 +715,7 @@ function TakingView({
                       </p>
                       {q.image && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={q.image} alt={t("Hình câu {n}", { n: i + 1 })} className="mb-3 max-h-96 max-w-full rounded-xl border border-gray-200 bg-white object-contain" />
+                        <img src={q.image} loading="lazy" decoding="async" alt={t("Hình câu {n}", { n: i + 1 })} className="mb-3 max-h-96 max-w-full rounded-xl border border-gray-200 bg-white object-contain" />
                       )}
                       <div className="space-y-2">
                         {q.options.map((o) => {
@@ -809,11 +848,17 @@ function TakingView({
   );
 }
 
-function ResultView({ result, questions, sections }: { result: Result; questions: PublicQuestion[]; sections: Section[] }) {
+function ResultView({ result, questions, quiz }: { result: Result; questions: PublicQuestion[]; quiz: QuizInfo | null }) {
   const { t } = useT();
   const pct = result.total ? Math.round((result.score / result.total) * 100) : 0;
   const byId = useMemo(() => new Map(questions.map((q) => [q.id, q])), [questions]);
-  void sections;
+  // Điểm theo từng phần (dạng bài) — giúp học viên biết cần ôn dạng nào
+  const partScores = useMemo(() => {
+    if (!questions.length) return [];
+    const ok = new Map(result.details.map((d) => [d.question_id, d.is_correct]));
+    const parts = buildParts(quiz?.sections ?? [], questions, quiz?.part_titles);
+    return parts.map((p, k) => ({ title: partTitle(p, k, parts.length, t), right: p.items.filter((i) => ok.get(questions[i].id)).length, total: p.items.length }));
+  }, [questions, quiz, result.details, t]);
   // Hiển thị theo đúng thứ tự học viên đã thấy khi làm bài (kể cả khi đề xáo trộn)
   const detailById = new Map(result.details.map((d) => [d.question_id, d]));
   const ordered = questions.length
@@ -844,6 +889,34 @@ function ResultView({ result, questions, sections }: { result: Result; questions
         <p className="mt-3 text-sm text-muted">{t("Kết quả đã được gửi tới giáo viên.")}</p>
       </div>
 
+      {partScores.length > 1 && (
+        <div className="card mt-4 p-5">
+          <h2 className="mb-3 font-bold">{t("📊 Kết quả theo từng phần")}</h2>
+          <ul className="space-y-2.5">
+            {partScores.map((p) => {
+              const v = p.total ? p.right / p.total : 0;
+              return (
+                <li key={p.title}>
+                  <div className="flex items-baseline justify-between gap-3 text-sm">
+                    <span className="min-w-0 font-semibold">{p.title}</span>
+                    <b className={`shrink-0 tabular-nums ${v >= 0.8 ? "text-primary-dark" : v >= 0.5 ? "text-sun-ink" : "text-rose-ink"}`}>
+                      {p.right}/{p.total}
+                    </b>
+                  </div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-gray-100">
+                    <div className={`h-full rounded-full ${v >= 0.8 ? "bg-primary" : v >= 0.5 ? "bg-sun" : "bg-rose-400"}`} style={{ width: `${Math.max(v * 100, 2)}%` }} />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          {(() => {
+            const weak = partScores.filter((p) => p.total && p.right / p.total < 0.5).map((p) => p.title);
+            return weak.length ? <p className="mt-3 text-sm text-muted">{t("💡 Nên ôn thêm: {list}", { list: weak.join(", ") })}</p> : null;
+          })()}
+        </div>
+      )}
+
       <h2 className="mb-3 mt-6 font-bold">{t("Chi tiết từng câu")}</h2>
       <div className="space-y-3">
         {ordered.map((d) => {
@@ -859,7 +932,7 @@ function ResultView({ result, questions, sections }: { result: Result; questions
               {q && cleanStem(q.stem) && <p className="mb-2 text-sm leading-relaxed"><Html text={q.stem} /></p>}
               {q?.image && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={q.image} alt={t("Hình câu {n}", { n: d.idx })} className="mb-2 max-h-64 max-w-full rounded-xl border border-gray-200 object-contain" />
+                <img src={q.image} loading="lazy" decoding="async" alt={t("Hình câu {n}", { n: d.idx })} className="mb-2 max-h-64 max-w-full rounded-xl border border-gray-200 object-contain" />
               )}
               {q && (
                 <div className="space-y-1">

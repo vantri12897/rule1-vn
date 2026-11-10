@@ -4,6 +4,7 @@ import { mailEnabled } from "@/lib/mailer";
 import { emailBackup } from "@/lib/server-backup";
 import { logError, pruneErrorLogs, sendErrorDigest } from "@/lib/errlog";
 import { dbUsage } from "@/lib/db-usage";
+import { cleanupAllImages, compactQuestions, migrateImages } from "@/lib/image-store";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -12,7 +13,8 @@ export const maxDuration = 300;
  * Vercel Cron gọi mỗi ngày lúc ~08:00 giờ Việt Nam:
  *  1. Giữ project Supabase gói Free không bị tạm dừng sau 7 ngày
  *  2. Chủ nhật: gửi bản sao lưu vào email của từng giáo viên (đã bật)
- *  3. Gửi email tóm tắt lỗi 24 giờ qua (nếu có lỗi) + dọn nhật ký cũ
+ *  3. Chuyển hình cũ sang kho file + xoá hình không còn dùng
+ *  4. Gửi email tóm tắt lỗi 24 giờ qua (nếu có lỗi) + dọn nhật ký cũ
  * Gọi lại nhiều lần trong ngày cũng an toàn: mỗi việc tự kiểm tra đã làm hôm nay chưa.
  */
 export async function GET(req: Request) {
@@ -40,6 +42,17 @@ export async function GET(req: Request) {
       }
     }
   } catch {}
+  // 3b. Hình ảnh: chuyển hình cũ còn nằm trong cơ sở dữ liệu sang kho file, xoá hình không còn câu hỏi nào dùng
+  try {
+    const m = await migrateImages({ budgetMs: 90_000 });
+    out.images_moved = m.moved;
+    out.images_left = m.remaining;
+    if (m.moved > 0 && m.remaining === 0) out.compacted = await compactQuestions();
+    if (m.failed > 0) await logError({ source: "server", kind: "image-upload", message: `Chuyển hình sang kho file: ${m.failed} hình lỗi, còn ${m.remaining}` });
+    out.images_removed = await cleanupAllImages();
+  } catch (e) {
+    out.images_error = String(e);
+  }
   // 4. Tóm tắt lỗi + dọn dẹp
   try {
     out.errors_digested = await sendErrorDigest(site);

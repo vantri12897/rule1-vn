@@ -5,6 +5,7 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 import { parseAnswerKey } from "@/lib/parse";
 import { fileToImageDataUrl, loadPdfLocal } from "@/lib/pdf-client";
 import { regradeQuiz } from "@/lib/quiz-db";
+import { uploadQuestionImages } from "@/lib/image-upload";
 import { Html } from "@/components/QuestionText";
 import type { DraftQuestion, Quiz, QuestionRow, Section } from "@/lib/types";
 import { confirmDialog, toast } from "@/components/ui/feedback";
@@ -134,7 +135,13 @@ export const QuestionsEditor = memo(function QuestionsEditor({
         const { error } = await sb.from("questions").delete().in("id", removed);
         if (error) throw error;
       }
-      const rows = items.map((q, i) => ({
+      // Hình mới thêm (data URL) → tải lên kho file, câu hỏi chỉ lưu link
+      const up = await uploadQuestionImages(items);
+      if (up.items.some((q, i) => q !== items[i])) {
+        const byKey = new Map(up.items.map((q) => [q.key, q.image]));
+        setItems((arr) => arr.map((q) => (byKey.has(q.key) && byKey.get(q.key) !== q.image && q.image?.startsWith("data:") ? { ...q, image: byKey.get(q.key) } : q)));
+      }
+      const rows = up.items.map((q, i) => ({
         ...(q.id ? { id: q.id } : {}),
         quiz_id: quiz.id,
         position: i,

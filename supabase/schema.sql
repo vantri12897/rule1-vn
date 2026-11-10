@@ -221,8 +221,9 @@ returns json language sql security definer set search_path = public stable as $$
   select json_build_object(
     'total', pg_database_size(current_database()),
     'questions', pg_total_relation_size('public.questions'),
-    'images', (select coalesce(sum(length(image)), 0) from public.questions where image is not null),
-    'image_count', (select count(*) from public.questions where image is not null),
+    -- chỉ tính hình còn nằm trong cơ sở dữ liệu (dạng data:image), hình đã chuyển sang kho file không tính
+    'images', (select coalesce(sum(length(image)), 0) from public.questions where image like 'data:%'),
+    'image_count', (select count(*) from public.questions where image like 'data:%'),
     'attempts', pg_total_relation_size('public.attempts'),
     'quizzes', pg_total_relation_size('public.quizzes'),
     'logs', pg_total_relation_size('public.error_logs')
@@ -230,3 +231,17 @@ returns json language sql security definer set search_path = public stable as $$
 $$;
 revoke all on function public.db_usage() from public, anon, authenticated;
 grant execute on function public.db_usage() to service_role;
+
+-- =====================================================================
+-- Bổ sung (10/11/2026): hình ảnh chuyển sang kho file riêng (Supabase Storage, bucket "quiz-images").
+-- Cột image giờ chứa link tới kho file; dữ liệu cũ dạng data:image vẫn hợp lệ cho tới khi được chuyển.
+-- =====================================================================
+alter table public.questions drop constraint if exists questions_image_check;
+alter table public.questions add constraint questions_image_check
+  check (image is null
+    or (image like 'data:image/%' and length(image) <= 600000)
+    or image ~ '^https?://[^/]+/storage/v1/object/public/quiz-images/[0-9a-f-]{36}/[0-9a-f]{64}\.(jpg|png|webp)$');
+
+-- Bổ sung (10/11/2026): số lần học viên rời khỏi trang làm bài (chuyển tab / mở ứng dụng khác) và tổng thời gian rời
+alter table public.attempts add column if not exists away_count int;
+alter table public.attempts add column if not exists away_seconds int;

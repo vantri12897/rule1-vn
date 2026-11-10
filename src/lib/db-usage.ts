@@ -11,3 +11,6 @@ export async function dbUsage(): Promise<DbUsage | null> {
   if (error || !data) return null;
   return { ...(data as Omit<DbUsage, "limit">), limit: DB_LIMIT };
 }
+
+/** Gói Supabase Free: kho file (hình ảnh) tối đa 1 GB (đổi bằng biến STORAGE_LIMIT_MB nếu nâng gói) */
+export const STORAGE_LIMIT = Number(process.env.STORAGE_LIMIT_MB || 1024) * 1024 * 1024;

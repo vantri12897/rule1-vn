@@ -2,6 +2,8 @@
 import { customAlphabet } from "nanoid";
 import { supabaseBrowser } from "./supabase/client";
 import { tc } from "./i18n/client";
+import { isStoredUrl } from "./images";
+import { uploadQuestionImages, urlToDataUrl } from "./image-upload";
 
 const slugId = customAlphabet("23456789abcdefghijkmnpqrstuvwxyz", 10);
 
@@ -29,7 +31,11 @@ async function fetchAll(table: string): Promise<Row[]> {
 
 /** Tải toàn bộ đề, câu hỏi, bài làm của giáo viên đang đăng nhập về 1 file JSON. */
 export async function downloadBackup(): Promise<{ quizzes: number; questions: number; attempts: number }> {
-  const [quizzes, questions, attempts] = await Promise.all([fetchAll("quizzes"), fetchAll("questions"), fetchAll("attempts")]);
+  const [quizzes, rawQuestions, attempts] = await Promise.all([fetchAll("quizzes"), fetchAll("questions"), fetchAll("attempts")]);
+  // Hình nằm ở kho file → tải về gộp vào file sao lưu, để file tự đủ (khôi phục được cả khi kho file mất)
+  const questions = await Promise.all(
+    rawQuestions.map(async (q) => (isStoredUrl(q.image as string) ? { ...q, image: (await urlToDataUrl(q.image as string)) ?? q.image } : q))
+  );
   const data: BackupFile = { app: "YD-English", version: 1, exported_at: new Date().toISOString(), quizzes, questions, attempts };
   const d = new Date();
   const p = (n: number) => String(n).padStart(2, "0");
@@ -80,7 +86,9 @@ export async function restoreBackup(file: File): Promise<{ restored: number; ski
     }
     if (error) throw new Error(tc("Không khôi phục được đề “{title}”: {e}", { title: String(q.title), e: error.message }));
   }
-  await upsertBatches("questions", (data.questions ?? []).filter((r) => ids.has(r.quiz_id as string)));
+  // Hình trong file sao lưu (dạng data URL) → tải lên kho file trước khi lưu câu hỏi
+  const { items: qs } = await uploadQuestionImages((data.questions ?? []).filter((r) => ids.has(r.quiz_id as string)) as (Row & { image?: string | null })[]);
+  await upsertBatches("questions", qs);
   await upsertBatches("attempts", (data.attempts ?? []).filter((r) => ids.has(r.quiz_id as string)));
   return { restored: missing.length, skipped: data.quizzes.length - missing.length };
 }

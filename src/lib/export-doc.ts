@@ -2,6 +2,7 @@
 import { supabaseBrowser } from "./supabase/client";
 import type { Quiz, QuestionRow } from "./types";
 import { clientLang, tc } from "./i18n/client";
+import { urlToDataUrl } from "./image-upload";
 
 export type ExportData = { quiz: Quiz; questions: QuestionRow[] };
 
@@ -137,8 +138,10 @@ export async function downloadDocx({ quiz, questions }: ExportData, withAnswers:
     );
     if (q.image) {
       try {
-        const { bytes, type } = dataUrlToBytes(q.image);
-        const { w, h } = await imageSize(q.image);
+        const src = await urlToDataUrl(q.image); // hình ở kho file → tải về để nhúng vào Word
+        if (!src) throw new Error("image unavailable");
+        const { bytes, type } = dataUrlToBytes(src);
+        const { w, h } = await imageSize(src);
         const width = Math.min(380, w);
         children.push(
           new d.Paragraph({

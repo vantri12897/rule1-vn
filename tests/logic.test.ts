@@ -151,3 +151,18 @@ test("parts: nhận dạng dạng bài từ hướng dẫn đề thi", async () 
   assert.deepEqual(buildParts(sections, all).map((p) => p.kind), ["synonym", "fill", "antonym"]);
   assert.equal(rangeText([1, 2, 3, 5, 9, 10]), "1–3, 5, 9–10");
 });
+
+test("images: nhận dạng ảnh, link kho file, data URL", async () => {
+  const { sniffImage, dataUrlBytes, isStoredUrl, storedPath, isDataUrl } = await import("../src/lib/images.ts");
+  const png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+  const { bytes, mime } = dataUrlBytes(png);
+  assert.equal(mime, "image/png");
+  assert.deepEqual(sniffImage(bytes), { mime: "image/png", ext: "png" });
+  assert.equal(sniffImage(new Uint8Array([0x3c, 0x73, 0x76, 0x67, 1, 2, 3, 4, 5])), null); // <svg… bị từ chối
+  const url = `https://abc.supabase.co/storage/v1/object/public/quiz-images/11111111-1111-1111-1111-111111111111/${"a".repeat(64)}.jpg`;
+  assert.ok(isStoredUrl(url));
+  assert.equal(storedPath(url), `11111111-1111-1111-1111-111111111111/${"a".repeat(64)}.jpg`);
+  assert.ok(!isStoredUrl("https://evil.example/x.jpg"));
+  assert.ok(!isStoredUrl(url.replace("quiz-images", "other")));
+  assert.ok(isDataUrl(png) && !isDataUrl(url));
+});
