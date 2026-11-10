@@ -360,7 +360,6 @@ function NameForm({ quiz, slug, busy, error, onStart }: { quiz: QuizInfo; slug: 
         {busy ? t("Đang vào…") : picked ? t("Bắt đầu làm bài — {name}", { name: picked.name }) : t("Bắt đầu làm bài")}
       </button>
       {quiz.time_limit_min && <p className="text-center text-xs text-muted">{t("Đồng hồ bắt đầu chạy ngay khi bạn bấm nút. Hết giờ bài tự nộp.")}</p>}
-      <p className="text-center text-xs text-muted">{t("ℹ️ Website ghi lại số lần bạn rời khỏi trang làm bài (chuyển tab, mở ứng dụng khác) và báo cho giáo viên.")}</p>
     </form>
   );
 }
