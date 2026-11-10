@@ -327,7 +327,7 @@ export function AnnotationToolbar({ ann, className = "" }: { ann: Ann; className
         </button>
       )}
       {(ann.pen || ann.noteMode) && (
-        <span className="w-full text-[11px] font-medium text-muted">
+        <span className="w-full text-[calc(0.6875rem*var(--fs,1))] font-medium text-muted">
           {ann.pen ? t("Bôi đen chữ trong đề để tô màu. Bấm vào chỗ đã tô để đổi màu hoặc xoá. Nhấn Esc để thoát.") : t("Bấm vào vị trí trong đề để thêm ghi chú. Nhấn Esc để thoát.")}
         </span>
       )}
@@ -477,7 +477,7 @@ export function NoteClouds({ ann, layer }: { ann: Ann; layer: HTMLElement | null
             }}
             onDoubleClick={() => ann.setNotes((ns) => ns.map((x) => (x.id === n.id ? { ...x, dx: 0, dy: 0 } : x)))}
           >
-            <span className="text-[11px] font-bold uppercase tracking-wide text-sky-ink">⠿ 💭 {t("Ghi chú")}</span>
+            <span className="text-[calc(0.6875rem*var(--fs,1))] font-bold uppercase tracking-wide text-sky-ink">⠿ 💭 {t("Ghi chú")}</span>
             <span className="flex gap-0.5">
               <button
                 type="button"
@@ -552,7 +552,7 @@ export function Splitter({ value, onChange, containerRef }: { value: number; onC
     >
       <span className={`h-full w-0.5 rounded-full transition-colors ${drag ? "bg-primary" : "bg-primary-line group-hover:bg-primary group-focus-visible:bg-primary"}`} />
       <span
-        className={`absolute top-1/2 grid h-12 w-4 -translate-y-1/2 place-items-center rounded-full border bg-white text-[10px] leading-none text-primary-dark shadow-sm transition ${drag ? "border-primary bg-primary-soft" : "border-primary-line group-hover:border-primary"}`}
+        className={`absolute top-1/2 grid h-12 w-4 -translate-y-1/2 place-items-center rounded-full border bg-white text-[calc(0.625rem*var(--fs,1))] leading-none text-primary-dark shadow-sm transition ${drag ? "border-primary bg-primary-soft" : "border-primary-line group-hover:border-primary"}`}
         aria-hidden
       >
         ⋮

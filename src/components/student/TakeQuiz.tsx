@@ -3,6 +3,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Html } from "@/components/QuestionText";
 import { safeHtml } from "@/lib/sanitize";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { AppearanceButtons } from "@/components/AppearanceButtons";
 import type { PublicQuestion, Section } from "@/lib/types";
 import { confirmDialog } from "@/components/ui/feedback";
 import { StudentSkeleton } from "@/components/ui/Skeleton";
@@ -192,14 +193,18 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
     <main className="bg-dots min-h-screen">
       <header className="sticky top-0 z-30 border-b border-primary-line bg-white/95 backdrop-blur">
         <div className="stripe h-1" />
-        <div className={`mx-auto flex items-center gap-3 px-4 py-3 ${view === "taking" ? "max-w-7xl" : "max-w-2xl"}`}>
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-xs font-extrabold text-white">YD</span>
+        <div className={`mx-auto flex items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4 ${view === "taking" ? "max-w-7xl" : "max-w-2xl"}`}>
+          {/* Điện thoại đang làm bài: bỏ logo để đủ chỗ cho tên đề, đồng hồ và các nút */}
+          <span className={`h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-xs font-extrabold text-white ${view === "taking" ? "hidden sm:grid" : "grid"}`}>YD</span>
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-bold">{quiz?.title ?? "YD-English"}</div>
             {studentName && <div className="truncate text-xs text-muted">{studentName}</div>}
           </div>
           {view === "taking" && deadline && <Countdown deadline={deadline} offset={clockOffset} onEnd={() => submit(true)} />}
-          <LanguageSwitcher compact />
+          <div className="flex shrink-0 items-center gap-1.5">
+            <AppearanceButtons />
+            <LanguageSwitcher compact />
+          </div>
         </div>
         {view === "taking" && <Progress done={questions.filter((q) => answers[q.id]).length} total={questions.length} />}
       </header>
@@ -557,7 +562,7 @@ function TakingView({
         </p>
       )}
       {curSec.passage && (
-        <p className="mt-3 whitespace-pre-line text-[17px] leading-8">
+        <p className="mt-3 whitespace-pre-line text-[calc(1.0625rem*var(--fs,1))] leading-[1.9]">
           <PassageHtml zone={`p${curQ.section_index}`} text={curSec.passage} current={curQ?.number ?? null} numbers={secNumbers} answered={answeredNumbers} />
         </p>
       )}
@@ -594,7 +599,7 @@ function TakingView({
           </p>
         )}
         {sec.passage && (
-          <p className="mt-3 whitespace-pre-line text-[17px] leading-8">
+          <p className="mt-3 whitespace-pre-line text-[calc(1.0625rem*var(--fs,1))] leading-[1.9]">
             <PassageHtml zone={`p${g.sec}`} text={sec.passage} current={isCur ? curQ?.number ?? null : null} numbers={nums} answered={ans} />
           </p>
         )}
@@ -684,7 +689,7 @@ function TakingView({
                               <input
                                 type="radio"
                                 name={q.id}
-                                className={`mt-0.5 h-5 w-5 shrink-0 accent-[#15803d] ${on ? "yd-tick" : ""}`}
+                                className={`mt-0.5 h-5 w-5 shrink-0 accent-primary ${on ? "yd-tick" : ""}`}
                                 checked={on}
                                 onChange={() => pick(q.id, o.label)}
                               />

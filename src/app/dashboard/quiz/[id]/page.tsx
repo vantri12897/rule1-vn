@@ -277,7 +277,7 @@ function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSav
 function Toggle({ checked, onChange, label, hint }: { checked: boolean; onChange: (v: boolean) => void; label: string; hint?: string }) {
   return (
     <label className="flex cursor-pointer items-start gap-3">
-      <input type="checkbox" className="mt-1 h-5 w-5 accent-[#15803d]" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <input type="checkbox" className="mt-1 h-5 w-5 accent-primary" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       <span>
         <span className="font-medium">{label}</span>
         {hint && <span className="block text-sm text-muted">{hint}</span>}

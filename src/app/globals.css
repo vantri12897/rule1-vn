@@ -23,10 +23,49 @@
   --color-rose-ink: #be123c;
   --color-warn: #c2410c;
   --font-sans: "Be Vietnam Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Cỡ chữ nhân theo --fs (nút "Aa" chỉnh, mặc định 1): chỉ chữ to/nhỏ, khung và khoảng cách giữ nguyên */
+  --text-xs: calc(0.75rem * var(--fs, 1));
+  --text-sm: calc(0.875rem * var(--fs, 1));
+  --text-base: calc(1rem * var(--fs, 1));
+  --text-lg: calc(1.125rem * var(--fs, 1));
+  --text-xl: calc(1.25rem * var(--fs, 1));
+  --text-2xl: calc(1.5rem * var(--fs, 1));
+  --text-3xl: calc(1.875rem * var(--fs, 1));
+  --text-4xl: calc(2.25rem * var(--fs, 1));
+  --text-5xl: calc(3rem * var(--fs, 1));
+}
+
+/* ===== Màu giao diện do người xem chọn (nút 🎨). Mặc định = xanh lá như trên. ===== */
+:root {
+  --yd-bg: #f7fdf9;      /* nền chấm bi */
+  --yd-dot: #cdeed8;     /* chấm bi */
+  --yd-hero: #dcfce7;    /* vệt màu nền trang chủ */
+  --yd-g2: #0d9488;      /* màu thứ 2, 3 của chữ chuyển màu */
+  --yd-g3: #0369a1;
+}
+html[data-theme="blue"] {
+  --color-primary: #1d4ed8; --color-primary-dark: #1e40af; --color-primary-soft: #eff6ff; --color-primary-line: #bfdbfe;
+  --yd-bg: #f6f9ff; --yd-dot: #cbdaf5; --yd-hero: #dbeafe; --yd-g2: #4f46e5; --yd-g3: #0369a1;
+}
+html[data-theme="purple"] {
+  --color-primary: #7c3aed; --color-primary-dark: #5b21b6; --color-primary-soft: #f5f3ff; --color-primary-line: #ddd6fe;
+  --yd-bg: #faf8ff; --yd-dot: #ddd3f7; --yd-hero: #ede9fe; --yd-g2: #9333ea; --yd-g3: #c026d3;
+}
+html[data-theme="pink"] {
+  --color-primary: #be185d; --color-primary-dark: #9d174d; --color-primary-soft: #fdf2f8; --color-primary-line: #fbcfe8;
+  --yd-bg: #fff8fb; --yd-dot: #f5cfe0; --yd-hero: #fce7f3; --yd-g2: #db2777; --yd-g3: #9333ea;
+}
+html[data-theme="teal"] {
+  --color-primary: #0f766e; --color-primary-dark: #115e59; --color-primary-soft: #f0fdfa; --color-primary-line: #99f6e4;
+  --yd-bg: #f5fdfb; --yd-dot: #c4ece5; --yd-hero: #ccfbf1; --yd-g2: #0891b2; --yd-g3: #0369a1;
+}
+html[data-theme="slate"] {
+  --color-primary: #334155; --color-primary-dark: #1e293b; --color-primary-soft: #f1f5f9; --color-primary-line: #cbd5e1;
+  --yd-bg: #f8fafc; --yd-dot: #d6dde6; --yd-hero: #e2e8f0; --yd-g2: #475569; --yd-g3: #0f172a;
 }
 
 html, body { background: #ffffff; color: var(--color-ink); }
-body { font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--font-sans); font-size: var(--text-base); -webkit-tap-highlight-color: transparent; }
 
 @utility btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed; }
 @utility btn-primary { @apply btn bg-primary text-white hover:bg-primary-dark; }
@@ -64,24 +103,24 @@ body { font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; 
 /* Nền "bầu trời" cho trang chủ, đăng nhập: các vệt màu loang mờ */
 @utility bg-hero {
   background:
-    radial-gradient(55rem 28rem at 0% -10%, #dcfce7 0%, transparent 60%),
+    radial-gradient(55rem 28rem at 0% -10%, var(--yd-hero) 0%, transparent 60%),
     radial-gradient(38rem 24rem at 100% 0%, #fef3c7 0%, transparent 60%),
     radial-gradient(45rem 30rem at 50% 115%, #e0f2fe 0%, transparent 60%),
     #ffffff;
 }
 /* Nền chấm bi xanh nhạt cho trang làm việc */
 @utility bg-dots {
-  background-color: #f7fdf9;
-  background-image: radial-gradient(#cdeed8 1.1px, transparent 1.1px);
+  background-color: var(--yd-bg);
+  background-image: radial-gradient(var(--yd-dot) 1.1px, transparent 1.1px);
   background-size: 22px 22px;
 }
 /* Dải màu mảnh trên đầu trang */
 @utility stripe {
-  background: linear-gradient(90deg, #15803d 0%, #0d9488 35%, #0ea5e9 65%, #f59e0b 100%);
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--yd-g2) 35%, #0ea5e9 65%, #f59e0b 100%);
 }
 /* Chữ chuyển màu cho tiêu đề lớn */
 @utility text-gradient {
-  background: linear-gradient(90deg, #15803d, #0d9488 55%, #0369a1);
+  background: linear-gradient(90deg, var(--color-primary), var(--yd-g2) 55%, var(--yd-g3));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -114,6 +153,9 @@ mark[data-c="o"] { background: #fdba74; }
 .yd-cloud-drag { box-shadow: 0 14px 32px -8px rgba(3, 105, 161, .5); opacity: .95; }
 
 /* Thanh điều hướng theo phần: thanh cuộn ngang mảnh */
-.yd-strip { scrollbar-width: thin; scrollbar-color: #bbf7d0 transparent; }
+.yd-strip { scrollbar-width: thin; scrollbar-color: var(--color-primary-line) transparent; }
 .yd-strip::-webkit-scrollbar { height: 6px; }
-.yd-strip::-webkit-scrollbar-thumb { background: #bbf7d0; border-radius: 9999px; }
+.yd-strip::-webkit-scrollbar-thumb { background: var(--color-primary-line); border-radius: 9999px; }
+
+/* Đổi màu / cỡ chữ: chuyển mượt */
+html.yd-anim, html.yd-anim * { transition: background-color .25s ease, border-color .25s ease, color .2s ease !important; }

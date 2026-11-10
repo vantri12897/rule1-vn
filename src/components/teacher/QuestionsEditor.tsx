@@ -471,7 +471,7 @@ const QuestionCard = memo(function QuestionCard({ q, onUpdate, onRemove }: { q: 
               onClick={() => onChange({ correct_label: o.label, answer_source: q.correct_label === o.label ? q.answer_source : "manual", needs_review: false })}
               className={`flex items-start gap-2 rounded-xl border px-3 py-2 text-left text-sm ${on ? "border-primary bg-primary-soft font-semibold" : "border-gray-200 hover:border-primary-line"}`}
             >
-              <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border text-[11px] ${on ? "border-primary bg-primary text-white" : "border-gray-300"}`}>
+              <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border text-[calc(0.6875rem*var(--fs,1))] ${on ? "border-primary bg-primary text-white" : "border-gray-300"}`}>
                 {on ? "✓" : o.label}
               </span>
               <span><b>{o.label}.</b> <Html text={o.text} /></span>

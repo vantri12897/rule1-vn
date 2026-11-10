@@ -228,7 +228,7 @@ function AutoBackupCard() {
           <label className="mt-3 flex cursor-pointer items-start gap-3">
             <input
               type="checkbox"
-              className="mt-0.5 h-5 w-5 accent-[#15803d]"
+              className="mt-0.5 h-5 w-5 accent-primary"
               checked={st.enabled}
               onChange={async (e) => {
                 const enabled = e.target.checked;
