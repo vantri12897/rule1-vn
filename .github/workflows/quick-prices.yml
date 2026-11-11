@@ -47,11 +47,11 @@ jobs:
         if: steps.chk.outputs.skip != 'true'
         with:
           python-version: "3.12"
-      - name: Cài vnstock
+      - name: Cài thư viện
         if: steps.chk.outputs.skip != 'true'
         run: |
           python -m pip install -q --upgrade pip
-          pip install -q -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
+          pip install -q requests pandas
       - name: Lấy giá đóng cửa phiên hôm nay
         if: steps.chk.outputs.skip != 'true'
         run: python -u tools/quick_prices.py

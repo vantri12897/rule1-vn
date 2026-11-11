@@ -33,9 +33,9 @@ SOURCES = ("kbs", "vci")
 
 def import_quote():
     try:
-        from vnstock import Quote
+        from vndata import Quote  # bộ lấy dữ liệu riêng (vnstock bản cũ ngừng từ 10/11/2026)
     except ImportError:
-        sys.exit("Chưa cài vnstock: pip install -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai")
+        sys.exit("Thiếu vndata.py (cùng thư mục) hoặc thư viện requests/pandas")
     return Quote
 
 
@@ -158,7 +158,7 @@ def fetch_foreign(tickers: list[str]) -> dict:
     """Khối ngoại mua/bán trong phiên hiện tại (bảng giá KBS, lấy sau giờ đóng cửa).
     Trả về {mã: tỷ VND mua ròng}. Nguồn chỉ có dữ liệu phiên đang xem, nên lịch sử được tích lũy dần mỗi ngày."""
     try:
-        from vnstock import Trading
+        from vndata import Trading
     except ImportError:
         return {}
     out = {}
@@ -240,7 +240,7 @@ def fetch_price(Quote, sym: str, days: int = 45, index: bool = False):
             except Exception:  # noqa: BLE001
                 d = None
             return (round(price, 2) if index else round(price)), adv, d, src, chart_rows(df, scale, 2 if index else 0)
-        except SystemExit as e:  # vnstock có thể gọi sys.exit khi vượt giới hạn lượt gọi
+        except SystemExit as e:  # phòng trường hợp thư viện gọi sys.exit
             last_err = RuntimeError(f"SystemExit: {e}")
         except Exception as e:  # noqa: BLE001
             last_err = e

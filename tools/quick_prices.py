@@ -55,7 +55,8 @@ def main():
             t = (r.get("ticker") or "").strip().upper()
             if t and t not in tickers:
                 tickers.append(t)
-    from vnstock import Trading
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from vndata import Trading
     n, cols_shown, vol0 = 0, False, 0
     for k in range(0, len(tickers), 100):
         batch = tickers[k:k + 100]

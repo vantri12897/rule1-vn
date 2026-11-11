@@ -4,7 +4,7 @@
 vn_rule1_export.py — Xuất dữ liệu báo cáo tài chính TTCK Việt Nam sang CSV
 cho web app "Rule #1 Screener VN".
 
-Nguồn: thư viện vnstock (>= 4.0.9), nguồn VCI.
+Nguồn: vndata.py (gọi trực tiếp giao diện dữ liệu công khai của VCI/KBS; thay vnstock từ 11/2026).
 Đầu ra: rule1_data.csv, mỗi dòng = 1 mã × 1 năm, đúng cột app yêu cầu:
   ticker,name,exchange,sector,is_financial,price,shares_mil,avg_pe,adv_bn,analyst_g,
   year,revenue,net_income,equity,debt,cash,ebit,cfo,capex,dividends
@@ -242,22 +242,11 @@ def extract(stmts: dict, rules: dict) -> tuple[dict, dict]:
 # --------------------------------------------------------------------------
 
 def import_vnstock():
+    # vnstock bản cũ ngừng hoạt động từ 10/11/2026 → dùng bộ lấy dữ liệu riêng vndata.py (cùng thư mục)
     try:
-        import vnstock  # noqa: F401
-        from vnstock import Finance, Listing, Quote
+        from vndata import Finance, Listing, Quote
     except ImportError:
-        sys.exit("Chưa cài vnstock. Chạy:\n  python -m pip install -U --extra-index-url "
-                 "https://vnstocks.com/api/simple vnstock vnai")
-    try:
-        from importlib.metadata import version as _v
-        ver = _v("vnstock")
-    except Exception:  # noqa: BLE001
-        ver = getattr(vnstock, "__version__", "0")
-    try:
-        if tuple(int(x) for x in re.findall(r"\d+", ver)[:3]) < (4, 0, 9):
-            print(f"[CẢNH BÁO] vnstock {ver} < 4.0.9. Nên nâng cấp (bản cũ tự ghi nội dung vào file cấu hình trợ lý AI).")
-    except Exception:
-        pass
+        sys.exit("Thiếu vndata.py (cùng thư mục) hoặc thư viện requests/pandas: pip install requests pandas")
     return Finance, Listing, Quote
 
 
@@ -310,7 +299,7 @@ def get_extras(Finance, sym: str) -> dict:
     except Exception as e:  # noqa: BLE001
         out["QIS_err"] = f"{e.__class__.__name__}: {str(e)[:100]}"
     try:
-        from vnstock import Company
+        from vndata import Company
         ev = Company(source="vci", symbol=sym).events()
         if isinstance(ev, pd.DataFrame):
             out["events"] = ev

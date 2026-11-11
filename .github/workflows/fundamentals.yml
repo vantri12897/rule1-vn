@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with: {python-version: "3.12"}
-      - run: pip install -q -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
+      - run: pip install -q requests pandas
       - run: |
           mkdir -p diag
           python -u vn_rule1_export.py --symbols ${{ github.event.inputs.symbols }} --out diag/test_data.csv --insider-out diag/test_insider.json --cache /tmp/c --sleep 0.5 --refresh || true
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with: {python-version: "3.12"}
-      - run: pip install -q -U --extra-index-url https://vnstocks.com/api/simple vnstock vnai pandas
+      - run: pip install -q requests pandas
       - name: Lấy BCTC sàn ${{ matrix.exchange }}
         run: |
           python -u vn_rule1_export.py --exchanges ${{ matrix.exchange }} --out part_${{ matrix.exchange }}.csv --insider-out insider_${{ matrix.exchange }}.json --cache cache --sleep 0.5 --refresh
