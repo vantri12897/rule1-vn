@@ -816,6 +816,7 @@ function TakingView({
                 const showSec = sec && q.section_index !== lastSection;
                 lastSection = q.section_index;
                 const isCur = current === q.id;
+                const isLocked = locked.has(q.id);
                 const stem = cleanStem(q.stem);
                 return (
                   <div key={q.id}>
@@ -831,25 +832,18 @@ function TakingView({
                         <Html text={sec.instruction} />
                       </p>
                     )}
-                    {locked.has(q.id) ? (
-                      /* Câu đã đúng ở lần trước: thu gọn, không cho đổi đáp án */
-                      <div id={`q-${q.id}`} className={`flex items-start gap-2 rounded-2xl border border-primary-line bg-primary-soft/50 px-4 py-2.5 text-sm ${split ? "scroll-mt-2" : "scroll-mt-28"}`}>
-                        <span className="shrink-0 font-bold text-primary-dark">{t("Câu {n}.", { n: i + 1 })}</span>
-                        <span className="min-w-0 flex-1 text-muted">
-                          {(() => {
-                            const o = q.options.find((x) => x.label === answers[q.id]);
-                            return o ? (
-                              <>
-                                <b className="text-primary-dark">{o.label}.</b> <Html text={o.text} />
-                              </>
-                            ) : null;
-                          })()}
-                        </span>
-                        <span className="shrink-0 whitespace-nowrap rounded-md bg-white px-1.5 py-0.5 text-xs font-semibold text-primary-dark">🔒 {t("Đã đúng")}</span>
-                      </div>
-                    ) : (
-                    <fieldset id={`q-${q.id}`} className={`card p-4 transition ${split ? "scroll-mt-2" : "scroll-mt-28"} ${isCur ? "ring-2 ring-primary/40" : ""}`}>
+                    <fieldset
+                      id={`q-${q.id}`}
+                      disabled={isLocked}
+                      className={`card p-4 transition ${split ? "scroll-mt-2" : "scroll-mt-28"} ${isCur ? "ring-2 ring-primary/40" : ""} ${isLocked ? "border-primary-line bg-primary-soft/30" : ""}`}
+                    >
                       <legend className="sr-only">{t("Câu {n}", { n: i + 1 })}</legend>
+                      {isLocked ? (
+                        /* Câu đã đúng ở lần trước: vẫn hiện đủ đề + đáp án nhưng khoá, không cho chọn lại */
+                        <span className="float-right -mr-1 -mt-1 ml-2 whitespace-nowrap rounded-lg bg-white px-2 py-1 text-xs font-semibold text-primary-dark ring-1 ring-primary-line">
+                          🔒 {t("Đã đúng — giữ nguyên")}
+                        </span>
+                      ) : (
                       <button
                         type="button"
                         onClick={() => toggleFlag(q.id)}
@@ -859,6 +853,7 @@ function TakingView({
                       >
                         {flags.has(q.id) ? `🚩 ${t("Đang cân nhắc")}` : `⚑ ${t("Xem lại sau")}`}
                       </button>
+                      )}
                       <p className="mb-3 leading-relaxed">
                         <b className="text-primary-dark">{t("Câu {n}.", { n: i + 1 })}</b> {stem && <Zone id={`s${q.id}`} text={stem} />}
                       </p>
@@ -877,15 +872,30 @@ function TakingView({
                           return (
                             <label
                               key={o.label}
-                              className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 px-3 py-3 transition duration-150 active:scale-[.99] lg:py-2.5 ${on ? "border-primary bg-primary-soft" : "border-gray-200 bg-white hover:border-primary-line active:bg-gray-50"}`}
+                              className={`flex items-start gap-3 rounded-xl border-2 px-3 py-3 transition duration-150 lg:py-2.5 ${
+                                isLocked
+                                  ? on
+                                    ? "cursor-not-allowed border-primary bg-primary-soft"
+                                    : "cursor-not-allowed border-gray-200 bg-white opacity-60"
+                                  : on
+                                    ? "cursor-pointer border-primary bg-primary-soft active:scale-[.99]"
+                                    : "cursor-pointer border-gray-200 bg-white hover:border-primary-line active:scale-[.99] active:bg-gray-50"
+                              }`}
                             >
-                              <input
-                                type="radio"
-                                name={q.id}
-                                className={`mt-0.5 h-5 w-5 shrink-0 accent-primary ${on ? "yd-tick" : ""}`}
-                                checked={on}
-                                onChange={() => pick(q.id, o.label)}
-                              />
+                              {isLocked ? (
+                                // Câu đã khoá: dấu ✓ xanh ở đáp án đã chọn đúng (ô chọn bị khoá sẽ bị trình duyệt tô xám)
+                                <span aria-hidden className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-[calc(0.75rem*var(--fs,1))] font-bold ${on ? "bg-primary text-white" : "border-2 border-gray-300"}`}>
+                                  {on ? "✓" : ""}
+                                </span>
+                              ) : (
+                                <input
+                                  type="radio"
+                                  name={q.id}
+                                  className={`mt-0.5 h-5 w-5 shrink-0 accent-primary ${on ? "yd-tick" : ""}`}
+                                  checked={on}
+                                  onChange={() => pick(q.id, o.label)}
+                                />
+                              )}
                               <span>
                                 <b>{o.label}.</b> <Html text={o.text} />
                               </span>
@@ -894,7 +904,6 @@ function TakingView({
                         })}
                       </div>
                     </fieldset>
-                    )}
                   </div>
                 );
               })}

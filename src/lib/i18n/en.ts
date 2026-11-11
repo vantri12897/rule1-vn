@@ -671,4 +671,5 @@ export const EN: Record<string, string> = {
   "Thao tác quá nhanh, đợi một chút": "Too fast, please wait a moment",
   "Không tìm thấy bài làm": "Attempt not found",
   "Đề này không cho làm lại câu sai (hoặc đã hết lượt)": "This test doesn't allow retrying wrong answers (or no retries left)",
+  "Đã đúng — giữ nguyên": "Correct — locked",
 };
