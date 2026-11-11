@@ -60,6 +60,11 @@ export async function GET(req: Request) {
   } catch (e) {
     out.digest_error = String(e);
   }
+  // Ghi lại lần chạy gần nhất (trang Tài khoản → Kiểm tra hệ thống đọc để biết tác vụ mỗi sáng còn chạy)
+  await supabaseAdmin()
+    .from("app_state")
+    .upsert({ key: "last_cron", value: { at: new Date().toISOString(), images_moved: out.images_moved ?? null }, updated_at: new Date().toISOString() })
+    .then(() => {}, () => {});
   return NextResponse.json(out);
 }
 

@@ -24,6 +24,7 @@ export default function AccountPage() {
       <AutoBackupCard />
       <UsageCard />
       <ErrorsCard />
+      <SelfTestCard />
       <PasswordCard />
     </div>
   );
@@ -283,6 +284,79 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 /** Nhật ký lỗi 7 ngày gần nhất */
+type SelfCheck = { key: string; status: "ok" | "warn" | "fail"; detail: string };
+const CHECK_LABEL: Record<string, string> = {
+  db: "Cơ sở dữ liệu",
+  schema: "Bảng & cột của các chức năng mới",
+  storage: "Kho hình ảnh (tải lên, đọc, xoá thử)",
+  auth_admin: "Quyền quản trị tài khoản (dọn hình, sao lưu)",
+  email: "Email (sao lưu, báo lỗi)",
+  gemini: "Khoá AI Gemini (đọc PDF)",
+  cron: "Tác vụ tự động mỗi sáng",
+  images: "Hình còn nằm trong cơ sở dữ liệu",
+};
+
+/** 🩺 Kiểm tra hệ thống trên chính website đang chạy (không tốn lượt AI, không đổi dữ liệu) */
+function SelfTestCard() {
+  const { t } = useT();
+  const [res, setRes] = useState<{ version: string; at: string; checks: SelfCheck[] } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  async function run() {
+    setBusy(true);
+    setErr(null);
+    try {
+      const r = await fetch("/api/account/selftest", { cache: "no-store" });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+      setRes(d);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  const bad = res?.checks.filter((c) => c.status !== "ok").length ?? 0;
+  const icon = (s: SelfCheck["status"]) => (s === "ok" ? "✅" : s === "warn" ? "⚠️" : "❌");
+  const text = res ? [`YD-English ${res.version} · ${fmtDate(res.at)}`, ...res.checks.map((c) => `${icon(c.status)} ${CHECK_LABEL[c.key] ?? c.key}: ${c.detail}`)].join("\n") : "";
+  return (
+    <section className="card p-5">
+      <h2 className="text-lg font-bold">{t("🩺 Kiểm tra hệ thống")}</h2>
+      <p className="mt-1 text-sm text-muted">
+        {t("Kiểm tra nhanh các phần bên trong website đang chạy: cơ sở dữ liệu, kho hình, email, khoá AI, tác vụ mỗi sáng. Không tốn lượt AI, không thay đổi dữ liệu của bạn.")}
+      </p>
+      <button className="btn-primary mt-3" onClick={run} disabled={busy}>
+        {busy ? t("Đang kiểm tra…") : res ? t("Kiểm tra lại") : t("Chạy kiểm tra")}
+      </button>
+      {err && <p className="mt-2 text-sm text-danger">{err}</p>}
+      {res && (
+        <div className="mt-4">
+          <p className={`mb-2 font-semibold ${bad ? "text-warn" : "text-primary-dark"}`}>
+            {bad ? t("⚠️ {n} mục cần xem", { n: bad }) : t("✅ Tất cả {n} mục đều ổn", { n: res.checks.length })}
+          </p>
+          <ul className="divide-y divide-gray-100 rounded-xl border border-gray-100">
+            {res.checks.map((c) => (
+              <li key={c.key} className="flex items-start gap-2 px-3 py-2 text-sm">
+                <span aria-hidden>{icon(c.status)}</span>
+                <span className="min-w-0 flex-1">
+                  <b>{t(CHECK_LABEL[c.key] ?? c.key)}</b>
+                  <span className="block break-words text-xs text-muted">{c.detail}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <button
+            className="btn-outline mt-3"
+            onClick={() => navigator.clipboard?.writeText(text).then(() => toast(t("Đã copy kết quả")), () => toast(t("Không copy được"), "error"))}
+          >
+            📋 {t("Copy kết quả (gửi cho người hỗ trợ)")}
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function ErrorsCard() {
   const { t } = useT();
   const [d, setD] = useState<{ count: number; items: ErrItem[]; alerts_to: string | null } | null>(null);

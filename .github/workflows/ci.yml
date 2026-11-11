@@ -1,0 +1,40 @@
+# Tự kiểm tra mỗi lần đẩy code lên nhánh main (và mỗi pull request):
+# bài kiểm tra tự động, kiểm tra kiểu TypeScript, lỗi code (eslint), dựng thử website.
+# Kết quả xem ở tab "Actions" của kho GitHub; có lỗi thì GitHub gửi email báo.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Cài thư viện
+        run: npm ci
+      - name: Bài kiểm tra tự động
+        run: npm test
+      - name: Kiểm tra kiểu TypeScript
+        run: npm run typecheck
+      - name: Kiểm tra lỗi code (eslint)
+        run: npx eslint . --quiet
+      - name: Dựng thử website (không đụng database thật)
+        run: npx next build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-dummy-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: ci-dummy-service-key
+          NEXT_TELEMETRY_DISABLED: "1"

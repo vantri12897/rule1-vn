@@ -45,7 +45,7 @@ type TakingAttempt = {
   locked?: string[];
   prev?: Record<string, string>;
 };
-type View = "loading" | "notfound" | "closed" | "name" | "taking" | "result";
+type View = "loading" | "notfound" | "offline" | "closed" | "name" | "taking" | "result";
 
 function getToken(): string {
   let t = localStorage.getItem("yd-token");
@@ -154,30 +154,54 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
 
   const startedKey = `yd-started-${slug}`;
 
+  /**
+   * Tải đề + bài làm của máy này. Mạng chập chờn → tự thử lại 4 lần; vẫn lỗi → màn hình
+   * "Mất kết nối – Thử lại" (không báo nhầm "không tìm thấy đề"), có mạng lại thì tự tải tiếp.
+   */
+  const loadQuiz = useCallback(async () => {
+    setView("loading");
+    const r = await fetchRetry(`/api/public/quiz/${slug}?token=${tokenRef.current}`, { cache: "no-store" }, 4);
+    if (r?.status === 404) return setView("notfound");
+    if (!r || !r.ok) {
+      setView("offline");
+      // Chỉ báo lỗi cho giáo viên khi máy học viên có mạng và trang đang mở (không phải đang đóng/tải lại trang)
+      if (navigator.onLine !== false && document.visibilityState === "visible" && !leavingRef.current)
+        reportError("load-failed", r ? `HTTP ${r.status}` : "network error after 4 tries", { slug });
+      return;
+    }
+    const data = await r.json();
+    setQuiz(data.quiz);
+    if (data.result) {
+      setQuestions(data.questions);
+      setResult(data.result);
+      setStudentName(data.attempt.student_name);
+      setView("result");
+    } else if (data.attempt) applyTaking(data);
+    else setView(data.quiz.status === "open" ? "name" : "closed");
+  }, [slug, applyTaking]);
+
+  const leavingRef = useRef(false);
+  useEffect(() => {
+    const leave = () => (leavingRef.current = true);
+    window.addEventListener("pagehide", leave);
+    return () => window.removeEventListener("pagehide", leave);
+  }, []);
+
   useEffect(() => {
     tokenRef.current = getToken();
     // Thiết bị chưa từng bắt đầu đề này và đề đang mở → giữ form nhập tên, không cần hỏi máy chủ
     if (initialQuiz?.status === "open" && !localStorage.getItem(startedKey)) return;
-    setView("loading");
-    fetch(`/api/public/quiz/${slug}?token=${tokenRef.current}`, { cache: "no-store" })
-      .then(async (r) => {
-        if (!r.ok) return setView("notfound");
-        const data = await r.json();
-        setQuiz(data.quiz);
-        if (data.result) {
-          setQuestions(data.questions);
-          setResult(data.result);
-          setStudentName(data.attempt.student_name);
-          setView("result");
-        } else if (data.attempt) applyTaking(data);
-        else setView(data.quiz.status === "open" ? "name" : "closed");
-      })
-      .catch((e) => {
-        reportError("load-failed", String(e?.message ?? e), { slug });
-        setView("notfound");
-      });
+    loadQuiz();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, applyTaking]);
+  }, [loadQuiz]);
+
+  // Đang ở màn hình mất kết nối mà có mạng lại → tự tải lại
+  useEffect(() => {
+    if (view !== "offline") return;
+    const on = () => loadQuiz();
+    window.addEventListener("online", on);
+    return () => window.removeEventListener("online", on);
+  }, [view, loadQuiz]);
 
   useEffect(() => {
     if (view === "taking") localStorage.setItem(ansKey, JSON.stringify(answers));
@@ -312,6 +336,16 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
             <StudentSkeleton />
           ))}
         {view === "notfound" && <Message title={t("Không tìm thấy bài kiểm tra")} text={t("Link không đúng hoặc đề chưa được giáo viên xuất bản.")} />}
+        {view === "offline" && (
+          <div className="card mt-10 p-8 text-center">
+            <div className="text-4xl">📶</div>
+            <h1 className="mt-3 text-xl font-bold">{t("Mất kết nối")}</h1>
+            <p className="mt-1 text-muted">{t("Không tải được đề. Kiểm tra mạng (Wi-Fi / 4G) rồi bấm Thử lại. Bài làm dở (nếu có) vẫn được giữ.")}</p>
+            <button className="btn-primary mt-5 px-8" onClick={() => loadQuiz()}>
+              🔄 {t("Thử lại")}
+            </button>
+          </div>
+        )}
         {view === "closed" && <Message title={t("Đề đã đóng")} text={t("Giáo viên đã ngừng nhận bài cho đề này.")} />}
         {view === "name" && quiz && <NameForm slug={slug} quiz={quiz} busy={busy} error={error} onStart={start} />}
         {view === "taking" && quiz && (
