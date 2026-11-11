@@ -224,13 +224,23 @@ function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSav
   const [shuffle, setShuffle] = useState(quiz.shuffle_questions);
   const [shuffleOpts, setShuffleOpts] = useState(!!quiz.shuffle_options);
   const [showAns, setShowAns] = useState(quiz.show_answers);
+  const [retryWrong, setRetryWrong] = useState(!!quiz.allow_retry_wrong);
+  const [retryMax, setRetryMax] = useState(quiz.retry_max == null ? "" : String(quiz.retry_max));
   const [msg, setMsg] = useState<string | null>(null);
 
   async function save() {
     const n = parseInt(limit, 10);
     const { error } = await supabaseBrowser()
       .from("quizzes")
-      .update({ title: title.trim() || quiz.title, time_limit_min: n > 0 ? n : null, shuffle_questions: shuffle, shuffle_options: shuffleOpts, show_answers: showAns })
+      .update({
+        title: title.trim() || quiz.title,
+        time_limit_min: n > 0 ? n : null,
+        shuffle_questions: shuffle,
+        shuffle_options: shuffleOpts,
+        show_answers: showAns,
+        allow_retry_wrong: retryWrong,
+        retry_max: retryMax ? Number(retryMax) : null,
+      })
       .eq("id", quiz.id);
     setMsg(error ? t("Lỗi: ") + error.message : t("Đã lưu cài đặt."));
     if (!error) toast(t("Đã lưu cài đặt"));
@@ -264,6 +274,26 @@ function Settings({ quiz, onSaved, onDuplicate, onDeleted }: { quiz: Quiz; onSav
           hint={t("Mỗi học viên thấy đáp án theo thứ tự khác nhau. Câu kiểu “All of the above / Both A and B” được giữ nguyên. Kết quả giáo viên xem vẫn theo chữ cái của đề gốc. Nên bật/tắt khi chưa có học viên đang làm bài.")}
         />
         <Toggle checked={showAns} onChange={setShowAns} label={t("Cho học viên xem đáp án đúng sau khi nộp")} hint={t("Tắt nếu muốn dùng lại đề cho lớp khác.")} />
+        <Toggle
+          checked={retryWrong}
+          onChange={setRetryWrong}
+          label={t("Cho học viên làm lại các câu sai")}
+          hint={t("Nộp bài xong, học viên thấy nút “Làm lại câu sai”: câu đúng giữ nguyên đáp án, chỉ làm lại câu sai. Kết quả các lần trước được giữ trong tab Kết quả (Các lần làm trước).")}
+        />
+        {retryWrong && (
+          <div className="ml-8">
+            <label htmlFor="retry-max" className="label">{t("Số lần được làm lại")}</label>
+            <select id="retry-max" className="input" value={retryMax} onChange={(e) => setRetryMax(e.target.value)}>
+              {["1", "2", "3", "5"].map((v) => (
+                <option key={v} value={v}>
+                  {t("{n} lần", { n: v })}
+                </option>
+              ))}
+              <option value="">{t("Không giới hạn (tới khi đúng hết)")}</option>
+            </select>
+            {showAns && <p className="mt-1 text-xs text-warn">{t("⚠️ Đang bật “xem đáp án đúng”: học viên thấy đáp án trước khi làm lại → nên tắt để việc làm lại có ý nghĩa.")}</p>}
+          </div>
+        )}
         {msg && <p className="text-sm text-primary-dark">{msg}</p>}
         <button className="btn-primary w-full" onClick={save}>{t("Lưu cài đặt")}</button>
       </div>

@@ -279,3 +279,31 @@ create policy quizzes_owner on public.quizzes
 alter table public.attempts add column if not exists roster_id text;
 create unique index if not exists attempts_one_active_roster
   on public.attempts(quiz_id, roster_id) where status <> 'archived' and roster_id is not null;
+
+-- =====================================================================
+-- Bổ sung (11/11/2026): LÀM LẠI CÂU SAI — giáo viên bật, học viên nộp xong được làm lại riêng các câu sai;
+-- câu đúng giữ nguyên đáp án. Bài trước được giữ ở "Các lần làm trước" của giáo viên.
+-- =====================================================================
+alter table public.quizzes add column if not exists allow_retry_wrong boolean not null default false;
+-- Số lần được làm lại tối đa (null = không giới hạn)
+alter table public.quizzes add column if not exists retry_max int check (retry_max is null or retry_max between 1 and 20);
+-- Vòng làm lại (0 = bài làm bình thường), câu đã đúng bị khoá {qid: đáp án}, đáp án sai lần trước {qid: đáp án}
+alter table public.attempts add column if not exists retry_round int not null default 0;
+alter table public.attempts add column if not exists retry_locked jsonb;
+alter table public.attempts add column if not exists retry_prev jsonb;
+
+-- Đổi bài vừa nộp thành "lần làm trước" và tạo bài làm lại câu sai — cùng 1 giao dịch (không bao giờ mất bài)
+create or replace function public.retry_wrong_swap(p_old uuid, p_locked jsonb, p_prev jsonb)
+returns uuid language plpgsql security definer set search_path = public as $$
+declare v_id uuid;
+begin
+  update public.attempts set status = 'archived' where id = p_old and status = 'submitted';
+  if not found then return null; end if;
+  insert into public.attempts (quiz_id, student_token, student_name, student_class, roster_id, status, answers, retry_round, retry_locked, retry_prev)
+  select quiz_id, student_token, student_name, student_class, roster_id, 'in_progress', coalesce(p_locked, '{}'::jsonb), retry_round + 1, p_locked, p_prev
+  from public.attempts where id = p_old
+  returning id into v_id;
+  return v_id;
+end $$;
+revoke all on function public.retry_wrong_swap(uuid, jsonb, jsonb) from public, anon, authenticated;
+grant execute on function public.retry_wrong_swap(uuid, jsonb, jsonb) to service_role;

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { activeAttempt, activeRosterAttempt, resultFor, clientIp, deadlineOf, loadQuizAndAttempt, studentLimited, toPublicQuestions } from "@/lib/public-quiz";
+import { activeAttempt, activeRosterAttempt, resultFor, clientIp, loadQuizAndAttempt, takingPayload, studentLimited, toPublicQuestions } from "@/lib/public-quiz";
 import type { Attempt } from "@/lib/types";
 import { langOf, translate, type Vars } from "@/lib/i18n/core";
 
@@ -75,13 +75,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   }
 
   return NextResponse.json({
-    attempt: {
-      status: attempt.status,
-      student_name: attempt.student_name,
-      started_at: attempt.started_at,
-      deadline: deadlineOf(quiz, attempt),
-      answers: attempt.answers,
-    },
+    attempt: takingPayload(quiz, questions, attempt),
     questions: toPublicQuestions(quiz, questions, parsed.data.token),
     server_time: new Date().toISOString(),
   });

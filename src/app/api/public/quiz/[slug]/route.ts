@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { resultFor, deadlineOf, loadQuizAndAttempt, toPublicQuestions } from "@/lib/public-quiz";
+import { resultFor, loadQuizAndAttempt, takingPayload, toPublicQuestions } from "@/lib/public-quiz";
 import { langOf, translate, type Vars } from "@/lib/i18n/core";
 
 export const dynamic = "force-dynamic";
@@ -36,15 +36,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ slug: string }>
   return NextResponse.json({
     ...base,
     questions: attempt ? toPublicQuestions(quiz, questions, token) : [],
-    attempt: attempt
-      ? {
-          status: attempt.status,
-          student_name: attempt.student_name,
-          started_at: attempt.started_at,
-          deadline: deadlineOf(quiz, attempt),
-          answers: attempt.answers,
-        }
-      : null,
+    attempt: attempt ? takingPayload(quiz, questions, attempt) : null,
     server_time: new Date().toISOString(),
   });
 }

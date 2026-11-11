@@ -42,6 +42,10 @@ export type Quiz = {
   part_titles?: Record<string, string> | null;
   /** Danh sách lớp (học viên chọn tên trong danh sách); null = tự gõ tên */
   class_id?: string | null;
+  /** Cho học viên làm lại riêng các câu sai sau khi nộp */
+  allow_retry_wrong?: boolean;
+  /** Số lần được làm lại câu sai tối đa (null = không giới hạn) */
+  retry_max?: number | null;
   source_file_hash: string | null;
   created_at: string;
   updated_at: string;
@@ -63,6 +67,12 @@ export type Attempt = {
   submitted_at: string | null;
   /** Học viên trong danh sách lớp (id trong classes.students); null = tự gõ tên */
   roster_id?: string | null;
+  /** Vòng làm lại câu sai (0 = bài làm bình thường) */
+  retry_round?: number;
+  /** Câu đã đúng ở lần trước, bị khoá: {question_id: đáp án gốc} */
+  retry_locked?: Record<string, string> | null;
+  /** Đáp án sai đã chọn ở lần trước: {question_id: đáp án gốc} */
+  retry_prev?: Record<string, string> | null;
   /** Số lần rời trang làm bài (null = bài nộp trước khi có tính năng này) */
   away_count?: number | null;
   away_seconds?: number | null;

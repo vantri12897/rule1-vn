@@ -44,7 +44,7 @@ export function rateLimited(key: string, max = 30, windowMs = 60_000) {
  *  - mỗi IP tối đa 600 lượt/phút cho từng thao tác → đủ cho vài lớp cùng lúc, vẫn chặn tấn công dồn dập
  * Thao tác "start" và "submit" đếm riêng, không ăn chung hạn mức.
  */
-export function studentLimited(action: "start" | "submit", ip: string, token: string) {
+export function studentLimited(action: "start" | "submit" | "retry", ip: string, token: string) {
   return rateLimited(`${action}:ip:${ip}`, 600) || rateLimited(`${action}:t:${token}`, 12);
 }
 
@@ -146,6 +146,42 @@ export function buildResult(quiz: Quiz, questions: QuestionRow[], attempt: Attem
   };
 }
 
+/** Đáp án theo chữ cái gốc → chữ cái học viên thấy (đề có xáo đáp án) */
+export function answersToDisplay(quiz: Quiz, questions: QuestionRow[], token: string, answers: Record<string, string> | null | undefined) {
+  const out: Record<string, string> = {};
+  for (const q of questions) {
+    const a = answers?.[q.id];
+    if (!a) continue;
+    const d = toDisplay(a, q.options, permFor(quiz, q, token));
+    if (d) out[q.id] = d;
+  }
+  return out;
+}
+
+/** Bài đang làm gửi cho học viên (kể cả vòng làm lại câu sai: câu đúng bị khoá + đáp án sai lần trước) */
+export function takingPayload(quiz: Quiz, questions: QuestionRow[], attempt: Attempt) {
+  const token = attempt.student_token;
+  return {
+    status: attempt.status,
+    student_name: attempt.student_name,
+    started_at: attempt.started_at,
+    deadline: deadlineOf(quiz, attempt),
+    answers: answersToDisplay(quiz, questions, token, attempt.answers),
+    retry_round: attempt.retry_round ?? 0,
+    locked: Object.keys(attempt.retry_locked ?? {}),
+    prev: answersToDisplay(quiz, questions, token, attempt.retry_prev),
+  };
+}
+
+/** Học viên còn được làm lại câu sai không (giáo viên bật, đề đang mở, còn câu sai, chưa hết lượt) */
+export function retryInfo(quiz: Quiz, questions: QuestionRow[], attempt: Attempt) {
+  const wrong = grade(questions, attempt.answers ?? {}).details.filter((d) => !d.is_correct).length;
+  const round = attempt.retry_round ?? 0;
+  const left = quiz.retry_max == null ? null : Math.max(0, quiz.retry_max - round);
+  const allowed = !!quiz.allow_retry_wrong && quiz.status === "open" && attempt.status === "submitted" && wrong > 0 && (left == null || left > 0);
+  return { allowed, wrong, left, round };
+}
+
 export function deadlineOf(quiz: Quiz, attempt: Attempt): string | null {
   if (!quiz.time_limit_min) return null;
   return new Date(new Date(attempt.started_at).getTime() + quiz.time_limit_min * 60_000).toISOString();
@@ -171,7 +207,11 @@ export async function previousResults(quizId: string, token: string) {
 
 /** Kết quả bài làm + điểm các lần trước (để học viên thấy mình tiến bộ thế nào) */
 export async function resultFor(quiz: Quiz, questions: QuestionRow[], attempt: Attempt) {
-  return { ...buildResult(quiz, questions, attempt), previous: await previousResults(quiz.id, attempt.student_token) };
+  return {
+    ...buildResult(quiz, questions, attempt),
+    previous: await previousResults(quiz.id, attempt.student_token),
+    retry: retryInfo(quiz, questions, attempt),
+  };
 }
 
 /** Bài đang hoạt động (đang làm / đã nộp, chưa bị cho làm lại) của 1 học viên trong danh sách lớp */

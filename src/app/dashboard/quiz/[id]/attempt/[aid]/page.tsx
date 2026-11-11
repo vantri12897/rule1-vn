@@ -88,6 +88,7 @@ export default function AttemptPage({ params }: { params: Promise<{ id: string; 
               {a.student_class && <span className="text-base font-semibold text-muted">· {a.student_class}</span>}
               <span className="rounded-md bg-sky-soft px-2 py-0.5 text-sm font-bold text-sky-ink">{t("Lần {n}", { n: data.no })}</span>
               {a.status === "archived" && <span className="rounded-md bg-gray-100 px-2 py-0.5 text-sm font-semibold text-muted">{t("Lần làm trước")}</span>}
+              {!!a.retry_round && <span className="rounded-md bg-violet-50 px-2 py-0.5 text-sm font-semibold text-violet-700">🔁 {t("làm lại câu sai{n}", { n: a.retry_round > 1 ? ` ×${a.retry_round}` : "" })}</span>}
             </h1>
           </div>
           {submitted && (

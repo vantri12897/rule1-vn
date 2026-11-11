@@ -361,6 +361,7 @@ export const ResultsPanel = memo(function ResultsPanel({
                         <div className="flex flex-wrap items-center gap-1.5 font-semibold">
                           {a.student_name}
                           <AttemptBadge info={grp.info.get(a.id)} />
+                          <RetryBadge a={a} />
                           <LinkedHint names={grp.linked.get(grp.keyOf(a))} />
                         </div>
                         {a.student_class && <div className="text-xs text-muted">{a.student_class}</div>}
@@ -374,6 +375,12 @@ export const ResultsPanel = memo(function ResultsPanel({
                         ) : (
                           <span className="badge bg-blue-50 text-blue-700">{t("Đang làm")}</span>
                         )}
+                        {!!a.retry_round &&
+                          (() => {
+                            // Bài làm lại câu sai: hiện điểm lần làm đầu tiên để giáo viên so sánh
+                            const first = [...(grp.info.get(a.id)?.prev ?? [])].reverse().find((p) => !p.retry_round && p.score != null);
+                            return first ? <div className="text-xs text-muted">{t("lần đầu: {s}", { s: `${first.score}/${first.total}` })}</div> : null;
+                          })()}
                       </td>
                       <td className="px-3 py-3">
                         <AwayCell a={a} />
@@ -515,6 +522,7 @@ export const ResultsPanel = memo(function ResultsPanel({
                                 const cur = a.status !== "archived";
                                 return (
                                   <span key={a.id} className={`whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs font-semibold ${cur ? "bg-primary-soft text-primary-dark" : a.score == null ? "bg-gray-100 text-muted" : "bg-sky-soft text-sky-ink"}`}>
+                                    {(a.retry_round ?? 0) > 0 ? "🔁 " : ""}
                                     {no ? t("Lần {n}", { n: no }) : t("bỏ dở")}
                                     {a.score != null ? `: ${a.score}/${a.total}` : cur ? `: ${t("đang làm")}` : ""}
                                   </span>
@@ -530,6 +538,7 @@ export const ResultsPanel = memo(function ResultsPanel({
                                 return (
                                   <div key={a.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 pl-10 pr-4 text-sm">
                                     <span className="w-24 shrink-0 font-semibold">{no ? t("Lần {n}", { n: no }) : t("Bỏ dở")}</span>
+                                    {(a.retry_round ?? 0) > 0 && <RetryBadge a={a} />}
                                     <span className="min-w-0 flex-1 text-muted">
                                       {a.score != null ? <b className="text-ink">{a.score}/{a.total}</b> : cur ? t("Đang làm") : t("chưa nộp")} · {fmtDate(a.submitted_at ?? a.started_at)}
                                       {cur && <span className="ml-1.5 rounded bg-primary-soft px-1.5 py-0.5 text-xs font-semibold text-primary-dark">{t("bài hiện tại")}</span>}
@@ -615,6 +624,17 @@ function LinkedHint({ names }: { names?: string[] }) {
   return (
     <span title={msg} aria-label={msg} className="cursor-help whitespace-nowrap rounded-md bg-orange-50 px-1.5 py-0.5 text-[calc(0.6875rem*var(--fs,1))] font-semibold text-warn">
       🔗 {names.length === 1 ? names[0] : t("{n} tên khác", { n: names.length })}
+    </span>
+  );
+}
+
+/** 🔁 Bài làm lại câu sai (vòng n) */
+function RetryBadge({ a }: { a: Attempt }) {
+  const { t } = useT();
+  if (!a.retry_round) return null;
+  return (
+    <span title={t("Học viên làm lại các câu sai (câu đúng giữ nguyên từ lần trước)")} className="whitespace-nowrap rounded-md bg-violet-50 px-1.5 py-0.5 text-[calc(0.6875rem*var(--fs,1))] font-bold text-violet-700">
+      🔁 {t("làm lại câu sai{n}", { n: a.retry_round > 1 ? ` ×${a.retry_round}` : "" })}
     </span>
   );
 }

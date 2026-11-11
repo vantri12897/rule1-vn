@@ -32,7 +32,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
 
   // Chỉ giữ câu trả lời cho câu hỏi thuộc đề này
   // Chỉ giữ câu thuộc đề này; đổi chữ cái hiển thị (nếu xáo đáp án) về chữ cái gốc
-  const answers = answersToOriginal(quiz, questions, parsed.data.token, parsed.data.answers);
+  // Làm lại câu sai: câu đã đúng ở lần trước bị khoá — luôn giữ đáp án cũ, không cho đổi
+  const answers = { ...answersToOriginal(quiz, questions, parsed.data.token, parsed.data.answers), ...(attempt.retry_locked ?? {}) };
 
   // Kiểm tra giờ theo đồng hồ server
   let late = false;

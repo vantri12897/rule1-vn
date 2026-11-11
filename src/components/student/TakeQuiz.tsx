@@ -34,6 +34,16 @@ type Result = {
   details: { question_id: string; number: number; selected: string | null; correct: string | null; is_correct: boolean }[];
   /** Điểm các lần làm trước trên cùng máy (khi giáo viên cho làm lại) */
   previous?: { score: number; total: number; submitted_at: string | null }[];
+  /** Làm lại câu sai: được phép không, còn bao nhiêu câu sai, còn bao nhiêu lượt (null = không giới hạn) */
+  retry?: { allowed: boolean; wrong: number; left: number | null; round: number };
+};
+type TakingAttempt = {
+  student_name: string;
+  deadline: string | null;
+  answers?: Record<string, string>;
+  retry_round?: number;
+  locked?: string[];
+  prev?: Record<string, string>;
 };
 type View = "loading" | "notfound" | "closed" | "name" | "taking" | "result";
 
@@ -62,6 +72,9 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
   const [busy, setBusy] = useState(false);
   const tokenRef = useRef<string>("");
   const ansKey = `yd-ans-${slug}`;
+  const [locked, setLocked] = useState<Set<string>>(new Set());
+  const [prevWrong, setPrevWrong] = useState<Record<string, string>>({});
+  const [retryRound, setRetryRound] = useState(0);
   // Câu học viên đánh dấu "đang cân nhắc" để xem lại trước khi nộp (chỉ lưu trên máy)
   const flagKey = `yd-flags-${slug}`;
   const [flags, setFlags] = useState<Set<string>>(new Set());
@@ -121,13 +134,19 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
   );
 
   const applyTaking = useCallback(
-    (data: { attempt: { student_name: string; deadline: string | null; answers?: Record<string, string> }; questions: PublicQuestion[]; server_time?: string }) => {
+    (data: { attempt: TakingAttempt; questions: PublicQuestion[]; server_time?: string }) => {
       setQuestions(data.questions);
       setStudentName(data.attempt.student_name);
       if (data.server_time) setClockOffset(new Date(data.server_time).getTime() - Date.now());
       setDeadline(data.attempt.deadline ? new Date(data.attempt.deadline).getTime() : null);
       const local = JSON.parse(localStorage.getItem(ansKey) || "{}");
-      setAnswers({ ...(data.attempt.answers ?? {}), ...local });
+      // Làm lại câu sai: câu đã đúng bị khoá (đáp án cũ luôn thắng), nhớ đáp án sai lần trước để gợi ý
+      const lockedIds = data.attempt.locked ?? [];
+      const keep = Object.fromEntries(lockedIds.filter((id) => data.attempt.answers?.[id]).map((id) => [id, data.attempt.answers![id]]));
+      setLocked(new Set(lockedIds));
+      setPrevWrong(data.attempt.prev ?? {});
+      setRetryRound(data.attempt.retry_round ?? 0);
+      setAnswers({ ...(data.attempt.answers ?? {}), ...local, ...keep });
       setView("taking");
     },
     [ansKey]
@@ -237,6 +256,26 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
     [answers, busy, questions, slug, ansKey, flags, flagKey, awayKey]
   );
 
+  /** "Làm lại các câu sai": bài vừa nộp thành lần làm trước, bài mới chỉ cần làm các câu sai */
+  const retryWrong = useCallback(async () => {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    const r = await fetchRetry(`/api/public/quiz/${slug}/retry`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: tokenRef.current }) }, 3);
+    const data = r ? await r.json().catch(() => ({})) : {};
+    setBusy(false);
+    if (!r || !r.ok) {
+      setError(data.error || t("Không bắt đầu làm lại được, thử lại"));
+      return;
+    }
+    try {
+      localStorage.removeItem(ansKey);
+    } catch {}
+    setResult(null);
+    applyTaking(data);
+    window.scrollTo({ top: 0 });
+  }, [busy, slug, ansKey, applyTaking, t]);
+
   return (
     <main className="bg-dots min-h-screen">
       <header className="sticky top-0 z-30 border-b border-primary-line bg-white/95 backdrop-blur">
@@ -276,9 +315,9 @@ export function TakeQuiz({ slug, initialQuiz }: { slug: string; initialQuiz: Qui
         {view === "closed" && <Message title={t("Đề đã đóng")} text={t("Giáo viên đã ngừng nhận bài cho đề này.")} />}
         {view === "name" && quiz && <NameForm slug={slug} quiz={quiz} busy={busy} error={error} onStart={start} />}
         {view === "taking" && quiz && (
-          <TakingView storeKey={slug} quiz={quiz} questions={questions} answers={answers} setAnswers={setAnswers} flags={flags} toggleFlag={toggleFlag} busy={busy} error={error} onSubmit={() => submit(false)} />
+          <TakingView storeKey={slug} quiz={quiz} questions={questions} answers={answers} setAnswers={setAnswers} flags={flags} toggleFlag={toggleFlag} locked={locked} prevWrong={prevWrong} retryRound={retryRound} busy={busy} error={error} onSubmit={() => submit(false)} />
         )}
-        {view === "result" && result && <ResultView result={result} questions={questions} quiz={quiz} />}
+        {view === "result" && result && <ResultView result={result} questions={questions} quiz={quiz} onRetry={retryWrong} busy={busy} error={error} />}
       </div>
       {view !== "taking" && <footer className="pb-8 text-center text-xs text-muted">YD-English</footer>}
     </main>
@@ -498,6 +537,9 @@ function TakingView({
   setAnswers,
   flags,
   toggleFlag,
+  locked,
+  prevWrong,
+  retryRound,
   busy,
   error,
   onSubmit,
@@ -509,6 +551,9 @@ function TakingView({
   setAnswers: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   flags: Set<string>;
   toggleFlag: (qid: string) => void;
+  locked: Set<string>;
+  prevWrong: Record<string, string>;
+  retryRound: number;
   busy: boolean;
   error: string | null;
   onSubmit: () => void;
@@ -533,7 +578,10 @@ function TakingView({
     window.dispatchEvent(new Event("yd-ann-applied")); // báo cho đám mây ghi chú đặt lại vị trí
   });
   const done = questions.filter((q) => answers[q.id]).length;
-  const pick = (qid: string, label: string) => setAnswers((a) => ({ ...a, [qid]: label }));
+  const pick = (qid: string, label: string) => {
+    if (locked.has(qid)) return; // câu đã đúng ở lần trước: giữ nguyên
+    setAnswers((a) => ({ ...a, [qid]: label }));
+  };
 
   const hasPassage = quiz.sections.some((s) => s?.passage && s.passage.trim().length > 0);
   const split = hasPassage && wide; // máy tính: 2 cột cuộn độc lập + thanh kéo
@@ -755,6 +803,14 @@ function TakingView({
           {split && <div className="mb-2 text-sm font-bold uppercase tracking-wide text-muted">{t("✏️ Chọn đáp án (Answers)")}</div>}
           <div ref={rightRef} className={split ? "min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 pb-2 pt-0.5" : ""}>
             <div ref={setRightLayer} className="relative space-y-4">
+              {retryRound > 0 && (
+                <div className="card border-sky-200 bg-sky-soft p-4 text-sm text-sky-ink">
+                  <b>🔁 {t("Làm lại câu sai — lần {n}", { n: retryRound })}</b>
+                  <p className="mt-1">
+                    {t("Chỉ cần làm lại {n} câu sai. {k} câu đúng đã được giữ nguyên đáp án.", { n: questions.length - locked.size, k: locked.size })}
+                  </p>
+                </div>
+              )}
               {questions.map((q, i) => {
                 const sec = q.section_index != null ? quiz.sections[q.section_index] : null;
                 const showSec = sec && q.section_index !== lastSection;
@@ -775,6 +831,23 @@ function TakingView({
                         <Html text={sec.instruction} />
                       </p>
                     )}
+                    {locked.has(q.id) ? (
+                      /* Câu đã đúng ở lần trước: thu gọn, không cho đổi đáp án */
+                      <div id={`q-${q.id}`} className={`flex items-start gap-2 rounded-2xl border border-primary-line bg-primary-soft/50 px-4 py-2.5 text-sm ${split ? "scroll-mt-2" : "scroll-mt-28"}`}>
+                        <span className="shrink-0 font-bold text-primary-dark">{t("Câu {n}.", { n: i + 1 })}</span>
+                        <span className="min-w-0 flex-1 text-muted">
+                          {(() => {
+                            const o = q.options.find((x) => x.label === answers[q.id]);
+                            return o ? (
+                              <>
+                                <b className="text-primary-dark">{o.label}.</b> <Html text={o.text} />
+                              </>
+                            ) : null;
+                          })()}
+                        </span>
+                        <span className="shrink-0 whitespace-nowrap rounded-md bg-white px-1.5 py-0.5 text-xs font-semibold text-primary-dark">🔒 {t("Đã đúng")}</span>
+                      </div>
+                    ) : (
                     <fieldset id={`q-${q.id}`} className={`card p-4 transition ${split ? "scroll-mt-2" : "scroll-mt-28"} ${isCur ? "ring-2 ring-primary/40" : ""}`}>
                       <legend className="sr-only">{t("Câu {n}", { n: i + 1 })}</legend>
                       <button
@@ -789,6 +862,11 @@ function TakingView({
                       <p className="mb-3 leading-relaxed">
                         <b className="text-primary-dark">{t("Câu {n}.", { n: i + 1 })}</b> {stem && <Zone id={`s${q.id}`} text={stem} />}
                       </p>
+                      {prevWrong[q.id] && (
+                        <p className="mb-2 inline-block rounded-lg bg-red-50 px-2 py-1 text-xs font-semibold text-danger">
+                          ✗ {t("Lần trước bạn chọn {l} (sai) — hãy chọn lại", { l: prevWrong[q.id] })}
+                        </p>
+                      )}
                       {q.image && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={q.image} loading="lazy" decoding="async" alt={t("Hình câu {n}", { n: i + 1 })} className="mb-3 max-h-96 max-w-full rounded-xl border border-gray-200 bg-white object-contain" />
@@ -816,6 +894,7 @@ function TakingView({
                         })}
                       </div>
                     </fieldset>
+                    )}
                   </div>
                 );
               })}
@@ -924,7 +1003,7 @@ function TakingView({
   );
 }
 
-function ResultView({ result, questions, quiz }: { result: Result; questions: PublicQuestion[]; quiz: QuizInfo | null }) {
+function ResultView({ result, questions, quiz, onRetry, busy, error }: { result: Result; questions: PublicQuestion[]; quiz: QuizInfo | null; onRetry: () => void; busy: boolean; error: string | null }) {
   const { t } = useT();
   const pct = result.total ? Math.round((result.score / result.total) * 100) : 0;
   const byId = useMemo(() => new Map(questions.map((q) => [q.id, q])), [questions]);
@@ -963,6 +1042,17 @@ function ResultView({ result, questions, quiz }: { result: Result; questions: Pu
         <div className="mx-auto mt-4 h-3 max-w-xs overflow-hidden rounded-full bg-gray-100">
           <div className={`h-full ${mood.bar}`} style={{ width: `${pct}%` }} />
         </div>
+        {result.retry?.allowed && (
+          <div className="mt-5">
+            <button className="btn-primary px-6 py-3 text-base" onClick={onRetry} disabled={busy}>
+              {busy ? t("Đang chuẩn bị…") : t("🔁 Làm lại {n} câu sai", { n: result.retry.wrong })}
+            </button>
+            <p className="mt-1.5 text-xs text-muted">
+              {result.retry.left == null ? t("Các câu đúng được giữ nguyên, chỉ làm lại câu sai.") : t("Các câu đúng được giữ nguyên, chỉ làm lại câu sai. Còn {n} lượt làm lại.", { n: result.retry.left })}
+            </p>
+            {error && <p className="mt-2 text-sm text-danger">{error}</p>}
+          </div>
+        )}
         {!!result.previous?.length &&
           (() => {
             const last = result.previous[result.previous.length - 1];
