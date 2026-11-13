@@ -1,0 +1,50 @@
+== FPT INCOME_STATEMENT: keys data=['years', 'quarters']
+  quarters: 35 dòng; 188 khóa; khóa không phải chỉ tiêu: ['organCode', 'ticker', 'createDate', 'updateDate', 'yearReport', 'lengthReport', 'publicDate']
+    {"organCode": "FPT", "ticker": "FPT", "createDate": "2018-05-02T16:49:06.513", "updateDate": "2018-05-02T16:49:06.513", "yearReport": 2018, "lengthReport": 1, "publicDate": "2018-05-02T00:00:00"}
+    {"organCode": "FPT", "ticker": "FPT", "createDate": "2018-07-30T19:39:14.32", "updateDate": "2018-07-30T19:39:14.32", "yearReport": 2018, "lengthReport": 2, "publicDate": "2018-08-13T00:00:00"}
+    {"organCode": "FPT", "ticker": "FPT", "createDate": "2018-10-31T11:54:55.397", "updateDate": "2018-10-31T11:54:55.397", "yearReport": 2018, "lengthReport": 3, "publicDate": "2018-10-31T00:00:00"}
+    {"organCode": "FPT", "ticker": "FPT", "createDate": "2019-01-31T10:39:40.713", "updateDate": "2019-01-31T10:39:40.713", "yearReport": 2018, "lengthReport": 4, "publicDate": "2019-01-31T00:00:00"}
+  years: 8 dòng; 188 khóa; khóa không phải chỉ tiêu: ['organCode', 'ticker', 'createDate', 'updateDate', 'yearReport', 'lengthReport', 'publicDate']
+    {"organCode": "FPT", "ticker": "FPT", "createDate": "2019-01-31T10:38:23.613", "updateDate": "2019-01-31T10:38:23.613", "yearReport": 2018, "lengthReport": 5, "publicDate": "2019-03-06T00:00:00"}
+    {"organCode": "FPT", "ticker": "FPT", "createDate": "2020-01-30T09:30:17.473", "updateDate": "2020-01-30T09:30:17.473", "yearReport": 2019, "lengthReport": 5, "publicDate": "2020-03-05T00:00:00"}
+    {"organCode": "FPT", "ticker": "FPT", "createDate": "2021-01-26T09:12:05.363", "updateDate": "2021-03-08T10:46:54.29", "yearReport": 2020, "lengthReport": 5, "publicDate": "2021-03-08T00:00:00"}
+    {"organCode": "FPT", "ticker": "FPT", "createDate": "2022-03-09T13:51:12.793", "updateDate": "2022-03-09T13:51:11.66", "yearReport": 2021, "lengthReport": 5, "publicDate": "2022-03-08T00:00:00"}
+== CTG INCOME_STATEMENT: keys data=['years', 'quarters']
+  quarters: 35 dòng; 188 khóa; khóa không phải chỉ tiêu: ['organCode', 'ticker', 'createDate', 'updateDate', 'yearReport', 'lengthReport', 'publicDate']
+    {"organCode": "CTG", "ticker": "CTG", "createDate": "2018-05-02T09:23:35.32", "updateDate": "2018-05-02T09:23:35.32", "yearReport": 2018, "lengthReport": 1, "publicDate": "2018-05-02T00:00:00"}
+    {"organCode": "CTG", "ticker": "CTG", "createDate": "2018-07-30T20:11:50.85", "updateDate": "2018-07-30T20:11:50.85", "yearReport": 2018, "lengthReport": 2, "publicDate": "2018-08-22T00:00:00"}
+    {"organCode": "CTG", "ticker": "CTG", "createDate": "2018-10-31T10:11:20.52", "updateDate": "2018-10-31T10:11:20.52", "yearReport": 2018, "lengthReport": 3, "publicDate": "2018-10-31T00:00:00"}
+    {"organCode": "CTG", "ticker": "CTG", "createDate": "2019-01-31T09:30:21.687", "updateDate": "2019-01-31T09:30:21.687", "yearReport": 2018, "lengthReport": 4, "publicDate": "2019-01-31T00:00:00"}
+  years: 8 dòng; 188 khóa; khóa không phải chỉ tiêu: ['organCode', 'ticker', 'createDate', 'updateDate', 'yearReport', 'lengthReport', 'publicDate']
+    {"organCode": "CTG", "ticker": "CTG", "createDate": "2019-01-31T09:28:31.207", "updateDate": "2019-01-31T09:28:31.207", "yearReport": 2018, "lengthReport": 5, "publicDate": "2019-07-16T00:00:00"}
+    {"organCode": "CTG", "ticker": "CTG", "createDate": "2020-01-22T11:06:20.44", "updateDate": "2024-02-22T15:14:20.79", "yearReport": 2019, "lengthReport": 5, "publicDate": "2020-03-06T00:00:00"}
+    {"organCode": "CTG", "ticker": "CTG", "createDate": "2021-02-01T11:06:00", "updateDate": "2024-02-22T14:52:57.283", "yearReport": 2020, "lengthReport": 5, "publicDate": "2021-03-26T00:00:00"}
+    {"organCode": "CTG", "ticker": "CTG", "createDate": "2023-04-03T10:27:25.42", "updateDate": "2023-04-03T10:27:25.413", "yearReport": 2021, "lengthReport": 5, "publicDate": "2022-03-31T00:00:00"}
+== HTG INCOME_STATEMENT: keys data=['years', 'quarters']
+  quarters: 35 dòng; 188 khóa; khóa không phải chỉ tiêu: ['organCode', 'ticker', 'createDate', 'updateDate', 'yearReport', 'lengthReport', 'publicDate']
+    {"organCode": "HTG", "ticker": "HTG", "createDate": "2018-05-07T15:22:50.517", "updateDate": "2018-05-07T15:22:50.517", "yearReport": 2018, "lengthReport": 1, "publicDate": "2018-05-07T00:00:00"}
+    {"organCode": "HTG", "ticker": "HTG", "createDate": "2018-07-30T14:18:52.337", "updateDate": "2018-07-30T14:18:52.337", "yearReport": 2018, "lengthReport": 2, "publicDate": "2018-08-28T00:00:00"}
+    {"organCode": "HTG", "ticker": "HTG", "createDate": "2018-10-25T15:56:43.377", "updateDate": "2018-10-25T15:56:43.377", "yearReport": 2018, "lengthReport": 3, "publicDate": "2018-10-25T00:00:00"}
+    {"organCode": "HTG", "ticker": "HTG", "createDate": "2019-02-11T10:32:17.767", "updateDate": "2019-02-11T10:32:17.767", "yearReport": 2018, "lengthReport": 4, "publicDate": "2019-02-11T00:00:00"}
+  years: 8 dòng; 188 khóa; khóa không phải chỉ tiêu: ['organCode', 'ticker', 'createDate', 'updateDate', 'yearReport', 'lengthReport', 'publicDate']
+    {"organCode": "HTG", "ticker": "HTG", "createDate": "2019-02-11T10:31:27.783", "updateDate": "2019-02-11T10:31:27.783", "yearReport": 2018, "lengthReport": 5, "publicDate": "2019-03-19T00:00:00"}
+    {"organCode": "HTG", "ticker": "HTG", "createDate": "2020-01-22T17:47:06.773", "updateDate": "2020-01-22T17:47:07.773", "yearReport": 2019, "lengthReport": 5, "publicDate": "2020-03-19T00:00:00"}
+    {"organCode": "HTG", "ticker": "HTG", "createDate": "2021-01-28T15:14:43.547", "updateDate": "2021-03-15T10:50:49.38", "yearReport": 2020, "lengthReport": 5, "publicDate": "2021-03-15T00:00:00"}
+    {"organCode": "HTG", "ticker": "HTG", "createDate": "2022-03-11T17:45:24.013", "updateDate": "2022-03-11T17:45:26.54", "yearReport": 2021, "lengthReport": 5, "publicDate": "2022-03-11T00:00:00"}
+== VNM INCOME_STATEMENT: keys data=['years', 'quarters']
+  quarters: 35 dòng; 188 khóa; khóa không phải chỉ tiêu: ['organCode', 'ticker', 'createDate', 'updateDate', 'yearReport', 'lengthReport', 'publicDate']
+    {"organCode": "VNM", "ticker": "VNM", "createDate": "2018-05-02T09:24:28.917", "updateDate": "2018-05-02T09:24:28.917", "yearReport": 2018, "lengthReport": 1, "publicDate": "2018-05-02T00:00:00"}
+    {"organCode": "VNM", "ticker": "VNM", "createDate": "2018-07-31T16:20:19.403", "updateDate": "2018-07-31T16:20:19.403", "yearReport": 2018, "lengthReport": 2, "publicDate": "2018-07-31T00:00:00"}
+    {"organCode": "VNM", "ticker": "VNM", "createDate": "2018-10-30T18:02:59.467", "updateDate": "2018-10-30T18:02:59.467", "yearReport": 2018, "lengthReport": 3, "publicDate": "2018-10-30T00:00:00"}
+    {"organCode": "VNM", "ticker": "VNM", "createDate": "2019-01-30T17:09:38.05", "updateDate": "2019-01-30T17:09:38.05", "yearReport": 2018, "lengthReport": 4, "publicDate": "2019-01-30T00:00:00"}
+  years: 8 dòng; 188 khóa; khóa không phải chỉ tiêu: ['organCode', 'ticker', 'createDate', 'updateDate', 'yearReport', 'lengthReport', 'publicDate']
+    {"organCode": "VNM", "ticker": "VNM", "createDate": "2019-01-30T17:11:14.153", "updateDate": "2019-01-30T17:11:14.153", "yearReport": 2018, "lengthReport": 5, "publicDate": "2019-03-04T00:00:00"}
+    {"organCode": "VNM", "ticker": "VNM", "createDate": "2020-01-31T10:28:03.58", "updateDate": "2025-06-16T18:10:28.487", "yearReport": 2019, "lengthReport": 5, "publicDate": "2020-01-31T00:00:00"}
+    {"organCode": "VNM", "ticker": "VNM", "createDate": "2021-02-01T10:15:00", "updateDate": "2023-09-27T09:21:09.033", "yearReport": 2020, "lengthReport": 5, "publicDate": "2021-03-02T00:00:00"}
+    {"organCode": "VNM", "ticker": "VNM", "createDate": "2022-03-01T20:37:05.83", "updateDate": "2023-09-27T09:20:14.383", "yearReport": 2021, "lengthReport": 5, "publicDate": "2022-03-01T00:00:00"}
+== events KQKD: 0 dòng 
+== events FIN: 0 dòng 
+== events BCTC: 0 dòng 
+== events EARN: 0 dòng 
+== events RESU: 0 dòng 
+== events OTHE: 0 dòng 
