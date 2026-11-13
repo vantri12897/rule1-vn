@@ -70,7 +70,10 @@ def main():
     a = ap.parse_args()
 
     base = load_csv(ROOT / a.data)
-    tickers = [t for t in base if not a.symbols or t in {s.upper() for s in a.symbols}]
+    if a.symbols:
+        tickers = [t for t in base if t in {s.upper() for s in a.symbols}]
+    else:  # bỏ qua mã nguồn không có BCTC quý (chủ yếu UPCoM chỉ báo cáo bán niên/năm); lượt BCTC Chủ nhật sẽ bổ sung khi có
+        tickers = [t for t in base if base[t]["q"]]
     out_path = ROOT / a.out
     old = {}
     if out_path.exists():

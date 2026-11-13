@@ -54,6 +54,8 @@ h3{font-size:.8rem;margin:0;text-transform:uppercase;letter-spacing:.06em;color:
 .mt-act{font-size:.85rem;background:var(--surface2);border-radius:6px;padding:10px 12px}
 .st1{background:var(--good-soft);color:var(--good)}.st2{background:#e7f0fb;color:#2f6db5}.st3{background:var(--accent-soft);color:var(--accent)}.st4{background:var(--bad-soft);color:var(--bad)}.st0{background:var(--surface2);color:var(--muted)}.st5{background:var(--warn-soft);color:var(--warn)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .st2{background:#16304d;color:#7fb2ec}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tag.t-new{background:#16304d;color:#7fb2ec;border-color:#7fb2ec}}
+:root[data-theme="dark"] .tag.t-new{background:#16304d;color:#7fb2ec;border-color:#7fb2ec}
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:8px 12px;font-size:.85rem}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
 button,.filebtn{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:6px 12px;cursor:pointer}
@@ -99,8 +101,41 @@ th.tk{position:sticky;left:0;z-index:2}
 .dots i{width:8px;height:8px;border-radius:2px;background:var(--line)}
 .dots i.good{background:var(--good)} .dots i.warn{background:var(--warn)} .dots i.bad{background:var(--bad)}
 .tag{font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;font-weight:500}
+.tag.t-new{color:#2f6db5;border-color:#2f6db5;background:#e7f0fb;white-space:nowrap}
 .tag.t-warn{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)} .tag.t-bad{color:var(--bad);border-color:var(--bad);background:var(--bad-soft)}
 .warnbox{background:var(--warn-soft);border-color:var(--warn);font-size:.85rem;gap:6px}
+/* Danh mục nắm giữ */
+#viewPf{display:flex;flex-direction:column;gap:12px}
+#viewPf[hidden]{display:none}
+.pf-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pf-k{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.pf-k span{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.pf-k b{font-family:var(--font-data);font-size:1.15rem;font-variant-numeric:tabular-nums}
+.pf-k i{font-style:normal;font-size:.74rem;color:var(--muted)}
+.pf-k.good b{color:var(--good)} .pf-k.bad b{color:var(--bad)} .pf-k.bad{border-color:var(--bad)}
+.pf-al{display:flex;flex-direction:column;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.85rem}
+.pf-a.sell{color:var(--bad)} .pf-a.cut{color:var(--warn)} .pf-a.ok{color:var(--good)}
+.pf-act{white-space:nowrap}.pf-act button{padding:2px 8px;font-size:.78rem;margin-left:3px}
+#pfBody a{color:inherit}
+.pf-box{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.pf-sec{display:grid;grid-template-columns:minmax(110px,220px) minmax(0,1fr) 48px;gap:10px;align-items:center;font-size:.82rem;padding:3px 0}
+.pf-sec b{text-align:right;font-family:var(--font-data)}
+.pf-bar{position:relative;height:10px;background:var(--surface2);border-radius:5px;border:1px solid var(--line)}
+.pf-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:5px}
+.pf-bar i.over{background:var(--bad)} .pf-bar i.cash{background:var(--muted);opacity:.5}
+.pf-bar u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.55}
+.pf-badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--warn);color:var(--surface);font-size:.7rem;line-height:17px;text-align:center;margin-left:2px;vertical-align:1px}
+.pf-badge.sell{background:var(--bad)}
+.pf-closed{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.pf-stats{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--muted)}
+.pf-stats b{color:var(--ink);font-family:var(--font-data)}
+.pf-note{max-width:320px;overflow:hidden;text-overflow:ellipsis}
+.pf-fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.pf-size{font-size:.82rem;background:var(--surface2);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:5px}
+.pf-size:empty{display:none}
+.pf-size button{padding:1px 8px;font-size:.76rem}
+.modalbox.pf-form textarea{min-height:44px;font-family:var(--font-body);font-size:.85rem}
+.modalbox.pf-form .f{color:var(--muted)}
 /* drawer */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;justify-content:flex-end;z-index:20}
 .drawer{background:var(--bg);width:min(820px,100%);height:100%;overflow-y:auto;padding:0 16px 40px;padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
@@ -209,7 +244,7 @@ body{margin:0}
       <button id="btnPaste">Dán dữ liệu</button>
       <button id="btnTemplate">CSV mẫu</button>
       <button id="btnExport">Xuất kết quả</button>
-      <button id="btn3m">Sao lưu 3M</button>
+      <button id="btn3m" title="Sao lưu / khôi phục điểm 3M, g ghi đè, danh mục theo dõi và danh mục nắm giữ">Sao lưu 3M &amp; danh mục</button>
     </div>
   </div>
   <div class="banner" id="dataBanner"></div>
@@ -217,6 +252,7 @@ body{margin:0}
   <nav class="tabs" role="tablist">
     <button role="tab" data-tab="screen" class="on">Sàng lọc</button>
     <button role="tab" data-tab="chart">Biểu đồ nến</button>
+    <button role="tab" data-tab="pf">💼 Danh mục</button>
   </nav>
 
   <div id="viewChart" hidden>
@@ -271,6 +307,16 @@ body{margin:0}
     <p class="note">🧭 <b>3 công cụ của Phil Town</b> (Rule #1): MACD 8-17-9, Stochastic 14-5, MA10. Tín hiệu <b>VÀO</b> khi cả 3 cùng xác nhận (MACD trên đường tín hiệu, %K trên %D, giá trên MA10); <b>RA</b> khi cả 3 cùng đảo chiều. Chỉ dùng để chọn thời điểm cho mã <b>đã đạt Big 5 + 3M và giá ≤ MOS</b>, không phải tín hiệu mua độc lập. Mã thanh khoản thấp cho tín hiệu nhiễu; lưu ý T+2 và phí giao dịch khi vào ra. MA50 và RSI (14) là chỉ báo tham khảo, không thuộc phương pháp Town: RSI &gt; 50 = động lượng tăng chiếm ưu thế (chấm xanh khi RSI cắt lên 50, chấm đỏ khi cắt xuống). <b>ATR</b>: biên độ dao động trung bình 14 phiên; đường “Cắt lỗ 2×ATR” = giá hiện tại − 2 ATR, tỷ trọng tối đa tính theo nguyên tắc chỉ mất ≤ 1% tổng vốn nếu chạm cắt lỗ (công cụ quản trị rủi ro, không dự báo giá). <b>Độ rộng thị trường</b> (khi xem chỉ số): % số mã trên MA50 / MA200; ≤ 20% = hoảng loạn (vùng Town tìm cơ hội), ≥ 80% = hưng phấn. <b>Dòng tiền lớn</b>: RS = xếp hạng 1–99 mức tăng giá có trọng số so với toàn thị trường (khung RS tím: giá cổ phiếu / VN-Index, đi lên = mạnh hơn thị trường); ô vuông “Vượt nền” = đóng cửa vượt đỉnh 20 phiên với KL ≥ 1,5 lần TB; chấm xanh “PP” / 🎯 = pocket pivot (phiên tăng có KL lớn hơn mọi phiên giảm trong 10 phiên trước, giá trên MA50 và sát MA10 — tín hiệu sớm hơn vượt nền); 🏔 cách đỉnh 52 tuần ≤ 10%; 👥 cụm mua nội bộ (≥ 2 đối tượng đăng ký mua trong 90 ngày, không ai bán); 🌏 khối ngoại mua ròng (nguồn chỉ có số liệu từng phiên nên được tích lũy dần từ 23/10/2026, cần ≥ 5 phiên). <b>Khối lượng</b>: đường vàng là KL trung bình 20 phiên; cột đậm là phiên KL ≥ 1,5 lần trung bình; “KL ✓” = tín hiệu VÀO có KL ≥ trung bình (có dòng tiền xác nhận); “Gom hàng / Xả hàng” = KL phiên tăng chiếm ≥ 60% / ≤ 40% tổng KL phiên tăng + giảm trong 20 phiên. Khung <b>Tuần</b> gộp nến ngày thành nến tuần, mọi chỉ báo tính lại theo tuần (nhãn trong danh mục theo dõi luôn theo khung ngày).<br>📏 <b>Thước đo</b>: bấm nút “Đo %”, bấm điểm đầu và điểm cuối trên biểu đồ để xem % tăng/giảm, chênh lệch giá, số phiên và số ngày; giữ Shift + bấm để đo nhanh không cần nút; Esc hoặc bấm lại vào biểu đồ để xóa. Phím ↑/↓ chuyển mã trong danh mục theo dõi. Đường ngang là mức MOS / Sticker <b>hiện tại</b> (theo BCTC và tham số đang chọn), không phải giá trị lịch sử. Biểu tượng <span class="bs b">B</span> / <span class="bs s">S</span> là <b>đăng ký</b> mua / bán của người nội bộ, người liên quan hoặc tổ chức (cổ đông lớn), đặt tại ngày bắt đầu giao dịch dự kiến; đăng ký chưa chắc đã được thực hiện hết. Nguồn: công bố thông tin qua VCI, tối đa 50 sự kiện gần nhất mỗi mã. Giá nến đã điều chỉnh theo cổ tức / chia tách.</p>
   </div>
 
+  <div id="viewPf" hidden>
+    <div class="pf-kpis" id="pfKpis"></div>
+    <div class="bar"><h2>💼 Vị thế đang nắm giữ</h2><div class="btns"><button class="primary" data-pf="add">＋ Thêm lệnh mua</button><button data-pf="set">⚙️ Thiết lập</button><button data-pf="refresh" title="Tải lại dữ liệu nến (ATR, Town)">↻ Làm mới</button></div></div>
+    <div id="pfAlerts"></div>
+    <div class="tbl"><table><thead id="pfHead"></thead><tbody id="pfBody"></tbody></table></div>
+    <div id="pfSectors" class="pf-box" hidden></div>
+    <details class="mt" id="pfClosedBox"><summary><b>📒 Nhật ký lệnh đã đóng</b><span class="muted" id="pfClosedSum"></span></summary><div id="pfClosed" class="pf-closed"></div></details>
+    <p class="note">Danh mục chỉ lưu trong trình duyệt này, không gửi đi đâu và không lưu lên GitHub. Dùng nút "Sao lưu 3M &amp; danh mục" ở đầu trang để chuyển sang máy khác. Tín hiệu bán theo Kim chỉ nam: thủng cắt lỗ 2×ATR → Town khung tuần RA 3/3 → chạm Sticker → nhãn đỏ mới / Big 5 giảm → nhiệt kế hưng phấn. Đây là công cụ kỷ luật, không phải khuyến nghị mua bán.</p>
+  </div>
+
   <div id="viewScreen">
   <details class="params" open style="display:block">
     <summary style="cursor:pointer;font-weight:600">Tham số mô hình</summary>
@@ -301,6 +347,7 @@ body{margin:0}
         <button data-preset="rule1">Rule #1 chuẩn</button>
         <button data-preset="watch">Ứng viên theo dõi</button>
         <button data-preset="strong" title="Big 5 ≥ 4 · không nhãn cảnh báo đỏ · F-Score ≥ 6 (ngân hàng: không cờ nợ xấu) · LN quý ≥ +20% so cùng kỳ · giá ≤ Sticker R2 · RS ≥ 70. Xếp theo RS giảm dần.">💪 Mạnh nhất</button>
+        <button data-preset="pead" title="BCTC quý công bố ≤ 45 ngày · LN quý ≥ +20% so cùng kỳ (hoặc chuyển lỗ thành lãi) · giá đã vượt VN-Index từ ngày công bố · Big 5 ≥ 3 · không nhãn đỏ. Xếp theo mức vượt VN-Index giảm dần.">📰 Sau BCTC</button>
         <div id="strongNote" class="note" style="display:none;font-size:.78rem;margin:2px 0 0"></div>
       </div>
       <div><h3>Sàn</h3><div class="chk" id="exch"></div></div>
@@ -314,6 +361,7 @@ body{margin:0}
       <label class="f" for="fMos">Vị thế giá<select id="fMos"><option value="">Mọi vị thế</option><option value="below">Dưới MOS</option><option value="between">Dưới Sticker</option></select></label>
       <label class="f" for="f3m">Đánh giá 3M<select id="f3m"><option value="">Không lọc</option><option value="pass">Đạt cả 3M</option><option value="rated">Đã chấm</option><option value="unrated">Chưa chấm</option></select></label>
       <label class="f" for="fQ">LN quý gần nhất so với cùng kỳ<select id="fQ"><option value="">Không lọc</option><option value="up" selected>Tăng so cùng kỳ</option><option value="up20">Tăng ≥ 20% so cùng kỳ</option><option value="down">Giảm so cùng kỳ</option></select></label>
+      <label class="f" for="fPub">Công bố BCTC quý gần nhất<select id="fPub"><option value="">Không lọc</option><option value="7">Trong 7 ngày</option><option value="14">Trong 14 ngày</option><option value="30">Trong 30 ngày</option><option value="60">Trong 60 ngày</option></select></label>
       <div class="chk"><label for="fFin"><input id="fFin" type="checkbox" checked> Hiện nhóm tài chính</label></div>
       <button id="btnReset">Xóa bộ lọc</button>
     </aside>
@@ -596,7 +644,7 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v)
 let DATA=SAMPLE, isSample=true, DATA_SRC='', PRICES=null, PRICE_META=null, FMETA=null, LOADING=false;
 let M3=store.get('r1vn_3m',{}), GOV=store.get('r1vn_gov',{});
 let preset='all', sortKey='score', sortDir=-1, rows=[];
-let TRENDS={}, TRENDS_META=null;
+let TRENDS={}, TRENDS_META=null, NEWQ=null, NEWQ_META=null;
 const $=id=>document.getElementById(id);
 
 const COLS=[
@@ -635,12 +683,27 @@ function flowSigs(t,adv){const m=flowOf(t);if(!m)return[];const o=[];
 function rsTip(t){const m=flowOf(t);if(!m)return 'Chưa có dữ liệu sức mạnh giá';const x=v=>v==null?'—':(v>0?'+':'')+pf(v,1);
   return `RS = xếp hạng 1–99 của mức tăng giá có trọng số (40% 3 tháng, 20% mỗi kỳ 6/9/12 tháng) so với toàn thị trường.\n3T ${x(m.r3)} (so VN-Index ${x(m.x3)}) · 6T ${x(m.r6)} · 12T ${x(m.r12)} (so VN-Index ${x(m.x12)})\nCách đỉnh 52 tuần: ${x(m.h52)}${m.fd?`\nKhối ngoại ${m.fd} phiên: ${nf(m.fn,1)} tỷ`:''}${m.fl!=null?`\nDòng tiền 20 phiên: ${pf(m.fl,0)} KL phiên tăng`:''}`}
 const fsTip=a=>!a.fs?'F-Score không áp dụng cho nhóm tài chính':`Piotroski F-Score năm ${a.fs.year}: ${a.fs.score??'—'}/${a.fs.n} tiêu chí có dữ liệu\n`+a.fs.items.map(x=>(x.pass==null?'❔':x.pass?'✅':'❌')+' '+x.lab).join('\n')+'\n\n≥ 7: tài chính đang khỏe lên · ≤ 3: dễ là bẫy giá trị';
+/* ===== BCTC mới (newq.json: quét hằng ngày lúc ~20h) ===== */
+const todayVN=()=>new Date(Date.now()+7*36e5).toISOString().slice(0,10);
+function mergeNewQ(list){if(!NEWQ)return;list.forEach(s=>{const n=NEWQ[s.ticker];if(!n)return;
+  if(n.q&&n.q.length){const qs=s.qSeries?s.qSeries.slice():[];const have=new Set(qs.map(x=>x.p));n.q.forEach(([p,ni,rv])=>{if(!have.has(p)&&ni!=null)qs.push({p,ni,rev:rv,nw:1})});qs.sort((x,y)=>x.p<y.p?-1:x.p>y.p?1:0);if(qs.length){s.qSeries=qs;s.qFresh=true}}
+  const L=s.qSeries&&s.qSeries[s.qSeries.length-1];if(n.pub&&L&&L.p===n.p){s.qPub=n.pub;s.qPubP=n.p}})}
+function pubDays(s){if(!s||!s.qPub)return null;const d=(Date.parse(todayVN())-Date.parse(s.qPub))/864e5;return isFinite(d)?Math.max(0,Math.round(d)):null}
+const erOf=t=>{const q=PRICES&&PRICES[t];return q&&q.m&&q.m.er?q.m.er:null};
+function pubTxt(a){const s=a.s,k=pubDays(s);if(k==null)return '';const e=erOf(a.ticker);
+  return `BCTC ${s.qPubP.replace(/(\d{4})-Q(\d)/,'Q$2/$1')} công bố ${fmtD(s.qPub)} (${k} ngày trước)${s.qFresh?' — số liệu quý này lấy từ lượt quét BCTC hằng ngày, BCTC đầy đủ cập nhật sáng Chủ nhật':''}`+
+    (e?`\nPhản ứng giá từ ngày công bố: ${(e[0]>0?'+':'')+pf(e[0],1)}${e[1]!=null?` (vượt/kém VN-Index ${(e[1]>0?'+':'')+pf(e[1],1)})`:''} sau ${e[2]} phiên`:'')}
+function pubTag(a){const k=pubDays(a.s);if(k==null||k>14)return '';const e=erOf(a.ticker),x=e?(e[1]??e[0]):null;
+  return ` <span class="tag t-new" title="${esc(pubTxt(a))}">📰${k<=1?' mới':' '+k+'n'}${x!=null?` <b class="${x>0?'c-good':x<0?'c-bad':''}">${x>0?'▲':x<0?'▼':''}</b>`:''}</span>`}
+/* Sau BCTC (PEAD): công bố ≤ 45 ngày, LN quý ≥ +20% YoY (hoặc chuyển lỗ thành lãi), giá đã vượt VN-Index từ ngày công bố, Big 5 ≥ 3, không nhãn đỏ */
+function isPEAD(a){const k=a.pubD;if(k==null||k>45)return false;const q=a.qg;if(!q||!(q.turn||(q.yoy!=null&&q.yoy>=0.2)))return false;
+  if(!(a.erx!=null&&a.erx>0))return false;if(!(a.score>=Math.min(3,a.maxScore)))return false;return !a.warns.some(w=>w.c==='t-bad')}
 /* LN quý gần nhất so với cùng quý năm trước: >0 tăng, <0 giảm; cùng kỳ lỗ mà nay lãi = tăng (Infinity), cùng kỳ lỗ nay vẫn lỗ: so mức lỗ */
 function qYoY(s){const qs=s.qSeries;if(!qs||!qs.length)return null;const L=qs[qs.length-1],m=/^(\d{4})-Q(\d)$/.exec(L.p);if(!m)return null;const P=qs.find(x=>x.p===(+m[1]-1)+'-Q'+m[2]);if(!P||P.ni==null||L.ni==null)return null;if(P.ni>0)return L.ni/P.ni-1;if(L.ni>0)return Infinity;return L.ni>P.ni?0.0001:L.ni<P.ni?-0.0001:0}
 const qTxt=v=>v==null?'—':(v>0?'+':'')+pf(v,0);
-function qCell(a){const q=a.qg;if(!q)return '—';if(q.turn)return `<b class="c-good">Có lãi</b>`;if(q.loss)return `<span class="c-bad">Lỗ</span>`;if(q.yoy==null)return '—';
-  return `<span class="${q.yoy>=.2?'c-good':q.yoy<0?'c-bad':''}">${qTxt(q.yoy)}</span>${q.accel!=null?` <span class="${q.accel?'c-good':'c-bad'}" style="font-size:.8rem">${q.accel?'⤴':'⤵'}</span>`:''}${q.qoq!=null?`<br><span class="muted" style="font-size:.72rem">QoQ ${qTxt(q.qoq)}</span>`:''}`}
-function qTip(a){const q=a.qg;if(!q)return 'Chưa có chuỗi lợi nhuận quý';const qs=a.s.qSeries;return `LNST công ty mẹ ${q.p}: ${nf(q.ni,1)} tỷ, so với cùng kỳ (YoY) ${q.turn?'(cùng kỳ lỗ, nay có lãi)':qTxt(q.yoy)}; so với quý liền trước (QoQ) ${q.qoq!=null?qTxt(q.qoq):'—'}\nTăng trưởng YoY của quý trước: ${qTxt(q.prev)} → ${q.accel==null?'—':q.accel?'TĂNG TỐC ⤴':'GIẢM TỐC ⤵'}\nDoanh thu so với cùng kỳ: ${qTxt(q.rev)}\n\n`+qs.slice(-9).map(x=>`${x.p}: ${nf(x.ni,1)} tỷ`).join('\n')}
+function qCell(a){const q=a.qg;if(!q)return '—'+pubTag(a);if(q.turn)return `<b class="c-good">Có lãi</b>`+pubTag(a);if(q.loss)return `<span class="c-bad">Lỗ</span>`+pubTag(a);if(q.yoy==null)return '—'+pubTag(a);
+  return `<span class="${q.yoy>=.2?'c-good':q.yoy<0?'c-bad':''}">${qTxt(q.yoy)}</span>${pubTag(a)}${q.accel!=null?` <span class="${q.accel?'c-good':'c-bad'}" style="font-size:.8rem">${q.accel?'⤴':'⤵'}</span>`:''}${q.qoq!=null?`<br><span class="muted" style="font-size:.72rem">QoQ ${qTxt(q.qoq)}</span>`:''}`}
+function qTip(a){const q=a.qg;if(!q)return 'Chưa có chuỗi lợi nhuận quý';const qs=a.s.qSeries,pt=pubTxt(a);return (pt?pt+'\n\n':'')+`LNST công ty mẹ ${q.p}: ${nf(q.ni,1)} tỷ, so với cùng kỳ (YoY) ${q.turn?'(cùng kỳ lỗ, nay có lãi)':qTxt(q.yoy)}; so với quý liền trước (QoQ) ${q.qoq!=null?qTxt(q.qoq):'—'}\nTăng trưởng YoY của quý trước: ${qTxt(q.prev)} → ${q.accel==null?'—':q.accel?'TĂNG TỐC ⤴':'GIẢM TỐC ⤵'}\nDoanh thu so với cùng kỳ: ${qTxt(q.rev)}\n\n`+qs.slice(-9).map(x=>`${x.p}: ${nf(x.ni,1)} tỷ`).join('\n')}
 function ciTip(a){const C=a.stCI;if(!C||!C.ok)return C&&C.reason||'';return `Định giá CI (chiết khấu ${pf(C.r,1)}, trừ ${pf(C.h,1)}): giá trị thực ${nf(C.vps)} đ/cp; sau 1 năm ${nf(C.vps1)}\nLN TB 10 năm tới ${nf(C.Eavg,1)} tỷ (LN gốc ${nf(C.E0,1)} tỷ, g ${pf(C.gC,1)})\nTổng lợi ích 1 năm ${pf(C.total,0)} = lãi vốn ${pf(C.gain,0)} + cổ tức ${pf(C.yld,1)} + tăng giá trị ${pf(C.grow,0)}`}
 function ci5Tip(a){const C=a.stCI;if(!C||!C.ok)return C&&C.reason||'';return `Lợi ích 5 năm (mua hôm nay ${nf(a.price)} đ, giữ 5 năm): ${pf(C.total5,0)} ≈ ${C.cagr5!=null?pf(C.cagr5,1):'—'}/năm\n= (giá trị CI năm 5 ${nf(C.v5)} + cổ tức 5 năm sau thuế ${nf(C.divSum)}) ÷ giá − 1\nGồm: lãi vốn hôm nay ${pf(C.gain5,0)} · tăng giá trị 5 năm ${pf(C.grow5,0)} · cổ tức ${pf(C.div5,1)}\nGiả định: ROE ${pf(C.roeC,1)} giữ nguyên, chi trả cổ tức ${pf(C.pay,0)} LN, thị trường định giá đúng bằng giá trị CI vào năm 5.\nXanh khi ≥ 15%/năm (MARR Rule #1).\n\n`+C.path.map(x=>`Năm ${x.k}: LN ${nf(x.E,1)} tỷ · vốn chủ ${nf(x.BV,1)} tỷ · giá trị ${nf(x.vps)} đ/cp`).join('\n')}
 function compute(){
@@ -649,7 +712,7 @@ function compute(){
     a.sticker=a.st.ok?a.st.sticker:null;a.mos=a.st.ok?a.st.mos:null;a.gap=a.mos?a.price/a.mos-1:null;a.mosT=a.stT.ok?a.stT.mos:null;a.gapT=a.mosT?a.price/a.mosT-1:null;a.mosR1=a.stR1.ok?a.stR1.mos:null;a.mosR2=a.stR2.ok?a.stR2.mos:null;a.mosPB=a.stPB.ok?a.stPB.mos:null;a.ciV=a.stCI.ok?a.stCI.vps:null;a.gapCI=a.ciV?a.price/a.ciV-1:null;a.lvCI=a.ciV?a.ciV/a.price-1:null;a.ciTot=a.stCI.ok?a.stCI.total:null;a.ci5=a.stCI.ok?a.stCI.total5:null;a.gapPB=a.mosPB?a.price/a.mosPB-1:null;a.statusPB=a.stPB.ok?(a.price<=a.stPB.mos?'below':a.price<=a.stPB.sticker?'between':'above'):'na';a.gapR2=a.mosR2?a.price/a.mosR2-1:null;a.statusR2=a.stR2.ok?(a.price<=a.stR2.mos?'below':a.price<=a.stR2.sticker?'between':'above'):'na';a.gapR1=a.mosR1?a.price/a.mosR1-1:null;a.statusR1=a.stR1.ok?(a.price<=a.stR1.mos?'below':a.price<=a.stR1.sticker?'between':'above'):'na';a.statusT=a.stT.ok?(a.price<=a.stT.mos?'below':a.price<=a.stT.sticker?'between':'above'):'na';
     a.payback=a.pb.ok?a.pb.years:null;a.ticker=s.ticker;a.exchange=s.exchange;a.sector=s.sector;a.m3=m3pass(s.ticker)?2:m3rated(s.ticker)?1:0;
     a.fsc=a.fs&&a.fs.score!=null?a.fs.score:null;a.warns=warnList(a);a.nWarn=a.warns.reduce((t,w)=>t+(w.c==='t-bad'?10:1),0);a.qyoy=a.qg?(a.qg.turn?9.99:a.qg.yoy):null;
-    a.rs=RS_RANK?RS_RANK[s.ticker]??null:null;a.flow=flowSigs(s.ticker,s.adv);a.flowN=a.flow.length;
+    a.rs=RS_RANK?RS_RANK[s.ticker]??null:null;a.pubD=pubDays(s);{const e=erOf(s.ticker);a.erx=e?(e[1]??e[0]):null}a.flow=flowSigs(s.ticker,s.adv);a.flowN=a.flow.length;
     a.eligible=a.mcap>=c.capMin&&(s.adv==null||s.adv>=c.advMin)&&a.nYears>=c.yrMin;return a});
   computeBBIT7(rows);
 }
@@ -742,7 +805,7 @@ function b5Tip(a){if(!a.b5)return '';const B=a.b5,f=(x,l)=>`${x.ok==null?'❔':x
 function filtered(){
   const c=cfg(),ex=[...document.querySelectorAll('#exch input:checked')].map(i=>i.value),sec=$('fSector').value,q=$('fSearch').value.trim().toLowerCase();
   const num=id=>$(id).value===''?null:+$(id).value;
-  const b5=num('fBig5'),pbM=num('fPb'),peM=num('fPe'),roeM=num('fRoe'),deM=num('fDe'),mos=$('fMos').value,f3=$('f3m').value,fq=$('fQ').value,fin=$('fFin').checked;
+  const b5=num('fBig5'),pbM=num('fPb'),peM=num('fPe'),roeM=num('fRoe'),deM=num('fDe'),mos=$('fMos').value,f3=$('f3m').value,fq=$('fQ').value,fpub=$('fPub').value,fin=$('fFin').checked;
   return rows.filter(a=>{
     const s=a.s;
     if(!a.eligible)return false;
@@ -760,9 +823,11 @@ function filtered(){
     if(f3==='pass'&&!m3pass(s.ticker))return false;
     if(f3==='rated'&&!m3rated(s.ticker))return false;
     if(f3==='unrated'&&m3rated(s.ticker))return false;
+    if(fpub){const k=a.pubD;if(k==null||k>+fpub)return false}
     if(fq){const g=qYoY(s);if(g==null||(fq==='up'?!(g>0):fq==='up20'?!(g>=0.2):!(g<0)))return false}
     if(preset==='rule1'&&!(a.score>=Math.min(4,a.maxScore)&&a.status==='below'&&!isStale(a)&&(s.financial?(!bankBad(a)&&(a.mosPB==null||a.price<=a.mosPB)):(a.payback!=null&&a.payback<=c.pbGood))))return false; // tài chính: thêm dưới MOS P/B, không cờ nợ xấu
     if(preset==='strong'&&!isStrong(a))return false;
+    if(preset==='pead'&&!isPEAD(a))return false;
     if(preset==='watch'&&!(a.score>=Math.min(4,a.maxScore)&&(a.status==='below'||a.status==='between')))return false;
     return true});
 }
@@ -853,7 +918,9 @@ function isStrong(a){
   if(!(a.stR2&&a.stR2.ok&&a.price<=a.stR2.sticker))return false;
   return a.rs!=null&&a.rs>=70;
 }
-function strongNote(){const el=$('strongNote');if(!el)return;if(preset!=='strong'){el.style.display='none';return}
+function strongNote(){const el=$('strongNote');if(!el)return;
+  if(preset==='pead'){el.textContent='BCTC công bố ≤ 45 ngày · LN quý ≥ +20% YoY · giá vượt VN-Index từ ngày công bố · Big 5 ≥ 3 · không nhãn đỏ. Mã có kết quả kinh doanh vượt trội và được thị trường xác nhận thường tiếp tục mạnh hơn thị trường trong vài tuần đến ~2 tháng sau công bố (hiệu ứng "trôi giá sau lợi nhuận" — PEAD, Bernard & Thomas 1989). Vẫn cần Town VÀO, cắt lỗ 2×ATR; chưa có kiểm chứng trên dữ liệu Việt Nam.'+(NEWQ_META?` Dữ liệu BCTC quét lúc ${fmtD(NEWQ_META.updated.slice(0,10))} ${NEWQ_META.updated.slice(11,16)}.`:' Chưa có dữ liệu quét BCTC hằng ngày (newq.json).');el.style.display='block';return}
+  if(preset!=='strong'){el.style.display='none';return}
   let t='Big 5 ≥ 4 · không nhãn đỏ · F-Score ≥ 6 · LN quý ≥ +20% YoY · giá ≤ Sticker R2 · RS ≥ 70.';
   try{const st=typeof marketState==='function'?marketState():null;if(st&&st.I&&st.b50!=null){const weak=st.I.c<st.I.ma200||st.b50<50;t+=weak?` ⚠️ Thị trường chưa xác nhận xu hướng tăng (${pf(st.b50/100,0)} mã trên MA50, VN-Index ${st.I.c<st.I.ma200?'dưới':'trên'} MA200): chỉ nên giải ngân thăm dò.`:` ✅ Thị trường thuận lợi (${pf(st.b50/100,0)} mã trên MA50).`}}catch(e){}
   el.textContent=t+' Bước cuối: xem biểu đồ (3 công cụ Town, vượt nền), đặt cắt lỗ 2×ATR, chạy /ci.';el.style.display='block'}
@@ -885,7 +952,7 @@ function render(){
   const total=rows.filter(a=>a.eligible).length;
   $('count').textContent=`${list.length} / ${total} mã đạt điều kiện`;
   $('tbody').innerHTML=list.length?list.map(a=>`<tr data-t="${esc(a.ticker)}">
-    <td class="tk">${esc(a.ticker)}${a.s.financial?'<span class="tag">TC</span>':''}</td><td>${esc(a.exchange)}</td><td>${esc(a.sector)}</td>
+    <td class="tk">${esc(a.ticker)}${a.s.financial?'<span class="tag">TC</span>':''}${pfHeld(a.ticker)?'<span title="Đang nắm giữ trong Danh mục"> 💼</span>':''}</td><td>${esc(a.exchange)}</td><td>${esc(a.sector)}</td>
     <td class="n">${nf(a.price)}</td><td class="n">${nf(a.mcap)}</td><td class="n">${nf(a.pe,1)}</td><td class="n">${nf(a.pb_,2)}</td>
     <td class="n">${pf(a.roe)}</td><td class="n">${nf(a.epsL)}${epsInfoTag(a)}</td>
     <td class="n">${a.g!=null?pf(a.g):'—'}${GOV[a.ticker]!=null?'<span class="tag">tay</span>':''}</td>
@@ -952,10 +1019,11 @@ async function autoLoad(){
   try{const r=await fetch('fundamentals_meta.json'+v,{cache:'no-store'});if(r.ok)FMETA=await r.json()}catch(e){}
   try{const r=await fetch('trends.json'+v,{cache:'no-store'});if(r.ok){const j=await r.json();TRENDS=j.items||{};TRENDS_META=j}}catch(e){}
   try{const r=await fetch('commodities.json'+v,{cache:'no-store'});if(r.ok){const j=await r.json();CMD=j.items||{};CMD_META=j}}catch(e){}
+  try{const r=await fetch('newq.json'+v,{cache:'no-store'});if(r.ok){const j=await r.json();NEWQ=j.items||null;NEWQ_META=j}}catch(e){}
   LOADING=true;render();
   try{
     const r=await fetch('rule1_data.csv'+v,{cache:'no-store'});
-    if(r.ok){const d=parseCSV(await r.text());if(d.length){applyPrices(d);DATA=d;isSample=false;DATA_SRC='auto';fillFilters()}}
+    if(r.ok){const d=parseCSV(await r.text());if(d.length){applyPrices(d);mergeNewQ(d);DATA=d;isSample=false;DATA_SRC='auto';fillFilters()}}
   }catch(e){console.warn('Không tải được dữ liệu tự động:',e)}
   LOADING=false;render();
 }
@@ -1140,8 +1208,8 @@ $('btnTemplate').onclick=()=>{modal('CSV mẫu','Mỗi dòng là một năm củ
 $('btnExport').onclick=()=>{const c=cfg(),l=filtered();const lines=['Mã,Tên,Sàn,Ngành,Giá,Vốn hóa (tỷ),P/E,P/B,ROE %,EPS,Big5 Score,g %,Sticker,MOS,Giá/MOS %,MOS Town,Giá/MOS Town %,MOS R1,Giá/MOS R1 %,MOS R2,Giá/MOS R2 %,MOS P/B,Giá/MOS P/B %,Giá trị CI,Lãi vốn CI %,Lợi ích 1N %,Lợi ích 5N %,Lợi ích 5N %/năm,Payback (năm),BBIT7,F-Score,LN quý YoY %,RS,Tín hiệu dòng tiền,3M,Cảnh báo'];
   l.forEach(a=>lines.push([a.ticker,`"${a.s.name}"`,a.exchange,a.sector,Math.round(a.price),Math.round(a.mcap),a.pe?.toFixed(2)??'',a.pb_?.toFixed(2)??'',a.roe!=null?(a.roe*100).toFixed(1):'',Math.round(a.epsL),`${a.score}/${a.maxScore}`,a.g!=null?(a.g*100).toFixed(1):'',a.sticker?Math.round(a.sticker):'',a.mos?Math.round(a.mos):'',a.gap!=null?(a.gap*100).toFixed(0):'',a.mosT?Math.round(a.mosT):'',a.gapT!=null?(a.gapT*100).toFixed(0):'',a.mosR1?Math.round(a.mosR1):'',a.gapR1!=null?(a.gapR1*100).toFixed(0):'',a.mosR2?Math.round(a.mosR2):'',a.gapR2!=null?(a.gapR2*100).toFixed(0):'',a.mosPB?Math.round(a.mosPB):'',a.gapPB!=null?(a.gapPB*100).toFixed(0):'',a.ciV?Math.round(a.ciV):'',a.lvCI!=null?(a.lvCI*100).toFixed(0):'',a.ciTot!=null?(a.ciTot*100).toFixed(0):'',a.ci5!=null?(a.ci5*100).toFixed(0):'',a.stCI.ok&&a.stCI.cagr5!=null?(a.stCI.cagr5*100).toFixed(1):'',a.payback!=null?(isFinite(a.payback)?a.payback:'>30'):'',a.b5s??'',a.fsc??'',a.qg&&a.qg.yoy!=null?(a.qg.yoy*100).toFixed(0):'',a.rs??'',`"${a.flow.map(f=>f.k).join(' ')}"`,a.m3===2?'Đạt':a.m3===1?'Chưa đạt':'Chưa chấm',`"${a.warns.map(w=>w.l).join(' ')}"`].join(',')));
   modal('Xuất kết quả',`${l.length} mã theo bộ lọc hiện tại. Sao chép rồi dán vào Excel hoặc Google Sheets (Dữ liệu → Tách văn bản thành cột theo dấu phẩy).`,lines.join('\n'),'<button class="primary" id="mCopy">Sao chép</button>');copyBtn()};
-$('btn3m').onclick=()=>{modal('Sao lưu 3M','Sao chép để lưu trữ, hoặc dán bản sao lưu cũ rồi bấm Khôi phục.',JSON.stringify({m3:M3,gOverride:GOV,watch:WL},null,1),'<button class="primary" id="mCopy">Sao chép</button><button id="mRestore">Khôi phục</button>');copyBtn();
-  $('mRestore').onclick=()=>{try{const d=JSON.parse($('mText').value);M3=d.m3||{};GOV=d.gOverride||{};if(Array.isArray(d.watch)){WL=d.watch;saveWL()}store.set('r1vn_3m',M3);store.set('r1vn_gov',GOV);render();$('mMsg').textContent='Đã khôi phục.'}catch(e){$('mMsg').textContent='Nội dung không phải JSON hợp lệ.'}}};
+$('btn3m').onclick=()=>{modal('Sao lưu 3M & danh mục','Sao chép để lưu trữ (gồm điểm 3M, g ghi đè, danh mục theo dõi, danh mục nắm giữ và nhật ký lệnh), hoặc dán bản sao lưu cũ rồi bấm Khôi phục.',JSON.stringify({m3:M3,gOverride:GOV,watch:WL,pf:PF},null,1),'<button class="primary" id="mCopy">Sao chép</button><button id="mRestore">Khôi phục</button>');copyBtn();
+  $('mRestore').onclick=()=>{try{const d=JSON.parse($('mText').value);M3=d.m3||{};GOV=d.gOverride||{};if(Array.isArray(d.watch)){WL=d.watch;saveWL()}if(d.pf){PF=pfNorm(d.pf);store.set('r1vn_pf',PF);pfRefresh()}store.set('r1vn_3m',M3);store.set('r1vn_gov',GOV);render();$('mMsg').textContent='Đã khôi phục.'}catch(e){$('mMsg').textContent='Nội dung không phải JSON hợp lệ.'}}};
 
 /* ===== Khởi tạo ===== */
 function fillFilters(){
@@ -1163,8 +1231,8 @@ const DRAG={on:false,moved:false,x:0,y:0,sl:0,sy:0};
     if(DRAG.moved){tb.scrollLeft=DRAG.sl-dx;window.scrollTo(window.scrollX,DRAG.sy-dy);e.preventDefault()}});
   window.addEventListener('mouseup',()=>{if(!DRAG.on)return;DRAG.on=false;tb.classList.remove('dragging');setTimeout(()=>{DRAG.moved=false},0)});
 })();
-document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}if(preset==='strong'){sortKey='rs';sortDir=-1}render();strongNote()});
-$('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fQ').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
+document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{preset=b.dataset.preset;document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x===b));if(preset==='rule1'){sortKey='payback';sortDir=1}if(preset==='strong'){sortKey='rs';sortDir=-1}if(preset==='pead'){sortKey='erx';sortDir=-1}render();strongNote()});
+$('btnReset').onclick=()=>{['fSearch','fPb','fPe','fRoe','fDe'].forEach(i=>$(i).value='');$('fBig5').value=0;$('fSector').value='';$('fMos').value='';$('f3m').value='';$('fQ').value='';$('fPub').value='';$('fFin').checked=true;document.querySelectorAll('#exch input').forEach(i=>i.checked=true);preset='all';document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('on',x.dataset.preset==='all'));render()};
 
 /* ===== Biểu đồ nến ===== */
 const LWC_URL='https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js';
@@ -1191,7 +1259,7 @@ function setTab(tab){
   const wasScreen=!$('viewScreen').hidden;
   if(wasScreen&&tab!=='screen')SCR_POS={y:window.scrollY,x:document.querySelector('.results .tbl').scrollLeft};
   document.querySelectorAll('.tabs [data-tab]').forEach(b=>{b.classList.toggle('on',b.dataset.tab===tab);b.setAttribute('aria-selected',b.dataset.tab===tab)});
-  $('viewScreen').hidden=tab!=='screen';$('viewChart').hidden=tab!=='chart';
+  $('viewScreen').hidden=tab!=='screen';$('viewChart').hidden=tab!=='chart';$('viewPf').hidden=tab!=='pf';if(tab==='pf'){renderPF();pfRefresh()}
   if(tab==='screen'&&!wasScreen)restoreScreenPos();
   if(tab==='chart'){fillCvList();renderWL();if(!CV.sym&&WL.length){showChart(WL[0],false)}else if(!CV.sym){const first=(rows.filter(a=>a.eligible&&a.status==='below')[0]||rows[0]);if(first)showChart(first.ticker,false)}else if(CV.chart)CV.chart.applyOptions({})}
 }
@@ -1238,6 +1306,7 @@ async function showChart(sym,switchTab=true){
     if(a.mosPB)lines.push({v:a.mosPB,c:'#0f8b8d',t:'MOS P/B',st:1});
     if(a.ciV)lines.push({v:a.ciV,c:'#b7791f',t:'Giá trị CI',st:3});
   }
+  {const hp=IX?null:PF.pos.find(p=>p.t===sym);if(hp){lines.push({v:hp.cost,c:'#2f6db5',t:'Giá vốn',st:0});const S=pfStop(hp);if(S.stop)lines.push({v:S.stop,c:'#ae3b34',t:'Cắt lỗ DM',st:0})}}
   const lv=lines.map(x=>x.v);
   const cs=ch.addCandlestickSeries({autoscaleInfoProvider:orig=>{const r=orig();if(r&&r.priceRange&&lv.length){r.priceRange.minValue=Math.min(r.priceRange.minValue,...lv)*0.97;r.priceRange.maxValue=Math.max(r.priceRange.maxValue,...lv)*1.02}return r},upColor:up,downColor:dn,borderUpColor:up,borderDownColor:dn,wickUpColor:up,wickDownColor:dn,priceFormat:IX?{type:'price',precision:2,minMove:0.01}:{type:'price',precision:0,minMove:10}});
   const bars=d.t.map((t,i)=>({time:t,open:d.o[i],high:d.h[i],low:d.l[i],close:d.c[i]}));
@@ -1575,9 +1644,250 @@ function renderMT(){
     <div><h3 style="margin-bottom:6px">Nên làm gì</h3><div class="mt-act">${MT_ACT[m.st]}</div>
       <p class="note" style="margin-top:8px">Giai đoạn: ① Hoảng loạn → ② Tạo đáy → ③ Xác nhận sóng / xu hướng tăng → ④ Hưng phấn. Các dấu hiệu luôn báo muộn hơn đáy thật; mục đích là tránh mua quá sớm, không phải bắt đúng đáy. Mã Rule #1 tốt dưới MOS vẫn có thể mua dần ở mọi giai đoạn.</p></div>`;
 }
+/* ===== Danh mục nắm giữ (chỉ lưu trong trình duyệt) ===== */
+const PF_DEF_CFG={secMax:30,riskMax:8,riskTrade:1,posMax:20,fee:0.15,tax:0.1,trail:true};
+// Tỷ trọng cổ phiếu tối đa gợi ý theo giai đoạn nhiệt kế (Kim chỉ nam, chương 3)
+const PF_STAGE_MAX={0:30,1:20,2:40,3:100,4:60,5:20};
+const PF_SELL_WHY=['Chạm cắt lỗ','Town RA 3/3','Chạm Sticker','Câu chuyện thay đổi','Nhiệt kế hưng phấn','Đổi sang mã tốt hơn','Cơ cấu tỷ trọng','Khác'];
+function pfNorm(o){o=o&&typeof o==='object'?o:{};return {cash:+o.cash||0,cashSet:!!o.cashSet,cfg:Object.assign({},PF_DEF_CFG,o.cfg||{}),pos:Array.isArray(o.pos)?o.pos:[],closed:Array.isArray(o.closed)?o.closed:[]}}
+let PF=pfNorm(store.get('r1vn_pf',null));
+function savePF(){store.set('r1vn_pf',PF);render();renderPF()}
+const pfHeld=t=>PF.pos.some(p=>p.t===t);
+const vnd=v=>v==null||!isFinite(v)?'—':(v<0?'−':'')+(Math.abs(v)>=1e9?nf(Math.abs(v)/1e9,2)+' tỷ':nf(Math.abs(v)/1e6,1)+' tr');
+const pfTick=(p,ex)=>ex==='HOSE'?(p<1e4?10:p<5e4?50:100):100;
+const pfFloor=(p,ex)=>{const k=pfTick(p,ex);return Math.floor(p/k)*k};
+const pfEx=t=>(DATA.find(s=>s.ticker===t)||{}).exchange||'HOSE';
+const pfKnown=t=>!!t&&(DATA.some(s=>s.ticker===t)||!!(PRICES&&PRICES[t]&&!PRICES[t].idx));
+function pfPrice(t){const q=PRICES&&PRICES[t];if(q&&q.p)return q.p;const a=rows.find(x=>x.ticker===t);return a?a.price:null}
+function pfSticker(a){if(!a)return null;if(a.s.financial)return a.stPB&&a.stPB.ok?a.stPB.sticker:(a.sticker||null);return a.stR2&&a.stR2.ok?a.stR2.sticker:(a.sticker||null)}
+// Dữ liệu nến của mã đang giữ: ATR(14), trạng thái Town khung ngày và tuần
+const PFC={},PFC_P={};
+function pfData(t){if(PFC[t])return Promise.resolve(PFC[t]);if(PFC_P[t])return PFC_P[t];
+  PFC_P[t]=fetch(chartUrl(t)+'?v='+Math.floor(Date.now()/36e5),{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null).then(d=>{let o={none:true};
+    if(d&&d.c&&d.c.length>30){const at=TA.atr(d),q=TA.town(d),w=d.c.length>150?TA.town(TA.weekly(d)).state:null;o={d,atr:at[at.length-1],st:q.state[q.state.length-1],wk:w?w[w.length-1]:null}}
+    PFC[t]=o;delete PFC_P[t];return o});return PFC_P[t]}
+// Cắt lỗ đang áp dụng = max(cắt lỗ ban đầu, cắt lỗ động); cắt lỗ động = đóng cửa cao nhất từ ngày mua − 2×ATR, chỉ dời lên
+function pfStop(ps){const c=PFC[ps.t];let tr=null;
+  if(PF.cfg.trail&&c&&!c.none&&c.atr){const d=c.d;let hi=-Infinity;for(let i=d.t.length-1;i>=0&&d.t[i]>=ps.d0;i--)if(d.c[i]>hi)hi=d.c[i];if(isFinite(hi))tr=pfFloor(hi-2*c.atr,pfEx(ps.t))}
+  if(PF.cfg.trail&&ps.stopHi>0)tr=Math.max(tr||0,ps.stopHi);
+  const s0=ps.stop0>0?ps.stop0:null;return {stop:Math.max(s0||0,tr||0)||null,trail:tr,s0}}
+function pfSnap(t){const a=rows.find(x=>x.ticker===t);if(!a)return null;return {b5:a.score,mx:a.maxScore,red:a.warns.filter(w=>w.c==='t-bad').map(w=>w.l),f:a.fsc,bb:a.b5s,g:a.gsc,d:todayVN()}}
+
+function pfCalc(){
+  let m={st:0,lab:'Trung tính'};try{m=marketState()}catch(e){}
+  const st=m.st??0,lim=PF_STAGE_MAX[st]??30,cfg=PF.cfg;let dirty=false;
+  const L=PF.pos.map(ps=>{const a=rows.find(x=>x.ticker===ps.t),q=PRICES&&PRICES[ps.t]||{},c=PFC[ps.t];
+    const price=pfPrice(ps.t)||ps.cost,val=price*ps.q,pl=(price-ps.cost)*ps.q,plp=ps.cost?price/ps.cost-1:null;
+    const S=pfStop(ps);if(cfg.trail&&S.trail&&!(ps.stopHi>=S.trail)){ps.stopHi=S.trail;dirty=true}
+    const risk=S.stop?Math.max(0,price-S.stop)*ps.q:null;
+    const sec=a?a.sector:((DATA.find(s=>s.ticker===ps.t)||{}).sector||'Khác');
+    const days=Math.max(0,Math.round((Date.parse(todayVN())-Date.parse(ps.d0))/864e5));
+    return {ps,a,q,c,price,val,pl,plp,...S,risk,sticker:pfSticker(a),sec,days,al:[]}});
+  if(dirty)store.set('r1vn_pf',PF);
+  const sv=L.reduce((t,x)=>t+x.val,0),nav=(PF.cashSet?PF.cash:0)+sv,cost=L.reduce((t,x)=>t+x.ps.cost*x.ps.q,0);
+  const secs={};L.forEach(x=>{secs[x.sec]=(secs[x.sec]||0)+x.val});
+  const risk=L.reduce((t,x)=>t+(x.risk||0),0);
+  const A=[],add=(lv,t,msg,tip)=>{const o={lv,t,msg,tip:tip||''};A.push(o);if(t){const x=L.find(y=>y.ps.t===t);if(x)x.al.push(o)}};
+  L.forEach(x=>{const t=x.ps.t,a=x.a,snap=x.ps.snap;
+    if(x.stop&&x.price<x.stop)add('sell',t,`Giá ${nf(x.price)} đã thủng cắt lỗ ${nf(x.stop)}: bán theo kỷ luật, không chờ hồi`,x.trail&&x.trail>=(x.s0||0)?'Cắt lỗ động: giá đóng cửa cao nhất từ ngày mua − 2×ATR(14)':'Cắt lỗ ban đầu đặt lúc mua');
+    if(x.c&&!x.c.none){if(x.c.wk&&x.c.wk.sig==='out')add('cut',t,'Town khung tuần RA 3/3: giảm hoặc thoát vị thế','MACD 8-17-9, Stochastic 14-5 và MA10 khung tuần cùng đảo chiều xuống (quy tắc bán số 2)');
+      else if(x.c.st&&x.c.st.sig==='out')add('watch',t,'Town khung ngày RA 3/3 (khung tuần chưa RA)','Theo dõi: nếu khung tuần cũng RA thì giảm vị thế')}
+    if(x.sticker&&x.ps.cost<x.sticker){if(x.price>=x.sticker)add('cut',t,`Chạm Sticker ${nf(x.sticker)}: đã định giá đủ, chốt một phần hoặc toàn bộ`,'Quy tắc bán số 3. Sticker R2 (ngân hàng, chứng khoán, bảo hiểm: Sticker P/B)');
+      else if(x.price>=x.sticker*0.9)add('watch',t,`Còn ${pf(x.sticker/x.price-1,1)} là chạm Sticker ${nf(x.sticker)}`)}
+    if(a&&snap){const red=a.warns.filter(w=>w.c==='t-bad').map(w=>w.l).filter(l=>!(snap.red||[]).includes(l));
+      if(red.length)add('cut',t,`Nhãn đỏ mới từ lúc mua: ${red.join(', ')} — kiểm tra lại luận điểm`,'Quy tắc bán số 4: câu chuyện thay đổi thì bán dù đang lãi hay lỗ');
+      if(snap.b5!=null&&a.score<snap.b5)add('cut',t,`Big 5 giảm từ ${snap.b5} xuống ${a.score} so với lúc mua`,'Quy tắc bán số 4')}
+    if(a&&a.qg&&!a.qg.turn&&(a.qg.loss||(a.qg.yoy!=null&&a.qg.yoy<0)))add('watch',t,`LN quý ${a.qg.p} ${a.qg.loss?'lỗ':'giảm '+qTxt(a.qg.yoy)+' so cùng kỳ'}`);
+    if(!x.ps.stop0)add('watch',t,'Chưa đặt cắt lỗ ban đầu'+(x.trail?' (đang dùng cắt lỗ động)':''));
+    if(nav>0&&PF.cashSet&&x.val/nav>cfg.posMax/100)add('watch',t,`Tỷ trọng ${pf(x.val/nav,0)} vượt giới hạn 1 mã ${cfg.posMax}%`);
+    if(x.q.d&&PRICE_META&&PRICE_META.session&&x.q.d<PRICE_META.session)add('watch',t,`Giá cũ: phiên gần nhất ${fmtD(x.q.d)}`)});
+  if(st===4&&L.length)add('cut',null,'Nhiệt kế ④ Hưng phấn: hạ tỷ trọng, ưu tiên bán mã gần Sticker','Quy tắc bán số 5');
+  if(PF.cashSet&&nav>0&&L.length){
+    if(sv/nav>lim/100+0.005)add('cut',null,`Tỷ trọng cổ phiếu ${pf(sv/nav,0)} vượt mức gợi ý ≤ ${lim}% của giai đoạn ${m.lab}`,'Bảng tỷ trọng theo nhiệt kế trong Kim chỉ nam, chương 3');
+    Object.entries(secs).forEach(([k,v])=>{if(v/nav>cfg.secMax/100)add('cut',null,`Ngành ${k} chiếm ${pf(v/nav,0)} tài sản, vượt giới hạn ${cfg.secMax}%`)});
+    if(risk/nav>cfg.riskMax/100)add('cut',null,`Tổng rủi ro mở ${pf(risk/nav,1)} vượt giới hạn ${cfg.riskMax}% tài sản`,'Rủi ro mở = số tiền mất nếu mọi mã cùng chạm cắt lỗ, tính từ giá hiện tại')}
+  const rank={sell:0,cut:1,watch:2};A.sort((x,y)=>rank[x.lv]-rank[y.lv]);
+  return {L,sv,nav,cost,secs,risk,st,lim,m,A}}
+
+function pfStats(){const c=PF.closed;if(!c.length)return null;const w=c.filter(x=>x.pl>0),l=c.filter(x=>!(x.pl>0));
+  const avg=(a,k)=>a.length?a.reduce((t,x)=>t+(x[k]||0),0)/a.length:null,wr=w.length/c.length,aw=avg(w,'r'),al=avg(l,'r');
+  const gp=w.reduce((t,x)=>t+x.pl,0),gl=-l.reduce((t,x)=>t+x.pl,0),Rs=c.filter(x=>x.R!=null&&isFinite(x.R));
+  return {n:c.length,wr,aw,al,exp:wr*(aw||0)+(1-wr)*(al||0),R:Rs.length?avg(Rs,'R'):null,pfac:gl>0?gp/gl:null,days:avg(c,'days'),net:gp-gl}}
+
+function pfBadge(P){const b=document.querySelector('.tabs [data-tab="pf"]');if(!b)return;const n=P.A.filter(x=>x.lv!=='watch').length,sell=P.A.some(x=>x.lv==='sell');
+  b.innerHTML='💼 Danh mục'+(n?` <span class="pf-badge${sell?' sell':''}" title="${n} cảnh báo cần xử lý">${n}</span>`:'')}
+
+const pfSigChip=s=>!s?'<span class="muted">—</span>':`<span class="wl-sig ${s.sig}" title="MACD ${s.a[0]?'▲':'▼'} · Stoch ${s.a[1]?'▲':'▼'} · MA10 ${s.a[2]?'▲':'▼'}">${s.sig==='in'?'VÀO':s.sig==='out'?'RA':s.up+'/3'}</span>`;
+function renderPF(){const P=pfCalc();pfBadge(P);if($('viewPf').hidden)return;
+  const {L,sv,nav,risk,lim,m}=P,cfg=PF.cfg,ok=PF.cashSet&&nav>0;
+  const plU=L.reduce((t,x)=>t+x.pl,0),S=pfStats();
+  const card=(l,v,sub,cls='')=>`<div class="pf-k ${cls}"><span>${l}</span><b>${v}</b><i>${sub||''}</i></div>`;
+  $('pfKpis').innerHTML=card('Tài sản ròng',PF.cashSet?vnd(nav):'—',PF.cashSet?`Tiền mặt ${vnd(PF.cash)} · cổ phiếu ${vnd(sv)}`:'<a href="#" data-pf="set">Nhập tiền mặt</a> để tính tỷ trọng')
+    +card('Tỷ trọng cổ phiếu',ok?pf(sv/nav,0):'—',`Gợi ý ≤ ${lim}% · ${esc(m.lab||'')}`,ok&&L.length&&sv/nav>lim/100+0.005?'bad':'')
+    +card('Lãi/lỗ chưa chốt',L.length?(plU>=0?'+':'')+vnd(plU):'—',P.cost>0?`${plU>=0?'+':''}${pf(plU/P.cost,1)} trên giá vốn`:'',plU>0?'good':plU<0?'bad':'')
+    +card('Rủi ro mở',ok?pf(risk/nav,1):'—',`Mất nếu mọi mã chạm cắt lỗ · giới hạn ${cfg.riskMax}%`,ok&&risk/nav>cfg.riskMax/100?'bad':'')
+    +card('Số mã · ngành',`${L.length} · ${Object.keys(P.secs).length}`,`Tối đa 1 ngành ${cfg.secMax}%, 1 mã ${cfg.posMax}%`)
+    +card('Lệnh đã đóng',S?(S.net>=0?'+':'')+vnd(S.net):'—',S?`${S.n} lệnh · thắng ${pf(S.wr,0)} · kỳ vọng ${(S.exp>=0?'+':'')+pf(S.exp,1)}/lệnh`:'Chưa có lệnh đóng',S&&S.net>0?'good':S&&S.net<0?'bad':'');
+  const ic={sell:'🔴',cut:'🟠',watch:'🟡'};
+  $('pfAlerts').innerHTML=P.A.length?`<div class="pf-al">${P.A.map(x=>`<div class="pf-a ${x.lv}"${x.tip?` title="${esc(x.tip)}"`:''}>${ic[x.lv]} <b>${x.t?esc(x.t):'Danh mục'}:</b> ${esc(x.msg)}</div>`).join('')}</div>`
+    :(L.length?'<div class="pf-al"><div class="pf-a ok">✅ Chưa có tín hiệu bán. Kiểm tra lại sau mỗi phiên (giá cập nhật ~15h08, nến và chỉ báo ~15h35).</div></div>':'');
+  $('pfHead').innerHTML='<tr>'+['Mã','Ngành','SL','Giá vốn','Giá','Lãi/lỗ','Giá trị','Tỷ trọng','Cắt lỗ','Tới cắt lỗ','Rủi ro mở','Town N · T','Sticker','Ngày giữ','Cảnh báo',''].map((h,i)=>`<th class="${i>=2&&i<=10||i===12||i===13?'n':''} ${i===0?'tk':''}">${h}</th>`).join('')+'</tr>';
+  $('pfBody').innerHTML=L.length?L.map(x=>{const t=esc(x.ps.t),tr=x.trail&&x.trail>=(x.s0||0);
+    return `<tr><td class="tk"><a href="#" data-pf="chart" data-t="${t}" title="Xem biểu đồ">${t}</a></td><td>${esc(x.sec)}</td>
+      <td class="n">${nf(x.ps.q)}</td><td class="n">${nf(x.ps.cost)}</td><td class="n">${nf(x.price)}</td>
+      <td class="n ${x.pl>0?'c-good':x.pl<0?'c-bad':''}">${x.plp!=null?(x.plp>0?'+':'')+pf(x.plp,1):'—'}<br><span style="font-size:.72rem">${(x.pl>=0?'+':'')+vnd(x.pl)}</span></td>
+      <td class="n">${vnd(x.val)}</td><td class="n">${ok?pf(x.val/nav,1):'—'}</td>
+      <td class="n" title="Ban đầu: ${x.s0?nf(x.s0):'chưa đặt'}${cfg.trail?` · Động (đỉnh đóng cửa − 2×ATR): ${x.trail?nf(x.trail):'chưa có dữ liệu nến'}`:''}${x.c&&x.c.atr?` · ATR(14) ${nf(x.c.atr)}`:''}">${x.stop?nf(x.stop):'—'}${tr?' <span class="muted">↑</span>':''}${x.stop&&x.stop>=x.ps.cost?'<br><span class="c-good" style="font-size:.72rem">đã khóa lãi</span>':''}</td>
+      <td class="n ${x.stop&&x.price<x.stop?'c-bad':''}">${x.stop?pf(x.stop/x.price-1,1):'—'}</td>
+      <td class="n">${x.risk!=null&&ok?pf(x.risk/nav,2):x.risk!=null?vnd(x.risk):'—'}</td>
+      <td>${x.c&&!x.c.none?`N ${pfSigChip(x.c.st)} · T ${pfSigChip(x.c.wk)}`:x.c?'—':'<span class="muted">đang tải…</span>'}</td>
+      <td class="n" title="${x.sticker?(x.ps.cost>=x.sticker?'Giá vốn đã cao hơn Sticker lúc mua: quy tắc chốt khi chạm Sticker không áp dụng, quản lý vị thế bằng cắt lỗ và Town. Với mã P/E lịch sử thấp, đối chiếu thêm MOS Town (Kim chỉ nam, bẫy 4).':'Sticker R2 (nhóm tài chính: Sticker P/B). Chạm Sticker = quy tắc bán số 3.'):''}">${x.sticker?`${nf(x.sticker)}<br><span class="${x.ps.cost>=x.sticker?'muted':x.price>=x.sticker?'c-bad':'muted'}" style="font-size:.72rem">${x.ps.cost>=x.sticker?'mua trên Sticker':x.price>=x.sticker?'đã chạm':'còn '+pf(x.sticker/x.price-1,x.sticker/x.price-1<0.1?1:0)}</span>`:'—'}</td>
+      <td class="n">${x.days}</td>
+      <td>${x.al.length?x.al.map(a=>`<span title="${esc(a.msg)}">${ic[a.lv]}</span>`).join(''):'<span class="c-good">✓</span>'}</td>
+      <td class="pf-act"><button data-pf="buy" data-t="${t}" title="Mua thêm">＋</button><button data-pf="sell" data-t="${t}">Bán</button><button data-pf="edit" data-t="${t}" title="Sửa cắt lỗ, giá vốn, ghi chú">✎</button></td></tr>`}).join('')
+    :`<tr><td colspan="16" class="empty">Chưa có vị thế. Bấm <b>＋ Thêm lệnh mua</b>: website gợi ý cắt lỗ 2×ATR, khối lượng theo rủi ro 1% tài sản và kiểm tra giới hạn ngành, tỷ trọng theo nhiệt kế.</td></tr>`;
+  $('pfSectors').innerHTML=ok&&L.length?`<h3 style="margin-bottom:6px">Phân bổ theo ngành (% tài sản ròng · vạch đứng = giới hạn ${cfg.secMax}%)</h3>`
+    +Object.entries(P.secs).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const p=v/nav,over=p>cfg.secMax/100;return `<div class="pf-sec"><span>${esc(k)}</span><div class="pf-bar"><i class="${over?'over':''}" style="width:${Math.min(100,p*100)}%"></i><u style="left:${cfg.secMax}%"></u></div><b class="${over?'c-bad':''}">${pf(p,0)}</b></div>`}).join('')
+    +`<div class="pf-sec"><span class="muted">Tiền mặt</span><div class="pf-bar"><i class="cash" style="width:${Math.max(0,Math.min(100,PF.cash/nav*100))}%"></i></div><b>${pf(PF.cash/nav,0)}</b></div>`:'';
+  $('pfSectors').hidden=!(ok&&L.length);
+  $('pfClosedSum').textContent=S?`${S.n} lệnh · thắng ${pf(S.wr,0)} · lãi TB ${S.aw!=null?'+'+pf(S.aw,1):'—'} · lỗ TB ${S.al!=null?pf(S.al,1):'—'}`:'chưa có';
+  $('pfClosed').innerHTML=S?`<div class="pf-stats">
+      <span>Tỷ lệ thắng <b>${pf(S.wr,0)}</b></span><span>Lãi TB lệnh thắng <b class="c-good">${S.aw!=null?'+'+pf(S.aw,1):'—'}</b></span><span>Lỗ TB lệnh thua <b class="c-bad">${S.al!=null?pf(S.al,1):'—'}</b></span>
+      <span title="Kỳ vọng mỗi lệnh = tỷ lệ thắng × lãi TB + tỷ lệ thua × lỗ TB">Kỳ vọng/lệnh <b class="${S.exp>0?'c-good':'c-bad'}">${(S.exp>0?'+':'')+pf(S.exp,2)}</b></span>
+      <span title="R = (giá bán − giá vốn) ÷ (giá vốn − cắt lỗ ban đầu)">R trung bình <b>${S.R!=null?nf(S.R,2)+'R':'—'}</b></span><span title="Tổng lãi ÷ tổng lỗ">Hệ số lợi nhuận <b>${S.pfac!=null?nf(S.pfac,2):'—'}</b></span><span>Giữ TB <b>${nf(S.days,0)} ngày</b></span></div>
+    <div class="tbl"><table><thead><tr><th>Ngày bán</th><th class="tk">Mã</th><th class="n">SL</th><th class="n">Giá vốn</th><th class="n">Giá bán</th><th class="n">Lãi/lỗ (sau phí, thuế)</th><th class="n">R</th><th class="n">Ngày giữ</th><th>Lý do bán</th><th>Lý do mua · ghi chú</th><th></th></tr></thead><tbody>
+    ${PF.closed.map((c,i)=>`<tr><td>${fmtD(c.d1)}</td><td class="tk">${esc(c.t)}</td><td class="n">${nf(c.q)}</td><td class="n">${nf(c.p0)}</td><td class="n">${nf(c.p1)}</td>
+      <td class="n ${c.pl>0?'c-good':'c-bad'}">${(c.r>0?'+':'')+pf(c.r,1)} · ${(c.pl>=0?'+':'')+vnd(c.pl)}</td><td class="n">${c.R!=null&&isFinite(c.R)?nf(c.R,2)+'R':'—'}</td><td class="n">${nf(c.days)}</td>
+      <td>${esc(c.exitWhy||'')}</td><td class="pf-note" title="${esc((c.why?'Mua: '+c.why+'\n':'')+(c.note?'Bán: '+c.note:''))}">${esc(((c.why||'')+(c.note?' · '+c.note:'')).slice(0,80))}</td>
+      <td><button data-pf="delc" data-i="${i}" title="Xóa lệnh khỏi nhật ký">✕</button></td></tr>`).join('')}</tbody></table></div>`
+    :'<p class="note">Khi bấm "Bán" ở một vị thế, lệnh được ghi vào đây cùng lý do bán. Sau 20–30 lệnh, các số liệu tỷ lệ thắng, kỳ vọng mỗi lệnh và R trung bình cho biết cách làm của bạn có lợi thế thật hay không.</p>';
+}
+function pfRefresh(){const ts=[...new Set(PF.pos.map(p=>p.t))];return Promise.all(ts.map(pfData)).then(renderPF)}
+
+function pfModal(title,html){
+  $('modalRoot').innerHTML=`<div class="overlay center" id="mo"><div class="modalbox pf-form"><div class="bar"><h2>${title}</h2><button id="mClose">Đóng</button></div>${html}</div></div>`;
+  $('modalRoot').hidden=false;$('mClose').onclick=closeModal;$('mo').onclick=e=>{if(e.target.id==='mo')closeModal()}}
+const pfV=id=>{const v=$(id).value;return v===''?null:+v};
+
+function pfBuyForm(t0){
+  const ex=t0?PF.pos.find(p=>p.t===t0):null;fillCvList();
+  pfModal(ex?`Mua thêm ${esc(t0)}`:'Thêm lệnh mua',`
+    <div class="pf-fg">
+      <label class="f" for="pfT">Mã<input id="pfT" list="cvList" value="${esc(t0||'')}" ${ex?'readonly':''} autocomplete="off" style="text-transform:uppercase"></label>
+      <label class="f" for="pfD">Ngày mua<input id="pfD" type="date" value="${todayVN()}"></label>
+      <label class="f" for="pfP">Giá mua (đ/cp)<input id="pfP" type="number" min="0" step="10"></label>
+      <label class="f" for="pfS">Cắt lỗ ban đầu (đ/cp)<input id="pfS" type="number" min="0" step="10" value="${ex&&ex.stop0?ex.stop0:''}"></label>
+      <label class="f" for="pfR">Rủi ro lệnh này (% tài sản)<input id="pfR" type="number" min="0.1" max="5" step="0.1" value="${PF.cfg.riskTrade}"></label>
+      <label class="f" for="pfQ">Số lượng (cp)<input id="pfQ" type="number" min="0" step="100"></label>
+    </div>
+    <div id="pfSize" class="pf-size"></div>
+    ${ex?'':`<label class="f" for="pfWhy">Lý do mua (luận điểm đầu tư)<textarea id="pfWhy" rows="2" placeholder="VD: Big 5 = 5, dưới MOS R2, LN quý +40%, Town VÀO 3/3 kèm KL"></textarea></label>
+    <label class="f" for="pfRisk">Rủi ro lớn nhất<textarea id="pfRisk" rows="2" placeholder="VD: giá thép giảm; nợ vay tăng"></textarea></label>
+    <label class="f" for="pfExit">Điều kiện bán (viết trước khi mua)<textarea id="pfExit" rows="2">Thủng cắt lỗ · Town tuần RA 3/3 · chạm Sticker · câu chuyện thay đổi</textarea></label>`}
+    <div class="chk"><label for="pfCash"><input type="checkbox" id="pfCash" ${PF.cashSet?'checked':''}> Trừ tiền mua (kèm phí ${PF.cfg.fee}%) khỏi tiền mặt</label></div>
+    <div class="btns"><button class="primary" id="pfSave">Lưu lệnh mua</button><span class="muted" id="mMsg"></span></div>`);
+  const upd=()=>{const t=$('pfT').value.trim().toUpperCase(),p=pfV('pfP'),s=pfV('pfS'),r=(pfV('pfR')||PF.cfg.riskTrade)/100,q=pfV('pfQ');
+    const P=pfCalc(),nav=P.nav,exch=pfEx(t),c=PFC[t],o=[];
+    if(t&&!pfKnown(t))o.push(`<span class="c-bad">Không tìm thấy mã ${esc(t)}.</span>`);
+    if(c&&!c.none&&p)o.push(`ATR(14) = ${nf(c.atr)} đ (${pf(c.atr/p,1)} giá). Cắt lỗ gợi ý = giá − 2×ATR = <b>${nf(pfFloor(p-2*c.atr,exch))}</b> (${pf(-2*c.atr/p,1)}) <button type="button" data-sug="${pfFloor(p-2*c.atr,exch)}">Dùng</button>${c.st?` · Town ngày ${pfSigChip(c.st)} tuần ${pfSigChip(c.wk)}`:''}`);
+    else if(t&&PFC_P[t])o.push('<span class="muted">Đang tải dữ liệu nến để tính ATR…</span>');
+    {const a=rows.find(x=>x.ticker===t);if(a){const ck=(ok,l)=>`${ok==null?'❔':ok?'✅':'❌'} ${l}`,red=a.warns.filter(w=>w.c==='t-bad').map(w=>w.l),mb=a.s.financial?a.mosPB:a.mosR2,cd=c&&!c.none?c:null;
+      o.push('<b>Checklist ★</b> '+[ck(a.score>=Math.min(4,a.maxScore),`Big 5 ${a.score}/${a.maxScore}`),ck(!red.length,red.length?'nhãn đỏ: '+esc(red.join(', ')):'không nhãn đỏ'),ck(mb&&p?p<=mb:null,`giá ≤ ${a.s.financial?'MOS P/B':'MOS R2'} ${nf(mb)}`),ck(cd&&cd.st?cd.st.sig==='in':null,'Town ngày VÀO 3/3'),ck(cd&&cd.wk?cd.wk.sig!=='out':null,'Town tuần không RA'),ck(m3pass(t)?true:m3rated(t)?false:null,'đã chấm đạt 3M')].join(' · '))}}
+    if(!PF.cashSet)o.push('<span class="c-warn">Chưa nhập tiền mặt (⚙️ Thiết lập): không tính được khối lượng theo rủi ro và các giới hạn tỷ trọng.</span>');
+    else if(nav>0&&p>0&&s>0&&s<p){const qr=Math.floor(nav*r/(p-s)/100)*100,qp=Math.floor(nav*PF.cfg.posMax/100/p/100)*100,qc=Math.floor(Math.max(0,PF.cash)/(p*(1+PF.cfg.fee/100))/100)*100,qs=Math.max(0,Math.min(qr,qp,qc));
+      o.push(`Khối lượng tối đa — theo rủi ro ${nf(r*100,1)}%: ${nf(qr)} cp · theo giới hạn 1 mã ${PF.cfg.posMax}%: ${nf(qp)} cp · theo tiền mặt: ${nf(qc)} cp. Gợi ý <b>${nf(qs)} cp</b> ≈ ${vnd(qs*p)} <button type="button" data-useq="${qs}">Dùng</button>`)}
+    else if(p>0&&s>=p)o.push('<span class="c-bad">Cắt lỗ phải thấp hơn giá mua.</span>');
+    if(PF.cashSet&&nav>0&&p>0&&q>0){const val=p*q,sec=(DATA.find(x=>x.ticker===t)||{}).sector||'Khác',exp=(P.sv+val)/nav,secP=((P.secs[sec]||0)+val)/nav,rk=s>0&&s<p?(p-s)*q:null,cls=b=>b?'c-bad':'c-good';
+      o.push(`Sau lệnh: tỷ trọng cổ phiếu <b class="${cls(exp>P.lim/100+0.005)}">${pf(exp,0)}</b> (gợi ý ≤ ${P.lim}%) · ngành ${esc(sec)} <b class="${cls(secP>PF.cfg.secMax/100)}">${pf(secP,0)}</b> (≤ ${PF.cfg.secMax}%) · mã này <b class="${cls(((PF.pos.find(x=>x.t===t)||{q:0}).q*p+val)/nav>PF.cfg.posMax/100)}">${pf(((PF.pos.find(x=>x.t===t)||{q:0}).q*p+val)/nav,0)}</b> (≤ ${PF.cfg.posMax}%)${rk!=null?` · rủi ro lệnh <b>${pf(rk/nav,2)}</b> · tổng rủi ro mở <b class="${cls((P.risk+rk)/nav>PF.cfg.riskMax/100)}">${pf((P.risk+rk)/nav,1)}</b> (≤ ${PF.cfg.riskMax}%)`:''}${PF.cash<val*(1+PF.cfg.fee/100)&&$('pfCash').checked?' · <b class="c-bad">không đủ tiền mặt</b>':''}`)}
+    $('pfSize').innerHTML=o.map(x=>`<div>${x}</div>`).join('')};
+  const pre=async()=>{const t=$('pfT').value.trim().toUpperCase();if(!pfKnown(t)){upd();return}
+    if(!$('pfP').value){const pr=pfPrice(t);if(pr)$('pfP').value=pr}upd();
+    const c=await pfData(t);if(c&&!c.none&&!$('pfS').value&&pfV('pfP'))$('pfS').value=pfFloor(pfV('pfP')-2*c.atr,pfEx(t));upd()};
+  $('pfT').addEventListener('change',pre);$('pfT').addEventListener('keydown',e=>{if(e.key==='Enter')pre()});
+  ['pfP','pfS','pfR','pfQ'].forEach(id=>$(id).addEventListener('input',upd));$('pfCash').addEventListener('change',upd);
+  $('pfSize').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.sug){$('pfS').value=b.dataset.sug;upd()}if(b.dataset.useq){$('pfQ').value=b.dataset.useq;upd()}};
+  if(t0)pre();else{upd();$('pfT').focus()}
+  $('pfSave').onclick=()=>{const t=$('pfT').value.trim().toUpperCase(),d=$('pfD').value||todayVN(),p=pfV('pfP'),q=pfV('pfQ'),s=pfV('pfS');
+    if(!pfKnown(t)){$('mMsg').textContent='Mã không có trong dữ liệu.';return}
+    if(!(p>0)||!(q>0)){$('mMsg').textContent='Nhập giá mua và số lượng.';return}
+    if(s!=null&&s>=p){$('mMsg').textContent='Cắt lỗ phải thấp hơn giá mua.';return}
+    const cur=PF.pos.find(x=>x.t===t);
+    if(cur){const nq=cur.q+q;cur.cost=Math.round((cur.cost*cur.q+p*q)/nq*100)/100;cur.q=nq;(cur.buys=cur.buys||[]).push({d,p,q});if(s>0)cur.stop0=s;if(d<cur.d0)cur.d0=d}
+    else PF.pos.push({id:Date.now().toString(36),t,q,cost:p,d0:d,stop0:s>0?s:null,buys:[{d,p,q}],why:($('pfWhy')||{}).value||'',risk:($('pfRisk')||{}).value||'',exit:($('pfExit')||{}).value||'',snap:pfSnap(t)});
+    if($('pfCash').checked&&PF.cashSet)PF.cash=Math.round(PF.cash-p*q*(1+PF.cfg.fee/100));
+    closeModal();savePF();pfRefresh()};
+}
+
+function pfSellForm(t){const ps=PF.pos.find(p=>p.t===t);if(!ps)return;const price=pfPrice(t)||ps.cost,fee=PF.cfg.fee/100,tax=PF.cfg.tax/100;
+  pfModal(`Bán ${esc(t)}`,`<p class="note" style="margin:0">Đang giữ ${nf(ps.q)} cp, giá vốn ${nf(ps.cost)} đ, mua từ ${fmtD(ps.d0)}.${ps.exit?` Điều kiện bán đã viết: <i>${esc(ps.exit)}</i>`:''}</p>
+    <div class="pf-fg">
+      <label class="f" for="pfQ">Số lượng bán (cp)<input id="pfQ" type="number" min="0" step="100" value="${ps.q}"></label>
+      <label class="f" for="pfP">Giá bán (đ/cp)<input id="pfP" type="number" min="0" step="10" value="${price}"></label>
+      <label class="f" for="pfD">Ngày bán<input id="pfD" type="date" value="${todayVN()}"></label>
+      <label class="f" for="pfWhyS">Lý do bán<select id="pfWhyS"><option value="">— Chọn lý do —</option>${PF_SELL_WHY.map(x=>`<option>${x}</option>`).join('')}</select></label>
+    </div>
+    <label class="f" for="pfNote">Ghi chú, bài học rút ra<textarea id="pfNote" rows="3" placeholder="VD: bán đúng kỷ luật; lẽ ra nên chờ Town VÀO trước khi mua"></textarea></label>
+    <div id="pfSize" class="pf-size"></div>
+    <div class="chk"><label for="pfCash"><input type="checkbox" id="pfCash" ${PF.cashSet?'checked':''}> Cộng tiền bán (sau phí ${PF.cfg.fee}% và thuế ${PF.cfg.tax}%) vào tiền mặt</label></div>
+    <div class="btns"><button class="primary" id="pfSave">Ghi lệnh bán</button><span class="muted" id="mMsg"></span></div>`);
+  const calc=()=>{const q=Math.min(pfV('pfQ')||0,ps.q),p=pfV('pfP')||0,buy=ps.cost*q*(1+fee),sell=p*q*(1-fee-tax),pl=sell-buy;
+    return {q,p,buy,sell,pl,r:buy>0?pl/buy:null,R:ps.stop0&&ps.cost>ps.stop0?(p-ps.cost)/(ps.cost-ps.stop0):null}};
+  const upd=()=>{const c=calc();$('pfSize').innerHTML=c.q>0&&c.p>0?`<div>Lãi/lỗ sau phí, thuế: <b class="${c.pl>0?'c-good':'c-bad'}">${(c.pl>=0?'+':'')+vnd(c.pl)} (${(c.r>0?'+':'')+pf(c.r,1)})</b>${c.R!=null?` · ${nf(c.R,2)}R (so với rủi ro ban đầu)`:''} · tiền về ${vnd(c.sell)}</div>`:''};
+  ['pfQ','pfP'].forEach(id=>$(id).addEventListener('input',upd));upd();
+  {const S=pfStop(ps),c=PFC[t],a=rows.find(x=>x.ticker===t),stk=pfSticker(a);$('pfWhyS').value=S.stop&&price<S.stop?'Chạm cắt lỗ':c&&!c.none&&c.wk&&c.wk.sig==='out'?'Town RA 3/3':stk&&ps.cost<stk&&price>=stk?'Chạm Sticker':''}
+  $('pfSave').onclick=()=>{const c=calc(),d=$('pfD').value||todayVN();if(!(c.q>0)||!(c.p>0)){$('mMsg').textContent='Nhập số lượng và giá bán.';return}
+    if(!$('pfWhyS').value){$('mMsg').textContent='Chọn lý do bán để nhật ký có ý nghĩa thống kê.';return}
+    PF.closed.unshift({t,d0:ps.d0,d1:d,p0:ps.cost,p1:c.p,q:c.q,stop0:ps.stop0||null,pl:Math.round(c.pl),r:c.r,R:c.R,days:Math.max(0,Math.round((Date.parse(d)-Date.parse(ps.d0))/864e5)),why:ps.why||'',exitWhy:$('pfWhyS').value,note:$('pfNote').value||''});
+    ps.q-=c.q;if(ps.q<=0)PF.pos=PF.pos.filter(x=>x!==ps);
+    if($('pfCash').checked&&PF.cashSet)PF.cash=Math.round(PF.cash+c.sell);
+    closeModal();savePF()};
+}
+
+function pfEditForm(t){const ps=PF.pos.find(p=>p.t===t);if(!ps)return;
+  pfModal(`Sửa vị thế ${esc(t)}`,`<div class="pf-fg">
+      <label class="f" for="pfQ">Số lượng (cp)<input id="pfQ" type="number" min="0" step="100" value="${ps.q}"></label>
+      <label class="f" for="pfP">Giá vốn bình quân (đ/cp)<input id="pfP" type="number" min="0" step="10" value="${ps.cost}"></label>
+      <label class="f" for="pfD">Ngày mua đầu tiên<input id="pfD" type="date" value="${esc(ps.d0)}"></label>
+      <label class="f" for="pfS">Cắt lỗ ban đầu (đ/cp)<input id="pfS" type="number" min="0" step="10" value="${ps.stop0||''}"></label>
+    </div>
+    <label class="f" for="pfWhy">Lý do mua<textarea id="pfWhy" rows="2">${esc(ps.why||'')}</textarea></label>
+    <label class="f" for="pfRisk">Rủi ro lớn nhất<textarea id="pfRisk" rows="2">${esc(ps.risk||'')}</textarea></label>
+    <label class="f" for="pfExit">Điều kiện bán<textarea id="pfExit" rows="2">${esc(ps.exit||'')}</textarea></label>
+    <p class="note" style="margin:0">Mua thêm hoặc bán thì dùng nút ＋ / Bán để giá vốn và nhật ký được tính đúng. Ô này chỉ để sửa nhầm lẫn. Cắt lỗ động đã dời lên ${ps.stopHi?nf(ps.stopHi):'—'}; <a href="#" id="pfResetHi">đặt lại</a>.</p>
+    <div class="btns"><button class="primary" id="pfSave">Lưu</button><button id="pfDel">Xóa vị thế (không ghi nhật ký)</button><span class="muted" id="mMsg"></span></div>`);
+  $('pfResetHi').onclick=e=>{e.preventDefault();delete ps.stopHi;$('mMsg').textContent='Đã đặt lại cắt lỗ động, bấm Lưu.'};
+  $('pfSave').onclick=()=>{const q=pfV('pfQ'),p=pfV('pfP'),s=pfV('pfS');if(!(q>0)||!(p>0)){$('mMsg').textContent='Số lượng và giá vốn phải lớn hơn 0.';return}
+    ps.q=q;ps.cost=p;ps.d0=$('pfD').value||ps.d0;ps.stop0=s>0?s:null;ps.why=$('pfWhy').value;ps.risk=$('pfRisk').value;ps.exit=$('pfExit').value;closeModal();savePF()};
+  $('pfDel').onclick=()=>{if(!confirm(`Xóa vị thế ${t} khỏi danh mục? Lệnh sẽ không được ghi vào nhật ký.`))return;PF.pos=PF.pos.filter(x=>x!==ps);closeModal();savePF()};
+}
+
+function pfSetForm(){const c=PF.cfg;
+  pfModal('⚙️ Thiết lập danh mục',`<div class="pf-fg">
+      <label class="f" for="pfCashV">Tiền mặt hiện có (đ)<input id="pfCashV" type="number" min="0" step="100000" value="${PF.cashSet?PF.cash:''}" placeholder="VD: 200000000"></label>
+      <label class="f" for="pfRt">Rủi ro mỗi lệnh (% tài sản)<input id="pfRt" type="number" min="0.1" max="5" step="0.1" value="${c.riskTrade}"></label>
+      <label class="f" for="pfRm">Tổng rủi ro mở tối đa (%)<input id="pfRm" type="number" min="1" max="30" step="0.5" value="${c.riskMax}"></label>
+      <label class="f" for="pfSm">Giới hạn 1 ngành (% tài sản)<input id="pfSm" type="number" min="5" max="100" step="5" value="${c.secMax}"></label>
+      <label class="f" for="pfPm">Giới hạn 1 mã (% tài sản)<input id="pfPm" type="number" min="5" max="100" step="5" value="${c.posMax}"></label>
+      <label class="f" for="pfFee">Phí giao dịch (%/chiều)<input id="pfFee" type="number" min="0" max="1" step="0.01" value="${c.fee}"></label>
+      <label class="f" for="pfTax">Thuế bán (%)<input id="pfTax" type="number" min="0" max="1" step="0.01" value="${c.tax}"></label>
+    </div>
+    <div class="chk"><label for="pfTr"><input type="checkbox" id="pfTr" ${c.trail?'checked':''}> Cắt lỗ động: đóng cửa cao nhất từ ngày mua − 2×ATR(14), chỉ dời lên</label></div>
+    <p class="note" style="margin:0">Mặc định theo Kim chỉ nam: rủi ro 1%/lệnh, tổng rủi ro mở ≤ 8%, 1 ngành ≤ 30%, 1 mã ≤ 20% (8–12 mã). Tỷ trọng cổ phiếu tối đa tự lấy theo nhiệt kế: ① Hoảng loạn 20% · ② Tạo đáy 40% · ③ Sóng tăng 100% · ④ Hưng phấn 60% · Trung tính 30% · Điều chỉnh 20%.</p>
+    <div class="btns"><button class="primary" id="pfSave">Lưu</button><span class="muted" id="mMsg"></span></div>`);
+  $('pfSave').onclick=()=>{const cv=pfV('pfCashV');if(cv!=null){PF.cash=cv;PF.cashSet=true}
+    const g=(id,k)=>{const v=pfV(id);if(v!=null&&v>=0)c[k]=v};g('pfRt','riskTrade');g('pfRm','riskMax');g('pfSm','secMax');g('pfPm','posMax');g('pfFee','fee');g('pfTax','tax');c.trail=$('pfTr').checked;
+    closeModal();savePF();pfRefresh()};
+}
+
+$('viewPf').addEventListener('click',e=>{const b=e.target.closest('[data-pf]');if(!b)return;e.preventDefault();const t=b.dataset.t,k=b.dataset.pf;
+  if(k==='add')pfBuyForm('');else if(k==='buy')pfBuyForm(t);else if(k==='sell')pfSellForm(t);else if(k==='edit')pfEditForm(t);else if(k==='set')pfSetForm();
+  else if(k==='chart')showChart(t);
+  else if(k==='refresh'){Object.keys(PFC).forEach(x=>delete PFC[x]);renderPF();pfRefresh()}
+  else if(k==='delc'){const i=+b.dataset.i,c=PF.closed[i];if(c&&confirm(`Xóa lệnh ${c.t} ngày ${fmtD(c.d1)} khỏi nhật ký?`)){PF.closed.splice(i,1);savePF()}}});
+
 try{$('mtBox').open=store.get('r1vn_mt_open',true)}catch(e){}
 $('mtBox').addEventListener('toggle',()=>store.set('r1vn_mt_open',$('mtBox').open));
-fillFilters();render();autoLoad().then(loadMarket);
+fillFilters();render();autoLoad().then(loadMarket).then(pfRefresh);
 </script>
 </body>
 </html>
