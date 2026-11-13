@@ -1,0 +1,30 @@
+name: Dò nguồn dữ liệu (tạm)
+
+on:
+  push:
+    branches: [main]
+    paths: ["tools/probe_fs.py"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -q requests pandas
+      - run: python -u tools/probe_fs.py
+      - name: Lưu kết quả
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diag/probe_fs.txt
+          git diff --cached --quiet && exit 0
+          git commit -m "Kết quả dò nguồn BCTC"
+          for i in 1 2 3; do git pull --rebase -X theirs && git push && exit 0; sleep 5; done
