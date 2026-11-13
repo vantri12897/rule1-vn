@@ -1,0 +1,46 @@
+name: Quét BCTC quý mới
+
+on:
+  schedule:
+    # 13:23 UTC = 20:23 giờ VN, thứ Hai–thứ Bảy (doanh nghiệp hay công bố BCTC chiều tối)
+    - cron: "23 13 * * 1-6"
+  push:
+    branches: [main]
+    paths: ["tools/new_quarters.py"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: new-quarters
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Cài thư viện
+        run: |
+          python -m pip install -q --upgrade pip
+          pip install -q requests pandas
+      - name: Quét BCTC quý mới
+        run: python -u tools/new_quarters.py
+      - name: Lưu newq.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add newq.json
+          if git diff --cached --quiet; then echo "Không có thay đổi."; exit 0; fi
+          git commit -m "BCTC quý mới $(TZ=Asia/Ho_Chi_Minh date +'%Y-%m-%d %H:%M')"
+          for i in 1 2 3; do
+            git rebase --abort 2>/dev/null || true
+            if git pull --rebase -X theirs --autostash && git push; then exit 0; fi
+            sleep 10
+          done
+          exit 1

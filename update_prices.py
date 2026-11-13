@@ -135,6 +135,32 @@ def flow_metrics(ch: dict, idx: dict | None) -> dict:
     return {k: x for k, x in m.items() if x is not None}
 
 
+def earnings_reaction(ch: dict, idx: dict | None, pub: str | None, today: date, max_days: int = 90):
+    """Phản ứng giá sau ngày công bố BCTC quý: [% giá từ phiên ngày công bố (hoặc phiên liền trước) tới nay,
+    % vượt/kém VN-Index cùng kỳ, số phiên đã qua]. Chỉ tính khi công bố trong max_days ngày."""
+    if not pub:
+        return None
+    try:
+        pd_ = datetime.strptime(pub[:10], "%Y-%m-%d").date()
+    except ValueError:
+        return None
+    if (today - pd_).days > max_days:
+        return None
+    t, c = ch.get("t", []), ch.get("c", [])
+    k = None
+    for i in range(len(t) - 1, -1, -1):
+        if t[i] <= pub[:10]:
+            k = i
+            break
+    if k is None or k >= len(c) - 1 or not c[k]:
+        return None
+    r = c[-1] / c[k] - 1
+    ex = None
+    if idx and idx.get(t[k]) and idx.get(t[-1]):
+        ex = (1 + r) / (idx[t[-1]] / idx[t[k]]) - 1
+    return [round(r, 4), None if ex is None else round(ex, 4), len(c) - 1 - k]
+
+
 def insider_cluster(path: Path, today: date, days: int = 90) -> dict:
     """Cụm mua nội bộ: số đối tượng khác nhau đăng ký MUA trong 90 ngày gần nhất và không có ai đăng ký BÁN."""
     if not path.exists():
@@ -323,6 +349,12 @@ def main():
         time.sleep(a.sleep)
 
     ins = insider_cluster(Path("insider.json"), datetime.now(VN_TZ).date())
+    newq = {}
+    try:
+        if Path("newq.json").exists():
+            newq = json.loads(Path("newq.json").read_text(encoding="utf-8")).get("items", {})
+    except Exception:  # noqa: BLE001
+        newq = {}
     # Khối ngoại: ghi nhận phiên hôm nay vào lịch sử (lưu trên nhánh charts-data, giữ 30 phiên)
     fhist = {}
     if charts_dir:
@@ -355,6 +387,9 @@ def main():
                     fm = flow_metrics(ch, idx_close)
                     if ins.get(sym):
                         fm.update(ins[sym])
+                    er = earnings_reaction(ch, idx_close, (newq.get(sym) or {}).get("pub"), datetime.now(VN_TZ).date())
+                    if er:
+                        fm["er"] = er
                     fh = fhist.get(sym, [])[-20:]
                     if fh:
                         fm["fn"] = round(sum(x[1] for x in fh), 2)  # khối ngoại mua ròng tối đa 20 phiên gần nhất, tỷ VND

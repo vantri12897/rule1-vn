@@ -217,6 +217,7 @@ class Finance:
             raise DataError("vndata chỉ hỗ trợ BCTC từ VCI")
         self.symbol = symbol.upper().strip()
         self.period = "year" if period in ("year", "Y") else "quarter"
+        self.public_dates = {}
         _vci_handshake()
         self.com_type_code = self._company_type()
 
@@ -283,6 +284,9 @@ class Finance:
                 return "N/A"
         df = df.copy()
         df["period"] = df.apply(label, axis=1) if ycol else df.index.astype(str)
+        # Ngày công bố từng kỳ (VCI: publicDate) — dùng cho nhãn "BCTC mới"
+        self.public_dates = ({p: str(d)[:10] for p, d in zip(df["period"], df["publicDate"]) if d}
+                             if "publicDate" in df.columns else {})
         out = df[["period"] + items].set_index("period").T
         out.index.name = "item_id"
         out = out.reset_index()
