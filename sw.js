@@ -35,7 +35,7 @@ self.addEventListener('activate', e => {
 
 // Trang gửi 'warm' ngay sau lần cài đầu: lưu sẵn dữ liệu đang có để mở được khi mất mạng
 self.addEventListener('message', e => {
-  if (e.data && e.data.type === 'warm') e.waitUntil(warm());
+  if (e.data && e.data.type === 'warm') e.waitUntil(warm(Array.isArray(e.data.charts) ? e.data.charts.slice(0, 40) : []));
 });
 
 self.addEventListener('fetch', e => {
@@ -121,7 +121,7 @@ async function trimCache(cache) {
   for (let i = 0; i < ks.length - MAX_CHARTS; i++) await cache.delete(ks[i]);
 }
 
-async function warm() {
+async function warm(charts) {
   const c = await caches.open(DATA);
   const get = async (path, cacheMode) => {
     try {
@@ -141,4 +141,18 @@ async function warm() {
     get('prices.json' + now, 'no-store'), get('trends.json' + now, 'no-store'),
     get('commodities.json' + now, 'no-store'), get('newq.json' + now, 'no-store'),
   ]);
+  // nến của nhiệt kế thị trường, danh mục nắm giữ và danh sách theo dõi (trang gửi danh sách địa chỉ)
+  const cc = await caches.open(CHART);
+  const ok = u => (u.origin === location.origin && u.href.startsWith(SCOPE)) || u.hostname === 'raw.githubusercontent.com';
+  const list = charts.map(h => { try { return new URL(h, SCOPE); } catch (_) { return null; } }).filter(u => u && ok(u));
+  for (let i = 0; i < list.length; i += 6) {
+    await Promise.all(list.slice(i, i + 6).map(async u => {
+      try {
+        if (await cc.match(keyOf(u), { ignoreSearch: true })) return;
+        const res = await fetch(u, { cache: 'no-cache' });
+        if (res.ok) await cc.put(keyOf(u), res);
+      } catch (_) {}
+    }));
+  }
+  await trimCache(cc);
 }

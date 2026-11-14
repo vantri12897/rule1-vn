@@ -1940,7 +1940,7 @@ function pwaInit(){
   if(PWA_DONE)return;PWA_DONE=true;
   if(!('serviceWorker' in navigator)||!(location.protocol==='https:'||location.hostname==='localhost'))return;
   const first=!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(reg=>{if(first&&reg.active)reg.active.postMessage({type:'warm'})}).catch(e=>console.warn('Service worker:',e));
+  navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(reg=>{if(first&&reg.active)reg.active.postMessage({type:'warm',charts:['BREADTH','VNINDEX',...((PF&&PF.pos)||[]).map(x=>x.t),...(WL||[])].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,40).map(chartUrl)})}).catch(e=>console.warn('Service worker:',e));
   if(IS_APP&&navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 }
 if(IS_APP){$('btnReload').hidden=false;document.documentElement.classList.add('is-app')}
