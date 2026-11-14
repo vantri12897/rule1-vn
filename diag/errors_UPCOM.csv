@@ -4,6 +4,7 @@ CCS,ValueError: Không có số cổ phiếu lưu hành
 DCV,ValueError: Không có số cổ phiếu lưu hành
 DTR,"ValueError: Không tìm thấy dòng BCTC: revenue, net_income, equity_total (chạy --inspect để xem tên dòng)"
 HAV,"ValueError: Không tìm thấy dòng BCTC: revenue, net_income, equity_total (chạy --inspect để xem tên dòng)"
+HGI,"ValueError: Không tìm thấy dòng BCTC: revenue, net_income, equity_total (chạy --inspect để xem tên dòng)"
 KHX,ValueError: Không có số cổ phiếu lưu hành
 NHD,ValueError: Không có số cổ phiếu lưu hành
 PLO,"ValueError: Không tìm thấy dòng BCTC: revenue, net_income, equity_total (chạy --inspect để xem tên dòng)"
@@ -12,3 +13,4 @@ TAH,ValueError: Không có số cổ phiếu lưu hành
 ULG,ValueError: Không có số cổ phiếu lưu hành
 V68,ValueError: Không có số cổ phiếu lưu hành
 VBT,ValueError: Không có số cổ phiếu lưu hành
+VUG,ValueError: Không có số cổ phiếu lưu hành
