@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Rule #1 Screener VN</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#f2f4f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1412" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rule1 VN">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="description" content="Lọc cổ phiếu Việt Nam theo phương pháp Phil Town: Big 5, Sticker Price, MOS Price, Payback Time.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
@@ -234,6 +244,8 @@ body{margin:0}
 #cvMarks{position:absolute;inset:8px;pointer-events:none;overflow:hidden;z-index:2}
 #cvMarks .bs{position:absolute;transform:translate(-50%,-50%);box-shadow:0 0 0 2px var(--surface);pointer-events:auto;cursor:default}
 #cvMarks .bs sup{position:absolute;top:-7px;right:-8px;font-size:.6rem;background:var(--ink);color:var(--surface);border-radius:6px;padding:0 3px;line-height:1.3}
+@media (max-width:700px){.is-app .top>div:first-child>p{display:none}.is-app .top>.btns{flex-wrap:nowrap;overflow-x:auto;width:100%;scrollbar-width:none;padding-bottom:2px}.is-app .top>.btns::-webkit-scrollbar{display:none}.is-app .top>.btns>*{flex:none}}
+.ig ol{margin:.2em 0 .6em;padding-left:1.3em}.ig li{margin:.45em 0;line-height:1.55}.ig .key{display:inline-block;min-width:1.6em;text-align:center;border:1px solid var(--line);border-radius:5px;padding:0 6px;background:var(--surface2);font-weight:600}
 </style>
 </head>
 <body>
@@ -245,6 +257,8 @@ body{margin:0}
       <p>Lọc cổ phiếu HOSE, HNX, UPCoM theo phương pháp Phil Town: Big 5, Sticker Price, MOS Price, Payback Time và chấm điểm 3M.</p>
     </div>
     <div class="btns">
+      <button id="btnInstall" class="primary" hidden title="Cài website thành app trên màn hình chính">📲 Cài app</button>
+      <button id="btnReload" hidden title="Tải lại dữ liệu mới nhất">🔄 Làm mới</button>
       <label class="filebtn" for="fileIn">Nạp dữ liệu CSV/JSON<input id="fileIn" type="file" accept=".csv,.json,.txt" hidden></label>
       <button id="btnPaste">Dán dữ liệu</button>
       <button id="btnTemplate">CSV mẫu</button>
@@ -1010,7 +1024,9 @@ function applyPrices(list){
   return n;
 }
 const brLab=v=>v<=20?'thị trường hoảng loạn, vùng Town tìm cơ hội':v<=35?'thị trường yếu':v>=80?'hưng phấn, thận trọng khi mua mới':v>=65?'thị trường mạnh':'trung tính';
-function bannerText(){
+let CACHE_NOTE='';// nhãn ngoại tuyến do service worker báo (app điện thoại)
+function bannerText(){return LOADING?bannerBase():CACHE_NOTE+bannerBase()}
+function bannerBase(){
   if(LOADING)return 'Đang tải dữ liệu báo cáo tài chính và giá mới nhất…';
   if(isSample)return 'Đang hiển thị 10 mã GIẢ LẬP (công ty và số liệu hư cấu) để minh họa công thức. Nạp file CSV/JSON báo cáo tài chính thật để lọc thị trường thực.';
   const src=DATA_SRC==='auto'?'dữ liệu BCTC trên website':'file bạn nạp';
@@ -1909,10 +1925,57 @@ $('viewPf').addEventListener('click',e=>{const b=e.target.closest('[data-pf]');i
   else if(k==='refresh'){Object.keys(PFC).forEach(x=>delete PFC[x]);renderPF();pfRefresh()}
   else if(k==='delc'){const i=+b.dataset.i,c=PF.closed[i];if(c&&confirm(`Xóa lệnh ${c.t} ngày ${fmtD(c.d1)} khỏi nhật ký?`)){PF.closed.splice(i,1);savePF()}}});
 
+/* ===== App điện thoại (PWA): cài lên màn hình chính, mở toàn màn hình, xem được khi mất mạng ===== */
+const IS_APP=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const UA=navigator.userAgent,IS_IOS=/iPad|iPhone|iPod/.test(UA)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),IS_INAPP=/Zalo|FBAN|FBAV|FB_IAB|Instagram|Line\//i.test(UA);
+let INSTALL_EVT=null;
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.addEventListener('message',e=>{const m=e.data||{};if(m.type!=='r1vn-cache')return;
+    CACHE_NOTE=m.kind==='offline'?'📴 Đang ngoại tuyến: hiển thị dữ liệu đã lưu trên máy lần gần nhất. ':'🐢 Mạng chậm: tạm hiển thị dữ liệu đã lưu trên máy; bấm Làm mới khi mạng ổn để lấy bản mới. ';
+    if(!LOADING)$('dataBanner').textContent=bannerText()});
+  addEventListener('online',()=>{if(CACHE_NOTE){CACHE_NOTE='🔄 Đã có mạng lại: bấm Làm mới để lấy dữ liệu mới. ';$('dataBanner').textContent=bannerText()}});
+}
+let PWA_DONE=false;
+function pwaInit(){
+  if(PWA_DONE)return;PWA_DONE=true;
+  if(!('serviceWorker' in navigator)||!(location.protocol==='https:'||location.hostname==='localhost'))return;
+  const first=!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(reg=>{if(first&&reg.active)reg.active.postMessage({type:'warm'})}).catch(e=>console.warn('Service worker:',e));
+  if(IS_APP&&navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+}
+if(IS_APP){$('btnReload').hidden=false;document.documentElement.classList.add('is-app')}
+$('btnReload').onclick=()=>location.reload();
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();INSTALL_EVT=e;if(!IS_APP)$('btnInstall').hidden=false});
+addEventListener('appinstalled',()=>{INSTALL_EVT=null;$('btnInstall').hidden=true});
+if(!IS_APP&&(IS_IOS||matchMedia('(pointer:coarse)').matches))$('btnInstall').hidden=false;
+const SHARE_ICO='<svg width="15" height="18" viewBox="0 0 15 18" aria-hidden="true" style="vertical-align:-3px"><path d="M7.5 1v10M4 4.5 7.5 1 11 4.5M5 7H2.5v9.5h10V7H10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function installGuide(){
+  if(IS_INAPP)return `<div class="ig"><p>Bạn đang mở trang trong trình duyệt của Zalo / Facebook, trình duyệt này <b>không cài được app</b>.</p><ol><li>Bấm nút <span class="key">⋯</span> hoặc <span class="key">⋮</span> ở góc màn hình → <b>Mở bằng trình duyệt</b> (${IS_IOS?'Safari':'Chrome'}).</li><li>Trong ${IS_IOS?'Safari':'Chrome'}, bấm lại nút <b>📲 Cài app</b>.</li></ol></div>`;
+  if(IS_IOS)return `<div class="ig"><ol><li>Mở trang này bằng <b>Safari</b> (hoặc Chrome trên iOS 16.4 trở lên).</li><li>Bấm nút <b>Chia sẻ</b> <span class="key">${SHARE_ICO}</span> ở thanh dưới (iPad: góc trên).</li><li>Kéo xuống, chọn <b>Thêm vào MH chính</b> (Add to Home Screen) → <b>Thêm</b>.</li><li>Mở app <b>Rule1 VN</b> từ màn hình chính.</li></ol>
+    <p class="note">⚠️ Trên iPhone, app có bộ nhớ riêng, tách khỏi Safari: danh mục nắm giữ, điểm 3M, danh sách theo dõi đã nhập ở Safari <b>không tự sang app</b>. Bấm <b>Sao chép bản sao lưu</b> dưới đây, mở app → <b>Sao lưu 3M &amp; danh mục</b> → dán → <b>Khôi phục</b>. Bù lại, dữ liệu trong app không bị Safari tự xóa khi lâu không mở.</p>
+    <div class="btns"><button class="primary" id="igCopy">Sao chép bản sao lưu</button><span class="muted" id="igMsg"></span></div></div>`;
+  return `<div class="ig"><ol><li>Mở trang này bằng <b>Chrome</b> (hoặc Samsung Internet, Edge).</li><li>Bấm nút <span class="key">⋮</span> ở góc trên → <b>Cài đặt ứng dụng</b> hoặc <b>Thêm vào màn hình chính</b> → <b>Cài đặt</b>.</li><li>Mở app <b>Rule1 VN</b> từ màn hình chính.</li></ol><p class="note">Trên Android, app dùng chung dữ liệu với Chrome: danh mục và điểm 3M đã nhập vẫn còn nguyên.</p></div>`;
+}
+$('btnInstall').onclick=async()=>{
+  if(INSTALL_EVT){const ev=INSTALL_EVT;INSTALL_EVT=null;ev.prompt();const r=await ev.userChoice.catch(()=>null);if(r&&r.outcome==='accepted')$('btnInstall').hidden=true;return}
+  pfModal('📲 Cài Rule1 VN lên màn hình chính',installGuide()+'<p class="note">App mở toàn màn hình, khởi động nhanh và vẫn xem được dữ liệu lần gần nhất khi mất mạng. Giá và BCTC vẫn tự cập nhật mỗi lần mở khi có mạng.</p>');
+  const c=$('igCopy');if(c)c.onclick=()=>{const t=JSON.stringify({m3:M3,gOverride:GOV,watch:WL,pf:PF});
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>$('igMsg').textContent='Đã sao chép.',()=>{$('igMsg').textContent='Không sao chép tự động được, hãy dùng nút "Sao lưu 3M & danh mục".'})};
+};
+// Nút Quay lại của điện thoại đóng khung chi tiết / hộp thoại thay vì thoát app
+(()=>{let skip=0;const lay=()=>(!$('drawerRoot').hidden)+(!$('modalRoot').hidden),dep=()=>(history.state&&history.state.r1ov)||0;
+  const sync=()=>{const v=lay(),d=dep();if(v>d)history.pushState({r1ov:v},'');else if(d>v){skip++;history.go(v-d)}};
+  const mo=new MutationObserver(sync);['drawerRoot','modalRoot'].forEach(id=>mo.observe($(id),{attributes:true,attributeFilter:['hidden']}));
+  addEventListener('popstate',()=>{if(skip){skip--;return}const d=dep();if(!$('modalRoot').hidden&&lay()>d)closeModal();if(!$('drawerRoot').hidden&&lay()>d)closeDetail()})})();
+// Lối tắt của app: ?tab=pf (Danh mục) / ?tab=chart (Biểu đồ)
+const START_TAB=new URLSearchParams(location.search).get('tab');
+if(START_TAB)try{history.replaceState(history.state,'',location.pathname)}catch(e){}
+addEventListener('load',()=>setTimeout(pwaInit,10000));// dự phòng nếu chuỗi tải dữ liệu lỗi
+
 try{$('mtBox').open=store.get('r1vn_mt_open',true)}catch(e){}
 $('mtBox').addEventListener('toggle',()=>store.set('r1vn_mt_open',$('mtBox').open));
-fillFilters();render();
-{const mk=loadMarket();autoLoad().then(()=>mk).then(()=>{renderMT();$('dataBanner').textContent=bannerText()}).then(pfRefresh).then(()=>{const idle=window.requestIdleCallback||(f=>setTimeout(f,1500));idle(()=>{loadLWC().catch(()=>{});loadInsider()})})}
+fillFilters();render();if(START_TAB==='pf')setTab('pf');
+{const mk=loadMarket();autoLoad().then(()=>mk).then(()=>{renderMT();$('dataBanner').textContent=bannerText();if(START_TAB==='chart')setTab('chart')}).then(pfRefresh).then(()=>{const idle=window.requestIdleCallback||(f=>setTimeout(f,1500));idle(()=>{loadLWC().catch(()=>{});loadInsider();pwaInit()})})}
 </script>
 </body>
 </html>

@@ -1,0 +1,24 @@
+{
+  "id": "./",
+  "name": "Rule #1 Screener VN",
+  "short_name": "Rule1 VN",
+  "description": "Lọc cổ phiếu Việt Nam theo phương pháp Phil Town: Big 5, Sticker Price, MOS Price, Payback Time, biểu đồ nến và danh mục nắm giữ.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f2f4f1",
+  "theme_color": "#f2f4f1",
+  "categories": ["finance", "business", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Danh mục nắm giữ", "short_name": "Danh mục", "url": "./?tab=pf", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Biểu đồ nến", "short_name": "Biểu đồ", "url": "./?tab=chart", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+  ]
+}
