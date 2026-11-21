@@ -1,3 +1,4 @@
 ﻿ticker,error
+AMY,ConnectionError: Không lấy được giá từ KBS/VCI: vndata chỉ hỗ trợ giá lịch sử từ KBS (yêu cầu nguồn vci)
 DMX,ValueError: Không có số cổ phiếu lưu hành
 DVV,ValueError: Không có số cổ phiếu lưu hành
